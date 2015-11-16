@@ -4,7 +4,7 @@ Painter Group implementation of Instrument control with Julia. Work in progress,
 
 ## Documentation
 
-Julia code for VISA forked from the Instruments.jl package [online](http://instrumentsjl.readthedocs.org/).
+Julia code for VISA forked from the [Instruments.jl package](http://instrumentsjl.readthedocs.org/). It is now available in its [own module](https://github.com/ajkeller34/VISA.jl) which is required to run this code.
 
 Other documentation forthcoming.
 
