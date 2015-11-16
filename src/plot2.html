@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8" />
+
+<head>
+  <title>Real-time x-y trace</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:600,400,300" rel="stylesheet" type="text/css">
+  <link href="./plot.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <!--
+      Include these javascript files.
+      d3: v3 is recommended
+      jQuery: plotly.js ships with v1.8 but supports v1.7 through v1.10
+      the weird typedarray.js code is a polyfill, primarily for IE9, that does not
+      natively support typed numeric arrays
+  -->
+  <script type="text/javascript" src="dependencies/d3.v3.min.js"></script>
+  <script type="text/javascript" src="dependencies/jquery-latest.js"></script>
+  <script>if(typeof window.Int16Array !== 'function')document.write("<scri"+"pt src='dependencies/typedarray.js'></scr"+"ipt>");</script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+
+  <script language="javascript" type="text/javascript">
+
+    var axisTemplate = {
+      // range: [0, 1.6],
+      showgrid: false,
+      showline: true,
+      zeroline: false,
+      linecolor: 'black',
+      mirror: false,
+      showticklabels: true,
+      nticks: 5,
+      ticks: 'outside',
+      ticklen: 5,
+      tickfont: {
+        family:'sans-serif',
+        size:10
+      }
+    };
+
+    var axisTemplate2 = {
+      // range: [0, 1.6],
+      showgrid: false,
+      showline: true,
+      zeroline: false,
+      linecolor: 'black',
+      mirror: false,
+      showticklabels: true,
+      nticks: 5,
+      ticks: 'outside',
+      ticklen: 5,
+      tickfont: {
+        family:'sans-serif',
+        size:10
+      }
+    };
+
+    layout = {
+      //title: 'Real-time x-y trace',
+      xaxis: axisTemplate,
+      yaxis: axisTemplate2,
+      showlegend: false,
+      autosize: "initial",
+      // margin: {
+      //   l: 60,
+      //   r: 40,
+      //   t: 40,
+      //   b: 40
+      // }
+    };
+
+    var wsUri = "ws://localhost:8080";
+    var output;
+
+    xArray=[];
+    yArray=[];
+    zArray=[];
+
+    first = true;
+
+    colorscaleValue = [
+      [0, '#3D9970'],
+      [1, '#001f3f']
+    ];
+
+    data = [{
+      type: 'scatter',
+      x: xArray,
+      y: yArray,
+      z: zArray,
+      zmax: 0,
+      zmin: 0,
+      colorscale: colorscaleValue,
+      name: 'yArray',
+      marker: {
+        color: 'black'
+      }
+    }];
+
+    function init()
+    {
+      output = document.getElementById("output");
+      websocket = new WebSocket(wsUri);
+      websocket.onopen = function(evt) { onOpen(evt) };
+      websocket.onclose = function(evt) { onClose(evt) };
+      websocket.onmessage = function(evt) { onMessage(evt) };
+      websocket.onerror = function(evt) { onError(evt) };
+    }
+
+    function onOpen(evt)
+    {
+      Plotly.newPlot(output, data, layout);
+      writeToScreen("CONNECTED");
+    }
+
+    function onClose(evt)
+    {
+      writeToScreen("DISCONNECTED");
+    }
+
+    function onMessage(evt)
+    {
+      //writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data+'</span>');
+      var jsonData = JSON.parse(evt.data);
+      if (jsonData.hasOwnProperty('message')) {
+        if (jsonData['message'] == 'data') {
+          if (jsonData.hasOwnProperty('y')) {
+            data[0].y.push(jsonData['y']);
+            data[0].x.push(jsonData['x']);
+          } else if (jsonData.hasOwnProperty('z')) {
+            data[0].z[jsonData['j']][jsonData['i']] = jsonData['z'];
+            if (first == true) {
+              first = false;
+              data[0].zmax = jsonData['z'];
+              data[0].zmin = jsonData['z']-0.000001;  // cheap
+            } else if (jsonData['z'] > data[0].zmax) {
+              data[0].zmax = jsonData['z'];
+              // Plotly.relayout(output,layout);
+            } else if (jsonData['z'] < data[0].zmin) {
+              data[0].zmin = jsonData['z'];
+              // Plotly.relayout(output,layout);
+            }
+          }
+        } else if (jsonData['message'] == 'start') {
+          first = true;
+          layout.xaxis.title = jsonData['xlabel'];
+          layout.yaxis.title = jsonData['ylabel'];
+          if (jsonData['dataType'] == 'scatter') {
+            data[0].type = jsonData['dataType'];
+            data[0].x = new Array();
+            data[0].y = new Array();
+            data[0].z = new Array();
+          } else if (jsonData['dataType'] == 'heatmap') {
+            data[0].type = jsonData['dataType'];
+            data[0].x = jsonData['xpoints'];
+            data[0].y = jsonData['ypoints'];
+            var xlen = data[0].x.length;
+            var ylen = data[0].y.length;
+            data[0].z = new Array(ylen);
+            for (var j = 0; j < ylen; j++) {
+              data[0].z[j] = new Array(xlen);
+              for (var i = 0; i < xlen; i++) {
+                data[0].z[j][i] = NaN;
+              }
+            }
+          }
+          Plotly.relayout(output,layout);
+        }
+      }
+      Plotly.redraw(output);
+    }
+    //   for (var key in jsonData) {
+    //      if (jsonData.hasOwnProperty(key)) {
+    //        if (key=='x') {
+    //          if (data[0].type == 'scatter') {
+    //            data[0].x.push(jsonData[key]);
+    //          }
+    //        } else if (key=='y') {
+    //           if (data[0].type == 'scatter') {
+    //             data[0].y.push(jsonData[key]);
+    //           }
+    //        } else if (key=='z') {
+    //          data[0].z.push(jsonData[key]);
+    //        } else {
+    //            data[0].x = new Array();
+    //            data[0].y = new Array();
+    //            data[0].z = new Array();
+    //            if (key=='datatype') {
+    //              data[0].type = jsonData[key];
+    //            } else if (key=='xlabel') {
+    //              layout.xaxis.title = jsonData[key];
+    //            } else if (key=='ylabel') {
+    //              layout.yaxis.title = jsonData[key];
+    //            }
+    //            Plotly.relayout(output,layout);
+    //        }
+    //      }
+    //   }
+    //
+    //   Plotly.redraw(output);
+    // }
+
+    function onError(evt)
+    {
+      writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+    }
+
+    function writeToScreen(message)
+    {
+      var pre = document.createElement("p");
+      pre.style.wordWrap = "break-word";
+      pre.innerHTML = message;
+      output.appendChild(pre);
+    }
+
+    window.addEventListener("load", init, false);
+
+  </script>
+
+  <h2>Real-time x-y trace</h2>
+
+  <div id="output"></div>
+
+</body>
