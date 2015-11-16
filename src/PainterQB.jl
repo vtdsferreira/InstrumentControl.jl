@@ -1,5 +1,3 @@
-@windows? include("visa\\VISA.jl") : include("visa/VISA.jl")
-
 module PainterQB
 #
 # export Channel, Input, Output, BufferedInput, BufferedOutput, VirtualOutput
