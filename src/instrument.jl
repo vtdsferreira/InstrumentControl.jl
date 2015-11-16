@@ -72,9 +72,9 @@ abstract InstrumentDataPacking <: InstrumentCode
 abstract InstrumentCoupling <: InstrumentCode
 
 immutable InstrumentException <: Exception
-		ins::Instrument
-		val::Int64
-		humanReadable::UTF8String
+        ins::Instrument
+        val::Int64
+        humanReadable::UTF8String
 end
 Base.showerror(io::IO, e::InstrumentException) = print(io, "$(e.ins): $(e.humanReadable) (error code $(e.val))")
 
@@ -82,136 +82,136 @@ Base.showerror(io::IO, e::InstrumentException) = print(io, "$(e.ins): $(e.humanR
 # of InstrumentCode (see just above for some examples). The keys are strings containing
 # the names of the concrete types, and the values are the respective abstract types.
 subtypesArray = [
-    (:AC							, InstrumentCoupling),
-	(:DC							, InstrumentCoupling),
+    (:AC,                       InstrumentCoupling),
+    (:DC,                       InstrumentCoupling),
 
-	(:DHCP 							, InstrumentNetwork),
-	(:ManualNetwork 				, InstrumentNetwork),
+    (:DHCP,                     InstrumentNetwork),
+    (:ManualNetwork,            InstrumentNetwork),
 
-	(:Stop							, InstrumentState),
-	(:Run							, InstrumentState),
-	(:Wait							, InstrumentState),
+    (:Stop,                     InstrumentState),
+    (:Run,                      InstrumentState),
+    (:Wait,                     InstrumentState),
 
-	(:Asynchronous					, InstrumentTiming),	#AWG5014C
-	(:Synchronous					, InstrumentTiming),
-	(:Before						, InstrumentTiming),	#E5071C
-	(:After							, InstrumentTiming),
+    (:Asynchronous,             InstrumentTiming),    #AWG5014C
+    (:Synchronous,              InstrumentTiming),
+    (:Before,                   InstrumentTiming),    #E5071C
+    (:After,                    InstrumentTiming),
 
-	(:ClockRising					, InstrumentClockSlope),
-	(:ClockFalling					, InstrumentClockSlope),
+    (:ClockRising,              InstrumentClockSlope),
+    (:ClockFalling,             InstrumentClockSlope),
 
-	(:RisingTrigger					, InstrumentTriggerSlope),
-	(:FallingTrigger				, InstrumentTriggerSlope),
+    (:RisingTrigger,            InstrumentTriggerSlope),
+    (:FallingTrigger,           InstrumentTriggerSlope),
 
-	(:RisingEvent					, InstrumentEventSlope),
-	(:FallingEvent					, InstrumentEventSlope),
+    (:RisingEvent,              InstrumentEventSlope),
+    (:FallingEvent,             InstrumentEventSlope),
 
-	(:PositivePolarity				, InstrumentPolarity),
-	(:NegativePolarity				, InstrumentPolarity),
+    (:PositivePolarity,         InstrumentPolarity),
+    (:NegativePolarity,         InstrumentPolarity),
 
-	(:InternalClock					, InstrumentClockSource),
-	(:ExternalClock					, InstrumentClockSource),
+    (:InternalClock,            InstrumentClockSource),
+    (:ExternalClock,            InstrumentClockSource),
 
-	(:InternalTrigger				, InstrumentTriggerSource),
-	(:ExternalTrigger				, InstrumentTriggerSource),
-	(:ManualTrigger					, InstrumentTriggerSource),
-	(:BusTrigger					, InstrumentTriggerSource),
+    (:InternalTrigger,          InstrumentTriggerSource),
+    (:ExternalTrigger,          InstrumentTriggerSource),
+    (:ManualTrigger,            InstrumentTriggerSource),
+    (:BusTrigger,               InstrumentTriggerSource),
 
-	(:InternalOscillator			, InstrumentOscillatorSource),
-	(:ExternalOscillator			, InstrumentOscillatorSource),
+    (:InternalOscillator,       InstrumentOscillatorSource),
+    (:ExternalOscillator,       InstrumentOscillatorSource),
 
-	(:Triggered						, InstrumentTrigger),
-	(:Continuous				    , InstrumentTrigger),
-	(:Gated							, InstrumentTrigger),
-	(:Sequence						, InstrumentTrigger),
+    (:Triggered,                InstrumentTrigger),
+    (:Continuous,               InstrumentTrigger),
+    (:Gated,                    InstrumentTrigger),
+    (:Sequence,                 InstrumentTrigger),
 
-	(:Ohm50						    , InstrumentImpedance),
-	(:Ohm1k							, InstrumentImpedance),
+    (:Ohm50,                    InstrumentImpedance),
+    (:Ohm1k,                    InstrumentImpedance),
 
-	(:Local							, InstrumentLock),
-	(:Remote						, InstrumentLock),
+    (:Local,                    InstrumentLock),
+    (:Remote,                   InstrumentLock),
 
-	(:Max							, InstrumentSearch),
-	(:Min							, InstrumentSearch),
-	(:Peak							, InstrumentSearch),
-	(:LeftPeak						, InstrumentSearch),
-	(:RightPeak						, InstrumentSearch),
-	(:Target						, InstrumentSearch),
-	(:LeftTarget					, InstrumentSearch),
-	(:RightTarget					, InstrumentSearch),
+    (:Max,                      InstrumentSearch),
+    (:Min,                      InstrumentSearch),
+    (:Peak,                     InstrumentSearch),
+    (:LeftPeak,                 InstrumentSearch),
+    (:RightPeak,                InstrumentSearch),
+    (:Target,                   InstrumentSearch),
+    (:LeftTarget,               InstrumentSearch),
+    (:RightTarget,              InstrumentSearch),
 
-	(:S11							, InstrumentSParameter),
-	(:S12							, InstrumentSParameter),
-	(:S21							, InstrumentSParameter),
-	(:S22						    , InstrumentSParameter),
+    (:S11,                      InstrumentSParameter),
+    (:S12,                      InstrumentSParameter),
+    (:S21,                      InstrumentSParameter),
+    (:S22,                      InstrumentSParameter),
 
-	(:Coaxial						, InstrumentMedium),
-	(:Waveguide						, InstrumentMedium),
+    (:Coaxial,                  InstrumentMedium),
+    (:Waveguide,                InstrumentMedium),
 
-	(:Rate1kSps						, InstrumentSampleRate),
- 	(:Rate2kSps						, InstrumentSampleRate),
- 	(:Rate5kSps						, InstrumentSampleRate),
- 	(:Rate10kSps					, InstrumentSampleRate),
- 	(:Rate20kSps					, InstrumentSampleRate),
- 	(:Rate50kSps					, InstrumentSampleRate),
- 	(:Rate100kSps					, InstrumentSampleRate),
- 	(:Rate200kSps					, InstrumentSampleRate),
- 	(:Rate500kSps					, InstrumentSampleRate),
- 	(:Rate1MSps						, InstrumentSampleRate),
- 	(:Rate2MSps						, InstrumentSampleRate),
- 	(:Rate5MSps						, InstrumentSampleRate),
- 	(:Rate10MSps					, InstrumentSampleRate),
- 	(:Rate20MSps					, InstrumentSampleRate),
- 	(:Rate50MSps					, InstrumentSampleRate),
- 	(:Rate100MSps					, InstrumentSampleRate),
- 	(:Rate200MSps					, InstrumentSampleRate),
- 	(:Rate500MSps					, InstrumentSampleRate),
- 	(:Rate800MSps					, InstrumentSampleRate),
- 	(:Rate1000MSps					, InstrumentSampleRate),
- 	(:Rate1200MSps					, InstrumentSampleRate),
- 	(:Rate1500MSps					, InstrumentSampleRate),
- 	(:Rate1800MSps					, InstrumentSampleRate),
-	(:RateUser						, InstrumentSampleRate),
+    (:Rate1kSps,                InstrumentSampleRate),
+    (:Rate2kSps,                InstrumentSampleRate),
+    (:Rate5kSps,                InstrumentSampleRate),
+    (:Rate10kSps,               InstrumentSampleRate),
+    (:Rate20kSps,               InstrumentSampleRate),
+    (:Rate50kSps,               InstrumentSampleRate),
+    (:Rate100kSps,              InstrumentSampleRate),
+    (:Rate200kSps,              InstrumentSampleRate),
+    (:Rate500kSps,              InstrumentSampleRate),
+    (:Rate1MSps,                InstrumentSampleRate),
+    (:Rate2MSps,                InstrumentSampleRate),
+    (:Rate5MSps,                InstrumentSampleRate),
+    (:Rate10MSps,               InstrumentSampleRate),
+    (:Rate20MSps,               InstrumentSampleRate),
+    (:Rate50MSps,               InstrumentSampleRate),
+    (:Rate100MSps,              InstrumentSampleRate),
+    (:Rate200MSps,              InstrumentSampleRate),
+    (:Rate500MSps,              InstrumentSampleRate),
+    (:Rate800MSps,              InstrumentSampleRate),
+    (:Rate1000MSps,             InstrumentSampleRate),
+    (:Rate1200MSps,             InstrumentSampleRate),
+    (:Rate1500MSps,             InstrumentSampleRate),
+    (:Rate1800MSps,             InstrumentSampleRate),
+    (:RateUser,                 InstrumentSampleRate),
 
-	(:LogMagnitude					, InstrumentDataRepresentation),
-	(:Phase							, InstrumentDataRepresentation),
-	(:GroupDelay					, InstrumentDataRepresentation),
-	(:SmithLinear					, InstrumentDataRepresentation),
-	(:SmithLog						, InstrumentDataRepresentation),
-	(:SmithComplex					, InstrumentDataRepresentation),
-	(:Smith							, InstrumentDataRepresentation),
-	(:SmithAdmittance				, InstrumentDataRepresentation),
-	(:PolarLinear					, InstrumentDataRepresentation),
-	(:PolarLog						, InstrumentDataRepresentation),
-	(:PolarComplex					, InstrumentDataRepresentation),
-	(:LinearMagnitude				, InstrumentDataRepresentation),
-	(:SWR							, InstrumentDataRepresentation),
-	(:RealPart						, InstrumentDataRepresentation),
-	(:ImaginaryPart					, InstrumentDataRepresentation),
-	(:ExpandedPhase					, InstrumentDataRepresentation),
-	(:PositivePhase					, InstrumentDataRepresentation),
+    (:LogMagnitude,             InstrumentDataRepresentation),
+    (:Phase,                    InstrumentDataRepresentation),
+    (:GroupDelay,               InstrumentDataRepresentation),
+    (:SmithLinear,              InstrumentDataRepresentation),
+    (:SmithLog,                 InstrumentDataRepresentation),
+    (:SmithComplex,             InstrumentDataRepresentation),
+    (:Smith,                    InstrumentDataRepresentation),
+    (:SmithAdmittance,          InstrumentDataRepresentation),
+    (:PolarLinear,              InstrumentDataRepresentation),
+    (:PolarLog,                 InstrumentDataRepresentation),
+    (:PolarComplex,             InstrumentDataRepresentation),
+    (:LinearMagnitude,          InstrumentDataRepresentation),
+    (:SWR,                      InstrumentDataRepresentation),
+    (:RealPart,                 InstrumentDataRepresentation),
+    (:ImaginaryPart,            InstrumentDataRepresentation),
+    (:ExpandedPhase,            InstrumentDataRepresentation),
+    (:PositivePhase,            InstrumentDataRepresentation),
 
-    (:DefaultPacking                , InstrumentDataPacking),
-    (:Pack8Bits                     , InstrumentDataPacking),
-    (:Pack12Bits                    , InstrumentDataPacking)
+    (:DefaultPacking,           InstrumentDataPacking),
+    (:Pack8Bits,                InstrumentDataPacking),
+    (:Pack12Bits,               InstrumentDataPacking)
 
 ]::Array{Tuple{Symbol,DataType},1}
 
 function createCodeType(subtype::Symbol, supertype::DataType)
-	@eval immutable ($subtype){T} <: $supertype
-			ins::Instrument
-			state::T
-	#		Test3(a,b)=new(a,b)
-	#    Test3()=new()
-		end
-		# Test3{T}(a::PainterQB.Instrument,b::T) = Test3{T}(a,b)
-		# Test3() = Test3{Void}()
-	@eval export $subtype
+    @eval immutable ($subtype){T} <: $supertype
+            ins::Instrument
+            state::T
+    #        Test3(a,b)=new(a,b)
+    #    Test3()=new()
+        end
+        # Test3{T}(a::PainterQB.Instrument,b::T) = Test3{T}(a,b)
+        # Test3() = Test3{Void}()
+    @eval export $subtype
 end
 
 # Create all the concrete types we need using the createCodeType function.
 for ((subtypeSymb,supertype) in subtypesArray)
-	createCodeType(subtypeSymb, supertype)
+    createCodeType(subtypeSymb, supertype)
 end
 
 # Note that it is tempting to do this as a macro, but you are not allowed to
@@ -238,12 +238,12 @@ then we would have the functions:
 
 ```
 function triggerSource(ins::AWG5014C)
-	result = query(ins, "TRIG:REF?")
-	InstrumentTriggerSource(ins,result)
+    result = query(ins, "TRIG:REF?")
+    InstrumentTriggerSource(ins,result)
 end
 
 function setTriggerSource(ins::AWG5014C, x::InstrumentTriggerSource)
-	write(ins, string("TRIG:REF ",x.state))
+    write(ins, string("TRIG:REF ",x.state))
 end
 ```
 
@@ -281,27 +281,27 @@ function createStateFunction{S<:Instrument,T<:Union{InstrumentCode,Number,Abstra
 
     createGettingFunction(instrumentType,fnName,command,setArgType)
 
-	# Create setting function?
-	if (command[end]=='?')
-		return
-	end
+    # Create setting function?
+    if (command[end]=='?')
+        return
+    end
 
     createSettingFunction(instrumentType,fnName,command,setArgType)
 
 end
 
 function createStateFunction{S<:Instrument}(instrumentType::Type{S}, fnName::ASCIIString, command::ASCIIString, setArgType::Type{InstrumentNoArgs})
-	nameSymb = symbol(fnName)
+    nameSymb = symbol(fnName)
 
-	@eval function ($nameSymb)(ins::$instrumentType, infixes::Int64...)
-		cmd = $command
-		for (infix in infixes)
-			cmd = replace(cmd,"#",infix,1)
-		end
-		write(ins, string(cmd))
-	end
+    @eval function ($nameSymb)(ins::$instrumentType, infixes::Int64...)
+        cmd = $command
+        for (infix in infixes)
+            cmd = replace(cmd,"#",infix,1)
+        end
+        write(ins, string(cmd))
+    end
 
-	@eval export $nameSymb
+    @eval export $nameSymb
 end
 
 function createStateFunction{S<:Instrument}(instrumentType::Type{S},fnName::ASCIIString, command::ASCIIString, setArgType::Type{InstrumentException})
@@ -320,7 +320,7 @@ end
 function createGettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType::Type{S},
         fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
-	readNameSymb = symbol(fnName)
+    readNameSymb = symbol(fnName)
     @eval function ($readNameSymb)(ins::$instrumentType, infixes::Int64...)
         cmd = $command
         for (infix in infixes)
@@ -350,29 +350,29 @@ end
 function createSettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType::Type{S},
         fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
-	setNameSymb = symbol(string("set",ucfirst(fnName)))
+    setNameSymb = symbol(string("set",ucfirst(fnName)))
 
     # Take object as argument
-	@eval function ($setNameSymb)(ins::$instrumentType, x::$setArgType, infixes::Int64...)
-		cmd = $command
-		for (infix in infixes)
-			cmd = replace(cmd,"#",infix,1)
-		end
-	write(ins, string(cmd," ",x.state))
-	end
+    @eval function ($setNameSymb)(ins::$instrumentType, x::$setArgType, infixes::Int64...)
+        cmd = $command
+        for (infix in infixes)
+            cmd = replace(cmd,"#",infix,1)
+        end
+    write(ins, string(cmd," ",x.state))
+    end
 
-	# Take type as argument
-	@eval function ($setNameSymb){}(ins::$instrumentType, x::Type{$setArgType}, infixes::Int64...)
-		@assert x <: $setArgType "$x <: "*string($setArgType)
-		cmd = $command
-		for (infix in infixes)
-			cmd = replace(cmd,"#",infix,1)
-		end
-	#	@assert ($x in responseDict.values.values)
-		write(ins, string(cmd," ",(x)(ins).state))
-	end
+    # Take type as argument
+    @eval function ($setNameSymb){}(ins::$instrumentType, x::Type{$setArgType}, infixes::Int64...)
+        @assert x <: $setArgType "$x <: "*string($setArgType)
+        cmd = $command
+        for (infix in infixes)
+            cmd = replace(cmd,"#",infix,1)
+        end
+    #    @assert ($x in responseDict.values.values)
+        write(ins, string(cmd," ",(x)(ins).state))
+    end
 
-	@eval export $setNameSymb
+    @eval export $setNameSymb
 
 end
 
@@ -419,23 +419,23 @@ to the instrument `ins`.
 """
 function generateResponseHandlers(insType::DataType, responseDict::Dict)
 
-	for (supertypeSymb in keys(responseDict))
-		# Generate outer constructors for concrete InstrumentCodes (e.g. InstrumentInternal) specific to this insType.
-		d = responseDict[supertypeSymb]
-		for (response in keys(d))
-			fnSymb = d[response]
-			@eval ($fnSymb)(ins::$insType) = ($fnSymb)(ins,$response)
-		#	@eval ($fnSymb)() = ($fnSymb)()
-		end
+    for (supertypeSymb in keys(responseDict))
+        # Generate outer constructors for concrete InstrumentCodes (e.g. InstrumentInternal) specific to this insType.
+        d = responseDict[supertypeSymb]
+        for (response in keys(d))
+            fnSymb = d[response]
+            @eval ($fnSymb)(ins::$insType) = ($fnSymb)(ins,$response)
+        #    @eval ($fnSymb)() = ($fnSymb)()
+        end
 
-		# Generate response handlers for abstract InstrumentCodes (e.g. InstrumentReference) to make the correct concrete type (e.g. InstrumentInternal)
-		@eval ($supertypeSymb)(ins::$insType,res::AbstractString) =
-			(typeof(parse(res)) <: Number ?
-			Expr(:call, ($d)[parse(res)],  ins)  :
-			Expr(:call, ($d)[res],	  		 ins)) |> eval
+        # Generate response handlers for abstract InstrumentCodes (e.g. InstrumentReference) to make the correct concrete type (e.g. InstrumentInternal)
+        @eval ($supertypeSymb)(ins::$insType,res::AbstractString) =
+            (typeof(parse(res)) <: Number ?
+            Expr(:call, ($d)[parse(res)],  ins)  :
+            Expr(:call, ($d)[res],               ins)) |> eval
 
         @eval ($supertypeSymb)(ins::$insType,res::Number) = Expr(:call, ($d)[res], ins) |> eval
-	end
+    end
 
 end
 
@@ -445,10 +445,11 @@ gpib(board, primary, secondary) = viOpen(resourceManager, "GPIB"*(board == 0 ? "
 tcpip(ip) = viOpen(resourceManager, "TCPIP::"*ip*"::INSTR")
 
 function query(ins::InstrumentVISA, msg::ASCIIString, delay::Real=0)
-	write(ins, msg)
-	sleep(delay)
-	read(ins)
+    write(ins, msg)
+    sleep(delay)
+    read(ins)
 end
+
 read(ins::InstrumentVISA) = rstrip(bytestring(viRead(ins.vi)), ['\r', '\n'])
 write(ins::InstrumentVISA, msg::ASCIIString) = viWrite(ins.vi, msg)
 readAvailable(ins::InstrumentVISA) = VISA.readAvailable(ins.vi)
@@ -456,11 +457,11 @@ readAvailable(ins::InstrumentVISA) = VISA.readAvailable(ins.vi)
 find_resources(expr::AbstractString="?*::INSTR") = viFindRsrc(resourceManager, expr)
 
 # Define commands implemented by several instruments.
-test(ins::InstrumentVISA) 			= write(ins, "*TST?")
-reset(ins::InstrumentVISA) 			= write(ins, "*RST")
-identify(ins::InstrumentVISA) 	    = query(ins, "*IDN?")
+test(ins::InstrumentVISA)           = write(ins, "*TST?")
+reset(ins::InstrumentVISA)          = write(ins, "*RST")
+identify(ins::InstrumentVISA)       = query(ins, "*IDN?")
 clearRegisters(ins::InstrumentVISA) = write(ins, "*CLS")
-trigger(ins::InstrumentVISA) 		= write(ins, "*TRG")
-abortTrigger(ins::InstrumentVISA)	= write(ins, "ABOR")
+trigger(ins::InstrumentVISA)        = write(ins, "*TRG")
+abortTrigger(ins::InstrumentVISA)   = write(ins, "ABOR")
 
 quoted(str::ASCIIString) = "\""*str*"\""

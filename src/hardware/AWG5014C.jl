@@ -28,9 +28,9 @@ end
 
 export AWG5014CString
 type AWG5014CString <: BufferedInput
-	ins::AWG5014C
-	label::Label
-	val::AbstractString
+    ins::AWG5014C
+    label::Label
+    val::AbstractString
 end
 
 # export query, read
@@ -99,51 +99,51 @@ convert{T<:Real}(::Array{T,1}, array::Array{AWG5014CDatum,1}) = begin
 end
 
 const noError = 0
-exceptions	= Dict(
-		 0	 => "No error.",
-		-222 => "Out of range.",
-		-224 => "Not a power of 2.",
-		-330 => "Diagnostic error.",
-		-340 => "Calibration error.")
+exceptions    = Dict(
+         0     => "No error.",
+        -222 => "Out of range.",
+        -224 => "Not a power of 2.",
+        -330 => "Diagnostic error.",
+        -340 => "Calibration error.")
 
 InstrumentException(ins::AWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
 responses = Dict(
-	:InstrumentState 			=> Dict( 0 		=> :Stop,
-								 		 2 		=> :Run,
-                                         1 		=> :Wait),
+    :InstrumentState            => Dict(0       => :Stop,
+                                        2       => :Run,
+                                        1       => :Wait),
 
-	:InstrumentTiming 			=> Dict("SYNC"  => :Synchronous,
-			 				            "ASYNC" => :Asynchronous),
+    :InstrumentTiming           => Dict("SYNC"  => :Synchronous,
+                                        "ASYNC" => :Asynchronous),
 
-    :InstrumentTriggerSlope     => Dict("POS" 	=> :TriggerRising,
-									    "NEG" 	=> :TriggerFalling),
+    :InstrumentTriggerSlope     => Dict("POS"   => :TriggerRising,
+                                        "NEG"   => :TriggerFalling),
 
-	:InstrumentClockSlope		=> Dict("POS"	=> :ClockRising,
-										"NEG"	=> :ClockFalling),
+    :InstrumentClockSlope       => Dict("POS"   => :ClockRising,
+                                        "NEG"   => :ClockFalling),
 
-	:InstrumentEventSlope		=> Dict("POS"	=> :EventRising,
-										"NEG"	=> :EventFalling),
+    :InstrumentEventSlope       => Dict("POS"   => :EventRising,
+                                        "NEG"   => :EventFalling),
 
-	:InstrumentTrigger 			=> Dict("TRIG" 	=> :Triggered,
-										"CONT" 	=> :Continuous,
-										"GAT"  	=> :Gated,
-										"SEQ"  	=> :Sequence),
+    :InstrumentTrigger          => Dict("TRIG"  => :Triggered,
+                                        "CONT"  => :Continuous,
+                                        "GAT"   => :Gated,
+                                        "SEQ"   => :Sequence),
 
-	:InstrumentClockSource		=> Dict("INT" 	=> :InternalClock,
-										"EXT" 	=> :ExternalClock),
+    :InstrumentClockSource      => Dict("INT"   => :InternalClock,
+                                        "EXT"   => :ExternalClock),
 
-	:InstrumentOscillatorSource	=> Dict("INT" 	=> :InternalOscillator,
-										"EXT" 	=> :ExternalOscillator),
+    :InstrumentOscillatorSource => Dict("INT"   => :InternalOscillator,
+                                        "EXT"   => :ExternalOscillator),
 
-	:InstrumentTriggerSource	=> Dict("INT" 	=> :InternalTrigger,
-										"EXT" 	=> :ExternalTrigger),
+    :InstrumentTriggerSource    => Dict("INT"   => :InternalTrigger,
+                                        "EXT"   => :ExternalTrigger),
 
-	:InstrumentImpedance 		=> Dict(  50.0 	=> :Ohm50,
-										1000.0 	=> :Ohm1k),
+    :InstrumentImpedance        => Dict(  50.0  => :Ohm50,
+                                        1000.0  => :Ohm1k),
 
-	:InstrumentLock 			=> Dict( 0 		=> :Local,
-										 1 		=> :Remote)
+    :InstrumentLock             => Dict(0       => :Local,
+                                        1       => :Remote)
 )
 
 generateResponseHandlers(AWG5014C,responses)
@@ -180,60 +180,60 @@ generateResponseHandlers(AWG5014C, uniqueResponses)
 import Main.run
 
 sfd = Dict(
-    "calibrate"							=> ["*CAL?",					InstrumentException],
-	"options"						    => ["*OPT?",					ASCIIString],
-	"externalOscillatorDividerRate"     => ["AWGC:CLOC:DRAT", 			Int64],	# IMPLEMENT ERROR HANDLING
-	"referenceClockSource"				=> ["AWGC:CLOC:SOUR", 			InstrumentClockSource],
+    "calibrate"                         => ["*CAL?",                    InstrumentException],
+    "options"                           => ["*OPT?",                    ASCIIString],
+    "externalOscillatorDividerRate"     => ["AWGC:CLOC:DRAT",           Int64],    # IMPLEMENT ERROR HANDLING
+    "referenceClockSource"              => ["AWGC:CLOC:SOUR",           InstrumentClockSource],
     "numberOfAvailableChannels"         => ["AWGC:CONF:CNUM?",          Int64],
-	"dcState"							=> ["AWGC:DC:STAT", 			Bool],
-	"dcOutputLevel"						=> ["AWGC:DC#:VOLT:OFFS", 	    Float64],
-	"repetitionRate"					=> ["AWGC:RRAT", 				Float64],
-	"repetitionRateHeld"				=> ["AWGC:RRAT:HOLD",			Bool],
-	"runState"							=> ["AWGC:RSTATE?",				InstrumentState],
-	"runMode" 							=> ["AWGC:RMOD", 				InstrumentTrigger],
-	"run"								=> ["AWGC:RUN",					InstrumentNoArgs],
-	"stop"								=> ["AWGC:STOP",				InstrumentNoArgs],
+    "dcState"                           => ["AWGC:DC:STAT",             Bool],
+    "dcOutputLevel"                     => ["AWGC:DC#:VOLT:OFFS",       Float64],
+    "repetitionRate"                    => ["AWGC:RRAT",                Float64],
+    "repetitionRateHeld"                => ["AWGC:RRAT:HOLD",           Bool],
+    "runState"                          => ["AWGC:RSTATE?",             InstrumentState],
+    "runMode"                           => ["AWGC:RMOD",                InstrumentTrigger],
+    "run"                               => ["AWGC:RUN",                 InstrumentNoArgs],
+    "stop"                              => ["AWGC:STOP",                InstrumentNoArgs],
     "sequencerPosition"                 => ["AWGC:SEQ:POS?",            Int64],
-	"forceEvent"						=> ["EVEN",						InstrumentNoArgs],
-	# The following two methods may return AWGYes() if the window *cannot* be displayed.
-	# They return the correct result (AWGNo()) if the window can be displayed, but is not displayed.
-	"sequenceWindowDisplayed"			=> ["DISP:WIND1:STAT", 			Bool],
-	"waveformWindowDisplayed"			=> ["DISP:WIND2:STAT", 			Bool],
-	"eventImpedance"					=> ["EVEN:IMP", 				InstrumentImpedance],
-	"eventJumpTiming"					=> ["EVEN:JTIM", 				InstrumentTiming],
-	"eventLevel"						=> ["EVEN:LEV", 				Float64],
-	"eventSlope"						=> ["EVEN:POL", 				InstrumentEventSlope],
-	"outputFilterFrequency"				=> ["OUTP#:FILT:FREQ", 			Float64],
-	"outputState"						=> ["OUTP#:STAT", 				Bool],
-	"sequencerGOTOTarget"				=> ["SEQ:ELEM#:GOTO:IND", 	    Int64],
-	"sequencerGOTOState"				=> ["SEQ:ELEM#:GOTO:STAT", 	    Bool],
-	"sequencerEventJumpTarget"			=> ["SEQ:ELEM#:JTAR:IND", 	    Int64],
-	"sequencerLoopCount"				=> ["SEQ:ELEM#:LOOP:COUN", 	    Int64],
-	"sequencerInfiniteLoop"				=> ["SEQ:ELEM#:LOOP:INF", 	    Bool],
-	"sequencerLength"					=> ["SEQ:LENG", 				Int64],
-	"forceSequenceJump"					=> ["SEQ:JUMP",					InstrumentNoArgs],
-	"waveformLoadedInChannel"			=> ["SOUR#:FUNC:USER", 			ASCIIString],
-	"markerDelay"						=> ["SOUR#:MARK#:DEL", 			Float64],
-	"referenceOscillatorFrequency"	    => ["SOUR:ROSC:FREQ", 			Float64],
-	"referenceOscillatorMultiplier"     => ["SOUR:ROSC:MULT", 			Int64],
-	"referenceOscillatorSource" 		=> ["SOUR:ROSC:SOUR",			InstrumentOscillatorSource],
-	"externalInputAddsToOutput"			=> ["SOUR#:COMB:FEED", 			ASCIIString],
-	"analogOutputDelayInSeconds"		=> ["SOUR#:DELAY", 			    Float64],
-	"analogOutputDelayInPoints"			=> ["SOUR#:DELAY:POIN",			Float64],
-	"panelLocked" 						=> ["SYST:KLOC", 				InstrumentLock],
-	"systemDate"						=> ["SYST:DATE", 				Int64],
-	"systemTime"						=> ["SYST:TIME", 				Int64],
+    "forceEvent"                        => ["EVEN",                     InstrumentNoArgs],
+    # The following two methods may return AWGYes() if the window *cannot* be displayed.
+    # They return the correct result (AWGNo()) if the window can be displayed, but is not displayed.
+    "sequenceWindowDisplayed"           => ["DISP:WIND1:STAT",          Bool],
+    "waveformWindowDisplayed"           => ["DISP:WIND2:STAT",          Bool],
+    "eventImpedance"                    => ["EVEN:IMP",                 InstrumentImpedance],
+    "eventJumpTiming"                   => ["EVEN:JTIM",                InstrumentTiming],
+    "eventLevel"                        => ["EVEN:LEV",                 Float64],
+    "eventSlope"                        => ["EVEN:POL",                 InstrumentEventSlope],
+    "outputFilterFrequency"             => ["OUTP#:FILT:FREQ",          Float64],
+    "outputState"                       => ["OUTP#:STAT",               Bool],
+    "sequencerGOTOTarget"               => ["SEQ:ELEM#:GOTO:IND",       Int64],
+    "sequencerGOTOState"                => ["SEQ:ELEM#:GOTO:STAT",      Bool],
+    "sequencerEventJumpTarget"          => ["SEQ:ELEM#:JTAR:IND",       Int64],
+    "sequencerLoopCount"                => ["SEQ:ELEM#:LOOP:COUN",      Int64],
+    "sequencerInfiniteLoop"             => ["SEQ:ELEM#:LOOP:INF",       Bool],
+    "sequencerLength"                   => ["SEQ:LENG",                 Int64],
+    "forceSequenceJump"                 => ["SEQ:JUMP",                 InstrumentNoArgs],
+    "waveformLoadedInChannel"           => ["SOUR#:FUNC:USER",          ASCIIString],
+    "markerDelay"                       => ["SOUR#:MARK#:DEL",          Float64],
+    "referenceOscillatorFrequency"      => ["SOUR:ROSC:FREQ",           Float64],
+    "referenceOscillatorMultiplier"     => ["SOUR:ROSC:MULT",           Int64],
+    "referenceOscillatorSource"         => ["SOUR:ROSC:SOUR",           InstrumentOscillatorSource],
+    "externalInputAddsToOutput"         => ["SOUR#:COMB:FEED",          ASCIIString],
+    "analogOutputDelayInSeconds"        => ["SOUR#:DELAY",              Float64],
+    "analogOutputDelayInPoints"         => ["SOUR#:DELAY:POIN",         Float64],
+    "panelLocked"                       => ["SYST:KLOC",                InstrumentLock],
+    "systemDate"                        => ["SYST:DATE",                Int64],
+    "systemTime"                        => ["SYST:TIME",                Int64],
     "scpiVersion"                       => ["SYST:VERS?",               ASCIIString],
-	"triggerImpedance" 					=> ["TRIG:IMP", 				InstrumentImpedance],
-	"triggerLevel"						=> ["TRIG:LEV", 				Float64],
-	"triggerSlope"						=> ["TRIG:POL", 				InstrumentTriggerSlope],
-	"triggerTimer" 						=> ["TRIG:TIM",					Float64],
-	"triggerSource"						=> ["TRIG:SOUR", 				InstrumentTriggerSource],
+    "triggerImpedance"                  => ["TRIG:IMP",                 InstrumentImpedance],
+    "triggerLevel"                      => ["TRIG:LEV",                 Float64],
+    "triggerSlope"                      => ["TRIG:POL",                 InstrumentTriggerSlope],
+    "triggerTimer"                      => ["TRIG:TIM",                 Float64],
+    "triggerSource"                     => ["TRIG:SOUR",                InstrumentTriggerSource],
     "wavelistLength"                    => ["WLIST:SIZE?",              Int64],
 )
 
 for (fnName in keys(sfd))
-	createStateFunction(AWG5014C,fnName,sfd[fnName][1],sfd[fnName][2])
+    createStateFunction(AWG5014C,fnName,sfd[fnName][1],sfd[fnName][2])
 end
 
 # And now, the functions we decided to write by hand...
@@ -245,23 +245,23 @@ export waveformName, waveformLength, pullFromAWG, pushToAWG, newWaveform
 
 """Run an application, e.g. SerialXpress"""
 function runApplication(ins::AWG5014C, app::ASCIIString)
-	write(ins,"AWGC:APPL:RUN \""+app+"\"")
+    write(ins,"AWGC:APPL:RUN \""+app+"\"")
 end
 
 function applicationState(ins::AWG5014C, app::ASCIIString)
-	query(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? InstrumentStopState(ins) : InstrumentRunState(ins)
+    query(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? InstrumentStopState(ins) : InstrumentRunState(ins)
 end
 
 function hardwareSequencerType(ins::AWG5014C)
-	chomp(query(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? InstrumentYes(ins) : InstrumentNo(ins)
+    chomp(query(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? InstrumentYes(ins) : InstrumentNo(ins)
 end
 
 function loadAWGSettings(ins::AWG5014C,filePath::ASCIIString)
-	write(ins,string("AWGC:SRES \"",filePath,"\""))
+    write(ins,string("AWGC:SRES \"",filePath,"\""))
 end
 
 function saveAWGSettings(ins::AWG5014C,filePath::ASCIIString)
-	write(ins,string("AWGC:SSAV \"",filePath,"\""))
+    write(ins,string("AWGC:SSAV \"",filePath,"\""))
 end
 
 function clearWaveforms(ins::AWG5014C)
