@@ -16,7 +16,7 @@ export InstrumentMedium, InstrumentSampleRate, InstrumentDataFormat, InstrumentC
 
 export InstrumentException
 
-export gpib, tcpip
+export gpib, tcpipInstrument, tcpipSocket
 export query, read, write, readavailable
 export test, reset, identify, clearRegisters, trigger, abortTrigger
 export quoted
@@ -28,6 +28,17 @@ export quoted
 Abstract supertype of all concrete Instrument types, e.g. `AWG5014C <: Instrument`.
 """
 abstract Instrument
+
+"""
+### InstrumentVISA
+`abstract InstrumentVISA <: Instrument`
+
+Abstract supertype of all concrete Instrument types addressable using a VISA library.
+Implementations are expected to have fields:
+
+`vi::ViSession`
+`writeTerminator::ASCIIString`
+"""
 abstract InstrumentVISA <: Instrument
 
 """
@@ -218,6 +229,10 @@ end
 # export from a local scope, so there are some headaches with for loops, etc.
 
 typealias Rate1GSps Rate1000MSps
+
+"The All type is meant to be dispatched upon and not instantiated."
+type All
+end
 
 """
 ### createStateFunction
@@ -442,7 +457,16 @@ end
 gpib(primary) = viOpen(resourceManager, "GPIB::"*primary*"::0::INSTR")
 gpib(board, primary) = viOpen(resourceManager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
 gpib(board, primary, secondary) = viOpen(resourceManager, "GPIB"*(board == 0 ? "" : board)*"::"+primary+"::"+secondary+"::INSTR")
-tcpip(ip) = viOpen(resourceManager, "TCPIP::"*ip*"::INSTR")
+tcpipInstrument(ip) = viOpen(resourceManager, "TCPIP::"*ip*"::INSTR")
+tcpipSocket(ip,port) = viOpen(resourceManager, "TCPIP0::"*ip*"::"*string(port)*"::SOCKET")
+tcpipSocket(ip) = begin
+    arr = split(ip,":")
+    if (length(arr) == 1)
+        return tcpipSocket(arr[1],5555)
+    else
+        return viOpen(resourceManager, "TCPIP0::"*arr[1]*"::"*arr[2]*"::SOCKET")
+    end
+end
 
 function query(ins::InstrumentVISA, msg::ASCIIString, delay::Real=0)
     write(ins, msg)
@@ -451,8 +475,12 @@ function query(ins::InstrumentVISA, msg::ASCIIString, delay::Real=0)
 end
 
 read(ins::InstrumentVISA) = rstrip(bytestring(viRead(ins.vi)), ['\r', '\n'])
-write(ins::InstrumentVISA, msg::ASCIIString) = viWrite(ins.vi, msg)
+write(ins::InstrumentVISA, msg::ASCIIString) = viWrite(ins.vi, string(msg, ins.writeTerminator))
 readAvailable(ins::InstrumentVISA) = VISA.readAvailable(ins.vi)
+binBlockWrite(ins::InstrumentVISA,
+              message::Union{ASCIIString, Vector{UInt8}},
+              data::Vector{UInt8}) = VISA.binBlockWrite(ins.vi, message, data, ins.writeTerminator)
+binBlockReadAvailable(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.vi)
 
 find_resources(expr::AbstractString="?*::INSTR") = viFindRsrc(resourceManager, expr)
 
