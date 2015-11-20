@@ -315,33 +315,6 @@ const CHANNEL_E     = U8(0x0010)
 const CHANNEL_F     = U8(0x0020)
 const CHANNEL_G     = U8(0x0040)
 const CHANNEL_H     = U8(0x0080)
-# const CHANNEL_I     = U8(0x0100)
-# const CHANNEL_J     = U8(0x0200)
-# const CHANNEL_K     = U8(0x0400)
-# const CHANNEL_L     = U8(0x0800)
-# const CHANNEL_M     = U8(0x1000)
-# const CHANNEL_N     = U8(0x2000)
-# const CHANNEL_O     = U8(0x4000)
-# const CHANNEL_P     = U8(0x8000)
-#
-# channels = [
-#     CHANNEL_A,
-#     CHANNEL_B,
-#     CHANNEL_C,
-#     CHANNEL_D,
-#     CHANNEL_E,
-#     CHANNEL_F,
-#     CHANNEL_G,
-#     CHANNEL_H,
-#     CHANNEL_I,
-#     CHANNEL_J,
-#     CHANNEL_K,
-#     CHANNEL_L,
-#     CHANNEL_M,
-#     CHANNEL_N,
-#     CHANNEL_O,
-#     CHANNEL_P
-# ]
 
 # Master/slave configuration
 const BOARD_IS_INDEPENDENT  = U32(0x00000000)
@@ -541,42 +514,36 @@ const ATS9370 = 27
 const ATU7825 = 28
 const ATS9373 = 29
 const ATS9416 = 30
-#
-# boardNames = {
-#     ATS850 : "ATS850" ,
-#     ATS310 : "ATS310" ,
-#     ATS330 : "ATS330" ,
-#     ATS855 : "ATS855" ,
-#     ATS315 : "ATS315" ,
-#     ATS335 : "ATS335" ,
-#     ATS460 : "ATS460" ,
-#     ATS860 : "ATS860" ,
-#     ATS660 : "ATS660" ,
-#     ATS665 : "ATS665" ,
-#     ATS9462: "ATS9462",
-#     ATS9434: "ATS9434",
-#     ATS9870: "ATS9870",
-#     ATS9350: "ATS9350",
-#     ATS9325: "ATS9325",
-#     ATS9440: "ATS9440",
-#     ATS9410: "ATS9410",
-#     ATS9351: "ATS9351",
-#     ATS9310: "ATS9310",
-#     ATS9461: "ATS9461",
-#     ATS9850: "ATS9850",
-#     ATS9625: "ATS9625",
-#     ATG6500: "ATG6500",
-#     ATS9626: "ATS9626",
-#     ATS9360: "ATS9360",
-#     AXI9870: "AXI9870",
-#     ATS9370: "ATS9370",
-#     ATU7825: "ATU7825",
-#     ATS9373: "ATS9373",
-#     ATS9416: "ATS9416"
-# };
-#
+
 """Record average options"""
 const CRA_MODE_DISABLE         = U32(0)
 const CRA_MODE_ENABLE_FPGA_AVE = U32(1)
 const CRA_OPTION_UNSIGNED      = U32(0)
 const CRA_OPTION_SIGNED        = U32(1)
+
+"""AlazarDSP constants"""
+const DSP_WINDOW_NONE                = U32(0)
+const DSP_WINDOW_HANNING             = U32(1)
+const DSP_WINDOW_HAMMING             = U32(2)
+const DSP_WINDOW_BLACKMAN            = U32(3)
+const DSP_WINDOW_BLACKMAN_HARRIS     = U32(4)
+const DSP_WINDOW_BARTLETT            = U32(5)
+const NUM_DSP_WINDOW_ITEMS           = U32(6)
+
+const DSP_MODULE_NONE                = U32(0x0FFFF)
+const DSP_MODULE_FFT                 = U32(0x10000)
+const DSP_MODULE_PCD                 = U32(0x10001)
+
+const FFT_OUTPUT_FORMAT_U32          = U32(0x0000)
+const FFT_OUTPUT_FORMAT_U16_LOG      = U32(0x0001)
+const FFT_OUTPUT_FORMAT_U16_AMP2     = U32(0x0101)
+const FFT_OUTPUT_FORMAT_U8_LOG       = U32(0x0002)
+const FFT_OUTPUT_FORMAT_U8_AMP2      = U32(0x0102)
+const FFT_OUTPUT_FORMAT_REAL_S32     = U32(0x0003)
+const FFT_OUTPUT_FORMAT_IMAG_S32     = U32(0x0004)
+const FFT_OUTPUT_FORMAT_FLOAT_AMP2   = U32(0x000A)
+const FFT_OUTPUT_FORMAT_FLOAT_LOG    = U32(0x000B)
+const FFT_OUTPUT_FORMAT_RAW_PLUS_FFT = U32(0x1000)
+
+const FFT_FOOTER_NONE                = U32(0x0)
+const FFT_FOOTER_NPT                 = U32(0x1)

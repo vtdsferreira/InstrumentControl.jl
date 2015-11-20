@@ -1,3 +1,5 @@
+## Work in progress ##
+
 function acquireData(a::AlazarATS9360)
 
     # Calculate the number of buffers in the acquisition.

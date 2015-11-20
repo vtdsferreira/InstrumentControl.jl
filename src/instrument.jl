@@ -1,5 +1,5 @@
-using VISA
-resourceManager = viOpenDefaultRM()
+import VISA
+resourceManager = VISA.viOpenDefaultRM()
 
 export resourceManager
 
@@ -17,7 +17,7 @@ export InstrumentMedium, InstrumentSampleRate, InstrumentDataFormat, InstrumentC
 export InstrumentException
 
 export gpib, tcpipInstrument, tcpipSocket
-export query, read, write, readavailable
+export query, read, write, readAvailable, binBlockWrite, binBlockReadAvailable
 export test, reset, identify, clearRegisters, trigger, abortTrigger
 export quoted
 
@@ -212,11 +212,7 @@ function createCodeType(subtype::Symbol, supertype::DataType)
     @eval immutable ($subtype){T} <: $supertype
             ins::Instrument
             state::T
-    #        Test3(a,b)=new(a,b)
-    #    Test3()=new()
         end
-        # Test3{T}(a::PainterQB.Instrument,b::T) = Test3{T}(a,b)
-        # Test3() = Test3{Void}()
     @eval export $subtype
 end
 
@@ -231,7 +227,7 @@ end
 typealias Rate1GSps Rate1000MSps
 
 "The All type is meant to be dispatched upon and not instantiated."
-type All
+immutable All
 end
 
 """
@@ -257,7 +253,7 @@ function triggerSource(ins::AWG5014C)
     InstrumentTriggerSource(ins,result)
 end
 
-function setTriggerSource(ins::AWG5014C, x::InstrumentTriggerSource)
+function setTriggerSource(ins::AWG5014C, x::Type{InstrumentTriggerSource})
     write(ins, string("TRIG:REF ",x.state))
 end
 ```
@@ -401,7 +397,7 @@ function createSettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
         for (infix in infixes)
             cmd = replace(cmd,"#",infix,1)
         end
-        write(ins, string(cmd," ",($setArgType === Bool ? Int64(x) : x)))
+        write(ins, string(cmd," ",($setArgType === Bool ? Int(x) : x)))
     end
 
     @eval export $setNameSymb
@@ -447,42 +443,42 @@ function generateResponseHandlers(insType::DataType, responseDict::Dict)
         @eval ($supertypeSymb)(ins::$insType,res::AbstractString) =
             (typeof(parse(res)) <: Number ?
             Expr(:call, ($d)[parse(res)],  ins)  :
-            Expr(:call, ($d)[res],               ins)) |> eval
+            Expr(:call, ($d)[res],         ins)) |> eval
 
         @eval ($supertypeSymb)(ins::$insType,res::Number) = Expr(:call, ($d)[res], ins) |> eval
     end
 
 end
 
-gpib(primary) = viOpen(resourceManager, "GPIB::"*primary*"::0::INSTR")
-gpib(board, primary) = viOpen(resourceManager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
-gpib(board, primary, secondary) = viOpen(resourceManager, "GPIB"*(board == 0 ? "" : board)*"::"+primary+"::"+secondary+"::INSTR")
-tcpipInstrument(ip) = viOpen(resourceManager, "TCPIP::"*ip*"::INSTR")
-tcpipSocket(ip,port) = viOpen(resourceManager, "TCPIP0::"*ip*"::"*string(port)*"::SOCKET")
+gpib(primary) = VISA.viOpen(resourceManager, "GPIB::"*primary*"::0::INSTR")
+gpib(board, primary) = VISA.viOpen(resourceManager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
+gpib(board, primary, secondary) = VISA.viOpen(resourceManager, "GPIB"*(board == 0 ? "" : board)*"::"+primary+"::"+secondary+"::INSTR")
+tcpipInstrument(ip) = VISA.viOpen(resourceManager, "TCPIP::"*ip*"::INSTR")
+tcpipSocket(ip,port) = VISA.viOpen(resourceManager, "TCPIP0::"*ip*"::"*string(port)*"::SOCKET")
 tcpipSocket(ip) = begin
     arr = split(ip,":")
     if (length(arr) == 1)
         return tcpipSocket(arr[1],5555)
     else
-        return viOpen(resourceManager, "TCPIP0::"*arr[1]*"::"*arr[2]*"::SOCKET")
+        return VISA.viOpen(resourceManager, "TCPIP0::"*arr[1]*"::"*arr[2]*"::SOCKET")
     end
 end
 
 function query(ins::InstrumentVISA, msg::ASCIIString, delay::Real=0)
     write(ins, msg)
     sleep(delay)
-    read(ins)
+    readAvailable(ins)
 end
 
-read(ins::InstrumentVISA) = rstrip(bytestring(viRead(ins.vi)), ['\r', '\n'])
-write(ins::InstrumentVISA, msg::ASCIIString) = viWrite(ins.vi, string(msg, ins.writeTerminator))
-readAvailable(ins::InstrumentVISA) = VISA.readAvailable(ins.vi)
+read(ins::InstrumentVISA) = rstrip(bytestring(VISA.viRead(ins.vi)), ['\r', '\n'])
+write(ins::InstrumentVISA, msg::ASCIIString) = VISA.viWrite(ins.vi, string(msg, ins.writeTerminator))
+readAvailable(ins::InstrumentVISA) = rstrip(bytestring(VISA.readAvailable(ins.vi)), ['\r','\n'])
 binBlockWrite(ins::InstrumentVISA,
               message::Union{ASCIIString, Vector{UInt8}},
               data::Vector{UInt8}) = VISA.binBlockWrite(ins.vi, message, data, ins.writeTerminator)
 binBlockReadAvailable(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.vi)
 
-find_resources(expr::AbstractString="?*::INSTR") = viFindRsrc(resourceManager, expr)
+find_resources(expr::AbstractString="?*::INSTR") = VISA.viFindRsrc(resourceManager, expr)
 
 # Define commands implemented by several instruments.
 test(ins::InstrumentVISA)           = write(ins, "*TST?")

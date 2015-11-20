@@ -1,7 +1,17 @@
+### Keysight / Agilent E8257D
 export E8257D
 type E8257D <: InstrumentVISA
-    vi::PyObject     # this is the GpibInstrument object!
-    E8257D(x) = new(x)
+    vi::(VISA.ViSession)     # this is the GpibInstrument object!
+    writeTerminator::ASCIIString
+
+    E8257D(x) = begin
+        ins = new()
+        ins.vi = x
+        ins.writeTerminator = "\n"
+        VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
+        ins
+    end
+
     E8257D() = new()
 end
 
@@ -98,9 +108,9 @@ sfd = Dict(
     "powerIncrement"             => ["SOURce:POWer:LEVel:STEP",             Float64],            # units?
 
     "lanConfiguration"           => ["SYST:COMM:LAN:CONF",                  InstrumentNetwork],    # IMPLEMENT ERROR HANDLING
-    "lanHostname"                => ["SYSTem:COMMunicate:LAN:HOSTname",     InstrumentString],
-    "lanIP"                      => ["SYSTem:COMMunicate:LAN:IP",           InstrumentString],
-    "lanSubnet"                  => ["SYSTem:COMMunicate:LAN:SUBNet",       InstrumentString],
+    "lanHostname"                => ["SYSTem:COMMunicate:LAN:HOSTname",     ASCIIString],
+    "lanIP"                      => ["SYSTem:COMMunicate:LAN:IP",           ASCIIString],
+    "lanSubnet"                  => ["SYSTem:COMMunicate:LAN:SUBNet",       ASCIIString],
 #    "systemDate"                  => ["SYST:DATE",                             Int64],
 #    "systemTime"                  => ["SYST:TIME",                             Int64],
     "triggerOutputPolarity"      => ["TRIG:OUTP:POL",                       InstrumentPolarity],

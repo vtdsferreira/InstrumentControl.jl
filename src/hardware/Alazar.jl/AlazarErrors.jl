@@ -92,21 +92,10 @@ exceptions = [
     "ApiLastError"                            # Do not add API errors below this line
 ]
 
-"Create descriptive exceptions."
-InstrumentException(ins::InstrumentAlazar, r) = InstrumentException(ins, r, exceptions[r-511])
+except(r) = exceptions[r-511]
 
-# export @eh
-#
-# "Error intercept macro."
-# macro eh(expr)
-#     quote
-#         local r = $(esc(expr))
-#         if (r != noError)
-#             throw(InstrumentException($(esc(expr.args[2])),r))
-#         end
-#         r
-#     end
-# end
+"Create descriptive exceptions."
+InstrumentException(ins::InstrumentAlazar, r) = InstrumentException(ins, r, except(r))
 
 "Error intercept macro. Takes a function definition and brackets the RHS with some checking."
 macro eh(expr)

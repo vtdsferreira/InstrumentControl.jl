@@ -25,9 +25,9 @@ end
 
 # Instruments and channels
 include("Instrument.jl")
-#include("E5071C.jl")
-#include("E8257D.jl")
-@windows? include("hardware\\AWG5014C.jl") : include("hardware/AWG5014C.jl")
+# @windows? include("hardware\\E5071C.jl")   : include("hardware/E5071C.jl")
+# @windows? include("hardware\\E8257D.jl")   : include("hardware/E8257D.jl")
+# @windows? include("hardware\\AWG5014C.jl") : include("hardware/AWG5014C.jl")
 
 # Utility channels
 

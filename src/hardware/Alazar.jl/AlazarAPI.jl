@@ -23,14 +23,17 @@ using PainterQB
 # Machine specific
 const maxThroughputGBs = 175e7 #18e8
 
-export U32, U8
+# Type aliases go here
+export U32, U16, S16, U8
+export DSPModuleHandle
+
 typealias U32 Culong
+typealias U16 Cushort
+typealias S16 Cshort
 typealias U8 Cuchar
+typealias DSPModuleHandle Ptr{Void}
 
-U32(x) = convert(U32,x)
-U8(x) = convert(U8,x)
-
-# Define constants and exceptions
+# Constants and exceptions go here
 include("AlazarConstants.jl")
 
 # Play nice with Instruments
@@ -44,11 +47,11 @@ subtypesArray = [
     (:ChannelB                          , AlazarChannel),
     (:BothChannels                      , AlazarChannel),
 
-    (:AuxOutputTrigger					, AlazarAux),
-    (:AuxInputTriggerEnable		        , AlazarAux),
-    (:AuxOutputPacer				    , AlazarAux),
-    (:AuxDigitalInput					, AlazarAux),
-    (:AuxDigitalOutput				    , AlazarAux)#,
+    (:AuxOutputTrigger                  , AlazarAux),
+    (:AuxInputTriggerEnable             , AlazarAux),
+    (:AuxOutputPacer                    , AlazarAux),
+    (:AuxDigitalInput                   , AlazarAux),
+    (:AuxDigitalOutput                  , AlazarAux)
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -160,6 +163,16 @@ Args:
 """
 abstract InstrumentAlazar <: Instrument
 export InstrumentAlazar
+
+"""
+Type to link a `dsp_module_handle` with the `InstrumentAlazar` it came from.
+"""
+type DSPModule
+    ins::InstrumentAlazar
+    handle::DSPModuleHandle
+end
+export DSPModule
+
 include("AlazarErrors.jl")
 
 export abortAsyncRead, abortCapture, beforeAsyncRead, boardsInSystemBySystemID
@@ -353,6 +366,8 @@ type AlazarATS9360 <: InstrumentAlazar
 
     bufferArray::Array{DMABuffer{UInt16},1}
 
+    dspModules::Array{DSPModule,1}
+
     # defaults
     inputControlDefaults(a::AlazarATS9360) = begin
         invoke(inputControl,(InstrumentAlazar,Any,Any,Any,Any), a, CHANNEL_A, DC_COUPLING, INPUT_RANGE_PM_400_MV, IMPEDANCE_50_OHM)
@@ -411,6 +426,11 @@ type AlazarATS9360 <: InstrumentAlazar
         setAcquisitionChannel(a,BothChannels)
     end
 
+    populateDSP(a::AlazarATS9360) = begin
+        dspModuleHandles = dspGetModuleHandles(a)
+        a.dspModules = map(x->DSPModule(a,x),dspModuleHandles)
+    end
+
     AlazarATS9360() = AlazarATS9360(1,1)
     AlazarATS9360(a,b) = begin
         handle = ccall((:AlazarGetBoardBySystemID,ats),Culong,(Culong,Culong),convert(Culong,a),convert(Culong,b))
@@ -435,23 +455,30 @@ type AlazarATS9360 <: InstrumentAlazar
         auxIODefaults(at)
         #packingDefaults(at)
         acquisitionDefaults(at)
+        populateDSP(at)
         return at
     end
 end
-Base.show(io::IO, ins::InstrumentAlazar) = print(io, "ATS9360: SystemId $(ins.systemId), BoardId $(ins.boardId)")
+
+Base.show(io::IO, ins::InstrumentAlazar) = begin
+    println(io, "ATS9360:")
+    println(io, "  SystemId $(ins.systemId)")
+    println(io, "  BoardId $(ins.boardId)")
+    println(io, "  acquisition length $(ins.acquisitionLength)")
+end
 
 responses = Dict(
     :InstrumentCoupling     => Dict(AC_COUPLING             => :AC,
                                     DC_COUPLING             => :DC),
 
-	:InstrumentTriggerSlope => Dict(TRIGGER_SLOPE_POSITIVE 	=> :RisingTrigger,
-									TRIGGER_SLOPE_NEGATIVE 	=> :FallingTrigger),
+    :InstrumentTriggerSlope => Dict(TRIGGER_SLOPE_POSITIVE  => :RisingTrigger,
+                                    TRIGGER_SLOPE_NEGATIVE  => :FallingTrigger),
 
     :InstrumentClockSlope   => Dict(CLOCK_EDGE_RISING       => :RisingClock,
                                     CLOCK_EDGE_FALLING      => :FallingClock),
 
-	:InstrumentClockSource  => Dict(INTERNAL_CLOCK	         => :InternalClock,
-								    EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
+    :InstrumentClockSource  => Dict(INTERNAL_CLOCK           => :InternalClock,
+                                    EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
 
     :InstrumentSampleRate   => Dict(SAMPLE_RATE_1KSPS    =>  :Rate1kSps,
                                     SAMPLE_RATE_2KSPS    =>  :Rate2kSps,
@@ -490,9 +517,10 @@ responses = Dict(
     :AlazarDataPacking      => Dict(PACK_DEFAULT            => :DefaultPacking,
                                     PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
                                     PACK_12_BITS_PER_SAMPLE => :Pack12Bits)
+
 )
 
-PainterQB.generateResponseHandlers(AlazarATS9360, responses)
+PainterQB.generateResponseHandlers(InstrumentAlazar, responses)
 Rate1GSps(ins::AlazarATS9360) = Rate1000MSps(ins::AlazarATS9360)
 Rate1GSps(ins::AlazarATS9360, state) = Rate1000MSps(ins,state)
 
@@ -632,20 +660,15 @@ function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, d::DataType)
     setAuxSoftwareTriggerEnabled(a,d(a))
 end
 
-function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, ::Yes)
-    r = configureAuxIO(a, a.auxIOMode, a.auxParam | AUX_OUT_TRIGGER_ENABLE)
-    a.auxParam = a.auxParam | AUX_OUT_TRIGGER_ENABLE
+function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, b::Bool)
+    if true
+        r = configureAuxIO(a, a.auxIOMode, a.auxParam | AUX_OUT_TRIGGER_ENABLE)
+        a.auxParam = a.auxParam | AUX_OUT_TRIGGER_ENABLE
+    else
+        r = configureAuxIO(a, a.auxIOMode, a.auxParam & ~AUX_OUT_TRIGGER_ENABLE)
+        a.auxParam = a.auxParam & ~AUX_OUT_TRIGGER_ENABLE
+    end
     r
-end
-
-function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, ::No)
-    r = configureAuxIO(a, a.auxIOMode, a.auxParam & ~AUX_OUT_TRIGGER_ENABLE)
-    a.auxParam = a.auxParam & ~AUX_OUT_TRIGGER_ENABLE
-    r
-end
-
-function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, x::Bool)
-    setAuxSoftwareTriggerEnabled(a, (x==true) ? Yes : No)
 end
 
 function setAcquisitionLength(a::AlazarATS9360, l::Real)
@@ -702,5 +725,7 @@ end
 function acquisitionChannel(a::AlazarATS9360)
     AlazarChannel(a,a.acquisitionChannel)
 end
+
+include("AlazarDSP.jl")
 
 end
