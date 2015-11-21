@@ -32,22 +32,22 @@ abstract InstrumentVISA <: Instrument
 ## Finding and obtaining resources
 
 "Finds VISA resources to which we can connect. Doesn't find ethernet instruments."
-find_ins_resources(expr::AbstractString="?*::INSTR") = VISA.viFindRsrc(resourceManager, expr)
+find_ins_resources(expr::AbstractString="?*::INSTR") = VISA.viFindRsrc(resourcemanager, expr)
 
 "Returns a viSession for the given GPIB address."
-gpib(primary) = VISA.viOpen(resourceManager, "GPIB::"*primary*"::0::INSTR")
+gpib(primary) = VISA.viOpen(resourcemanager, "GPIB::"*primary*"::0::INSTR")
 
 gpib(board, primary) = VISA.viOpen(
-    resourceManager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
+    resourcemanager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
 
-gpib(board, primary, secondary) = VISA.viOpen(resourceManager,
+gpib(board, primary, secondary) = VISA.viOpen(resourcemanager,
     "GPIB"*(board == 0 ? "" : board)*"::"+primary+"::"+secondary+"::INSTR")
 
 "Returns a INSTR viSession for the given IPv4 address."
-tcpip_instr(ip) = VISA.viOpen(resourceManager, "TCPIP::"*ip*"::INSTR")
+tcpip_instr(ip) = VISA.viOpen(resourcemanager, "TCPIP::"*ip*"::INSTR")
 
 "Returns a raw socket viSession for the given IPv4 address."
-tcpip_socket(ip,port) = VISA.viOpen(resourceManager,
+tcpip_socket(ip,port) = VISA.viOpen(resourcemanager,
     "TCPIP0::"*ip*"::"*string(port)*"::SOCKET")
 
 ## Reading and writing
