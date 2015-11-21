@@ -141,14 +141,14 @@ end
 export frequencyData, formattedData
 
 function frequencyData(ins::E5071C, channel::Integer, trace::Integer)
-    data = query(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))
+    data = query_ins(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))
 
     # Return an array of numbers
     map(parse,split(data,",",keep=false))
 end
 
 function formattedData(ins::E5071C, channel::Integer, trace::Integer)
-    data = query(ins,string(":CALC",channel,":TRAC",trace,":DATA:FDAT?"))
+    data = query_ins(ins,string(":CALC",channel,":TRAC",trace,":DATA:FDAT?"))
 
     # Return an array of numbers
     nums = map(parse,split(data,",",keep=false))

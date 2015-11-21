@@ -130,20 +130,20 @@ end
 
 export loadFlatnessCorrectionFile
 function loadFlatnessCorrectionFile(ins::E8257D, file::ASCIIString)
-    write(ins, "SOURce:CORRection:FLATness:LOAD \""*file*"\"")
+    write_ins(ins, "SOURce:CORRection:FLATness:LOAD \""*file*"\"")
 end
 
 export saveFlatnessCorrectionFile
 function saveFlatnessCorrectionFile(ins::E8257D, file::ASCIIString)
-    write(ins, "SOURce:CORRection:FLATness:STORe \""*file*"\"")
+    write_ins(ins, "SOURce:CORRection:FLATness:STORe \""*file*"\"")
 end
 
 export boards, cumulativeAttenuatorSwitches, cumulativePowerOns, cumulativeOnTime
 export options, optionsVerbose, revision
-boards(ins::E8257D)                       = query(ins,"DIAGnostic:INFOrmation:BOARds?")
-cumulativeAttenuatorSwitches(ins::E8257D) = query(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
-cumulativePowerOns(ins::E8257D)           = query(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
-cumulativeOnTime(ins::E8257D)             = query(ins,"DIAGnostic:INFOrmation:OTIMe?")
-options(ins::E8257D)                      = query(ins,"DIAGnostic:INFOrmation:OPTions?")
-optionsVerbose(ins::E8257D)               = query(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
-revision(ins::E8257D)                     = query(ins,"DIAGnostic:INFOrmation:REVision?")
+boards(ins::E8257D)                       = query_ins(ins,"DIAGnostic:INFOrmation:BOARds?")
+cumulativeAttenuatorSwitches(ins::E8257D) = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
+cumulativePowerOns(ins::E8257D)           = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
+cumulativeOnTime(ins::E8257D)             = query_ins(ins,"DIAGnostic:INFOrmation:OTIMe?")
+options(ins::E8257D)                      = query_ins(ins,"DIAGnostic:INFOrmation:OPTions?")
+optionsVerbose(ins::E8257D)               = query_ins(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
+revision(ins::E8257D)                     = query_ins(ins,"DIAGnostic:INFOrmation:REVision?")

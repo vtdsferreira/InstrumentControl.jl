@@ -204,7 +204,7 @@ end
 "Get the output phase in degrees for a given channel."
 function phaseDegrees(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
-    parse(query(ins,string("SOUR",ch,":PHAS?")))
+    parse(query_ins(ins,string("SOUR",ch,":PHAS?")))
 end
 
 "Set the output phase in degrees for a given channel."
@@ -213,7 +213,7 @@ function setPhaseDegrees(ins::AWG5014C, phase::Real, ch::Integer)
     ph = phase+180.
     ph = mod(ph,360.)
     ph -= 180.
-    parse(query(ins,string("SOUR",ch,":PHAS ",phase)))
+    parse(query_ins(ins,string("SOUR",ch,":PHAS ",phase)))
 end
 
 "Get the output phase in radians for a given channel."
@@ -229,107 +229,107 @@ end
 "Get the voltage offset for a given channel."
 function voltageOffset(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
-    parse(query(ins,string("SOUR",ch,":VOLT:OFFS?")))
+    parse(query_ins(ins,string("SOUR",ch,":VOLT:OFFS?")))
 end
 
 "Set the voltage offset between -2.25 V and 2.25 V for a given channel."
 function setVoltageOffset(ins::AWG5014C, voff::Real, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     @assert (-2.25 <= voff <= 2.25) "Offset out of range."
-    write(ins,string("SOUR",ch,":VOLT:OFFS ",voff))
+    write_ins(ins,string("SOUR",ch,":VOLT:OFFS ",voff))
 end
 
 "Get the waveform name for a given channel."
 function waveform(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
-    query(ins,string("SOUR",ch,":WAV?"))
+    query_ins(ins,string("SOUR",ch,":WAV?"))
 end
 
 "Set the waveform by name for a given channel."
 function setWaveform(ins::AWG5014C, name::ASCIIString, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
-    write(ins,string("SOUR",ch,":WAV ",quoted(name)))
+    write_ins(ins,string("SOUR",ch,":WAV ",quoted(name)))
 end
 
 "Set Vpp for a given channel between 0.05 V and 2 V."
 function setAmplitudeVpp(ins::AWG5014C, ampl::Real, ch::Integer)
     @assert (0.05 <= ampl <= 2) "Amplitude out of range."
     @assert (1 <= ch <= 4) "Channel out of range."
-    write(ins,string("SOUR",ch,":VOLT ",ampl))
+    write_ins(ins,string("SOUR",ch,":VOLT ",ampl))
 end
 
 "Get Vpp for a given channel."
 function amplitudeVpp(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
-    parse(query(ins,string("SOUR",ch,":VOLT?")))
+    parse(query_ins(ins,string("SOUR",ch,":VOLT?")))
 end
 
 "Set the sample rate in Hz between 10 MHz and 10 GHz. Output rate = sample rate / number of points."
 function setSampleRate(ins::AWG5014C, rate::Real)
     @assert (10e6 <= rate <= 10e9) "Sample rate out of range."
-    write(ins,string("SOUR:FREQ ",rate))
+    write_ins(ins,string("SOUR:FREQ ",rate))
 end
 
 "Get the sample rate in Hz. Output rate = sample rate / number of points."
 function sampleRate(ins::AWG5014C)
-    parse(query(ins,"SOUR:FREQ?"))
+    parse(query_ins(ins,"SOUR:FREQ?"))
 end
 
 "Run an application, e.g. SerialXpress"
 function runApplication(ins::AWG5014C, app::ASCIIString)
-    write(ins,"AWGC:APPL:RUN \""+app+"\"")
+    write_ins(ins,"AWGC:APPL:RUN \""+app+"\"")
 end
 
 function applicationState(ins::AWG5014C, app::ASCIIString)
-    query(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? StopState(ins) : RunState(ins)
+    query_ins(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? StopState(ins) : RunState(ins)
 end
 
 function hardwareSequencerType(ins::AWG5014C)
-    chomp(query(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? true : false
+    chomp(query_ins(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? true : false
 end
 
 function loadAWGSettings(ins::AWG5014C,filePath::ASCIIString)
-    write(ins,string("AWGC:SRES \"",filePath,"\""))
+    write_ins(ins,string("AWGC:SRES \"",filePath,"\""))
 end
 
 function saveAWGSettings(ins::AWG5014C,filePath::ASCIIString)
-    write(ins,string("AWGC:SSAV \"",filePath,"\""))
+    write_ins(ins,string("AWGC:SSAV \"",filePath,"\""))
 end
 
 function clearWaveforms(ins::AWG5014C)
-    write(ins,"SOUR1:FUNC:USER \"\"")
-    write(ins,"SOUR2:FUNC:USER \"\"")
-    write(ins,"SOUR3:FUNC:USER \"\"")
-    write(ins,"SOUR4:FUNC:USER \"\"")
+    write_ins(ins,"SOUR1:FUNC:USER \"\"")
+    write_ins(ins,"SOUR2:FUNC:USER \"\"")
+    write_ins(ins,"SOUR3:FUNC:USER \"\"")
+    write_ins(ins,"SOUR4:FUNC:USER \"\"")
 end
 
 function deleteWaveform(ins::AWG5014C, name::ASCIIString)
-    write(ins, "WLIS:WAV:DEL "*quoted(name))
+    write_ins(ins, "WLIS:WAV:DEL "*quoted(name))
 end
 
 function newWaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
-    write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*state((wvtype)(AWG5014C)))
+    write_ins(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*state((wvtype)(AWG5014C)))
 end
 
 function resampleWaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
-    write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
+    write_ins(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
 end
 
 function normalizeWaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
-    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*state(norm(AWG5014C)))
+    write_ins(ins, "WLIS:WAV:NORM "*quoted(name)*","*state(norm(AWG5014C)))
 end
 
 "Uses Julia style indexing (begins at 1) to retrieve the name of a waveform."
 function waveformName(ins::AWG5014C, num::Integer)
-    strip(query(ins, "WLIST:NAME? "*string(num-1)),'"')
+    strip(query_ins(ins, "WLIST:NAME? "*string(num-1)),'"')
 end
 
 function waveformLength(ins::AWG5014C, name::ASCIIString)
-    parse(query(ins, "WLIST:WAV:LENG? "*quoted(name)))
+    parse(query_ins(ins, "WLIST:WAV:LENG? "*quoted(name)))
 end
 
 function waveformIsPredefined(ins::AWG5014C, name::ASCIIString)
-    Bool(parse(query(ins,"WLIST:WAV:PRED? "*quoted(name))))
+    Bool(parse(query_ins(ins,"WLIST:WAV:PRED? "*quoted(name))))
 end
 
 function waveformExists(ins::AWG5014C, name::ASCIIString)
@@ -343,12 +343,12 @@ function waveformExists(ins::AWG5014C, name::ASCIIString)
 end
 
 function waveformTimestamp(ins::AWG5014C, name::ASCIIString)
-    strip(query(ins,"WLIS:WAV:TST? "*quoted(name)),"\"")
+    strip(query_ins(ins,"WLIS:WAV:TST? "*quoted(name)),"\"")
 end
 
 "Returns the type of the waveform. The AWG hardware ultimately uses an `IntWaveform` but `RealWaveform` is more convenient."
 function waveformType(ins::AWG5014C, name::ASCIIString)
-    WaveformType(AWG5014C, query(ins,"WLIS:WAV:TYPE? "*quoted(name)))
+    WaveformType(AWG5014C, query_ins(ins,"WLIS:WAV:TYPE? "*quoted(name)))
 end
 
 "Push data to the AWG, performing checks and generating errors as appropriate."
@@ -392,11 +392,11 @@ function pushLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         # AWG wants little endian data
-        Base.write(buf, htol(awgData.data[i]))
+        write(buf, htol(awgData.data[i]))
         # Write marker bits
-        Base.write(buf, UInt8(awgData.marker1[i]) << 6 | UInt8(awgData.marker2[i]) << 7)
+        write(buf, UInt8(awgData.marker1[i]) << 6 | UInt8(awgData.marker2[i]) << 7)
     end
-    binBlockWrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
+    binblockwrite_ins(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
 function pushLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
@@ -407,9 +407,9 @@ function pushLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData:
         value = UInt16(round(value*offsetPlusPPOver2))  # now it is in the valid integer range
         value = value | (UInt16(awgData.marker1[i]) << 14)  # set marker bit 1
         value = value | (UInt16(awgData.marker2[i]) << 15)  # set marker bit 2 too
-        Base.write(buf, htol(value))    # make sure we send little endian
+        write(buf, htol(value))    # make sure we send little endian
     end
-    binBlockWrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
+    binblockwrite_ins(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
 "Validates data to be pushed to the AWG to check for internal consistency and appropriate range."
@@ -454,8 +454,8 @@ function pullLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{
 
     len = waveformLength(ins, name)
 
-    write(ins,"WLIST:WAV:DATA? "*quoted(name))
-    io = binBlockReadAvailable(ins)
+    write_ins(ins,"WLIST:WAV:DATA? "*quoted(name))
+    io = binblockreadavailable_ins(ins)
 
     samples = Int(floor((io.size-(io.ptr-1))/5.))
 
@@ -464,8 +464,8 @@ function pullLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{
     marker2 = Vector{Bool}(samples)
 
     for (i=1:samples)
-        amp[i] = ltoh(Base.read(io,Float32))
-        markers = Base.read(io,UInt8)
+        amp[i] = ltoh(read(io,Float32))
+        markers = read(io,UInt8)
         marker1[i] = Bool((markers >> 6) & UInt8(1))
         marker2[i] = Bool((markers >> 7) & UInt8(1))
     end
@@ -477,8 +477,8 @@ function pullLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T
 
     len = waveformLength(ins, name)
 
-    write(ins,"WLIST:WAV:DATA? "*quoted(name))
-    io = binBlockReadAvailable(ins)
+    write_ins(ins,"WLIST:WAV:DATA? "*quoted(name))
+    io = binblockreadavailable_ins(ins)
 
     # Handle pesky terminators.
     #
@@ -490,7 +490,7 @@ function pullLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T
 
     pointer = io.ptr
     seek(io,io.size-2)
-    finalTwo = ltoh(Base.read(io,UInt16))
+    finalTwo = ltoh(read(io,UInt16))
     seek(io,pointer-1)
     samples = Int(floor((io.size-(io.ptr-1))/2.))
 
@@ -503,7 +503,7 @@ function pullLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T
     marker2 = Vector{Bool}(samples)
 
     for (i=1:samples)
-        sample = ltoh(Base.read(io,UInt16))
+        sample = ltoh(read(io,UInt16))
         marker1[i] = Bool((sample >> 14) & UInt16(1))
         marker2[i] = Bool((sample >> 15) & UInt16(1))
         sample = sample & maximumValue
