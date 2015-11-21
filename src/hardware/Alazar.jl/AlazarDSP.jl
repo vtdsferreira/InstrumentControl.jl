@@ -19,7 +19,7 @@ end
 
 Base.show(io::IO, x::DSPModuleInfo) = print(io,
     string("$(DSPModuleType{x.dsp_module_id}) ",
-           "v$(Int(x.version_major)).$(Int(x.version_minor));",
+           "v$(Int(x.version_major)).$(Int(x.version_minor)); ",
            "max record length: $(x.max_record_length)"))
 
 function dspNumModules(a::InstrumentAlazar)

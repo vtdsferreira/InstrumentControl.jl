@@ -2,7 +2,7 @@
 export AWG5014C
 
 export allWaveforms
-const allWaveforms      = ASCIIString("ALL")
+const  allWaveforms      = ASCIIString("ALL")
 
 # Maximum number of bytes that may be sent using WLIS:WAV:DATA
 const byteLimit         = 65e7
@@ -23,26 +23,11 @@ type AWG5014C <: InstrumentVISA
         ins.vi = x
         ins.writeTerminator = "\n"
         VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
-        # wavelistArray = Array{ASCIIString,1}()
-        # for (i = 1:wavelistLength(ins).state)
-        #     push!(wavelistArray,wavelistName(ins,i-1))
-        # end
         ins
     end
 
     AWG5014C() = new()
 end
-
-export AWG5014CString
-type AWG5014CString <: BufferedInput
-    ins::AWG5014C
-    label::Label
-    val::AbstractString
-end
-
-# export query, read
-# query(ins::AWG5014C, msg::ASCIIString) = chomp(PyCall.pycall(ins.vi[:query],ASCIIString,msg))
-# read(ins::AWG5014C) = chomp(PyCall.pycall(ins.vi[:read],ASCIIString))
 
 export AWG5014CData
 type AWG5014CData
@@ -53,7 +38,7 @@ end
 
 const noError = 0
 exceptions    = Dict(
-         0     => "No error.",
+         0   => "No error.",
         -222 => "Out of range.",
         -224 => "Not a power of 2.",
         -330 => "Diagnostic error.",
@@ -61,57 +46,17 @@ exceptions    = Dict(
 
 InstrumentException(ins::AWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
-responses = Dict(
-    :InstrumentState            => Dict(0       => :Stop,
-                                        2       => :Run,
-                                        1       => :Wait),
-
-    :InstrumentTiming           => Dict("SYNC"  => :Synchronous,
-                                        "ASYNC" => :Asynchronous),
-
-    :InstrumentTriggerSlope     => Dict("POS"   => :TriggerRising,
-                                        "NEG"   => :TriggerFalling),
-
-    :InstrumentClockSlope       => Dict("POS"   => :ClockRising,
-                                        "NEG"   => :ClockFalling),
-
-    :InstrumentEventSlope       => Dict("POS"   => :EventRising,
-                                        "NEG"   => :EventFalling),
-
-    :InstrumentTrigger          => Dict("TRIG"  => :Triggered,
-                                        "CONT"  => :Continuous,
-                                        "GAT"   => :Gated,
-                                        "SEQ"   => :Sequence),
-
-    :InstrumentClockSource      => Dict("INT"   => :InternalClock,
-                                        "EXT"   => :ExternalClock),
-
-    :InstrumentOscillatorSource => Dict("INT"   => :InternalOscillator,
-                                        "EXT"   => :ExternalOscillator),
-
-    :InstrumentTriggerSource    => Dict("INT"   => :InternalTrigger,
-                                        "EXT"   => :ExternalTrigger),
-
-    :InstrumentImpedance        => Dict(  50.0  => :Ohm50,
-                                        1000.0  => :Ohm1k),
-
-    :InstrumentLock             => Dict(0       => :Local,
-                                        1       => :Remote)
-)
-
-generateResponseHandlers(AWG5014C,responses)
-
-export AWG5014CWaveformType
-abstract AWG5014CWaveformType <: InstrumentCode
-abstract AWG5014CNormalization <: InstrumentCode
+export WaveformType, Normalization
+abstract WaveformType  <: InstrumentCode
+abstract Normalization <: InstrumentCode
 
 subtypesArray = [
-    (:IntWaveform,          AWG5014CWaveformType),
-    (:RealWaveform,         AWG5014CWaveformType),
+    (:IntWaveform,          WaveformType),
+    (:RealWaveform,         WaveformType),
 
-    (:NotNormalized,        AWG5014CNormalization),
-    (:FullScale,            AWG5014CNormalization),
-    (:PreservingOffset,     AWG5014CNormalization)
+    (:NotNormalized,        Normalization),
+    (:FullScale,            Normalization),
+    (:PreservingOffset,     Normalization)
 ]::Array{Tuple{Symbol,DataType},1}
 
 # Create all the concrete types we need using the createCodeType function.
@@ -119,15 +64,52 @@ for ((subtypeSymb,supertype) in subtypesArray)
     PainterQB.createCodeType(subtypeSymb, supertype)
 end
 
-uniqueResponses = Dict(
-    :AWG5014CWaveformType  => Dict("INT"  => :IntWaveform,
-                                   "REAL" => :RealWaveform),
+responses = Dict(
+    :State            => Dict(0       => :Stop,
+                              2       => :Run,
+                              1       => :Wait),
 
-    :AWG5014CNormalization => Dict("NONE" => :NotNormalized,
-                                   "FSC"  => :NormalizedFullScale,
-                                   "ZREF" => :NormalizedPreservingOffset)
+    :Timing           => Dict("SYNC"  => :Synchronous,
+                              "ASYNC" => :Asynchronous),
+
+    :TriggerSlope     => Dict("POS"   => :RisingTrigger,
+                              "NEG"   => :FallingTrigger),
+
+    :ClockSlope       => Dict("POS"   => :RisingClock,
+                              "NEG"   => :FallingClock),
+
+    :EventSlope       => Dict("POS"   => :RisingEvent,
+                              "NEG"   => :FallingEvent),
+
+    :Trigger          => Dict("TRIG"  => :Triggered,
+                              "CONT"  => :Continuous,
+                              "GAT"   => :Gated,
+                              "SEQ"   => :Sequence),
+
+    :ClockSource      => Dict("INT"   => :InternalClock,
+                              "EXT"   => :ExternalClock),
+
+    :OscillatorSource => Dict("INT"   => :InternalOscillator,
+                              "EXT"   => :ExternalOscillator),
+
+    :TriggerSource    => Dict("INT"   => :InternalTrigger,
+                              "EXT"   => :ExternalTrigger),
+
+    :Impedance        => Dict(  50.0  => :Ohm50,
+                              1000.0  => :Ohm1k),
+
+    :Lock             => Dict(0       => :Local,
+                              1       => :Remote),
+
+    :WaveformType     => Dict("INT"  => :IntWaveform,
+                              "REAL" => :RealWaveform),
+
+    :Normalization    => Dict("NONE" => :NotNormalized,
+                              "FSC"  => :NormalizedFullScale,
+                              "ZREF" => :NormalizedPreservingOffset)
 )
-generateResponseHandlers(AWG5014C, uniqueResponses)
+
+generateResponseHandlers(AWG5014C,responses)
 
 # Needed because otherwise we need to qualify the run(awg) command with the module name.
 import Main.run
@@ -135,54 +117,54 @@ import Main.run
 sfd = Dict(
     "calibrate"                         => ["*CAL?",                    InstrumentException],
     "options"                           => ["*OPT?",                    ASCIIString],
-    "externalOscillatorDividerRate"     => ["AWGC:CLOC:DRAT",           Int64],    # IMPLEMENT ERROR HANDLING
-    "referenceClockSource"              => ["AWGC:CLOC:SOUR",           InstrumentClockSource],
-    "numberOfAvailableChannels"         => ["AWGC:CONF:CNUM?",          Int64],
+    "externalOscillatorDividerRate"     => ["AWGC:CLOC:DRAT",           Int],    # IMPLEMENT ERROR HANDLING
+    "referenceClockSource"              => ["AWGC:CLOC:SOUR",           ClockSource],
+    "numberOfAvailableChannels"         => ["AWGC:CONF:CNUM?",          Int],
     "dcState"                           => ["AWGC:DC:STAT",             Bool],
-    "dcOutputLevel"                     => ["AWGC:DC#:VOLT:OFFS",       Float64],
-    "repetitionRate"                    => ["AWGC:RRAT",                Float64],
+    "dcOutputLevel"                     => ["AWGC:DC#:VOLT:OFFS",       AbstractFloat],
+    "repetitionRate"                    => ["AWGC:RRAT",                AbstractFloat],
     "repetitionRateHeld"                => ["AWGC:RRAT:HOLD",           Bool],
-    "runState"                          => ["AWGC:RSTATE?",             InstrumentState],
-    "runMode"                           => ["AWGC:RMOD",                InstrumentTrigger],
-    "run"                               => ["AWGC:RUN",                 InstrumentNoArgs],
-    "stop"                              => ["AWGC:STOP",                InstrumentNoArgs],
-    "sequencerPosition"                 => ["AWGC:SEQ:POS?",            Int64],
+    "runState"                          => ["AWGC:RSTATE?",             State],
+    "runMode"                           => ["AWGC:RMOD",                Trigger],
+    "run"                               => ["AWGC:RUN",                 NoArgs],
+    "stop"                              => ["AWGC:STOP",                NoArgs],
+    "sequencerPosition"                 => ["AWGC:SEQ:POS?",            Int],
     # The following two methods may return AWGYes() if the window *cannot* be displayed.
     # They return the correct result (AWGNo()) if the window can be displayed, but is not displayed.
     "sequenceWindowDisplayed"           => ["DISP:WIND1:STAT",          Bool],
     "waveformWindowDisplayed"           => ["DISP:WIND2:STAT",          Bool],
-    "forceEvent"                        => ["EVEN",                     InstrumentNoArgs],
-    "eventImpedance"                    => ["EVEN:IMP",                 InstrumentImpedance],
-    "eventJumpTiming"                   => ["EVEN:JTIM",                InstrumentTiming],
-    "eventLevel"                        => ["EVEN:LEV",                 Float64],
-    "eventSlope"                        => ["EVEN:POL",                 InstrumentEventSlope],
-    "outputFilterFrequency"             => ["OUTP#:FILT:FREQ",          Float64],
+    "forceEvent"                        => ["EVEN",                     NoArgs],
+    "eventImpedance"                    => ["EVEN:IMP",                 Impedance],
+    "eventJumpTiming"                   => ["EVEN:JTIM",                Timing],
+    "eventLevel"                        => ["EVEN:LEV",                 AbstractFloat],
+    "eventSlope"                        => ["EVEN:POL",                 EventSlope],
+    "outputFilterFrequency"             => ["OUTP#:FILT:FREQ",          AbstractFloat],
     "outputState"                       => ["OUTP#:STAT",               Bool],
-    "sequencerGOTOTarget"               => ["SEQ:ELEM#:GOTO:IND",       Int64],
+    "sequencerGOTOTarget"               => ["SEQ:ELEM#:GOTO:IND",       Int],
     "sequencerGOTOState"                => ["SEQ:ELEM#:GOTO:STAT",      Bool],
-    "sequencerEventJumpTarget"          => ["SEQ:ELEM#:JTAR:IND",       Int64],
-    "sequencerLoopCount"                => ["SEQ:ELEM#:LOOP:COUN",      Int64],
+    "sequencerEventJumpTarget"          => ["SEQ:ELEM#:JTAR:IND",       Int],
+    "sequencerLoopCount"                => ["SEQ:ELEM#:LOOP:COUN",      Int],
     "sequencerInfiniteLoop"             => ["SEQ:ELEM#:LOOP:INF",       Bool],
-    "sequencerLength"                   => ["SEQ:LENG",                 Int64],
-    "forceSequenceJump"                 => ["SEQ:JUMP",                 InstrumentNoArgs],
+    "sequencerLength"                   => ["SEQ:LENG",                 Int],
+    "forceSequenceJump"                 => ["SEQ:JUMP",                 NoArgs],
     "externalInputAddsToOutput"         => ["SOUR#:COMB:FEED",          ASCIIString],
-    "analogOutputDelayInSeconds"        => ["SOUR#:DELAY",              Float64],
-    "analogOutputDelayInPoints"         => ["SOUR#:DELAY:POIN",         Float64],
+    "analogOutputDelayInSeconds"        => ["SOUR#:DELAY",              AbstractFloat],
+    "analogOutputDelayInPoints"         => ["SOUR#:DELAY:POIN",         AbstractFloat],
     "waveformLoadedInChannel"           => ["SOUR#:FUNC:USER",          ASCIIString],
-    "markerDelay"                       => ["SOUR#:MARK#:DEL",          Float64],
-    "referenceOscillatorFrequency"      => ["SOUR:ROSC:FREQ",           Float64],
-    "referenceOscillatorMultiplier"     => ["SOUR:ROSC:MULT",           Int64],
-    "referenceOscillatorSource"         => ["SOUR:ROSC:SOUR",           InstrumentOscillatorSource],
-    "systemDate"                        => ["SYST:DATE",                Int64],
-    "panelLocked"                       => ["SYST:KLOC",                InstrumentLock],
-    "systemTime"                        => ["SYST:TIME",                Int64],
+    "markerDelay"                       => ["SOUR#:MARK#:DEL",          AbstractFloat],
+    "referenceOscillatorFrequency"      => ["SOUR:ROSC:FREQ",           AbstractFloat],
+    "referenceOscillatorMultiplier"     => ["SOUR:ROSC:MULT",           Int],
+    "referenceOscillatorSource"         => ["SOUR:ROSC:SOUR",           OscillatorSource],
+    "systemDate"                        => ["SYST:DATE",                Int],
+    "panelLocked"                       => ["SYST:KLOC",                Lock],
+    "systemTime"                        => ["SYST:TIME",                Int],
     "scpiVersion"                       => ["SYST:VERS?",               ASCIIString],
-    "triggerImpedance"                  => ["TRIG:IMP",                 InstrumentImpedance],
-    "triggerLevel"                      => ["TRIG:LEV",                 Float64],
-    "triggerSlope"                      => ["TRIG:POL",                 InstrumentTriggerSlope],
-    "triggerTimer"                      => ["TRIG:TIM",                 Float64],
-    "triggerSource"                     => ["TRIG:SOUR",                InstrumentTriggerSource],
-    "wavelistLength"                    => ["WLIST:SIZE?",              Int64]
+    "triggerImpedance"                  => ["TRIG:IMP",                 Impedance],
+    "triggerLevel"                      => ["TRIG:LEV",                 AbstractFloat],
+    "triggerSlope"                      => ["TRIG:POL",                 TriggerSlope],
+    "triggerTimer"                      => ["TRIG:TIM",                 AbstractFloat],
+    "triggerSource"                     => ["TRIG:SOUR",                TriggerSource],
+    "wavelistLength"                    => ["WLIST:SIZE?",              Int]
 )
 
 for (fnName in keys(sfd))
@@ -211,7 +193,7 @@ macro allCh(x::Expr)
 
     for ch in 1:4
         n = copy(x)
-        push!(n.args,Int64(ch))
+        push!(n.args,Int(ch))
         push!(myargs,n)
     end
 
@@ -299,11 +281,11 @@ function runApplication(ins::AWG5014C, app::ASCIIString)
 end
 
 function applicationState(ins::AWG5014C, app::ASCIIString)
-    query(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? InstrumentStopState(ins) : InstrumentRunState(ins)
+    query(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? StopState(ins) : RunState(ins)
 end
 
 function hardwareSequencerType(ins::AWG5014C)
-    chomp(query(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? InstrumentYes(ins) : InstrumentNo(ins)
+    chomp(query(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? true : false
 end
 
 function loadAWGSettings(ins::AWG5014C,filePath::ASCIIString)
@@ -325,24 +307,16 @@ function deleteWaveform(ins::AWG5014C, name::ASCIIString)
     write(ins, "WLIS:WAV:DEL "*quoted(name))
 end
 
-function newWaveform{T<:AWG5014CWaveformType}(ins::AWG5014C, name::ASCIIString, size::Integer, wvtype::Type{T})
-    newWaveform(ins, name, size, wvtype(ins))
-end
-
-function newWaveform(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::AWG5014CWaveformType)
-    write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*wvtype.state)
+function newWaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
+    write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*state((wvtype)(AWG5014C)))
 end
 
 function resampleWaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
     write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
 end
 
-function normalizeWaveform{T<:AWG5014CNormalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
-    normalizeWaveform(ins,name,norm(ins))
-end
-
-function normalizeWaveform(ins::AWG5014C, name::ASCIIString, norm::AWG5014CNormalization)
-    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*norm.state)
+function normalizeWaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
+    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*state(norm(AWG5014C)))
 end
 
 "Uses Julia style indexing (begins at 1) to retrieve the name of a waveform."
@@ -369,20 +343,16 @@ function waveformExists(ins::AWG5014C, name::ASCIIString)
 end
 
 function waveformTimestamp(ins::AWG5014C, name::ASCIIString)
-    InstrumentASCIIString(ins, query(ins,"WLIS:WAV:TST? "*quoted(name)))
+    strip(query(ins,"WLIS:WAV:TST? "*quoted(name)),"\"")
 end
 
 "Returns the type of the waveform. The AWG hardware ultimately uses an `IntWaveform` but `RealWaveform` is more convenient."
 function waveformType(ins::AWG5014C, name::ASCIIString)
-    AWG5014CWaveformType(ins, query(ins,"WLIS:WAV:TYPE? "*quoted(name)))
+    WaveformType(AWG5014C, query(ins,"WLIS:WAV:TYPE? "*quoted(name)))
 end
 
 "Push data to the AWG, performing checks and generating errors as appropriate."
-function pushToAWG{T<:AWG5014CWaveformType}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
-    pushToAWG(ins,name,awgData,wvType(ins),resampleOk)
-end
-
-function pushToAWG(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::AWG5014CWaveformType, resampleOk::Bool=false)
+function pushToAWG{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
 
     # First validate the awgData
     validate(awgData, wvType)
@@ -399,7 +369,7 @@ function pushToAWG(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvTy
 
         # Is the type different than requested?
         # We are unable to modify an existing waveform's type, so the best thing to do is bail.
-        if (typeof(waveformType(ins,name)) != typeof(wvType))
+        if !(waveformType(ins,name) <: wvType)
             error("Existing waveform type differs. If you insist on this type, you need to delete the waveform first, with possible consequences for sequencing.")
         end
 
@@ -413,12 +383,12 @@ function pushToAWG(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvTy
         end
     end
 
-    pushLowLevel(ins,name,awgData,typeof(wvType))
+    pushLowLevel(ins,name,awgData,wvType)
 
 end
 
 "Takes care of the dirty work in pushing the data to the AWG."
-function pushLowLevel(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{RealWaveform{ASCIIString}})
+function pushLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         # AWG wants little endian data
@@ -429,7 +399,7 @@ function pushLowLevel(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, w
     binBlockWrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
-function pushLowLevel(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{IntWaveform{ASCIIString}})
+function pushLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         value = (awgData.data)[i]
@@ -443,7 +413,7 @@ function pushLowLevel(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, w
 end
 
 "Validates data to be pushed to the AWG to check for internal consistency and appropriate range."
-function validate(awgData::AWG5014CData, wvType::AWG5014CWaveformType)
+function validate(awgData::AWG5014CData, wvType::Type{WaveformType})
     # Length checks
     if (length(awgData.data) != length(awgData.marker1) != length(awgData.marker2))
         error("Data and marker lengths are not the same.")
@@ -464,13 +434,8 @@ function validate(awgData::AWG5014CData, wvType::AWG5014CWaveformType)
     end
 end
 
-function nBytes(wvType::RealWaveform)
-    return 5
-end
-
-function nBytes(wvType::IntWaveform)
-    return 2
-end
+nBytes(::RealWaveform)      = 5
+nBytes(wvType::IntWaveform) = 2
 
 "Pull data from the AWG, performing checks and generating errors as appropriate."
 function pullFromAWG(ins::AWG5014C, name::ASCIIString)
@@ -485,14 +450,14 @@ function pullFromAWG(ins::AWG5014C, name::ASCIIString)
 end
 
 "Takes care of the dirty work in pulling data from the AWG."
-function pullLowLevel(ins::AWG5014C, name::ASCIIString, wvType::RealWaveform)
+function pullLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
 
     len = waveformLength(ins, name)
 
     write(ins,"WLIST:WAV:DATA? "*quoted(name))
     io = binBlockReadAvailable(ins)
 
-    samples = Int64(floor((io.size-(io.ptr-1))/5.))
+    samples = Int(floor((io.size-(io.ptr-1))/5.))
 
     amp =  Vector{Float32}(samples)
     marker1 = Vector{Bool}(samples)
@@ -508,7 +473,7 @@ function pullLowLevel(ins::AWG5014C, name::ASCIIString, wvType::RealWaveform)
     AWG5014CData(amp,marker1,marker2)
 end
 
-function pullLowLevel(ins::AWG5014C, name::ASCIIString, wvType::IntWaveform)
+function pullLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
 
     len = waveformLength(ins, name)
 
@@ -527,7 +492,7 @@ function pullLowLevel(ins::AWG5014C, name::ASCIIString, wvType::IntWaveform)
     seek(io,io.size-2)
     finalTwo = ltoh(Base.read(io,UInt16))
     seek(io,pointer-1)
-    samples = Int64(floor((io.size-(io.ptr-1))/2.))
+    samples = Int(floor((io.size-(io.ptr-1))/2.))
 
     if (finalTwo == 0x0a0d) # this just means the last two characters were \r\n
         samples -= 1

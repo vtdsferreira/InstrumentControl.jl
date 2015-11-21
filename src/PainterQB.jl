@@ -27,7 +27,7 @@ end
 include("Instrument.jl")
 # @windows? include("hardware\\E5071C.jl")   : include("hardware/E5071C.jl")
 # @windows? include("hardware\\E8257D.jl")   : include("hardware/E8257D.jl")
-# @windows? include("hardware\\AWG5014C.jl") : include("hardware/AWG5014C.jl")
+@windows? include("hardware\\AWG5014C.jl") : include("hardware/AWG5014C.jl")
 
 # Utility channels
 
@@ -40,3 +40,7 @@ include("Time.jl")
 # include("Trace3.jl")
 
 end
+
+# if true
+#     include("builddocs.jl")
+# end

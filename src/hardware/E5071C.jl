@@ -1,7 +1,7 @@
 ### Keysight / Agilent E5071C
 export E5071C
 type E5071C <: InstrumentVISA
-    vi::(VISA.ViSession)     # this is the GpibInstrument object!
+    vi::(VISA.ViSession)
     writeTerminator::ASCIIString
 
     E5071C(x) = begin
@@ -17,92 +17,92 @@ end
 
 responseDictionary = Dict(
 
-    :InstrumentNetwork              => Dict("DHCP" => :DHCP,
-                                            "MAN"  => :ManualNetwork),
+    :Network            => Dict("DHCP" => :DHCP,
+                                "MAN"  => :ManualNetwork),
 
-    :InstrumentTriggerSource        => Dict("INT"  => :InternalTrigger,
-                                            "EXT"  => :ExternalTrigger,
-                                            "MAN"  => :ManualTrigger,
-                                            "BUS"  => :BusTrigger),
+    :TriggerSource      => Dict("INT"  => :InternalTrigger,
+                                "EXT"  => :ExternalTrigger,
+                                "MAN"  => :ManualTrigger,
+                                "BUS"  => :BusTrigger),
 
-    :InstrumentTiming               => Dict("BEF"  => :Before,
-                                            "AFT"  => :After),
+    :Timing             => Dict("BEF"  => :Before,
+                                "AFT"  => :After),
 
-    :InstrumentTriggerSlope         => Dict("POS"  => :RisingTrigger,
-                                            "NEG"  => :FallingTrigger),
+    :TriggerSlope       => Dict("POS"  => :RisingTrigger,
+                                "NEG"  => :FallingTrigger),
 
-    :InstrumentPolarity             => Dict("POS"  => :PositivePolarity,
-                                            "NEG"  => :NegativePolarity),
+    :Polarity           => Dict("POS"  => :PositivePolarity,
+                                "NEG"  => :NegativePolarity),
 
-    :InstrumentSearch               => Dict("MAX"  => :Max,
-                                            "MIN"  => :Min,
-                                            "PEAK" => :Peak,
-                                            "LPE"  => :LeftPeak,
-                                            "RPE"  => :RightPeak,
-                                            "TARG" => :Target,
-                                            "LTAR" => :LeftTarget,
-                                            "RTAR" => :RightTarget),
+    :Search             => Dict("MAX"  => :Max,
+                                "MIN"  => :Min,
+                                "PEAK" => :Peak,
+                                "LPE"  => :LeftPeak,
+                                "RPE"  => :RightPeak,
+                                "TARG" => :Target,
+                                "LTAR" => :LeftTarget,
+                                "RTAR" => :RightTarget),
 
-    :InstrumentSParameter           => Dict("S11"  => :S11,
-                                            "S12"  => :S12,
-                                            "S21"  => :S21,
-                                            "S22"  => :S22),
+    :SParameter         => Dict("S11"  => :S11,
+                                "S12"  => :S12,
+                                "S21"  => :S21,
+                                "S22"  => :S22),
 
-    :InstrumentMedium               => Dict("COAX" => :Coaxial,
-                                            "WAV"  => :Waveguide),
+    :Medium             => Dict("COAX" => :Coaxial,
+                                "WAV"  => :Waveguide),
 
-    :InstrumentDataRepresentation   => Dict("MLOG" => :LogMagnitude,
-                                            "PHAS" => :Phase,
-                                            "GDEL" => :GroupDelay,
-                                            "SLIN" => :SmithLinear,
-                                            "SLOG" => :SmithLog,
-                                            "SCOM" => :SmithComplex,
-                                            "SMIT" => :Smith,
-                                            "SADM" => :SmithAdmittance,
-                                            "PLIN" => :PolarLinear,
-                                            "PLOG" => :PolarLog,
-                                            "POL"  => :PolarComplex,
-                                            "MLIN" => :LinearMagnitude,
-                                            "SWR"  => :SWR,
-                                            "REAL" => :RealPart,
-                                            "IMAG" => :ImaginaryPart,
-                                            "UPH"  => :ExpandedPhase,
-                                            "PPH"  => :PositivePhase)
+    :DataRepresentation => Dict("MLOG" => :LogMagnitude,
+                                "PHAS" => :Phase,
+                                "GDEL" => :GroupDelay,
+                                "SLIN" => :SmithLinear,
+                                "SLOG" => :SmithLog,
+                                "SCOM" => :SmithComplex,
+                                "SMIT" => :Smith,
+                                "SADM" => :SmithAdmittance,
+                                "PLIN" => :PolarLinear,
+                                "PLOG" => :PolarLog,
+                                "POL"  => :PolarComplex,
+                                "MLIN" => :LinearMagnitude,
+                                "SWR"  => :SWR,
+                                "REAL" => :RealPart,
+                                "IMAG" => :ImaginaryPart,
+                                "UPH"  => :ExpandedPhase,
+                                "PPH"  => :PositivePhase)
 )
 
 generateResponseHandlers(E5071C, responseDictionary)
 
 sfd = Dict(
     "electricalDelay"              => [":CALC#:TRAC#:CORR:EDEL:TIME",  AbstractFloat],        #1-160, 1-16
-    "electricalMedium"             => [":CALC#:TRAC#:CORR:EDEL:MED",   InstrumentMedium],    #...
+    "electricalMedium"             => [":CALC#:TRAC#:CORR:EDEL:MED",   Medium],    #...
     "waveguideCutoffFrequency"     => [":CALC#:TRAC#:CORR:EDEL:WGC",   AbstractFloat],
     "phaseOffset"                  => [":CALC#:TRAC#:CORR:OFFS:PHAS",  AbstractFloat],
-    "dataFormat"                   => [":CALC#:TRAC#:FORM",            InstrumentDataRepresentation],
+    "dataFormat"                   => [":CALC#:TRAC#:FORM",            DataRepresentation],
     "numberOfTraces"               => [":CALC#:PAR:COUN",              Int],        #1-160, arg: 1-9
     "smoothingAperture"            => [":CALC#:SMO:APER",              AbstractFloat],
     "smoothingOn"                  => [":CALC1:SMO:STAT",              Bool],
     "markerOn"                     => [":CALC#:MARK#",                 Bool],
-    "setActiveMarker"              => [":CALC#:MARK#:ACT",             InstrumentNoArgs],
+    "setActiveMarker"              => [":CALC#:MARK#:ACT",             NoArgs],
     "markerX"                      => [":CALC#:MARK#:X",               AbstractFloat],
     "markerY"                      => [":CALC#:MARK#:Y?",              AbstractFloat],        #:CALC{1-160}:MARK{1-9}:DATA
-    "markerSearch"                 => [":CALC#:MARK#:FUNC:EXEC",       InstrumentNoArgs],
+    "markerSearch"                 => [":CALC#:MARK#:FUNC:EXEC",       NoArgs],
     #:CALC{1-160}:MARK{1-10}:SET
-    "setActiveTrace"               => [":CALC#:PAR#:SEL",              InstrumentNoArgs],
-    "measurementParameter"         => [":CALC#:PAR#:DEF",              InstrumentSParameter],
+    "setActiveTrace"               => [":CALC#:PAR#:SEL",              NoArgs],
+    "measurementParameter"         => [":CALC#:PAR#:DEF",              SParameter],
     "frequencyDisplayed"           => [":DISP:ANN:FREQ",               Bool],
     "displayEnabled"               => [":DISP:ENAB",                   Bool],
-    "setActiveChannel"             => [":DISP:WIND#:ACT",              InstrumentNoArgs],
+    "setActiveChannel"             => [":DISP:WIND#:ACT",              NoArgs],
     "channelMaximized"             => [":DISP:MAX",                    Bool],
     "windowLayout"                 => [":DISP:SPL",                    ASCIIString],
     "traceMaximized"               => [":DISP:WIND#:MAX",              Bool], #1-160
     "graphLayout"                  => [":DISP:WIND#:SPL",              ASCIIString], #1-36 (why?)
-    "autoscale"                    => [":DISP:WIND#:TRAC#:Y:AUTO",     InstrumentNoArgs],  #1-160, 1-16
+    "autoscale"                    => [":DISP:WIND#:TRAC#:Y:AUTO",     NoArgs],  #1-160, 1-16
     "yScalePerDivision"            => [":DISP:WIND#:TRAC#:Y:PDIV",     AbstractFloat],
     "yReferenceLevel"              => [":DISP:WIND#:TRAC#:Y:RLEV",     AbstractFloat],
     "yReferencePosition"           => [":DISP:WIND#:TRAC#:Y:RPOS",     Int],
     "dataTraceOn"                  => [":DISP:WIND#:TRAC#:STAT",       Bool],
     "yDivisions"                   => [":DISP:WIND#:Y:DIV",            Int],
-    "clearAveraging"               => [":SENS#:AVER:CLE",              InstrumentNoArgs],    #1-160
+    "clearAveraging"               => [":SENS#:AVER:CLE",              NoArgs],    #1-160
     "averagingFactor"              => [":SENS#:AVER:COUN",             Int],            #1-160
     "averagingOn"                  => [":SENS#:AVER",                  Bool],
     "IFBandwidth"                  => [":SENS1:BAND",                  AbstractFloat],
@@ -123,14 +123,14 @@ sfd = Dict(
     "powerSlopeOn"                 => [":SOUR#:POW:SLOP:STAT",         Bool],
 
     "averagingTriggerOn"           => [":TRIG:AVER",                   Bool],
-    "externalTriggerSlope"         => [":TRIG:SEQ:EXT:SLOP",           InstrumentTriggerSlope],
+    "externalTriggerSlope"         => [":TRIG:SEQ:EXT:SLOP",           TriggerSlope],
     "externalTriggerDelay"         => [":TRIG:EXT:DEL",                AbstractFloat],
     "externalTriggerLowLatencyOn"  => [":TRIG:EXT:LLAT",               Bool],
     "triggerOutputOn"              => [":TRIG:OUTP:STAT",              Bool],
-    "triggerOutputPolarity"        => [":TRIG:OUTP:POL",               InstrumentPolarity],
-    "triggerOutputTiming"          => [":TRIG:OUTP:POS",               InstrumentTiming],
+    "triggerOutputPolarity"        => [":TRIG:OUTP:POL",               Polarity],
+    "triggerOutputTiming"          => [":TRIG:OUTP:POS",               Timing],
     "pointTriggerOn"               => [":TRIG:POIN",                   Bool],
-    "triggerSource"                => [":TRIG:SOUR",                   InstrumentTriggerSource],
+    "triggerSource"                => [":TRIG:SOUR",                   TriggerSource],
     "powerOn"                      => [":OUTP",                        Bool],
 )
 

@@ -1,7 +1,7 @@
 ### Keysight / Agilent E8257D
 export E8257D
 type E8257D <: InstrumentVISA
-    vi::(VISA.ViSession)     # this is the GpibInstrument object!
+    vi::(VISA.ViSession)
     writeTerminator::ASCIIString
 
     E8257D(x) = begin
@@ -22,14 +22,14 @@ export E8257DPowerOutput
 type E8257DPowerOutput <: E8257DOutput
     ins::E8257D
 #   label::Label
-    val::Float64
+    val::AbstractFloat
 end
 
 export E8257DFrequencyOutput
 type E8257DFrequencyOutput <: E8257DOutput
     ins::E8257D
 #   label::Label
-    val::Float64
+    val::AbstractFloat
 end
 
 export source
@@ -45,76 +45,76 @@ end
 
 subtypeStateDictionary = Dict(
 
-    :InstrumentNetwork              => Dict("DHCP" => :DHCP,
-                                            "MAN"  => :ManualNetwork),
+    :Network              => Dict("DHCP" => :DHCP,
+                                  "MAN"  => :ManualNetwork),
 
-    :InstrumentTriggerSource        => Dict("IMM"  => :InternalTrigger,
-                                            "EXT"  => :ExternalTrigger,
-                                            "KEY"  => :ManualTrigger,
-                                            "BUS"  => :BusTrigger),
+    :TriggerSource        => Dict("IMM"  => :InternalTrigger,
+                                  "EXT"  => :ExternalTrigger,
+                                  "KEY"  => :ManualTrigger,
+                                  "BUS"  => :BusTrigger),
 
-    :InstrumentOscillatorSource     => Dict("INT"  => :InternalOscillator,
-                                            "EXT"  => :ExternalOscillator)
+    :OscillatorSource     => Dict("INT"  => :InternalOscillator,
+                                  "EXT"  => :ExternalOscillator)
 )
 
 generateResponseHandlers(E8257D, responseDictionary)
 
 sfd = Dict(
-    "screenshot"                 => ["DISP:CAPT",                           InstrumentNoArgs],
-    "numFlatnessCorrectionPts"   => ["SOURce:CORRection:FLATness:POINts?",  Int64],
-    "factoryFlatnessCorrection"  => ["SOURce:CORRection:FLATness:PRESet",   InstrumentNoArgs],
+    "screenshot"                 => ["DISP:CAPT",                           NoArgs],
+    "numFlatnessCorrectionPts"   => ["SOURce:CORRection:FLATness:POINts?",  Int],
+    "factoryFlatnessCorrection"  => ["SOURce:CORRection:FLATness:PRESet",   NoArgs],
     "flatnessCorrectionOn"       => ["SOURce:CORRection:STATe",             Bool],
     "frequencyBandOn"            => ["SOURce:FREQuency:CHANnels:STATe",     Bool],
-    "frequency"                  => ["SOURce:FREQuency:FIXed",              Float64],            # units?
-    "stepFrequencyUp"            => ["SOURce:FREQuency:FIXed UP",           InstrumentNoArgs],
-    "stepFrequencyDown"          => ["SOURce:FREQuency:FIXed DOWN",         InstrumentNoArgs],
-    "frequencyMultiplier"        => ["SOURce:FREQuency:MULTiplier",         Int64],
+    "frequency"                  => ["SOURce:FREQuency:FIXed",              AbstractFloat],            # units?
+    "stepFrequencyUp"            => ["SOURce:FREQuency:FIXed UP",           NoArgs],
+    "stepFrequencyDown"          => ["SOURce:FREQuency:FIXed DOWN",         NoArgs],
+    "frequencyMultiplier"        => ["SOURce:FREQuency:MULTiplier",         Int],
     "frequencyOffsetOn"          => ["SOURce:FREQuency:OFFSet:STATe",       Bool],
-    "frequencyOffset"            => ["SOURce:FREQuency:OFFSet",             Float64],
-    "frequencyReference"         => ["SOURce:FREQuency:REFerence",          Float64],
-    "setFrequencyReference"      => ["SOURce:FREQuency:REFerence:SET",      InstrumentNoArgs],
+    "frequencyOffset"            => ["SOURce:FREQuency:OFFSet",             AbstractFloat],
+    "frequencyReference"         => ["SOURce:FREQuency:REFerence",          AbstractFloat],
+    "setFrequencyReference"      => ["SOURce:FREQuency:REFerence:SET",      NoArgs],
     "frequencyReferenceOn"       => ["SOURce:FREQuency:REFerence:STATe",    Bool],
-    "startFrequency"             => ["SOURce:FREQuency:STARt",              Float64],
-    "stopFrequency"              => ["SOURce:FREQuency:STOP",               Float64],
-    "frequencyIncrement"         => ["SOURce:FREQuency:STEP",               Float64],
-    "phase"                      => ["SOURce:PHASe:ADJust",                 Float64],            #radians?
-    "setPhaseReference"          => ["SOURce:PHASe:REFerence",              InstrumentNoArgs],
-    "referenceOscillatorSource"  => ["SOURce:ROSCillator:SOURce?",          InstrumentOscillatorSource],
+    "startFrequency"             => ["SOURce:FREQuency:STARt",              AbstractFloat],
+    "stopFrequency"              => ["SOURce:FREQuency:STOP",               AbstractFloat],
+    "frequencyIncrement"         => ["SOURce:FREQuency:STEP",               AbstractFloat],
+    "phase"                      => ["SOURce:PHASe:ADJust",                 AbstractFloat],            #radians?
+    "setPhaseReference"          => ["SOURce:PHASe:REFerence",              NoArgs],
+    "referenceOscillatorSource"  => ["SOURce:ROSCillator:SOURce?",          OscillatorSource],
     "autoBlanking"               => ["SOURce:OUTPut:BLANking:AUTO",         Bool],
     "blankingOn"                 => ["SOURce:OUTPut:BLANking:STATe",        Bool],
-    "outputSettled"              => [":OUTPut:SETTled?",                    InstrumentNoArgs],
+    "outputSettled"              => [":OUTPut:SETTled?",                    NoArgs],
     "powerOn"                    => [":OUTPut",                             Bool],
-    "alcBandwidth"               => ["SOURce:POWer:ALC:BANDwidth",          Float64],
+    "alcBandwidth"               => ["SOURce:POWer:ALC:BANDwidth",          AbstractFloat],
     "alcAutoBandwidth"           => ["SOURce:POWer:ALC:BANDwidth:AUTO",     Bool],
-    "alcLevel"                   => ["SOURce:POWer:ALC:LEVel",              Float64],            # step attenuator
-    "alcPowerSearchRefLevel"     => ["SOURce:POWer:ALC:SEARch:REF:LEVel",   Float64],
-    "alcPowerSearchStart"        => ["SOURce:POWer:ALC:SEARch:SPAN:START",  Float64],            # may want units?
-    "alcPowerSearchStop"         => ["SOURce:POWer:ALC:SEARch:SPAN:STOP",   Float64],            # may want units?
+    "alcLevel"                   => ["SOURce:POWer:ALC:LEVel",              AbstractFloat],            # step attenuator
+    "alcPowerSearchRefLevel"     => ["SOURce:POWer:ALC:SEARch:REF:LEVel",   AbstractFloat],
+    "alcPowerSearchStart"        => ["SOURce:POWer:ALC:SEARch:SPAN:START",  AbstractFloat],            # may want units?
+    "alcPowerSearchStop"         => ["SOURce:POWer:ALC:SEARch:SPAN:STOP",   AbstractFloat],            # may want units?
     "alcPowerSearchSpanOn"       => ["SOURce:POWer:ALC:SEARch:SPAN:STATe",  Bool],
     "alcOn"                      => ["SOURce:POWer:ALC:STATe",              Bool],
-    "triggerSweep"               => ["SOURce:TSWeep",                       InstrumentNoArgs],
-    "attenuation"                => ["SOURce:POWer:ATTenuation",            Float64],            # step attenuator    # may want units?
+    "triggerSweep"               => ["SOURce:TSWeep",                       NoArgs],
+    "attenuation"                => ["SOURce:POWer:ATTenuation",            AbstractFloat],            # step attenuator    # may want units?
     "autoAttenuator"             => ["SOURce:POWer:ATTenuation:AUTO",       Bool],        # step attenuator # docstring
     "autoOptimizeSNROn"          => ["SOURce:POWer:NOISe:STATe",            Bool],
     "outputPowerLimitAdjust"     => ["SOURce:POWer:LIMit:MAX:ADJust",       Bool],
-    "outputPowerLimit"           => ["SOURce:POWer:LIMit:MAX",              Float64],            # units?
+    "outputPowerLimit"           => ["SOURce:POWer:LIMit:MAX",              AbstractFloat],            # units?
     "powerSearchProtection"      => ["SOURce:POWer:PROTection:STATe",       Bool],
-    "powerOutputReference"       => ["SOURce:POWer:REFerence",              Float64],            # units?
+    "powerOutputReference"       => ["SOURce:POWer:REFerence",              AbstractFloat],            # units?
     "powerOutputReferenceOn"     => ["SOURce:POWer:REFerence:STATe",        Bool],
-    "startPower"                 => ["SOURce:POWer:STARt",                  Float64],            # units?
-    "stopPower"                  => ["SOURce:POWer:STOP",                   Float64],            # units?
-    "powerOffset"                => ["SOURce:POWer:LEVel:OFFSet",           Float64],            # units?
-    "power"                      => ["SOURce:POWer",                        Float64],            # units?
-    "powerIncrement"             => ["SOURce:POWer:LEVel:STEP",             Float64],            # units?
+    "startPower"                 => ["SOURce:POWer:STARt",                  AbstractFloat],            # units?
+    "stopPower"                  => ["SOURce:POWer:STOP",                   AbstractFloat],            # units?
+    "powerOffset"                => ["SOURce:POWer:LEVel:OFFSet",           AbstractFloat],            # units?
+    "power"                      => ["SOURce:POWer",                        AbstractFloat],            # units?
+    "powerIncrement"             => ["SOURce:POWer:LEVel:STEP",             AbstractFloat],            # units?
 
-    "lanConfiguration"           => ["SYST:COMM:LAN:CONF",                  InstrumentNetwork],    # IMPLEMENT ERROR HANDLING
+    "lanConfiguration"           => ["SYST:COMM:LAN:CONF",                  Network],    # IMPLEMENT ERROR HANDLING
     "lanHostname"                => ["SYSTem:COMMunicate:LAN:HOSTname",     ASCIIString],
     "lanIP"                      => ["SYSTem:COMMunicate:LAN:IP",           ASCIIString],
     "lanSubnet"                  => ["SYSTem:COMMunicate:LAN:SUBNet",       ASCIIString],
-#    "systemDate"                  => ["SYST:DATE",                             Int64],
-#    "systemTime"                  => ["SYST:TIME",                             Int64],
-    "triggerOutputPolarity"      => ["TRIG:OUTP:POL",                       InstrumentPolarity],
-    "triggerSource"              => ["TRIG:SOUR",                           InstrumentTriggerSource]
+#    "systemDate"                  => ["SYST:DATE",                             Int],
+#    "systemTime"                  => ["SYST:TIME",                             Int],
+    "triggerOutputPolarity"      => ["TRIG:OUTP:POL",                       Polarity],
+    "triggerSource"              => ["TRIG:SOUR",                           TriggerSource]
 )
 
 for (fnName in keys(sfd))

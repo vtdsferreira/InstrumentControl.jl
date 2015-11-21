@@ -37,10 +37,10 @@ typealias DSPModuleHandle Ptr{Void}
 include("AlazarConstants.jl")
 
 # Play nice with Instruments
-export AlazarAux, AlazarDataPacking, AlazarChannel
-abstract AlazarAux <: InstrumentCode
+export   AlazarAux, AlazarDataPacking, AlazarChannel
+abstract AlazarAux         <: InstrumentCode
 abstract AlazarDataPacking <: InstrumentCode
-abstract AlazarChannel <: InstrumentCode
+abstract AlazarChannel     <: InstrumentCode
 
 subtypesArray = [
     (:ChannelA                          , AlazarChannel),
@@ -51,7 +51,11 @@ subtypesArray = [
     (:AuxInputTriggerEnable             , AlazarAux),
     (:AuxOutputPacer                    , AlazarAux),
     (:AuxDigitalInput                   , AlazarAux),
-    (:AuxDigitalOutput                  , AlazarAux)
+    (:AuxDigitalOutput                  , AlazarAux),
+
+    (:DefaultPacking                    , AlazarDataPacking),
+    (:Pack8Bits                         , AlazarDataPacking),
+    (:Pack12Bits                        , AlazarDataPacking)
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -468,59 +472,62 @@ Base.show(io::IO, ins::InstrumentAlazar) = begin
 end
 
 responses = Dict(
-    :InstrumentCoupling     => Dict(AC_COUPLING             => :AC,
-                                    DC_COUPLING             => :DC),
+    :Coupling           => Dict(AC_COUPLING              => :AC,
+                                DC_COUPLING              => :DC),
 
-    :InstrumentTriggerSlope => Dict(TRIGGER_SLOPE_POSITIVE  => :RisingTrigger,
-                                    TRIGGER_SLOPE_NEGATIVE  => :FallingTrigger),
+    :TriggerSlope       => Dict(TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
+                                TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
 
-    :InstrumentClockSlope   => Dict(CLOCK_EDGE_RISING       => :RisingClock,
-                                    CLOCK_EDGE_FALLING      => :FallingClock),
+    :ClockSlope         => Dict(CLOCK_EDGE_RISING        => :RisingClock,
+                                CLOCK_EDGE_FALLING       => :FallingClock),
 
-    :InstrumentClockSource  => Dict(INTERNAL_CLOCK           => :InternalClock,
-                                    EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
+    :ClockSource        => Dict(INTERNAL_CLOCK           => :InternalClock,
+                                EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
 
-    :InstrumentSampleRate   => Dict(SAMPLE_RATE_1KSPS    =>  :Rate1kSps,
-                                    SAMPLE_RATE_2KSPS    =>  :Rate2kSps,
-                                    SAMPLE_RATE_5KSPS    =>  :Rate5kSps,
-                                    SAMPLE_RATE_10KSPS   =>  :Rate10kSps,
-                                    SAMPLE_RATE_20KSPS   =>  :Rate20kSps,
-                                    SAMPLE_RATE_50KSPS   =>  :Rate50kSps,
-                                    SAMPLE_RATE_100KSPS  =>  :Rate100kSps,
-                                    SAMPLE_RATE_200KSPS  =>  :Rate200kSps,
-                                    SAMPLE_RATE_500KSPS  =>  :Rate500kSps,
-                                    SAMPLE_RATE_1MSPS    =>  :Rate1MSps,
-                                    SAMPLE_RATE_2MSPS    =>  :Rate2MSps,
-                                    SAMPLE_RATE_5MSPS    =>  :Rate5MSps,
-                                    SAMPLE_RATE_10MSPS   =>  :Rate10MSps,
-                                    SAMPLE_RATE_20MSPS   =>  :Rate20MSps,
-                                    SAMPLE_RATE_50MSPS   =>  :Rate50MSps,
-                                    SAMPLE_RATE_100MSPS  =>  :Rate100MSps,
-                                    SAMPLE_RATE_200MSPS  =>  :Rate200MSps,
-                                    SAMPLE_RATE_500MSPS  =>  :Rate500MSps,
-                                    SAMPLE_RATE_800MSPS  =>  :Rate800MSps,
-                                    SAMPLE_RATE_1000MSPS =>  :Rate1000MSps,
-                                    SAMPLE_RATE_1200MSPS =>  :Rate1200MSps,
-                                    SAMPLE_RATE_1500MSPS =>  :Rate1500MSps,
-                                    SAMPLE_RATE_1800MSPS =>  :Rate1800MSps),
+    :SampleRate         => Dict(SAMPLE_RATE_1KSPS    =>  :Rate1kSps,
+                                SAMPLE_RATE_2KSPS    =>  :Rate2kSps,
+                                SAMPLE_RATE_5KSPS    =>  :Rate5kSps,
+                                SAMPLE_RATE_10KSPS   =>  :Rate10kSps,
+                                SAMPLE_RATE_20KSPS   =>  :Rate20kSps,
+                                SAMPLE_RATE_50KSPS   =>  :Rate50kSps,
+                                SAMPLE_RATE_100KSPS  =>  :Rate100kSps,
+                                SAMPLE_RATE_200KSPS  =>  :Rate200kSps,
+                                SAMPLE_RATE_500KSPS  =>  :Rate500kSps,
+                                SAMPLE_RATE_1MSPS    =>  :Rate1MSps,
+                                SAMPLE_RATE_2MSPS    =>  :Rate2MSps,
+                                SAMPLE_RATE_5MSPS    =>  :Rate5MSps,
+                                SAMPLE_RATE_10MSPS   =>  :Rate10MSps,
+                                SAMPLE_RATE_20MSPS   =>  :Rate20MSps,
+                                SAMPLE_RATE_50MSPS   =>  :Rate50MSps,
+                                SAMPLE_RATE_100MSPS  =>  :Rate100MSps,
+                                SAMPLE_RATE_200MSPS  =>  :Rate200MSps,
+                                SAMPLE_RATE_500MSPS  =>  :Rate500MSps,
+                                SAMPLE_RATE_800MSPS  =>  :Rate800MSps,
+                                SAMPLE_RATE_1000MSPS =>  :Rate1000MSps,
+                                SAMPLE_RATE_1200MSPS =>  :Rate1200MSps,
+                                SAMPLE_RATE_1500MSPS =>  :Rate1500MSps,
+                                SAMPLE_RATE_1800MSPS =>  :Rate1800MSps),
 
-    :AlazarChannel          => Dict(CHANNEL_A             =>  :ChannelA,
-                                    CHANNEL_B             =>  :ChannelB,
-                                    CHANNEL_A | CHANNEL_B =>  :BothChannels),
+    :AlazarChannel      => Dict(CHANNEL_A             =>  :ChannelA,
+                                CHANNEL_B             =>  :ChannelB,
+                                CHANNEL_A | CHANNEL_B =>  :BothChannels),
 
-    :AlazarAux              => Dict(AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
-                                    AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
-                                    AUX_OUT_PACER         =>  :AuxOutputPacer,
-                                    AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
-                                    AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
+    :AlazarAux          => Dict(AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
+                                AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
+                                AUX_OUT_PACER         =>  :AuxOutputPacer,
+                                AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
+                                AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
 
-    :AlazarDataPacking      => Dict(PACK_DEFAULT            => :DefaultPacking,
-                                    PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
-                                    PACK_12_BITS_PER_SAMPLE => :Pack12Bits)
+    :AlazarDataPacking  => Dict(PACK_DEFAULT            => :DefaultPacking,
+                                PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
+                                PACK_12_BITS_PER_SAMPLE => :Pack12Bits)
 
 )
 
-PainterQB.generateResponseHandlers(InstrumentAlazar, responses)
+# for alazar in subtypes(InstrumentAlazar)
+    PainterQB.generateResponseHandlers(AlazarATS9360, responses)
+#end
+
 Rate1GSps(ins::AlazarATS9360) = Rate1000MSps(ins::AlazarATS9360)
 Rate1GSps(ins::AlazarATS9360, state) = Rate1000MSps(ins,state)
 
@@ -554,7 +561,7 @@ sampleRate(::Rate1500MSps) = 15e8 |> U32
 sampleRate(::Rate1800MSps) = 18e8 |> U32
 
 function sampleRate(a::AlazarATS9360)
-    a.sampleRate > 0x80 ? a.sampleRate : sampleRate(InstrumentSampleRate(a,a.sampleRate))::U32
+    a.sampleRate > 0x80 ? a.sampleRate : sampleRate(SampleRate(a,a.sampleRate))::U32
 end
 
 export setSampleRate, setClockSlope, setAuxSoftwareTriggerEnabled
@@ -566,19 +573,9 @@ function inputControl(a::AlazarATS9360, x...)
     warning("This function has been no-op'd since there are no choices for the ATS9360.")
 end
 
-# Set by object
-function setSampleRate(a::AlazarATS9360, rate::InstrumentSampleRate)
-    r = setCaptureClock(a, INTERNAL_CLOCK, rate.state, a.clockSlope, 0)
-    a.clockSource = INTERNAL_CLOCK
-    a.sampleRate = rate.state
-    a.decimation = 0
-    r
-end
-
 # Set by data type
-function setSampleRate(a::AlazarATS9360, rate::DataType)
-    @assert rate <: InstrumentSampleRate "$rate <: InstrumentSampleRate"
-    val = rate(a).state
+function setSampleRate{T<:SampleRate}(a::AlazarATS9360, rate::Type{T})
+    val = rate(AlazarATS9360) |> state
     r = setCaptureClock(a, INTERNAL_CLOCK, val, a.clockSlope, 0)
     a.clockSource = INTERNAL_CLOCK
     a.sampleRate = val
@@ -598,66 +595,57 @@ function setSampleRate(a::AlazarATS9360, rate::Real)
     r
 end
 
-function setClockSlope(a::AlazarATS9360, slope::InstrumentClockSlope)
-    r = setCaptureClock(a, a.clockSource, a.sampleRate, slope.state, a.decimation)
-    a.clockSlope = slope.state
-    r
-end
-
-function setClockSlope(a::AlazarATS9360, slope::DataType)
-    @assert slope <: InstrumentClockSlope "$rate <: InstrumentClockSlope"
-    val = slope(a).state
+function setClockSlope{T<:ClockSlope}(a::AlazarATS9360, slope::Type{T})
+    val = slope(AlazarATS9360) |> state
     r = setCaptureClock(a, a.clockSource, a.sampleRate, val, a.decimation)
     a.clockSlope = val
     r
 end
 
-function configureAuxIO(a::AlazarATS9360, aux::DataType, x...)
-    @assert aux <: AlazarAux "$aux <: AlazarAux"
-    configureAuxIO(a, aux(a), x...)
-end
-
-function configureAuxIO(a::AlazarATS9360, aux::Union{AuxOutputTrigger,AuxDigitalInput})
-    r = configureAuxIO(a, aux.state, U32(0))
-    a.auxIOMode = aux.state
+function configureAuxIO{S<:AuxOutputTrigger,T<:AuxDigitalInput}(
+        a::AlazarATS9360, aux::Union{Type{S},Type{T}})
+    val = aux(AlazarATS9360) |> state
+    r = configureAuxIO(a, val, U32(0))
+    a.auxIOMode = val
     a.auxParam = U32(0)
     r
 end #of module
 
-function configureAuxIO(a::AlazarATS9360, aux::AuxInputTriggerEnable, trigSlope::U32)
-    r = configureAuxIO(a, aux.state, trigSlope)
-    a.auxIOMode = aux.state
+function configureAuxIO{T<:AuxInputTriggerEnable}(
+        a::AlazarATS9360, aux::Type{T}, trigSlope::U32)
+    val = aux(AlazarATS9360) |> state
+    r = configureAuxIO(a, val, trigSlope)
+    a.auxIOMode = val
     a.auxParam = trigSlope
     r
 end
 
-function configureAuxIO(a::AlazarATS9360, aux::AuxInputTriggerEnable,
-                                    trigSlope::InstrumentTriggerSlope)
-    r = configureAuxIO(a, aux.state, trigSlope.state)
-    a.auxIOMode = aux.state
-    a.auxParam = trigSlope.state
+function configureAuxIO{S<:AuxInputTriggerEnable, T<:TriggerSlope}(
+        a::AlazarATS9360, aux::Type{S}, trigSlope::Type{T})
+    val = aux(AlazarATS9360) |> state
+    val2 = trigSlope(AlazarATS9360) |> state
+    r = configureAuxIO(a, val, val2)
+    a.auxIOMode = val
+    a.auxParam = val2
     r
 end
 
-function configureAuxIO(a::AlazarATS9360, aux::AuxOutputPacer, divider::Integer)
-    @assert (divider > 2) "Clock divider must be greater than 2."
-    r = configureAuxIO(a, aux.state, U32(divider))
-    a.auxIOMode = aux.state
+function configureAuxIO{T<:AuxOutputPacer}(
+        a::AlazarATS9360, aux::Type{T}, divider::Integer)
+    val = aux(AlazarATS9360) |> state
+    r = configureAuxIO(a, val, U32(divider))
+    a.auxIOMode = val
     a.auxParam = divider
     r
 end
 
-function configureAuxIO(a::AlazarATS9360, aux::AuxDigitalOutput, level::Integer)
-    @assert (level != 0 || level != 1) "Level must be low (0) or high (1)."
-    r = configureAuxIO(a, aux.state, U32(level))
-    a.auxIOMode = aux.state
+function configureAuxIO{T<:AuxDigitalOutput}(
+        a::AlazarATS9360, aux::Type{T}, level::Integer)
+    val = aux(AlazarATS9360) |> state
+    r = configureAuxIO(a, val, U32(level))
+    a.auxIOMode = val
     a.auxParam = level
     r
-end
-
-function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, d::DataType)
-    @assert d <: InstrumentBoolean "$d <: InstrumentBoolean"
-    setAuxSoftwareTriggerEnabled(a,d(a))
 end
 
 function setAuxSoftwareTriggerEnabled(a::AlazarATS9360, b::Bool)
@@ -708,18 +696,14 @@ bufferCount(a::AlazarATS9360) = U32(4)
 #     a.packingB = pack.state
 # end
 
-function setAcquisitionChannel(a::AlazarATS9360, ch::AlazarChannel)
-    a.acquisitionChannel = ch.state
+function setAcquisitionChannel{T<:AlazarChannel}(a::AlazarATS9360, ch::Type{T})
+    a.acquisitionChannel = U32((ch)(AlazarATS9360) |> state)
     a.channelCount = 1
 end
 
-function setAcquisitionChannel(a::AlazarATS9360, ch::BothChannels)
-    a.acquisitionChannel = ch.state
+function setAcquisitionChannel{T<:BothChannels}(a::AlazarATS9360, ch::Type{T})
+    a.acquisitionChannel = U32((ch)(AlazarATS9360) |> state)
     a.channelCount = 2
-end
-
-function setAcquisitionChannel(a::AlazarATS9360, ch::DataType)
-    setAcquisitionChannel(a, (ch)(a))
 end
 
 function acquisitionChannel(a::AlazarATS9360)
