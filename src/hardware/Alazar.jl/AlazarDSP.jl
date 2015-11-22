@@ -1,6 +1,8 @@
-export dspNumModules, dspModules, dspGetModuleHandles, dspGetInfo
-export dspGenerateWindowFunction, dspGetBuffer, dspAbortCapture
-export fftSetWindowFunction, fftVerificationMode, fftSetup
+# DSP functions
+
+export dsp_num_modules, dsp_modules, dsp_getmodulehandles, dsp_getinfo
+export dsp_generatewindowfunction, dsp_get_buffer, dsp_abort_capture
+export fft_setwindowfunction, fft_verificationmode, fft_setup
 
 immutable DSPModuleType{T}
 end
@@ -22,33 +24,30 @@ Base.show(io::IO, x::DSPModuleInfo) = print(io,
            "v$(Int(x.version_major)).$(Int(x.version_minor)); ",
            "max record length: $(x.max_record_length)"))
 
-function dspNumModules(a::InstrumentAlazar)
+function dsp_num_modules(a::InstrumentAlazar)
     numModules = Array{U32}(1)
     numModules[1] = U32(0)
-    r = ccall((:AlazarDSPGetModules,ats), U32,
-        (U32,U32,Ptr{DSPModuleHandle},Ptr{U32}), a.handle, 0, C_NULL, numModules)
+    r = AlazarDSPGetModules(a.handle, 0, C_NULL, numModules)
     if r != noError
         throw(InstrumentException(a,r))
     end
     numModules[1]
 end
 
-function dspModules(a::InstrumentAlazar)
+function dsp_modules(a::InstrumentAlazar)
     a.dspModules
 end
 
-function dspGetModuleHandles(a::InstrumentAlazar)
-    numModules = dspNumModules(a)
+function dsp_getmodulehandles(a::InstrumentAlazar)
+    numModules = dsp_num_modules(a)
     if numModules == 0
         error("No DSP modules to get.")
     end
 
     modules = Array(DSPModuleHandle,numModules)
 
-    r = ccall((:AlazarDSPGetModules,ats), U32,
-        (U32,U32,Ptr{DSPModuleHandle},Ptr{U32}),
-        a.handle, numModules, modules, C_NULL)
-    if r != noError
+    r = AlazarDSPGetModules(a.handle, numModules, modules, C_NULL)
+    if r != alazar_no_error
         throw(InstrumentException(a,r))
     end
 
@@ -56,7 +55,7 @@ function dspGetModuleHandles(a::InstrumentAlazar)
 end
 
 # The InstrumentAlazar is only used for throwing exceptions
-function dspGetInfo(dspModule::DSPModule)
+function dsp_getinfo(dspModule::DSPModule)
 
     dspModuleId = Array(U32,1)
     dspModuleId[1] = 0
@@ -70,23 +69,20 @@ function dspGetInfo(dspModule::DSPModule)
     maxLength = Array(U32,1)
     maxLength[1] = 0
 
-    r = ccall((:AlazarDSPGetInfo,ats), U32,
-        (DSPModuleHandle,Ptr{U32},Ptr{U16},Ptr{U16},Ptr{U32},Ptr{U32},Ptr{U32}),
-        dspModule.handle, dspModuleId, versionMajor, versionMinor,
-        maxLength, C_NULL, C_NULL)
-    if r != noError
+    r = AlazarDSPGetInfo(dspModule.handle, dspModuleId, versionMajor,
+        versionMinor, maxLength, C_NULL, C_NULL)
+    if r != alazar_no_error
         throw(InstrumentException(dspModule.ins,r))
     end
 
     DSPModuleInfo(dspModuleId[1], versionMajor[1], versionMinor[1], maxLength[1])
 end
 
-function dspGenerateWindowFunction(windowType,
+function dsp_generatewindowfunction(windowType,
         windowLength_samples, paddingLength_samples)
 
     window = Array(Cfloat, windowLength_samples + paddingLength_samples)
-    r = ccall((:AlazarDSPGenerateWindowFunction,ats), U32,
-        (U32, Ptr{Cfloat}, U32, U32), windowType, window,
+    r = AlazarDSPGenerateWindowFunction(windowType, window,
         windowLength_samples, paddingLength_samples)
     if r != noError
         error(except(r))
@@ -95,10 +91,8 @@ function dspGenerateWindowFunction(windowType,
     window
 end
 
-function fftSetWindowFunction(dspModule::DSPModule, samplesPerRecord, reArray, imArray)
-    r = ccall((:AlazarFFTSetWindowFunction,ats), U32,
-        (DSPModuleHandle,U32,Ptr{Cfloat},Ptr{Cfloat}),
-        dspModule.handle, samplesPerRecord, reArray, imArray)
+function fft_setwindowfunction(dspModule::DSPModule, samplesPerRecord, reArray, imArray)
+    r = AlazarFFTSetWindowFunction(dspModule.handle, samplesPerRecord, reArray, imArray)
     if r != noError
         throw(InstrumentException(dspModule.ins,r))
     end
@@ -115,16 +109,14 @@ end
 #     end
 # end
 
-function fftSetup(dspModule::DSPModule, recordLength_samples, fftLength_samples,
+function fft_setup(dspModule::DSPModule, recordLength_samples, fftLength_samples,
         outputFormat, footer)
 
     bytesPerOutputRecord = Array(U32,1)
     bytesPerOutputRecord[1] = 0
 
-    r = ccall((:AlazarFFTSetup,ats), U32,
-        (DSPModuleHandle, U16, U32, U32, U32, U32, U32, Ptr{U32}),
-        dspModule.handle, CHANNEL_A, recordLength_samples, fftLength_samples,
-        outputFormat, footer, U32(0), bytesPerOutputRecord)
+    r = AlazarFFTSetup(dspModule.handle, CHANNEL_A, recordLength_samples,
+        fftLength_samples, outputFormat, footer, U32(0), bytesPerOutputRecord)
     if r != noError
         throw(InstrumentException(dspModule.ins,r))
     end
@@ -132,9 +124,8 @@ function fftSetup(dspModule::DSPModule, recordLength_samples, fftLength_samples,
     bytesPerOutputRecord[1]
 end
 
-@eh dspGetBuffer(a::InstrumentAlazar, buffer, timeout_ms) =
-    ccall((:AlazarDSPGetBuffer,ats), U32, (U32, Ptr{Void}, U32),
-    a.handle, buffer, timeout_ms)
+@eh dsp_getbuffer(a::InstrumentAlazar, buffer, timeout_ms) =
+    AlazarDSPGetBuffer(a.handle, buffer, timeout_ms)
 
-@eh dspAbortCapture(a::InstrumentAlazar) =
-    ccall((:AlazarDSPAbortCapture,ats), U32, (U32,), a.handle)
+@eh dsp_abortcapture(a::InstrumentAlazar) =
+    AlazarDSPAbortCapture(a.handle)
