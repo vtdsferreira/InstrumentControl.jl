@@ -234,7 +234,7 @@ function generateResponseHandlers{T<:Instrument}(insType::Type{T}, responseDict:
             Expr(:curly, ($d)[res],         $insType, QuoteNode(symbol(res)))) |> eval
 
         @eval ($supertypeSymb)(::Type{$insType}, res::Number) =
-            Expr(:call, ($d)[res], $insType, QuoteNode(symbol(res))) |> eval
+            Expr(:curly, ($d)[res],         $insType, QuoteNode(symbol(res))) |> eval
     end
 
 end

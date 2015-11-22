@@ -1,14 +1,14 @@
 # DSP functions
 
 export dsp_num_modules, dsp_modules, dsp_getmodulehandles, dsp_getinfo
-export dsp_generatewindowfunction, dsp_get_buffer, dsp_abort_capture
+export dsp_generatewindowfunction, dsp_getbuffer, dsp_abortcapture
 export fft_setwindowfunction, fft_verificationmode, fft_setup
 
 immutable DSPModuleType{T}
 end
-describe(::Type{DSPModuleType{DSP_MODULE_NONE}}) = "No DSP module"
-describe(::Type{DSPModuleType{DSP_MODULE_FFT}})  = "FFT module"
-describe(::Type{DSPModuleType{DSP_MODULE_PCD}})  = "PCD module"
+describe(::Type{DSPModuleType{Alazar.DSP_MODULE_NONE}}) = "No DSP module"
+describe(::Type{DSPModuleType{Alazar.DSP_MODULE_FFT}})  = "FFT module"
+describe(::Type{DSPModuleType{Alazar.DSP_MODULE_PCD}})  = "PCD module"
 
 Base.show{T<:DSPModuleType}(io::IO, a::Type{T}) = print(io, describe(a))
 
@@ -28,7 +28,7 @@ function dsp_num_modules(a::InstrumentAlazar)
     numModules = Array{U32}(1)
     numModules[1] = U32(0)
     r = AlazarDSPGetModules(a.handle, 0, C_NULL, numModules)
-    if r != noError
+    if r != alazar_no_error
         throw(InstrumentException(a,r))
     end
     numModules[1]
@@ -44,7 +44,7 @@ function dsp_getmodulehandles(a::InstrumentAlazar)
         error("No DSP modules to get.")
     end
 
-    modules = Array(DSPModuleHandle,numModules)
+    modules = Array(dsp_module_handle,numModules)
 
     r = AlazarDSPGetModules(a.handle, numModules, modules, C_NULL)
     if r != alazar_no_error
@@ -84,7 +84,7 @@ function dsp_generatewindowfunction(windowType,
     window = Array(Cfloat, windowLength_samples + paddingLength_samples)
     r = AlazarDSPGenerateWindowFunction(windowType, window,
         windowLength_samples, paddingLength_samples)
-    if r != noError
+    if r != alazar_no_error
         error(except(r))
     end
 
@@ -93,7 +93,7 @@ end
 
 function fft_setwindowfunction(dspModule::DSPModule, samplesPerRecord, reArray, imArray)
     r = AlazarFFTSetWindowFunction(dspModule.handle, samplesPerRecord, reArray, imArray)
-    if r != noError
+    if r != alazar_no_error
         throw(InstrumentException(dspModule.ins,r))
     end
 end
@@ -102,9 +102,9 @@ end
 # function fftVerificationMode(dspModule::DSPModule, enable,
 #         reArray, imArray, recordLength_samples)
 #     r = ccall((:AlazarFFTVerificationMode,ats), U32,
-#         (DSPModuleHandle,Bool,Ptr{S16},Ptr{S16},size_t),
+#         (dsp_module_handle,Bool,Ptr{S16},Ptr{S16},size_t),
 #         dspModule.handle, enable, reArray, imArray, recordLength_samples)
-#     if (r != noError)
+#     if (r != alazar_no_error)
 #         throw(InstrumentException(dspModule.ins,r))
 #     end
 # end
@@ -117,7 +117,7 @@ function fft_setup(dspModule::DSPModule, recordLength_samples, fftLength_samples
 
     r = AlazarFFTSetup(dspModule.handle, CHANNEL_A, recordLength_samples,
         fftLength_samples, outputFormat, footer, U32(0), bytesPerOutputRecord)
-    if r != noError
+    if r != alazar_no_error
         throw(InstrumentException(dspModule.ins,r))
     end
 
