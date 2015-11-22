@@ -1,4 +1,13 @@
 ### Keysight / Agilent E5071C
+module E5071CModule
+
+## Import packages
+import VISA
+
+## Import our modules
+importall PainterQB                 # All the stuff in InstrumentDefs, etc.
+include("../Metaprogramming.jl")
+
 export E5071C
 type E5071C <: InstrumentVISA
     vi::(VISA.ViSession)
@@ -131,7 +140,7 @@ sfd = Dict(
     "triggerOutputTiming"          => [":TRIG:OUTP:POS",               Timing],
     "pointTriggerOn"               => [":TRIG:POIN",                   Bool],
     "triggerSource"                => [":TRIG:SOUR",                   TriggerSource],
-    "powerOn"                      => [":OUTP",                        Bool],
+    "powerOn"                      => [":OUTP",                        Bool]
 )
 
 for (fnName in keys(sfd))
@@ -164,4 +173,6 @@ function formattedData(ins::E5071C, channel::Integer, trace::Integer)
 
     # Return both collections
     (a,b)
+end
+
 end

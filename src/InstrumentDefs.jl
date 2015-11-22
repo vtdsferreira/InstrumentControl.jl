@@ -1,18 +1,52 @@
+# Instrument Codes
 export InstrumentCode, NoArgs
 
-# Instrument Codes
 export Network, State, Timing
 export TriggerSlope, EventSlope, ClockSlope
 export ClockSource, TriggerSource
 export OscillatorSource, Trigger, Polarity
 export Impedance, Lock, Search, SParameter
-export Medium, SampleRate, DataFormat, Coupling
+export Medium, SampleRate, DataRepresentation, Coupling
 
+# very important
 export state
 
 # Exception for instruments
 export InstrumentException
 
+# Random stuff below
+export Rate1GSps
+export All
+
+# Global and export
+# macro globex(x)
+#     if (isa(x,Symbol))
+#         Expr(:block,Expr(:global,x),Expr(:toplevel,Expr(:export,x)))
+#     else
+#         x.head = :global
+#         y = copy(x)
+#         y.head = :export
+#         Expr(:block,x,Expr(:toplevel,y))
+#     end
+# end
+# Functions shared by multiple instruments
+global triggerSource, setTriggerSource
+global triggerOutputPolarity, setTriggerOutputPolarity
+global startFrequency, setStartFrequency
+global stopFrequency, setStopFrequency
+global sampleRate, setSampleRate
+global powerOn, setPowerOn
+global referenceOscillatorSource, setReferenceOscillatorSource
+global options
+
+export triggerSource, setTriggerSource
+export triggerOutputPolarity, setTriggerOutputPolarity
+export startFrequency, setStartFrequency
+export stopFrequency, setStopFrequency
+export sampleRate, setSampleRate
+export powerOn, setPowerOn
+export referenceOscillatorSource, setReferenceOscillatorSource
+export options
 
 """
 ### InstrumentCode
@@ -177,16 +211,8 @@ subtypesArray = [
 
 ]::Array{Tuple{Symbol,DataType},1}
 
-function createCodeType(subtype::Symbol, supertype::DataType)
-    @eval immutable ($subtype){S<:Instrument,Symbol} <: $supertype end
-    @eval export $subtype
-    @eval state{S<:Instrument,T}(::Type{($subtype){S,T}}) = begin
-        str = string(T)
-        isa(parse(str), Number) ? parse(str) : str
-    end
-end
-
 # Create all the concrete types we need using the createCodeType function.
+include("Metaprogramming.jl")
 for ((subtypeSymb,supertype) in subtypesArray)
     createCodeType(subtypeSymb, supertype)
 end

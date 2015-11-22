@@ -16,9 +16,10 @@ AlazarATS9360: Concrete type.
 DMABuffer: Holds a memory buffer suitable for data transfer with digitizers.
 """
 
-module Alazar
+module AlazarModule
 
-using PainterQB
+importall PainterQB
+include("../../Metaprogramming.jl")
 
 # Machine specific
 const maxThroughputGBs = 175e7 #18e8
@@ -61,7 +62,7 @@ subtypesArray = [
 
 # Create all the concrete types we need using the createCodeType function.
 for ((subtypeSymb,supertype) in subtypesArray)
-    PainterQB.createCodeType(subtypeSymb, supertype)
+    createCodeType(subtypeSymb, supertype)
 end
 
 # Load libraries
@@ -390,14 +391,14 @@ type AlazarATS9360 <: InstrumentAlazar
 
     triggerOperationDefaults(a::AlazarATS9360) = begin
         setTriggerOperation(a,
-                            Alazar.TRIG_ENGINE_OP_J,
-                            Alazar.TRIG_ENGINE_J,
-                            Alazar.TRIG_CHAN_A,
-                            Alazar.TRIGGER_SLOPE_POSITIVE,
+                            TRIG_ENGINE_OP_J,
+                            TRIG_ENGINE_J,
+                            TRIG_CHAN_A,
+                            TRIGGER_SLOPE_POSITIVE,
                             150,
-                            Alazar.TRIG_ENGINE_K,
-                            Alazar.TRIG_DISABLE,
-                            Alazar.TRIGGER_SLOPE_POSITIVE,
+                            TRIG_ENGINE_K,
+                            TRIG_DISABLE,
+                            TRIGGER_SLOPE_POSITIVE,
                             128)
         a.triggerOperation = TRIG_ENGINE_OP_J
         a.triggerJChannel  = TRIG_CHAN_A
@@ -525,7 +526,7 @@ responses = Dict(
 )
 
 # for alazar in subtypes(InstrumentAlazar)
-    PainterQB.generateResponseHandlers(AlazarATS9360, responses)
+    generateResponseHandlers(AlazarATS9360, responses)
 #end
 
 Rate1GSps(ins::AlazarATS9360) = Rate1000MSps(ins::AlazarATS9360)

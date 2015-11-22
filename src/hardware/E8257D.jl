@@ -1,4 +1,13 @@
 ### Keysight / Agilent E8257D
+module E8257DModule
+
+## Import packages
+import VISA
+
+## Import our modules
+importall PainterQB                 # All the stuff in InstrumentDefs, etc.
+include("../Metaprogramming.jl")
+
 export E8257D
 type E8257D <: InstrumentVISA
     vi::(VISA.ViSession)
@@ -43,7 +52,7 @@ function source(ch::E8257DFrequencyOutput, val::Real)
     setFrequency(ch.ins,val)
 end
 
-subtypeStateDictionary = Dict(
+responses = Dict(
 
     :Network              => Dict("DHCP" => :DHCP,
                                   "MAN"  => :ManualNetwork),
@@ -57,7 +66,7 @@ subtypeStateDictionary = Dict(
                                   "EXT"  => :ExternalOscillator)
 )
 
-generateResponseHandlers(E8257D, responseDictionary)
+generateResponseHandlers(E8257D, responses)
 
 sfd = Dict(
     "screenshot"                 => ["DISP:CAPT",                           NoArgs],
@@ -147,3 +156,5 @@ cumulativeOnTime(ins::E8257D)             = query_ins(ins,"DIAGnostic:INFOrmatio
 options(ins::E8257D)                      = query_ins(ins,"DIAGnostic:INFOrmation:OPTions?")
 optionsVerbose(ins::E8257D)               = query_ins(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
 revision(ins::E8257D)                     = query_ins(ins,"DIAGnostic:INFOrmation:REVision?")
+
+end

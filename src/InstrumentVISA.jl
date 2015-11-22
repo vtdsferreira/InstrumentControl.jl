@@ -1,9 +1,12 @@
-export InstrumentVISA
+## Imports
+import VISA
 
 ## Get the resource manager
-import VISA
 const  resourcemanager = VISA.viOpenDefaultRM()
 export resourcemanager
+
+## InstrumentVISA type
+export InstrumentVISA
 
 ## Finding and obtaining resources
 export find_ins_resources
@@ -16,6 +19,9 @@ export binblockwrite_ins, binblockreadavailable_ins
 ## Common VISA commands
 export test_ins, reset_ins, identify_ins, clear_ins_registers
 export trigger_ins, abort_trigger_ins
+
+## Convenience
+export quoted, unquoted
 
 """
 ### InstrumentVISA
@@ -86,13 +92,13 @@ binblockreadavailable_ins(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.
 
 ## Common VISA commands
 
-test_ins(ins::InstrumentVISA)            = write(ins, "*TST?")
-reset_ins(ins::InstrumentVISA)           = write(ins, "*RST")
-identify_ins(ins::InstrumentVISA)        = query(ins, "*IDN?")
-clear_ins_registers(ins::InstrumentVISA) = write(ins, "*CLS")
+test_ins(ins::InstrumentVISA)            = write_ins(ins, "*TST?")
+reset_ins(ins::InstrumentVISA)           = write_ins(ins, "*RST")
+identify_ins(ins::InstrumentVISA)        = query_ins(ins, "*IDN?")
+clear_ins_registers(ins::InstrumentVISA) = write_ins(ins, "*CLS")
 
-trigger_ins(ins::InstrumentVISA)         = write(ins, "*TRG")
-abort_trigger_ins(ins::InstrumentVISA)   = write(ins, "ABOR")
+trigger_ins(ins::InstrumentVISA)         = write_ins(ins, "*TRG")
+abort_trigger_ins(ins::InstrumentVISA)   = write_ins(ins, "ABOR")
 
 ## Convenient functions for parsing and sending strings.
 

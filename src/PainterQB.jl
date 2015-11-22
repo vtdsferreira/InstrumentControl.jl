@@ -1,7 +1,9 @@
 module PainterQB
 #
-# export Channel, Input, Output, BufferedInput, BufferedOutput, VirtualOutput
-# export PID, Calculated, Label
+export Channel, Input, Output, BufferedInput, BufferedOutput, VirtualOutput
+export PID, Calculated, Label
+
+export AWG5014CModule, E5071CModule, E8257DModule
 
 ### Channel abstract type and subtypes
 # required attributes:
@@ -23,11 +25,18 @@ type Label
 	unit::AbstractString
 end
 
-# Instruments and channels
+# Instruments and their channels
 include("Instrument.jl")
-# @windows? include("hardware\\E5071C.jl")   : include("hardware/E5071C.jl")
-# @windows? include("hardware\\E8257D.jl")   : include("hardware/E8257D.jl")
-@windows? include("hardware\\AWG5014C.jl") : include("hardware/AWG5014C.jl")
+
+
+include("hardware/E5071C.jl")
+include("hardware/E8257D.jl")
+include("hardware/AWG5014C.jl")
+include("hardware/Alazar.jl/AlazarAPI.jl")
+# importall .E5071CModule
+# importall .E8257DModule
+# importall .AWG5014CModule
+# importall .AlazarModule
 
 # Utility channels
 

@@ -1,8 +1,34 @@
 ### Tektronix AWG5014C
+module AWG5014CModule
+
+## Import packages
+import VISA
+
+## Import our modules
+importall PainterQB                 # All the stuff in InstrumentDefs, etc.
+include("../Metaprogramming.jl")
+
+## Exports
 export AWG5014C
 
 export allWaveforms
-const  allWaveforms      = ASCIIString("ALL")
+
+export AWG5014CData
+
+export WaveformType, Normalization
+
+export runApplication, applicationState, validate
+export hardwareSequencerType, loadAWGSettings, saveAWGSettings, clearWaveforms
+export deleteUserWaveform, waveformIsPredefined, waveformTimestamp, waveformType
+export waveformName, waveformLength, pullFromAWG, pushToAWG, newWaveform
+export setAmplitudeVpp, amplitudeVpp, sampleRate, setSampleRate
+export waveform, setWaveform, setVoltageOffset, voltageOffset
+export phaseDegrees, setPhaseDegrees, phaseRadians, setPhaseRadians
+export @allCh
+
+# We also export from the createCodeType statement.
+
+const allWaveforms      = ASCIIString("ALL")
 
 # Maximum number of bytes that may be sent using WLIS:WAV:DATA
 const byteLimit         = 65e7
@@ -29,7 +55,6 @@ type AWG5014C <: InstrumentVISA
     AWG5014C() = new()
 end
 
-export AWG5014CData
 type AWG5014CData
     data::Array{Float32,1}
     marker1::Array{Bool,1}
@@ -46,7 +71,6 @@ exceptions    = Dict(
 
 InstrumentException(ins::AWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
-export WaveformType, Normalization
 abstract WaveformType  <: InstrumentCode
 abstract Normalization <: InstrumentCode
 
@@ -61,7 +85,7 @@ subtypesArray = [
 
 # Create all the concrete types we need using the createCodeType function.
 for ((subtypeSymb,supertype) in subtypesArray)
-    PainterQB.createCodeType(subtypeSymb, supertype)
+    createCodeType(subtypeSymb, supertype)
 end
 
 responses = Dict(
@@ -172,15 +196,6 @@ for (fnName in keys(sfd))
 end
 
 # And now, the functions we decided to write by hand...
-
-export runApplication, applicationState, validate
-export hardwareSequencerType, loadAWGSettings, saveAWGSettings, clearWaveforms
-export deleteUserWaveform, waveformIsPredefined, waveformTimestamp, waveformType
-export waveformName, waveformLength, pullFromAWG, pushToAWG, newWaveform
-export setAmplitudeVpp, amplitudeVpp, sampleRate, setSampleRate
-export waveform, setWaveform, setVoltageOffset, voltageOffset
-export phaseDegrees, setPhaseDegrees, phaseRadians, setPhaseRadians
-export @allCh
 
 """
 Macro for performing an operation on every channel,
@@ -511,4 +526,6 @@ function pullLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T
     end
 
     AWG5014CData(amp,marker1,marker2)
+end
+
 end
