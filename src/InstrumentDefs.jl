@@ -18,7 +18,7 @@ export InstrumentException
 export Rate1GSps
 export All
 
-# Global and export
+# Global and export. Macro doesn't seem to work?
 # macro globex(x)
 #     if (isa(x,Symbol))
 #         Expr(:block,Expr(:global,x),Expr(:toplevel,Expr(:export,x)))
@@ -29,23 +29,26 @@ export All
 #         Expr(:block,x,Expr(:toplevel,y))
 #     end
 # end
+
 # Functions shared by multiple instruments
-global triggerSource, setTriggerSource
-global triggerOutputPolarity, setTriggerOutputPolarity
-global startFrequency, setStartFrequency
-global stopFrequency, setStopFrequency
-global sampleRate, setSampleRate
-global powerOn, setPowerOn
-global referenceOscillatorSource, setReferenceOscillatorSource
+global trigger_source, set_trigger_source
+global trigger_outputpolarity, set_trigger_outputpolarity
+global frequency_start, set_frequency_start
+global frequency_stop, set_frequency_stop
+global phase_rad, set_phase_rad
+global samplerate, set_samplerate
+global output_on, set_output_on
+global referenceoscillator_source, set_referenceoscillator_source
 global options
 
-export triggerSource, setTriggerSource
-export triggerOutputPolarity, setTriggerOutputPolarity
-export startFrequency, setStartFrequency
-export stopFrequency, setStopFrequency
-export sampleRate, setSampleRate
-export powerOn, setPowerOn
-export referenceOscillatorSource, setReferenceOscillatorSource
+export trigger_source, set_trigger_source
+export trigger_outputpolarity, set_trigger_outputpolarity
+export frequency_start, set_frequency_start
+export frequency_stop, set_frequency_stop
+export phase_rad, set_phase_rad
+export samplerate, set_samplerate
+export output_on, set_output_on
+export referenceoscillator_source, set_referenceoscillator_source
 export options
 
 """

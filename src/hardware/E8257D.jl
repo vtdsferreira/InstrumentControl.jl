@@ -9,6 +9,14 @@ importall PainterQB                 # All the stuff in InstrumentDefs, etc.
 include("../Metaprogramming.jl")
 
 export E8257D
+
+export E8257DOutput
+export E8257DPowerOutput, E8257DFrequencyOutput, source
+
+export flatnesscorrectionfile_load, flatnesscorrectionfile_save
+export boards, cumulativeattenuatorswitches, cumulativepowerons, cumulativeontime
+export options, options_verbose, revision
+
 type E8257D <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
@@ -24,24 +32,20 @@ type E8257D <: InstrumentVISA
     E8257D() = new()
 end
 
-export E8257DOutput
 abstract E8257DOutput <: Output
 
-export E8257DPowerOutput
 type E8257DPowerOutput <: E8257DOutput
     ins::E8257D
 #   label::Label
     val::AbstractFloat
 end
 
-export E8257DFrequencyOutput
 type E8257DFrequencyOutput <: E8257DOutput
     ins::E8257D
 #   label::Label
     val::AbstractFloat
 end
 
-export source
 function source(ch::E8257DPowerOutput, val::Real)
     ch.val = val
     setPower(ch.ins,val)
@@ -70,91 +74,76 @@ generateResponseHandlers(E8257D, responses)
 
 sfd = Dict(
     "screenshot"                 => ["DISP:CAPT",                           NoArgs],
-    "numFlatnessCorrectionPts"   => ["SOURce:CORRection:FLATness:POINts?",  Int],
-    "factoryFlatnessCorrection"  => ["SOURce:CORRection:FLATness:PRESet",   NoArgs],
-    "flatnessCorrectionOn"       => ["SOURce:CORRection:STATe",             Bool],
-    "frequencyBandOn"            => ["SOURce:FREQuency:CHANnels:STATe",     Bool],
+    "flatnesscorrection_points"  => ["SOURce:CORRection:FLATness:POINts?",  Int],
+    "flatnesscorrection_factory" => ["SOURce:CORRection:FLATness:PRESet",   NoArgs],
+    "flatnesscorrection_on"      => ["SOURce:CORRection:STATe",             Bool],
+    "frequency_band_on"          => ["SOURce:FREQuency:CHANnels:STATe",     Bool],
     "frequency"                  => ["SOURce:FREQuency:FIXed",              AbstractFloat],            # units?
-    "stepFrequencyUp"            => ["SOURce:FREQuency:FIXed UP",           NoArgs],
-    "stepFrequencyDown"          => ["SOURce:FREQuency:FIXed DOWN",         NoArgs],
-    "frequencyMultiplier"        => ["SOURce:FREQuency:MULTiplier",         Int],
-    "frequencyOffsetOn"          => ["SOURce:FREQuency:OFFSet:STATe",       Bool],
-    "frequencyOffset"            => ["SOURce:FREQuency:OFFSet",             AbstractFloat],
-    "frequencyReference"         => ["SOURce:FREQuency:REFerence",          AbstractFloat],
-    "setFrequencyReference"      => ["SOURce:FREQuency:REFerence:SET",      NoArgs],
-    "frequencyReferenceOn"       => ["SOURce:FREQuency:REFerence:STATe",    Bool],
-    "startFrequency"             => ["SOURce:FREQuency:STARt",              AbstractFloat],
-    "stopFrequency"              => ["SOURce:FREQuency:STOP",               AbstractFloat],
-    "frequencyIncrement"         => ["SOURce:FREQuency:STEP",               AbstractFloat],
+    "frequency_stepup"           => ["SOURce:FREQuency:FIXed UP",           NoArgs],
+    "frequency_stepdown"         => ["SOURce:FREQuency:FIXed DOWN",         NoArgs],
+    "frequency_multiplier"       => ["SOURce:FREQuency:MULTiplier",         Int],
+    "frequency_offset_on"        => ["SOURce:FREQuency:OFFSet:STATe",       Bool],
+    "frequency_offset"           => ["SOURce:FREQuency:OFFSet",             AbstractFloat],
+    "frequency_reference"        => ["SOURce:FREQuency:REFerence",          AbstractFloat],
+    "set_frequency_reference"    => ["SOURce:FREQuency:REFerence:SET",      NoArgs],
+    "frequency_reference_on"     => ["SOURce:FREQuency:REFerence:STATe",    Bool],
+    "frequency_start"            => ["SOURce:FREQuency:STARt",              AbstractFloat],
+    "frequency_stop"             => ["SOURce:FREQuency:STOP",               AbstractFloat],
+    "frequency_step"             => ["SOURce:FREQuency:STEP",               AbstractFloat],
     "phase"                      => ["SOURce:PHASe:ADJust",                 AbstractFloat],            #radians?
-    "setPhaseReference"          => ["SOURce:PHASe:REFerence",              NoArgs],
-    "referenceOscillatorSource"  => ["SOURce:ROSCillator:SOURce?",          OscillatorSource],
-    "autoBlanking"               => ["SOURce:OUTPut:BLANking:AUTO",         Bool],
-    "blankingOn"                 => ["SOURce:OUTPut:BLANking:STATe",        Bool],
-    "outputSettled"              => [":OUTPut:SETTled?",                    NoArgs],
-    "powerOn"                    => [":OUTPut",                             Bool],
-    "alcBandwidth"               => ["SOURce:POWer:ALC:BANDwidth",          AbstractFloat],
-    "alcAutoBandwidth"           => ["SOURce:POWer:ALC:BANDwidth:AUTO",     Bool],
-    "alcLevel"                   => ["SOURce:POWer:ALC:LEVel",              AbstractFloat],            # step attenuator
-    "alcPowerSearchRefLevel"     => ["SOURce:POWer:ALC:SEARch:REF:LEVel",   AbstractFloat],
-    "alcPowerSearchStart"        => ["SOURce:POWer:ALC:SEARch:SPAN:START",  AbstractFloat],            # may want units?
-    "alcPowerSearchStop"         => ["SOURce:POWer:ALC:SEARch:SPAN:STOP",   AbstractFloat],            # may want units?
-    "alcPowerSearchSpanOn"       => ["SOURce:POWer:ALC:SEARch:SPAN:STATe",  Bool],
-    "alcOn"                      => ["SOURce:POWer:ALC:STATe",              Bool],
-    "triggerSweep"               => ["SOURce:TSWeep",                       NoArgs],
-    "attenuation"                => ["SOURce:POWer:ATTenuation",            AbstractFloat],            # step attenuator    # may want units?
-    "autoAttenuator"             => ["SOURce:POWer:ATTenuation:AUTO",       Bool],        # step attenuator # docstring
-    "autoOptimizeSNROn"          => ["SOURce:POWer:NOISe:STATe",            Bool],
-    "outputPowerLimitAdjust"     => ["SOURce:POWer:LIMit:MAX:ADJust",       Bool],
-    "outputPowerLimit"           => ["SOURce:POWer:LIMit:MAX",              AbstractFloat],            # units?
-    "powerSearchProtection"      => ["SOURce:POWer:PROTection:STATe",       Bool],
-    "powerOutputReference"       => ["SOURce:POWer:REFerence",              AbstractFloat],            # units?
-    "powerOutputReferenceOn"     => ["SOURce:POWer:REFerence:STATe",        Bool],
-    "startPower"                 => ["SOURce:POWer:STARt",                  AbstractFloat],            # units?
-    "stopPower"                  => ["SOURce:POWer:STOP",                   AbstractFloat],            # units?
-    "powerOffset"                => ["SOURce:POWer:LEVel:OFFSet",           AbstractFloat],            # units?
+    "set_phase_reference"        => ["SOURce:PHASe:REFerence",              NoArgs],
+    "referenceoscillator_source" => ["SOURce:ROSCillator:SOURce?",          OscillatorSource],
+    "output_blanking_auto"       => ["SOURce:OUTPut:BLANking:AUTO",         Bool],
+    "output_blanking_on"         => ["SOURce:OUTPut:BLANking:STATe",        Bool],
+    "output_settled"             => [":OUTPut:SETTled?",                    NoArgs],
+    "output_on"                  => [":OUTPut",                             Bool],
+    "alc_bandwidth"              => ["SOURce:POWer:ALC:BANDwidth",          AbstractFloat],
+    "alc_bandwidth_auto"         => ["SOURce:POWer:ALC:BANDwidth:AUTO",     Bool],
+    "alc_level"                  => ["SOURce:POWer:ALC:LEVel",              AbstractFloat],            # step attenuator
+    "alc_powersearch_reflevel"   => ["SOURce:POWer:ALC:SEARch:REF:LEVel",   AbstractFloat],
+    "alc_powersearch_start"      => ["SOURce:POWer:ALC:SEARch:SPAN:START",  AbstractFloat],            # may want units?
+    "alc_powersearch_stop"       => ["SOURce:POWer:ALC:SEARch:SPAN:STOP",   AbstractFloat],            # may want units?
+    "alc_powersearch_spanon"     => ["SOURce:POWer:ALC:SEARch:SPAN:STATe",  Bool],
+    "alc_on"                     => ["SOURce:POWer:ALC:STATe",              Bool],
+    "trigger_sweep"              => ["SOURce:TSWeep",                       NoArgs],
+    "power_attenuator_level"     => ["SOURce:POWer:ATTenuation",            AbstractFloat],            # step attenuator    # may want units?
+    "power_attenuator_auto"      => ["SOURce:POWer:ATTenuation:AUTO",       Bool],        # step attenuator # docstring
+    "power_optimize_snr_on"      => ["SOURce:POWer:NOISe:STATe",            Bool],
+    "power_limit_adjustable"     => ["SOURce:POWer:LIMit:MAX:ADJust",       Bool],
+    "power_limit"                => ["SOURce:POWer:LIMit:MAX",              AbstractFloat],            # units?
+    "power_searchprotection"     => ["SOURce:POWer:PROTection:STATe",       Bool],
+    "power_reference"            => ["SOURce:POWer:REFerence",              AbstractFloat],            # units?
+    "power_reference_on"         => ["SOURce:POWer:REFerence:STATe",        Bool],
+    "power_start"                => ["SOURce:POWer:STARt",                  AbstractFloat],            # units?
+    "power_stop"                 => ["SOURce:POWer:STOP",                   AbstractFloat],            # units?
+    "power_offset"               => ["SOURce:POWer:LEVel:OFFSet",           AbstractFloat],            # units?
     "power"                      => ["SOURce:POWer",                        AbstractFloat],            # units?
-    "powerIncrement"             => ["SOURce:POWer:LEVel:STEP",             AbstractFloat],            # units?
+    "power_step"                 => ["SOURce:POWer:LEVel:STEP",             AbstractFloat],            # units?
 
-    "lanConfiguration"           => ["SYST:COMM:LAN:CONF",                  Network],    # IMPLEMENT ERROR HANDLING
-    "lanHostname"                => ["SYSTem:COMMunicate:LAN:HOSTname",     ASCIIString],
-    "lanIP"                      => ["SYSTem:COMMunicate:LAN:IP",           ASCIIString],
-    "lanSubnet"                  => ["SYSTem:COMMunicate:LAN:SUBNet",       ASCIIString],
-#    "systemDate"                  => ["SYST:DATE",                             Int],
-#    "systemTime"                  => ["SYST:TIME",                             Int],
-    "triggerOutputPolarity"      => ["TRIG:OUTP:POL",                       Polarity],
-    "triggerSource"              => ["TRIG:SOUR",                           TriggerSource]
+    "lan_configuration"          => ["SYST:COMM:LAN:CONF",                  Network],    # IMPLEMENT ERROR HANDLING
+    "lan_hostname"               => ["SYSTem:COMMunicate:LAN:HOSTname",     ASCIIString],
+    "lan_ip"                     => ["SYSTem:COMMunicate:LAN:IP",           ASCIIString],
+    "lan_subnet"                 => ["SYSTem:COMMunicate:LAN:SUBNet",       ASCIIString],
+    "trigger_outputpolarity"     => ["TRIG:OUTP:POL",                       Polarity],
+    "trigger_source"             => ["TRIG:SOUR",                           TriggerSource]
 )
 
 for (fnName in keys(sfd))
     createStateFunction(E8257D,fnName,sfd[fnName][1],sfd[fnName][2])
 end
 
-# setSystemDate(ins,insDateTime::InstrumentDateTime) = setSystemDate(ins,Dates.year(insDateTime.dateTime),
-#                                                                        Dates.month(insDateTime.dateTime),
-#                                                                        Dates.day(insDateTime.dateTime))
-# setSystemTime(ins,insDateTime::InstrumentDateTime) = setSystemTime(ins,Dates.hour(insDateTime.dateTime),
-#                                                                        Dates.minute(insDateTime.dateTime),
-#                                                                        Dates.second(insDateTime.dateTime))
-
-export loadFlatnessCorrectionFile
-function loadFlatnessCorrectionFile(ins::E8257D, file::ASCIIString)
+flatnesscorrectionfile_load(ins::E8257D, file::ASCIIString) =
     write_ins(ins, "SOURce:CORRection:FLATness:LOAD \""*file*"\"")
-end
 
-export saveFlatnessCorrectionFile
-function saveFlatnessCorrectionFile(ins::E8257D, file::ASCIIString)
+flatnesscorrectionfile_save(ins::E8257D, file::ASCIIString) =
     write_ins(ins, "SOURce:CORRection:FLATness:STORe \""*file*"\"")
-end
 
-export boards, cumulativeAttenuatorSwitches, cumulativePowerOns, cumulativeOnTime
-export options, optionsVerbose, revision
 boards(ins::E8257D)                       = query_ins(ins,"DIAGnostic:INFOrmation:BOARds?")
-cumulativeAttenuatorSwitches(ins::E8257D) = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
-cumulativePowerOns(ins::E8257D)           = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
-cumulativeOnTime(ins::E8257D)             = query_ins(ins,"DIAGnostic:INFOrmation:OTIMe?")
+cumulativeattenuatorswitches(ins::E8257D) = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
+cumulativepowerons(ins::E8257D)           = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
+cumulativeontime(ins::E8257D)             = query_ins(ins,"DIAGnostic:INFOrmation:OTIMe?")
 options(ins::E8257D)                      = query_ins(ins,"DIAGnostic:INFOrmation:OPTions?")
-optionsVerbose(ins::E8257D)               = query_ins(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
+options_verbose(ins::E8257D)               = query_ins(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
 revision(ins::E8257D)                     = query_ins(ins,"DIAGnostic:INFOrmation:REVision?")
 
 end

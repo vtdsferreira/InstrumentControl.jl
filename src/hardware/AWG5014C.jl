@@ -17,14 +17,14 @@ export AWG5014CData
 
 export WaveformType, Normalization
 
-export runApplication, applicationState, validate
-export hardwareSequencerType, loadAWGSettings, saveAWGSettings, clearWaveforms
-export deleteUserWaveform, waveformIsPredefined, waveformTimestamp, waveformType
-export waveformName, waveformLength, pullFromAWG, pushToAWG, newWaveform
-export setAmplitudeVpp, amplitudeVpp, sampleRate, setSampleRate
-export waveform, setWaveform, setVoltageOffset, voltageOffset
-export phaseDegrees, setPhaseDegrees, phaseRadians, setPhaseRadians
-export @allCh
+export runapplication, applicationstate, validate
+export hardwaresequencertype, load_awg_settings, save_awg_settings, clearwaveforms
+export deleteuserwaveform, waveformispredefined, waveformtimestamp, waveformtype
+export waveformname, waveformlength, pullfrom_awg, pushto_awg, newwaveform
+export set_amplitude_vpp, amplitude_vpp, samplerate, set_samplerate
+export waveform, set_waveform, set_voltageoffset, voltageoffset
+export phase_deg, set_phase_deg, set_phase_rad, set_phase_rad
+export @allch
 
 # We also export from the createCodeType statement.
 
@@ -141,54 +141,54 @@ import Main.run
 sfd = Dict(
     "calibrate"                         => ["*CAL?",                    InstrumentException],
     "options"                           => ["*OPT?",                    ASCIIString],
-    "externalOscillatorDividerRate"     => ["AWGC:CLOC:DRAT",           Int],    # IMPLEMENT ERROR HANDLING
-    "referenceClockSource"              => ["AWGC:CLOC:SOUR",           ClockSource],
-    "numberOfAvailableChannels"         => ["AWGC:CONF:CNUM?",          Int],
-    "dcState"                           => ["AWGC:DC:STAT",             Bool],
-    "dcOutputLevel"                     => ["AWGC:DC#:VOLT:OFFS",       AbstractFloat],
-    "repetitionRate"                    => ["AWGC:RRAT",                AbstractFloat],
-    "repetitionRateHeld"                => ["AWGC:RRAT:HOLD",           Bool],
-    "runState"                          => ["AWGC:RSTATE?",             State],
-    "runMode"                           => ["AWGC:RMOD",                Trigger],
+    "externaloscillator_dividerrate"    => ["AWGC:CLOC:DRAT",           Int],    # IMPLEMENT ERROR HANDLING
+    "referenceclocksource"              => ["AWGC:CLOC:SOUR",           ClockSource],
+    "num_availablechannels"             => ["AWGC:CONF:CNUM?",          Int],
+    "dcstate"                           => ["AWGC:DC:STAT",             Bool],
+    "dcoutputlevel"                     => ["AWGC:DC#:VOLT:OFFS",       AbstractFloat],
+    "repetitionrate"                    => ["AWGC:RRAT",                AbstractFloat],
+    "repetitionrateheld"                => ["AWGC:RRAT:HOLD",           Bool],
+    "runstate"                          => ["AWGC:RSTATE?",             State],
+    "runmode"                           => ["AWGC:RMOD",                Trigger],
     "run"                               => ["AWGC:RUN",                 NoArgs],
     "stop"                              => ["AWGC:STOP",                NoArgs],
-    "sequencerPosition"                 => ["AWGC:SEQ:POS?",            Int],
+    "sequencer_position"                => ["AWGC:SEQ:POS?",            Int],
     # The following two methods may return AWGYes() if the window *cannot* be displayed.
     # They return the correct result (AWGNo()) if the window can be displayed, but is not displayed.
-    "sequenceWindowDisplayed"           => ["DISP:WIND1:STAT",          Bool],
-    "waveformWindowDisplayed"           => ["DISP:WIND2:STAT",          Bool],
-    "forceEvent"                        => ["EVEN",                     NoArgs],
-    "eventImpedance"                    => ["EVEN:IMP",                 Impedance],
-    "eventJumpTiming"                   => ["EVEN:JTIM",                Timing],
-    "eventLevel"                        => ["EVEN:LEV",                 AbstractFloat],
-    "eventSlope"                        => ["EVEN:POL",                 EventSlope],
-    "outputFilterFrequency"             => ["OUTP#:FILT:FREQ",          AbstractFloat],
-    "outputState"                       => ["OUTP#:STAT",               Bool],
-    "sequencerGOTOTarget"               => ["SEQ:ELEM#:GOTO:IND",       Int],
-    "sequencerGOTOState"                => ["SEQ:ELEM#:GOTO:STAT",      Bool],
-    "sequencerEventJumpTarget"          => ["SEQ:ELEM#:JTAR:IND",       Int],
-    "sequencerLoopCount"                => ["SEQ:ELEM#:LOOP:COUN",      Int],
-    "sequencerInfiniteLoop"             => ["SEQ:ELEM#:LOOP:INF",       Bool],
-    "sequencerLength"                   => ["SEQ:LENG",                 Int],
-    "forceSequenceJump"                 => ["SEQ:JUMP",                 NoArgs],
-    "externalInputAddsToOutput"         => ["SOUR#:COMB:FEED",          ASCIIString],
-    "analogOutputDelayInSeconds"        => ["SOUR#:DELAY",              AbstractFloat],
-    "analogOutputDelayInPoints"         => ["SOUR#:DELAY:POIN",         AbstractFloat],
-    "waveformLoadedInChannel"           => ["SOUR#:FUNC:USER",          ASCIIString],
-    "markerDelay"                       => ["SOUR#:MARK#:DEL",          AbstractFloat],
-    "referenceOscillatorFrequency"      => ["SOUR:ROSC:FREQ",           AbstractFloat],
-    "referenceOscillatorMultiplier"     => ["SOUR:ROSC:MULT",           Int],
-    "referenceOscillatorSource"         => ["SOUR:ROSC:SOUR",           OscillatorSource],
+    "sequencewindowdisplayed"           => ["DISP:WIND1:STAT",          Bool],
+    "waveformwindowdisplayed"           => ["DISP:WIND2:STAT",          Bool],
+    "event_force"                       => ["EVEN",                     NoArgs],
+    "event_impedance"                   => ["EVEN:IMP",                 Impedance],
+    "event_jumptiming"                  => ["EVEN:JTIM",                Timing],
+    "event_level"                       => ["EVEN:LEV",                 AbstractFloat],
+    "event_slope"                       => ["EVEN:POL",                 EventSlope],
+    "output_filterfrequency"            => ["OUTP#:FILT:FREQ",          AbstractFloat],
+    "output_on_ch"                      => ["OUTP#:STAT",               Bool],
+    "sequencer_gototarget"              => ["SEQ:ELEM#:GOTO:IND",       Int],
+    "sequencer_gotostate"               => ["SEQ:ELEM#:GOTO:STAT",      Bool],
+    "sequencer_eventjumptarget"         => ["SEQ:ELEM#:JTAR:IND",       Int],
+    "sequencer_loopcount"               => ["SEQ:ELEM#:LOOP:COUN",      Int],
+    "sequencer_infiniteloop"            => ["SEQ:ELEM#:LOOP:INF",       Bool],
+    "sequencer_length"                  => ["SEQ:LENG",                 Int],
+    "sequencer_forcejump"               => ["SEQ:JUMP",                 NoArgs],
+    "externalinputaddstooutput"         => ["SOUR#:COMB:FEED",          ASCIIString],
+    "analogoutputdelay_s"               => ["SOUR#:DELAY",              AbstractFloat],
+    "analogoutputdelay_points"          => ["SOUR#:DELAY:POIN",         AbstractFloat],
+    "waveformloadedinchannel"           => ["SOUR#:FUNC:USER",          ASCIIString],
+    "marker_delay"                      => ["SOUR#:MARK#:DEL",          AbstractFloat],
+    "referenceoscillator_frequency"     => ["SOUR:ROSC:FREQ",           AbstractFloat],
+    "referenceoscillator_multiplier"    => ["SOUR:ROSC:MULT",           Int],
+    "referenceoscillator_source"        => ["SOUR:ROSC:SOUR",           OscillatorSource],
     "systemDate"                        => ["SYST:DATE",                Int],
     "panelLocked"                       => ["SYST:KLOC",                Lock],
     "systemTime"                        => ["SYST:TIME",                Int],
-    "scpiVersion"                       => ["SYST:VERS?",               ASCIIString],
-    "triggerImpedance"                  => ["TRIG:IMP",                 Impedance],
-    "triggerLevel"                      => ["TRIG:LEV",                 AbstractFloat],
-    "triggerSlope"                      => ["TRIG:POL",                 TriggerSlope],
-    "triggerTimer"                      => ["TRIG:TIM",                 AbstractFloat],
-    "triggerSource"                     => ["TRIG:SOUR",                TriggerSource],
-    "wavelistLength"                    => ["WLIST:SIZE?",              Int]
+    "scpiversion"                       => ["SYST:VERS?",               ASCIIString],
+    "trigger_impedance"                 => ["TRIG:IMP",                 Impedance],
+    "trigger_level"                     => ["TRIG:LEV",                 AbstractFloat],
+    "trigger_slope"                     => ["TRIG:POL",                 TriggerSlope],
+    "trigger_timer"                     => ["TRIG:TIM",                 AbstractFloat],
+    "trigger_source"                    => ["TRIG:SOUR",                TriggerSource],
+    "wavelistlength"                    => ["WLIST:SIZE?",              Int]
 )
 
 for (fnName in keys(sfd))
@@ -201,9 +201,9 @@ end
 Macro for performing an operation on every channel,
 provided the channel is the last argument of the function to be called.
 
-Example: `@allCh setWaveform(awg,"*Sine10")`
+Example: `@allch setWaveform(awg,"*Sine10")`
 """
-macro allCh(x::Expr)
+macro allch(x::Expr)
     myargs = []
 
     for ch in 1:4
@@ -217,13 +217,13 @@ macro allCh(x::Expr)
 end
 
 "Get the output phase in degrees for a given channel."
-function phaseDegrees(ins::AWG5014C, ch::Integer)
+function phase_deg(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(query_ins(ins,string("SOUR",ch,":PHAS?")))
 end
 
 "Set the output phase in degrees for a given channel."
-function setPhaseDegrees(ins::AWG5014C, phase::Real, ch::Integer)
+function set_phase_deg(ins::AWG5014C, phase::Real, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     ph = phase+180.
     ph = mod(ph,360.)
@@ -232,23 +232,23 @@ function setPhaseDegrees(ins::AWG5014C, phase::Real, ch::Integer)
 end
 
 "Get the output phase in radians for a given channel."
-function phaseRadians(ins::AWG5014C, ch::Integer)
+function phase_rad(ins::AWG5014C, ch::Integer)
     phaseDegrees(ins,ch) * π / 180.
 end
 
 "Set the output phase in radians for a given channel."
-function setPhaseRadians(ins::AWG5014C, phase::Real, ch::Integer)
+function set_phase_rad(ins::AWG5014C, phase::Real, ch::Integer)
     setPhaseDegrees(ins, phase*180./π, ch)
 end
 
 "Get the voltage offset for a given channel."
-function voltageOffset(ins::AWG5014C, ch::Integer)
+function voltageoffset(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(query_ins(ins,string("SOUR",ch,":VOLT:OFFS?")))
 end
 
 "Set the voltage offset between -2.25 V and 2.25 V for a given channel."
-function setVoltageOffset(ins::AWG5014C, voff::Real, ch::Integer)
+function set_voltageoffset(ins::AWG5014C, voff::Real, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     @assert (-2.25 <= voff <= 2.25) "Offset out of range."
     write_ins(ins,string("SOUR",ch,":VOLT:OFFS ",voff))
@@ -261,95 +261,95 @@ function waveform(ins::AWG5014C, ch::Integer)
 end
 
 "Set the waveform by name for a given channel."
-function setWaveform(ins::AWG5014C, name::ASCIIString, ch::Integer)
+function set_waveform(ins::AWG5014C, name::ASCIIString, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     write_ins(ins,string("SOUR",ch,":WAV ",quoted(name)))
 end
 
 "Set Vpp for a given channel between 0.05 V and 2 V."
-function setAmplitudeVpp(ins::AWG5014C, ampl::Real, ch::Integer)
+function set_amplitude_vpp(ins::AWG5014C, ampl::Real, ch::Integer)
     @assert (0.05 <= ampl <= 2) "Amplitude out of range."
     @assert (1 <= ch <= 4) "Channel out of range."
     write_ins(ins,string("SOUR",ch,":VOLT ",ampl))
 end
 
 "Get Vpp for a given channel."
-function amplitudeVpp(ins::AWG5014C, ch::Integer)
+function amplitude_vpp(ins::AWG5014C, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(query_ins(ins,string("SOUR",ch,":VOLT?")))
 end
 
 "Set the sample rate in Hz between 10 MHz and 10 GHz. Output rate = sample rate / number of points."
-function setSampleRate(ins::AWG5014C, rate::Real)
+function set_samplerate(ins::AWG5014C, rate::Real)
     @assert (10e6 <= rate <= 10e9) "Sample rate out of range."
     write_ins(ins,string("SOUR:FREQ ",rate))
 end
 
 "Get the sample rate in Hz. Output rate = sample rate / number of points."
-function sampleRate(ins::AWG5014C)
+function samplerate(ins::AWG5014C)
     parse(query_ins(ins,"SOUR:FREQ?"))
 end
 
 "Run an application, e.g. SerialXpress"
-function runApplication(ins::AWG5014C, app::ASCIIString)
+function runapplication(ins::AWG5014C, app::ASCIIString)
     write_ins(ins,"AWGC:APPL:RUN \""+app+"\"")
 end
 
-function applicationState(ins::AWG5014C, app::ASCIIString)
+function applicationstate(ins::AWG5014C, app::ASCIIString)
     query_ins(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? StopState(ins) : RunState(ins)
 end
 
-function hardwareSequencerType(ins::AWG5014C)
+function hardwaresequencertype(ins::AWG5014C)
     chomp(query_ins(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? true : false
 end
 
-function loadAWGSettings(ins::AWG5014C,filePath::ASCIIString)
+function load_awg_settings(ins::AWG5014C,filePath::ASCIIString)
     write_ins(ins,string("AWGC:SRES \"",filePath,"\""))
 end
 
-function saveAWGSettings(ins::AWG5014C,filePath::ASCIIString)
+function save_awg_settings(ins::AWG5014C,filePath::ASCIIString)
     write_ins(ins,string("AWGC:SSAV \"",filePath,"\""))
 end
 
-function clearWaveforms(ins::AWG5014C)
+function clearwaveforms(ins::AWG5014C)
     write_ins(ins,"SOUR1:FUNC:USER \"\"")
     write_ins(ins,"SOUR2:FUNC:USER \"\"")
     write_ins(ins,"SOUR3:FUNC:USER \"\"")
     write_ins(ins,"SOUR4:FUNC:USER \"\"")
 end
 
-function deleteWaveform(ins::AWG5014C, name::ASCIIString)
+function deletewaveform(ins::AWG5014C, name::ASCIIString)
     write_ins(ins, "WLIS:WAV:DEL "*quoted(name))
 end
 
-function newWaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
+function newwaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
     write_ins(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*state((wvtype)(AWG5014C)))
 end
 
-function resampleWaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
+function resamplewaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
     write_ins(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
 end
 
-function normalizeWaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
+function normalizewaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
     write_ins(ins, "WLIS:WAV:NORM "*quoted(name)*","*state(norm(AWG5014C)))
 end
 
 "Uses Julia style indexing (begins at 1) to retrieve the name of a waveform."
-function waveformName(ins::AWG5014C, num::Integer)
+function waveformname(ins::AWG5014C, num::Integer)
     strip(query_ins(ins, "WLIST:NAME? "*string(num-1)),'"')
 end
 
-function waveformLength(ins::AWG5014C, name::ASCIIString)
+function waveformlength(ins::AWG5014C, name::ASCIIString)
     parse(query_ins(ins, "WLIST:WAV:LENG? "*quoted(name)))
 end
 
-function waveformIsPredefined(ins::AWG5014C, name::ASCIIString)
+function waveformispredefined(ins::AWG5014C, name::ASCIIString)
     Bool(parse(query_ins(ins,"WLIST:WAV:PRED? "*quoted(name))))
 end
 
-function waveformExists(ins::AWG5014C, name::ASCIIString)
-    for (i = 1:wavelistLength(ins))
-        if (name == waveformName(ins,i))
+function waveformexists(ins::AWG5014C, name::ASCIIString)
+    for (i = 1:wavelistlength(ins))
+        if (name == waveformname(ins,i))
             return true
         end
     end
@@ -357,53 +357,53 @@ function waveformExists(ins::AWG5014C, name::ASCIIString)
     return false
 end
 
-function waveformTimestamp(ins::AWG5014C, name::ASCIIString)
+function waveformtimestamp(ins::AWG5014C, name::ASCIIString)
     strip(query_ins(ins,"WLIS:WAV:TST? "*quoted(name)),"\"")
 end
 
 "Returns the type of the waveform. The AWG hardware ultimately uses an `IntWaveform` but `RealWaveform` is more convenient."
-function waveformType(ins::AWG5014C, name::ASCIIString)
+function waveformtype(ins::AWG5014C, name::ASCIIString)
     WaveformType(AWG5014C, query_ins(ins,"WLIS:WAV:TYPE? "*quoted(name)))
 end
 
 "Push data to the AWG, performing checks and generating errors as appropriate."
-function pushToAWG{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
+function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
 
     # First validate the awgData
     validate(awgData, wvType)
 
     # If the waveform does not exist, create it
-    if (!waveformExists(ins,name))
-        newWaveform(ins,name,length(awgData.data),wvType)
+    if (!waveformexists(ins,name))
+        newwaveform(ins,name,length(awgData.data),wvType)
     else
         # Otherwise, do some checks.
         # First, is it predefined?
-        if (waveformIsPredefined(ins,name))
+        if (waveformispredefined(ins,name))
             error("Cannot overwrite predefined waveform.")
         end
 
         # Is the type different than requested?
         # We are unable to modify an existing waveform's type, so the best thing to do is bail.
-        if !(waveformType(ins,name) <: wvType)
+        if !(waveformtype(ins,name) <: wvType)
             error("Existing waveform type differs. If you insist on this type, you need to delete the waveform first, with possible consequences for sequencing.")
         end
 
         # Is the waveform the wrong length?
-        if (length(awgData.data) != waveformLength(ins,name))
+        if (length(awgData.data) != waveformlength(ins,name))
             if (resampleOk)
-                resampleWaveform(awg,name,length(awgData.data))
+                resamplewaveform(awg,name,length(awgData.data))
             else
                 error("Existing waveform length differs. Pass `true` as the final argument to override; adjust sample rate if needed.")
             end
         end
     end
 
-    pushLowLevel(ins,name,awgData,wvType)
+    pushlowlevel(ins,name,awgData,wvType)
 
 end
 
 "Takes care of the dirty work in pushing the data to the AWG."
-function pushLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
+function pushlowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         # AWG wants little endian data
@@ -414,7 +414,7 @@ function pushLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData
     binblockwrite_ins(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
-function pushLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
+function pushlowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         value = (awgData.data)[i]
@@ -434,7 +434,7 @@ function validate(awgData::AWG5014CData, wvType::Type{WaveformType})
         error("Data and marker lengths are not the same.")
     end
 
-    nb = nBytes(wvType)
+    nb = nbytes(wvType)
     if (length(awgData.data) * nb > byteLimit)
         if (length(awgData.data) * 2 <= byteLimit)
             error("Too many bytes for a `RealWaveform`. However, an `IntWaveform` would work.")
@@ -449,23 +449,23 @@ function validate(awgData::AWG5014CData, wvType::Type{WaveformType})
     end
 end
 
-nBytes(::RealWaveform)      = 5
-nBytes(wvType::IntWaveform) = 2
+nbytes(::RealWaveform)      = 5
+nbytes(wvType::IntWaveform) = 2
 
 "Pull data from the AWG, performing checks and generating errors as appropriate."
-function pullFromAWG(ins::AWG5014C, name::ASCIIString)
+function pullfrom_awg(ins::AWG5014C, name::ASCIIString)
 
-    if (!waveformExists(ins,name))
+    if (!waveformexists(ins,name))
         error("Waveform does not exist.")
     end
 
-    typ = waveformType(ins, name)
-    pullLowLevel(ins,name,typ)
+    typ = waveformtype(ins, name)
+    pulllowlevel(ins,name,typ)
 
 end
 
 "Takes care of the dirty work in pulling data from the AWG."
-function pullLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
+function pulllowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
 
     len = waveformLength(ins, name)
 
@@ -488,9 +488,9 @@ function pullLowLevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{
     AWG5014CData(amp,marker1,marker2)
 end
 
-function pullLowLevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
+function pulllowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
 
-    len = waveformLength(ins, name)
+    len = waveformlength(ins, name)
 
     write_ins(ins,"WLIST:WAV:DATA? "*quoted(name))
     io = binblockreadavailable_ins(ins)

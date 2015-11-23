@@ -9,6 +9,9 @@ importall PainterQB                 # All the stuff in InstrumentDefs, etc.
 include("../Metaprogramming.jl")
 
 export E5071C
+
+export frequencydata, formatteddata
+
 type E5071C <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
@@ -82,81 +85,79 @@ responseDictionary = Dict(
 generateResponseHandlers(E5071C, responseDictionary)
 
 sfd = Dict(
-    "electricalDelay"              => [":CALC#:TRAC#:CORR:EDEL:TIME",  AbstractFloat],        #1-160, 1-16
-    "electricalMedium"             => [":CALC#:TRAC#:CORR:EDEL:MED",   Medium],    #...
-    "waveguideCutoffFrequency"     => [":CALC#:TRAC#:CORR:EDEL:WGC",   AbstractFloat],
-    "phaseOffset"                  => [":CALC#:TRAC#:CORR:OFFS:PHAS",  AbstractFloat],
-    "dataFormat"                   => [":CALC#:TRAC#:FORM",            DataRepresentation],
-    "numberOfTraces"               => [":CALC#:PAR:COUN",              Int],        #1-160, arg: 1-9
-    "smoothingAperture"            => [":CALC#:SMO:APER",              AbstractFloat],
-    "smoothingOn"                  => [":CALC1:SMO:STAT",              Bool],
-    "markerOn"                     => [":CALC#:MARK#",                 Bool],
-    "setActiveMarker"              => [":CALC#:MARK#:ACT",             NoArgs],
-    "markerX"                      => [":CALC#:MARK#:X",               AbstractFloat],
-    "markerY"                      => [":CALC#:MARK#:Y?",              AbstractFloat],        #:CALC{1-160}:MARK{1-9}:DATA
-    "markerSearch"                 => [":CALC#:MARK#:FUNC:EXEC",       NoArgs],
+    "electricaldelay"              => [":CALC#:TRAC#:CORR:EDEL:TIME",  AbstractFloat],        #1-160, 1-16
+    "electricalmedium"             => [":CALC#:TRAC#:CORR:EDEL:MED",   Medium],    #...
+    "waveguidecutoff"              => [":CALC#:TRAC#:CORR:EDEL:WGC",   AbstractFloat],
+    "phaseoffset"                  => [":CALC#:TRAC#:CORR:OFFS:PHAS",  AbstractFloat],
+    "dataformat"                   => [":CALC#:TRAC#:FORM",            DataRepresentation],
+    "num_traces"                   => [":CALC#:PAR:COUN",              Int],        #1-160, arg: 1-9
+    "smoothingaperture"            => [":CALC#:SMO:APER",              AbstractFloat],
+    "smoothingon"                  => [":CALC1:SMO:STAT",              Bool],
+    "markeron"                     => [":CALC#:MARK#",                 Bool],
+    "setactivemarker"              => [":CALC#:MARK#:ACT",             NoArgs],
+    "marker_x"                     => [":CALC#:MARK#:X",               AbstractFloat],
+    "marker_y"                     => [":CALC#:MARK#:Y?",              AbstractFloat],        #:CALC{1-160}:MARK{1-9}:DATA
+    "marker_search"                => [":CALC#:MARK#:FUNC:EXEC",       NoArgs],
     #:CALC{1-160}:MARK{1-10}:SET
-    "setActiveTrace"               => [":CALC#:PAR#:SEL",              NoArgs],
-    "measurementParameter"         => [":CALC#:PAR#:DEF",              SParameter],
-    "frequencyDisplayed"           => [":DISP:ANN:FREQ",               Bool],
-    "displayEnabled"               => [":DISP:ENAB",                   Bool],
-    "setActiveChannel"             => [":DISP:WIND#:ACT",              NoArgs],
-    "channelMaximized"             => [":DISP:MAX",                    Bool],
-    "windowLayout"                 => [":DISP:SPL",                    ASCIIString],
-    "traceMaximized"               => [":DISP:WIND#:MAX",              Bool], #1-160
-    "graphLayout"                  => [":DISP:WIND#:SPL",              ASCIIString], #1-36 (why?)
+    "setactivetrace"               => [":CALC#:PAR#:SEL",              NoArgs],
+    "measurementparameter"         => [":CALC#:PAR#:DEF",              SParameter],
+    "frequencydisplayed"           => [":DISP:ANN:FREQ",               Bool],
+    "displayenabled"               => [":DISP:ENAB",                   Bool],
+    "setactivechannel"             => [":DISP:WIND#:ACT",              NoArgs],
+    "channelmaximized"             => [":DISP:MAX",                    Bool],
+    "windowlayout"                 => [":DISP:SPL",                    ASCIIString],
+    "tracemaximized"               => [":DISP:WIND#:MAX",              Bool], #1-160
+    "graphlayout"                  => [":DISP:WIND#:SPL",              ASCIIString], #1-36 (why?)
     "autoscale"                    => [":DISP:WIND#:TRAC#:Y:AUTO",     NoArgs],  #1-160, 1-16
-    "yScalePerDivision"            => [":DISP:WIND#:TRAC#:Y:PDIV",     AbstractFloat],
-    "yReferenceLevel"              => [":DISP:WIND#:TRAC#:Y:RLEV",     AbstractFloat],
-    "yReferencePosition"           => [":DISP:WIND#:TRAC#:Y:RPOS",     Int],
-    "dataTraceOn"                  => [":DISP:WIND#:TRAC#:STAT",       Bool],
-    "yDivisions"                   => [":DISP:WIND#:Y:DIV",            Int],
-    "clearAveraging"               => [":SENS#:AVER:CLE",              NoArgs],    #1-160
-    "averagingFactor"              => [":SENS#:AVER:COUN",             Int],            #1-160
-    "averagingOn"                  => [":SENS#:AVER",                  Bool],
-    "IFBandwidth"                  => [":SENS1:BAND",                  AbstractFloat],
-    "powerSweepFrequency"          => [":SENS#:FREQ",                  AbstractFloat],
+    "yscaleperdivision"            => [":DISP:WIND#:TRAC#:Y:PDIV",     AbstractFloat],
+    "yreferencelevel"              => [":DISP:WIND#:TRAC#:Y:RLEV",     AbstractFloat],
+    "yreferenceposition"           => [":DISP:WIND#:TRAC#:Y:RPOS",     Int],
+    "datatraceon"                  => [":DISP:WIND#:TRAC#:STAT",       Bool],
+    "ydivisions"                   => [":DISP:WIND#:Y:DIV",            Int],
+    "clearaveraging"               => [":SENS#:AVER:CLE",              NoArgs],    #1-160
+    "averagingfactor"              => [":SENS#:AVER:COUN",             Int],            #1-160
+    "averaging"                    => [":SENS#:AVER",                  Bool],
+    "if_bandwidth"                 => [":SENS1:BAND",                  AbstractFloat],
+    "power_sweepfrequency"         => [":SENS#:FREQ",                  AbstractFloat],
 
     #ch 1--9
-    "startFrequency"               => [":SENS#:FREQ:STAR",             AbstractFloat],
-    "stopFrequency"                => [":SENS#:FREQ:STOP",             AbstractFloat],
-    "centerFrequency"              => [":SENS#:FREQ:CENT",             AbstractFloat],
-    "spanFrequency"                => [":SENS#:FREQ:SPAN",             AbstractFloat],
+    "frequency_start"              => [":SENS#:FREQ:STAR",             AbstractFloat],
+    "frequency_stop"               => [":SENS#:FREQ:STOP",             AbstractFloat],
+    "frequency_center"             => [":SENS#:FREQ:CENT",             AbstractFloat],
+    "frequency_span"               => [":SENS#:FREQ:SPAN",             AbstractFloat],
     #2 -- 20001
-    "numberOfPoints"               => [":SENS#:SWE:POIN",              Int],
-    "powerLevel"                   => [":SOUR#:POW",                   AbstractFloat],    # 1-160
-    "powerCoupled"                 => [":SOUR#:POW:PORT:COUP",         Bool],
+    "num_points"                   => [":SENS#:SWE:POIN",              Int],
+    "power_level"                  => [":SOUR#:POW",                   AbstractFloat],    # 1-160
+    "power_coupled"                => [":SOUR#:POW:PORT:COUP",         Bool],
     #ch 1-9 port 1-6
-    "portPower"                    => [":SOUR#:POW:PORT#",             AbstractFloat],
-    "powerSlopeLevel"              => [":SOUR#:POW:SLOP",              AbstractFloat],    #dB/GHz
-    "powerSlopeOn"                 => [":SOUR#:POW:SLOP:STAT",         Bool],
+    "power_port"                   => [":SOUR#:POW:PORT#",             AbstractFloat],
+    "power_slopelevel"             => [":SOUR#:POW:SLOP",              AbstractFloat],    #dB/GHz
+    "power_slopeon"                => [":SOUR#:POW:SLOP:STAT",         Bool],
 
-    "averagingTriggerOn"           => [":TRIG:AVER",                   Bool],
-    "externalTriggerSlope"         => [":TRIG:SEQ:EXT:SLOP",           TriggerSlope],
-    "externalTriggerDelay"         => [":TRIG:EXT:DEL",                AbstractFloat],
-    "externalTriggerLowLatencyOn"  => [":TRIG:EXT:LLAT",               Bool],
-    "triggerOutputOn"              => [":TRIG:OUTP:STAT",              Bool],
-    "triggerOutputPolarity"        => [":TRIG:OUTP:POL",               Polarity],
-    "triggerOutputTiming"          => [":TRIG:OUTP:POS",               Timing],
-    "pointTriggerOn"               => [":TRIG:POIN",                   Bool],
-    "triggerSource"                => [":TRIG:SOUR",                   TriggerSource],
-    "powerOn"                      => [":OUTP",                        Bool]
+    "averagingtriggeron"           => [":TRIG:AVER",                   Bool],
+    "externaltrigger_slope"        => [":TRIG:SEQ:EXT:SLOP",           TriggerSlope],
+    "externaltrigger_delay"        => [":TRIG:EXT:DEL",                AbstractFloat],
+    "externaltrigger_lowlatencyon" => [":TRIG:EXT:LLAT",               Bool],
+    "triggeroutput"                => [":TRIG:OUTP:STAT",              Bool],
+    "trigger_outputpolarity"       => [":TRIG:OUTP:POL",               Polarity],
+    "trigger_outputtiming"         => [":TRIG:OUTP:POS",               Timing],
+    "pointtrigger"                 => [":TRIG:POIN",                   Bool],
+    "trigger_source"               => [":TRIG:SOUR",                   TriggerSource],
+    "output_on"                     => [":OUTP",                        Bool]
 )
 
 for (fnName in keys(sfd))
     createStateFunction(E5071C,fnName,sfd[fnName][1],sfd[fnName][2])
 end
 
-export frequencyData, formattedData
-
-function frequencyData(ins::E5071C, channel::Integer, trace::Integer)
+function frequencydata(ins::E5071C, channel::Integer, trace::Integer)
     data = query_ins(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))
 
     # Return an array of numbers
     map(parse,split(data,",",keep=false))
 end
 
-function formattedData(ins::E5071C, channel::Integer, trace::Integer)
+function formatteddata(ins::E5071C, channel::Integer, trace::Integer)
     data = query_ins(ins,string(":CALC",channel,":TRAC",trace,":DATA:FDAT?"))
 
     # Return an array of numbers

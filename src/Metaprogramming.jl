@@ -152,7 +152,7 @@ end
 function createSettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType::Type{S},
         fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
-    setNameSymb = symbol(string("set",ucfirst(fnName)))
+    setNameSymb = setnamesymbol(fnName)
 
     # Take type as argument
     @eval function ($setNameSymb){T<:$setArgType}(ins::$instrumentType, x::Type{T}, infixes::Int64...)
@@ -171,7 +171,7 @@ end
 function createSettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
         instrumentType::Type{S}, fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
-    setNameSymb = symbol(string("set",ucfirst(fnName)))
+    setNameSymb = setnamesymbol(fnName)
 
     @eval function ($setNameSymb)(ins::$instrumentType, x::$setArgType, infixes::Int64...)
         cmd = $command
@@ -182,6 +182,11 @@ function createSettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
     end
 
     @eval export $setNameSymb
+end
+
+
+function setnamesymbol(fnName::ASCIIString)
+    symbol(string("set_",fnName))
 end
 
 """
