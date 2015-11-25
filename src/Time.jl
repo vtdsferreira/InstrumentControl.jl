@@ -1,21 +1,21 @@
 ### time.jl a fake output instrument for inputs over time
 # sourcing 0 or negative time resets clock.
-# sourcing positive value returns 
+# sourcing positive value returns
 
-export TimeOutput, TimeInput
+export DelayStimulus, TimerResponse
 
-type TimeOutput <: Output
+type DelayStimulus <: Stimulus
 	t0::Float64
 end
 
-type TimeInput <: Input
+type TimerResponse <: Response
 	t0::Float64
 end
 
-TimeInput() = TimeInput(time())
-TimeOutput() = TimeOutput(time())
+TimerResponse() = TimerResponse(time())
+DelayStimulus() = DelayStimulus(time())
 
-function source(ch::TimeOutput, val::Real)
+function source(ch::DelayStimulus, val::Real)
 	if val < eps()
 		ch.t0 = time()
 	else
@@ -25,4 +25,4 @@ function source(ch::TimeOutput, val::Real)
 	end
 end
 
-measure(ch::TimeInput) = time() - ch.t0
+measure(ch::TimerResponse) = time() - ch.t0

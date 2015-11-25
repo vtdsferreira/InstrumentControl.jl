@@ -1,33 +1,15 @@
 module PainterQB
 #
-export Channel, Input, Output, BufferedInput, BufferedOutput, VirtualOutput
-export PID, Calculated, Label
+#export Response, Stimulus
 
 export AWG5014CModule, E5071CModule, E8257DModule, AlazarModule
 
-### Channel abstract type and subtypes
-# required attributes:
-# 	current value, label and unit?
-# required functions:
+export Stimulus, Response
+abstract Stimulus
+abstract Response
 
-abstract Channel
-
-abstract Input <: Channel
-abstract Output <: Channel
-abstract BufferedInput <: Input
-abstract BufferedOutput <: Output
-abstract VirtualOutput <: Output
-abstract PID <: Channel
-abstract Calculated <: Input
-
-type Label
-	name::AbstractString
-	unit::AbstractString
-end
-
-# Instruments and their channels
+# Instruments
 include("Instrument.jl")
-
 
 include("hardware/E5071C.jl")
 include("hardware/E8257D.jl")
@@ -37,12 +19,12 @@ include("hardware/Alazar/InstrumentAlazar.jl")
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 #
-importall .E5071CModule
-importall .E8257DModule
-importall .AWG5014CModule
-importall .AlazarModule
+# importall .E5071CModule
+# importall .E8257DModule
+# importall .AWG5014CModule
+# importall .AlazarModule
 
-# Utility channels
+# Utility
 
 include("Random.jl")
 include("Time.jl")
