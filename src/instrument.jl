@@ -1,12 +1,5 @@
 export Instrument
 
-"""
-### Instrument
-`abstract Instrument <: Any`
-
-Abstract supertype of all concrete Instrument types, e.g.
-`AWG5014C <: Instrument`.
-"""
 abstract Instrument
 
 # Base.show(io::IO, ins::Instrument) = print(io, "$(ins.model)")
