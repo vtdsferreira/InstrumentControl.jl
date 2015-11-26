@@ -1,15 +1,11 @@
 # Instrument Codes
-export InstrumentCode, NoArgs
+export InstrumentProperty, NoArgs
 
-export Network, State, Timing
-export TriggerSlope, EventSlope, ClockSlope
-export ClockSource, TriggerSource
-export OscillatorSource, Trigger, Polarity
-export Impedance, Lock, Search, SParameter
-export Medium, SampleRate, DataRepresentation, Coupling
-
-# very important
-export state
+export Coupling, DataRepresentation, Lock, Network, State, Timing
+export ClockSlope, ClockSource, EventImpedance, EventSlope, EventTiming
+export OscillatorSource, Trigger, TriggerImpedance, TriggerSlope, TriggerSource
+export Polarity, SampleRate, Search, SParameter
+export Medium
 
 # Exception for instruments
 export InstrumentException
@@ -18,19 +14,8 @@ export InstrumentException
 export Rate1GSps
 export All
 
-# Global and export. Macro doesn't seem to work?
-# macro globex(x)
-#     if (isa(x,Symbol))
-#         Expr(:block,Expr(:global,x),Expr(:toplevel,Expr(:export,x)))
-#     else
-#         x.head = :global
-#         y = copy(x)
-#         y.head = :export
-#         Expr(:block,x,Expr(:toplevel,y))
-#     end
-# end
-
 # Functions shared by multiple instruments
+global code, configure, inspect
 global trigger_source, set_trigger_source
 global trigger_outputpolarity, set_trigger_outputpolarity
 global frequency_start, set_frequency_start
@@ -41,6 +26,7 @@ global output_on, set_output_on
 global referenceoscillator_source, set_referenceoscillator_source
 global options
 
+export code, configure, inspect
 export trigger_source, set_trigger_source
 export trigger_outputpolarity, set_trigger_outputpolarity
 export frequency_start, set_frequency_start
@@ -52,55 +38,63 @@ export referenceoscillator_source, set_referenceoscillator_source
 export options
 
 """
-### InstrumentCode
-`abstract InstrumentCode <: Any`
+### InstrumentProperty
+`abstract InstrumentProperty <: Any`
 
 Abstract supertype representing communications with an instrument.
 
 Each *abstract* subtype one level down should represent a logical state of the
-instrument configuration, e.g. `InstrumentTriggerSource` may be have concrete
+instrument configuration, e.g. `TriggerSource` may be have concrete
 subtypes `ExternalTrigger` or `InternalTrigger`.
 
-Each *concrete* subtype two levels down is a parametric immutable type:
-`InternalTrigger{AWG5014C,:INT}` encodes everything one needs to know about
-how the AWG5014C represents an internal trigger in the type signature only.
+Each *concrete* subtype two levels down is an immutable type:
+`InternalTrigger(ins::AWG5014C, "INT")` encodes everything one needs to know
+for how the AWG5014C represents an internal trigger.
 
 To retrieve what one has to send the AWG from the type signature, we have
-defined a function `state`.
+defined a function `code`.
 """
-abstract InstrumentCode
+abstract InstrumentProperty
 
-abstract NoArgs <: InstrumentCode
+abstract NoArgs
 
-abstract Network <: InstrumentCode
-abstract State <: InstrumentCode
-abstract Timing <: InstrumentCode
-abstract ClockSlope <: InstrumentCode
-abstract TriggerSlope <: InstrumentCode
-abstract EventSlope <: InstrumentCode
-abstract ClockSource <: InstrumentCode
-abstract TriggerSource <: InstrumentCode
-abstract OscillatorSource <: InstrumentCode
-abstract Trigger <: InstrumentCode
-abstract Polarity <: InstrumentCode
-abstract Impedance <: InstrumentCode
-abstract Lock <: InstrumentCode
-abstract Search <: InstrumentCode
-abstract SParameter <: InstrumentCode
-abstract Medium <: InstrumentCode
-abstract SampleRate <: InstrumentCode
-abstract DataRepresentation <: InstrumentCode
-abstract Coupling <: InstrumentCode
+abstract ClockSlope <: InstrumentProperty
+abstract ClockSource <: InstrumentProperty
+abstract Coupling <: InstrumentProperty
+abstract DataRepresentation <: InstrumentProperty
+abstract EventImpedance <: InstrumentProperty
+abstract EventSlope <: InstrumentProperty
+abstract EventTiming <: InstrumentProperty
+abstract Lock <: InstrumentProperty
+abstract Medium <: InstrumentProperty
+abstract Network <: InstrumentProperty
+abstract OscillatorSource <: InstrumentProperty
+abstract Polarity <: InstrumentProperty
+abstract SampleRate <: InstrumentProperty
+abstract Search <: InstrumentProperty
+abstract SParameter <: InstrumentProperty
+abstract State <: InstrumentProperty
+abstract Timing <: InstrumentProperty           # deprecate
+abstract Trigger <: InstrumentProperty
+abstract TriggerImpedance <: InstrumentProperty
+abstract TriggerSlope <: InstrumentProperty
+abstract TriggerSource <: InstrumentProperty
+
+
+Base.show{T<:InstrumentProperty}(io::IO, code::T) =
+    print(io, "$(code.logicalname) represents as $(code.code)")
 
 immutable InstrumentException <: Exception
-        ins::Instrument
-        val::Int64
-        humanReadable::UTF8String
+    ins::Instrument
+    val::Int64
+    humanReadable::UTF8String
 end
-Base.showerror(io::IO, e::InstrumentException) = print(io, "$(e.ins): $(e.humanReadable) (error code $(e.val))")
+
+Base.showerror(io::IO, e::InstrumentException) =
+    print(io, "$(e.ins): $(e.humanReadable) (error code $(e.val))")
 
 # The subtypesArray is used to generate concrete types of the abstract subtypes
-# of InstrumentCode (see just above for some examples). The keys are strings containing
+# of InstrumentProperty (see just above for some examples). The keys are strings containing
 # the names of the concrete types, and the values are the respective abstract types.
 subtypesArray = [
     (:AC,                       Coupling),
@@ -113,8 +107,9 @@ subtypesArray = [
     (:Run,                      State),
     (:Wait,                     State),
 
-    (:Asynchronous,             Timing),    #AWG5014C
-    (:Synchronous,              Timing),
+    (:EventAsynchronous,        EventTiming),    #AWG5014C
+    (:EventSynchronous,         EventTiming),
+
     (:Before,                   Timing),    #E5071C
     (:After,                    Timing),
 
@@ -146,8 +141,11 @@ subtypesArray = [
     (:Gated,                    Trigger),
     (:Sequence,                 Trigger),
 
-    (:Ohm50,                    Impedance),
-    (:Ohm1k,                    Impedance),
+    (:Event50Ohms,              EventImpedance),
+    (:Event1kOhms,              EventImpedance),
+
+    (:Trigger50Ohms,            TriggerImpedance),
+    (:Trigger1kOhms,            TriggerImpedance),
 
     (:Local,                    Lock),
     (:Remote,                   Lock),

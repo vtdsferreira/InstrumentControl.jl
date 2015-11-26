@@ -1,4 +1,4 @@
-# This file is not a module, which is very important.
+# This file is not a module, which is very apparently important.
 #
 # If we want instruments to be in their own modules, which makes some sense to
 # avoid needlessly polluting the namespace for people who won't use all of the
@@ -10,19 +10,114 @@
 # Nothing is exported as the user should never use these, and we don't want
 # instruments to see this if it is used from our PainterQB module.
 
+function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+
+    nhash = 0
+    for i in command
+        i == '#' ? nhash += 1 : nothing
+    end
+
+    @eval function inspect(ins::$instype, ::Type{$proptype}, infixes::Int...)
+        cmd = $command
+        $nhash != length(infixes) && error(cmd," requires ",$nhash," infixes.")
+
+        for infix in infixes
+            cmd = replace(cmd,"#",infix,1)
+        end
+
+        if cmd[end] != '?'
+            cmd = cmd*"?"
+        end
+
+        response = ask(ins, cmd)
+        res = isa(parse(response), Number) ? parse(response) : response
+        length($returntype) > 0 ? ($returntype[1])(res) : ($proptype)(ins,res)
+    end
+
+    nothing
+end
+
+function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+
+    nhash = 0
+    for i in command
+        i == '#' ? nhash += 1 : nothing
+    end
+
+    @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, args...)
+        cmd = $command
+        if (length($returntype) > 0)     ## configure takes an extra argument
+            $nhash + 1 != length(args) &&
+                error(cmd," requires a ",$returntype[1],
+                    " argument and ",$nhash," infixes.")
+            !isa(args[1],$returntype[1]) &&
+                error(cmd," requires a ",$returntype[1]," argument.")
+            for infix in args
+                cmd = replace(cmd,"#",infix,1)
+            end
+
+            write(ins, string(cmd," ",isa(args[1],Bool) ? Int(args[1]) : args[1]))
+        else
+            x == $proptype && error("Pass a subtype of ",string($proptype)," instead.")
+            $nhash != length(args) &&
+                error(cmd," requires ",$nhash," infixes.")
+            for infix in args
+                cmd = replace(cmd,"#",infix,1)
+            end
+            try
+                cd = code((x)(ins))
+            catch
+                error("This subtype not be supported for this instrument.")
+            end
+            write(ins, string(cmd," ",code((x)(ins))))
+        end
+    end
+
+    nothing
+end
+# function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
+#         cmd::ASCIIString, proptype::Type{T}, ::Type{Bool})
+#
+#     @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, arg::Bool)
+#         write(ins, string($cmd," ",Int(arg)))
+#     end
+#
+#     nothing
+# end
+#
+# function generate_configure{S<:Instrument,T<:InstrumentProperty,
+#         U<:Union{AbstractString, Number}}(instype::Type{S}, cmd::ASCIIString,
+#         proptype::Type{T}, u::Type{U})
+#
+#     @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, arg::$u)
+#         write(ins, string($cmd," ",arg))
+#     end
+#
+#     nothing
+# end
+
 function createCodeType(subtype::Symbol, supertype::DataType)
-    @eval immutable ($subtype){S<:Instrument,Symbol} <: $supertype end
+    name = string(subtype)
+    @eval immutable ($subtype){T} <: $supertype
+        ins::Instrument
+        code::T
+        logicalname::AbstractString
+
+        ($subtype)(a,b) = new(a,b,$name)
+    end
+    @eval ($subtype){T}(a::Instrument,b::T) = ($subtype){T}(a,b)
     @eval export $subtype
-    @eval state{S<:Instrument,T}(::Type{($subtype){S,T}}) = begin
-        str = string(T)
-        isa(parse(str), Number) ? parse(str) : str
+    @eval code{T}(inscode::($subtype){T}) = begin
+        inscode.code::T
     end
 end
 
 """
 ### createStateFunction
 
-`createStateFunction{S<:Instrument,T<:Union{InstrumentCode,Number,AbstractString}}
+`createStateFunction{S<:Instrument,T<:Union{InstrumentProperty,Number,AbstractString}}
     (instrumentType::Type{S}, fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})`
 
 For each `command`, there may be up to two functions generated, provided `command` contains no # signs. For example, if:
@@ -38,12 +133,12 @@ then we would have the functions:
 
 ```
 function triggerSource(ins::AWG5014C)
-    result = query_ins(ins, "TRIG:REF?")
-    InstrumentTriggerSource(AWG5014C,result)
+    result = ask(ins, "TRIG:REF?")
+    TriggerSource(ins,result)
 end
 
 function setTriggerSource(ins::AWG5014C, x::Type{InstrumentTriggerSource})
-    write_ins(ins, string("TRIG:REF ", x(AWG5014C) |> state) )
+    write(ins, string("TRIG:REF ", x(ins) |> state) )
 end
 ```
 
@@ -61,7 +156,7 @@ then
 
 ```
 function run(ins::AWG5014C)
-    write_ins(ins, "AWGC:RUN")
+    write(ins, "AWGC:RUN")
 end
 ```
 
@@ -75,7 +170,7 @@ this, especially if there are multiple channels that each respond to a command.
 There are some other details buried in here.
 
 """
-function createStateFunction{S<:Instrument,T<:Union{InstrumentCode,Number,AbstractString}}(
+function createStateFunction{S<:Instrument,T<:Union{InstrumentProperty,Number,AbstractString}}(
         instrumentType::Type{S}, fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
     createGettingFunction(instrumentType,fnName,command,setArgType)
@@ -87,10 +182,11 @@ function createStateFunction{S<:Instrument,T<:Union{InstrumentCode,Number,Abstra
 
     createSettingFunction(instrumentType,fnName,command,setArgType)
 
+    nothing
 end
 
 function createStateFunction{S<:Instrument}(instrumentType::Type{S},
-        fnName::ASCIIString, command::ASCIIString, setArgType::Type{NoArgs})
+        fnName::ASCIIString, command::ASCIIString, ::Type{NoArgs})
     nameSymb = symbol(fnName)
 
     @eval function ($nameSymb)(ins::$instrumentType, infixes::Int64...)
@@ -98,10 +194,11 @@ function createStateFunction{S<:Instrument}(instrumentType::Type{S},
         for (infix in infixes)
             cmd = replace(cmd,"#",infix,1)
         end
-        write_ins(ins, string(cmd))
+        write(ins, string(cmd))
     end
-
     @eval export $nameSymb
+
+    nothing
 end
 
 function createStateFunction{S<:Instrument}(instrumentType::Type{S},
@@ -113,13 +210,15 @@ function createStateFunction{S<:Instrument}(instrumentType::Type{S},
         for (infix in infixes)
             cmd = replace(cmd,"#",infix,1)
         end
-        response = query_ins(ins, (cmd[end] == '?' ? cmd : cmd*"?"))
-        ($setArgType)($instrumentType,response)
+        response = ask(ins, (cmd[end] == '?' ? cmd : cmd*"?"))
+        ($setArgType)(ins,response)
     end
     @eval export $readNameSymb
+
+    nothing
 end
 
-function createGettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType::Type{S},
+function createGettingFunction{S<:Instrument, T<:InstrumentProperty}(instrumentType::Type{S},
         fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
     readNameSymb = symbol(fnName)
@@ -128,10 +227,12 @@ function createGettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType:
         for (infix in infixes)
             cmd = replace(cmd,"#",infix,1)
         end
-        response = query_ins(ins, (cmd[end] == '?' ? cmd : cmd*"?"))
-        ($setArgType)($instrumentType,response)
+        response = ask(ins, (cmd[end] == '?' ? cmd : cmd*"?"))
+        ($setArgType)(ins,response)
     end
     @eval export $readNameSymb
+
+    nothing
 end
 
 function createGettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
@@ -143,13 +244,15 @@ function createGettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
         for (infix in infixes)
             cmd = replace(cmd,"#",infix,1)
         end
-        response = query_ins(ins, (cmd[end] == '?' ? cmd : cmd*"?"))
+        response = ask(ins, (cmd[end] == '?' ? cmd : cmd*"?"))
         ($setArgType)($setArgType <: Number ? parse(response) : response)
     end
     @eval export $readNameSymb
+
+    nothing
 end
 
-function createSettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType::Type{S},
+function createSettingFunction{S<:Instrument, T<:InstrumentProperty}(instrumentType::Type{S},
         fnName::ASCIIString, command::ASCIIString, setArgType::Type{T})
 
     setNameSymb = setnamesymbol(fnName)
@@ -161,11 +264,12 @@ function createSettingFunction{S<:Instrument, T<:InstrumentCode}(instrumentType:
             cmd = replace(cmd,"#",infix,1)
         end
 
-        write_ins(ins, string(cmd," ",state((x)($instrumentType))))
+        write(ins, string(cmd," ",state((x)(ins))))
     end
 
     @eval export $setNameSymb
 
+    nothing
 end
 
 function createSettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
@@ -178,10 +282,12 @@ function createSettingFunction{S<:Instrument, T<:Union{Number,AbstractString}}(
         for (infix in infixes)
             cmd = replace(cmd,"#",infix,1)
         end
-        write_ins(ins, string(cmd," ",($setArgType === Bool ? Int(x) : x)))
+        write(ins, string(cmd," ",($setArgType === Bool ? Int(x) : x)))
     end
 
     @eval export $setNameSymb
+
+    nothing
 end
 
 
@@ -204,13 +310,13 @@ This function makes a lot of other functions. Given some response from an instru
 we require a function to map that response back on to the appropiate logical state.
 
 `ClockSource(ins::AWG5014C,res::AbstractString)`
-returns an `InternalClock{AWG5014C,:INT)` or `ExternalClock(AWG5014C,:EXT)` object as appropriate,
+returns an `InternalClock(ins,"INT")` or `ExternalClock(ins,"EXT")` object as appropriate,
 based on the logical meaning of the response.
 
 We also want a function to generate logical states without having to know the way
 they are encoded by the instrument.
 
-`InternalClock(ins::Instrument)`
+`InternalClock(ins::AWG5014C)`
 returns an `InternalClock(ins,"INT")` object, with "INT" encoding how to pass this logical state
 to the instrument `ins`.
 """
@@ -218,28 +324,29 @@ function generateResponseHandlers{T<:Instrument}(insType::Type{T}, responseDict:
 
     for (supertypeSymb in keys(responseDict))
 
-        # Generate response handlers for concrete InstrumentCodes to
+        # Generate response handlers for concrete InstrumentPropertys to
         # make the correct concrete type.
         #
-        # e.g. InstrumentInternal(AWG5014C) = InstrumentInternal{AWG5014C,symbol("INT")}
+        # e.g. InternalClock(ins::AWG5014C) = InternalClock(ins,"INT")
         d = responseDict[supertypeSymb]
         for response in keys(d)
             fnSymb = d[response]
-            @eval ($fnSymb){S<:$insType}(g::Type{S}) = ($fnSymb){g,symbol($response)}
+            @eval ($fnSymb)(ins::$insType) = ($fnSymb)(ins,$response)
         end
 
-        # Generate response handlers for abstract InstrumentCodes
+        # Generate response handlers for abstract InstrumentPropertys
         # to make the correct concrete type.
         #
         # e.g. InstrumentReference(AWG5014C, "INT") =
         #          InstrumentInternal{AWG5014C,symbol("INT")}
-        @eval ($supertypeSymb)(::Type{$insType}, res::AbstractString) =
+        @eval ($supertypeSymb)(ins::$insType, res::AbstractString) =
             (typeof(parse(res)) <: Number ?
-            Expr(:curly, ($d)[parse(res)],  $insType, QuoteNode(symbol(res)))  :
-            Expr(:curly, ($d)[res],         $insType, QuoteNode(symbol(res)))) |> eval
+            Expr(:call, ($d)[parse(res)],  ins, res) :
+            Expr(:call, ($d)[res],         ins, res)) |> eval
 
-        @eval ($supertypeSymb)(::Type{$insType}, res::Number) =
-            Expr(:curly, ($d)[res],         $insType, QuoteNode(symbol(res))) |> eval
+        @eval ($supertypeSymb)(ins::$insType, res::Number) =
+            Expr(:call, ($d)[res], ins, res) |> eval
     end
 
+    nothing
 end

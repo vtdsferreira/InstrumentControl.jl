@@ -19,10 +19,10 @@ include("hardware/Alazar/InstrumentAlazar.jl")
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 #
-# importall .E5071CModule
-# importall .E8257DModule
-# importall .AWG5014CModule
-# importall .AlazarModule
+importall .E5071CModule
+importall .E8257DModule
+importall .AWG5014CModule
+importall .AlazarModule
 
 # Utility
 

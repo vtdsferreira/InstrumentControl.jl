@@ -9,6 +9,7 @@ Abstract supertype of all concrete Instrument types, e.g.
 """
 abstract Instrument
 
+# Base.show(io::IO, ins::Instrument) = print(io, "$(ins.model)")
 # Define common types and shared functions
 include("InstrumentDefs.jl")
 

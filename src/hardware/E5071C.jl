@@ -15,11 +15,13 @@ export frequencydata, formatteddata
 type E5071C <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
-
+    model::AbstractString
+    
     E5071C(x) = begin
         ins = new()
         ins.vi = x
         ins.writeTerminator = "\n"
+        ins.model = "E5071C"
         VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
         ins
     end
@@ -151,14 +153,14 @@ for (fnName in keys(sfd))
 end
 
 function frequencydata(ins::E5071C, channel::Integer, trace::Integer)
-    data = query_ins(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))
+    data = ask(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))
 
     # Return an array of numbers
     map(parse,split(data,",",keep=false))
 end
 
 function formatteddata(ins::E5071C, channel::Integer, trace::Integer)
-    data = query_ins(ins,string(":CALC",channel,":TRAC",trace,":DATA:FDAT?"))
+    data = ask(ins,string(":CALC",channel,":TRAC",trace,":DATA:FDAT?"))
 
     # Return an array of numbers
     nums = map(parse,split(data,",",keep=false))

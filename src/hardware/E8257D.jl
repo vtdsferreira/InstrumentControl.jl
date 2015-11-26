@@ -10,8 +10,8 @@ include("../Metaprogramming.jl")
 
 export E8257D
 
-export E8257DOutput
-export E8257DPowerOutput, E8257DFrequencyOutput, source
+export E8257DStimulus
+export E8257DPowerStimulus, E8257DFrequencyStimulus, source
 
 export flatnesscorrectionfile_load, flatnesscorrectionfile_save
 export boards, cumulativeattenuatorswitches, cumulativepowerons, cumulativeontime
@@ -20,11 +20,12 @@ export options, options_verbose, revision
 type E8257D <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
-
+    model::AbstractString
     E8257D(x) = begin
         ins = new()
         ins.vi = x
         ins.writeTerminator = "\n"
+        ins.model = "E8257D"
         VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
         ins
     end
@@ -32,26 +33,26 @@ type E8257D <: InstrumentVISA
     E8257D() = new()
 end
 
-abstract E8257DOutput <: Output
+abstract E8257DStimulus <: Stimulus
 
-type E8257DPowerOutput <: E8257DOutput
+type E8257DPowerStimulus <: E8257DStimulus
     ins::E8257D
 #   label::Label
     val::AbstractFloat
 end
 
-type E8257DFrequencyOutput <: E8257DOutput
+type E8257DFrequencyStimulus <: E8257DStimulus
     ins::E8257D
 #   label::Label
     val::AbstractFloat
 end
 
-function source(ch::E8257DPowerOutput, val::Real)
+function source(ch::E8257DPowerStimulus, val::Real)
     ch.val = val
     setPower(ch.ins,val)
 end
 
-function source(ch::E8257DFrequencyOutput, val::Real)
+function source(ch::E8257DFrequencyStimulus, val::Real)
     ch.val = val
     setFrequency(ch.ins,val)
 end
@@ -133,17 +134,17 @@ for (fnName in keys(sfd))
 end
 
 flatnesscorrectionfile_load(ins::E8257D, file::ASCIIString) =
-    write_ins(ins, "SOURce:CORRection:FLATness:LOAD \""*file*"\"")
+    write(ins, "SOURce:CORRection:FLATness:LOAD \""*file*"\"")
 
 flatnesscorrectionfile_save(ins::E8257D, file::ASCIIString) =
-    write_ins(ins, "SOURce:CORRection:FLATness:STORe \""*file*"\"")
+    write(ins, "SOURce:CORRection:FLATness:STORe \""*file*"\"")
 
-boards(ins::E8257D)                       = query_ins(ins,"DIAGnostic:INFOrmation:BOARds?")
-cumulativeattenuatorswitches(ins::E8257D) = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
-cumulativepowerons(ins::E8257D)           = query_ins(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
-cumulativeontime(ins::E8257D)             = query_ins(ins,"DIAGnostic:INFOrmation:OTIMe?")
-options(ins::E8257D)                      = query_ins(ins,"DIAGnostic:INFOrmation:OPTions?")
-options_verbose(ins::E8257D)               = query_ins(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
-revision(ins::E8257D)                     = query_ins(ins,"DIAGnostic:INFOrmation:REVision?")
+boards(ins::E8257D)                       = ask(ins,"DIAGnostic:INFOrmation:BOARds?")
+cumulativeattenuatorswitches(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
+cumulativepowerons(ins::E8257D)           = ask(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
+cumulativeontime(ins::E8257D)             = ask(ins,"DIAGnostic:INFOrmation:OTIMe?")
+options(ins::E8257D)                      = ask(ins,"DIAGnostic:INFOrmation:OPTions?")
+options_verbose(ins::E8257D)               = ask(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
+revision(ins::E8257D)                     = ask(ins,"DIAGnostic:INFOrmation:REVision?")
 
 end

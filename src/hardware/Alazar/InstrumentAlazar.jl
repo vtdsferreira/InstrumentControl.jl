@@ -19,7 +19,7 @@ DMABuffer: Holds a memory buffer suitable for data transfer with digitizers.
 module AlazarModule
 
 using Alazar
-
+import Base: read
 importall PainterQB
 include("../../Metaprogramming.jl")
 
@@ -38,10 +38,10 @@ export AlazarATS9360
 export DSPModule
 
 export abort_async_read, abortcapture
-export before_async_read, boardkind, boardhandle, boards_in_system, busy_ins
+export before_async_read, boardkind, boardhandle, boards_in_system, busy
 export configure_aux_io, configure_lsb, configurerecordaverage
 export forcetrigger, forcetriggerenable, getchannelinfo
-export inputcontrol, num_systems, post_async_buffer, read_ins, read_ex_ins
+export inputcontrol, num_systems, post_async_buffer, read, read_ex
 export resettimestamp, set_bw_limit, set_captureclock, set_externalclocklevel
 export set_externaltrigger, set_led, set_parameter, set_parameter_ul
 export set_recordcount, set_recordsize, set_triggerdelay_samples
@@ -55,10 +55,35 @@ export samplesperbuffer, samplesperrecord, recordsperbuffer, buffersperacquisiti
 export channelcount, bytespersample
 export bufferarray, buffercount, buffersize, adma, samplerate
 
+"""
+The InstrumentAlazar types represent an AlazarTech device on the local
+system. It can be used to control configuration parameters, to
+start acquisitions and to retrieve the acquired data.
 
-abstract AlazarAux         <: InstrumentCode
-abstract AlazarDataPacking <: InstrumentCode
-abstract AlazarChannel     <: InstrumentCode
+Args:
+
+  systemId (int): The board system identifier of the target
+  board. Defaults to 1, which is suitable when there is only one
+  board in the system.
+
+  boardId (int): The target's board identifier in it's
+  system. Defaults to 1, which is suitable when there is only one
+  board in the system.
+
+"""
+abstract InstrumentAlazar <: Instrument
+
+"""
+Type to link a `dsp_module_handle` with the `InstrumentAlazar` it came from.
+"""
+type DSPModule
+    ins::InstrumentAlazar
+    handle::dsp_module_handle
+end
+
+abstract AlazarAux         <: InstrumentProperty
+abstract AlazarDataPacking <: InstrumentProperty
+abstract AlazarChannel     <: InstrumentProperty
 
 subtypesArray = [
     (:ChannelA                          , AlazarChannel),
@@ -81,6 +106,93 @@ subtypesArray = [
 for ((subtypeSymb,supertype) in subtypesArray)
     createCodeType(subtypeSymb, supertype)
 end
+
+responses = Dict(
+    :Coupling           => Dict(Alazar.AC_COUPLING              => :AC,
+                                Alazar.DC_COUPLING              => :DC),
+
+    :TriggerSlope       => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
+                                Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
+
+    :ClockSlope         => Dict(Alazar.CLOCK_EDGE_RISING        => :RisingClock,
+                                Alazar.CLOCK_EDGE_FALLING       => :FallingClock),
+
+    :ClockSource        => Dict(Alazar.INTERNAL_CLOCK           => :InternalClock,
+                                Alazar.EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
+
+    :SampleRate         => Dict(Alazar.SAMPLE_RATE_1KSPS        => :Rate1kSps,
+                                Alazar.SAMPLE_RATE_2KSPS        => :Rate2kSps,
+                                Alazar.SAMPLE_RATE_5KSPS        => :Rate5kSps,
+                                Alazar.SAMPLE_RATE_10KSPS       => :Rate10kSps,
+                                Alazar.SAMPLE_RATE_20KSPS       => :Rate20kSps,
+                                Alazar.SAMPLE_RATE_50KSPS       => :Rate50kSps,
+                                Alazar.SAMPLE_RATE_100KSPS      => :Rate100kSps,
+                                Alazar.SAMPLE_RATE_200KSPS      => :Rate200kSps,
+                                Alazar.SAMPLE_RATE_500KSPS      => :Rate500kSps,
+                                Alazar.SAMPLE_RATE_1MSPS        => :Rate1MSps,
+                                Alazar.SAMPLE_RATE_2MSPS        => :Rate2MSps,
+                                Alazar.SAMPLE_RATE_5MSPS        => :Rate5MSps,
+                                Alazar.SAMPLE_RATE_10MSPS       => :Rate10MSps,
+                                Alazar.SAMPLE_RATE_20MSPS       => :Rate20MSps,
+                                Alazar.SAMPLE_RATE_50MSPS       => :Rate50MSps,
+                                Alazar.SAMPLE_RATE_100MSPS      => :Rate100MSps,
+                                Alazar.SAMPLE_RATE_200MSPS      => :Rate200MSps,
+                                Alazar.SAMPLE_RATE_500MSPS      => :Rate500MSps,
+                                Alazar.SAMPLE_RATE_800MSPS      => :Rate800MSps,
+                                Alazar.SAMPLE_RATE_1000MSPS     => :Rate1000MSps,
+                                Alazar.SAMPLE_RATE_1200MSPS     => :Rate1200MSps,
+                                Alazar.SAMPLE_RATE_1500MSPS     => :Rate1500MSps,
+                                Alazar.SAMPLE_RATE_1800MSPS     => :Rate1800MSps),
+
+    :AlazarChannel      => Dict(Alazar.CHANNEL_A                    => :ChannelA,
+                                Alazar.CHANNEL_B                    => :ChannelB,
+                                Alazar.CHANNEL_A | Alazar.CHANNEL_B => :BothChannels),
+
+    :AlazarAux          => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
+                                Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
+                                Alazar.AUX_OUT_PACER         =>  :AuxOutputPacer,
+                                Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
+                                Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
+
+    :AlazarDataPacking  => Dict(Alazar.PACK_DEFAULT            => :DefaultPacking,
+                                Alazar.PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
+                                Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits)
+
+)
+
+generateResponseHandlers(InstrumentAlazar, responses)
+
+Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}) = Rate1000MSps(insType)
+#Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}, code) = Rate1000MSps(insType,code)
+
+# sampleRate(rate::DataType) = begin
+#     @assert rate <: InstrumentSampleRate "$rate <: InstrumentSampleRate"
+#     sampleRate(rate())
+# end
+samplerate{T<:Rate1kSps}(::Type{T})    = 1e3 |> U32
+samplerate{T<:Rate2kSps}(::Type{T})    = 2e3 |> U32
+samplerate{T<:Rate5kSps}(::Type{T})    = 5e3 |> U32
+samplerate{T<:Rate10kSps}(::Type{T})   = 1e4 |> U32
+samplerate{T<:Rate20kSps}(::Type{T})   = 2e4 |> U32
+samplerate{T<:Rate50kSps}(::Type{T})   = 5e4 |> U32
+samplerate{T<:Rate100kSps}(::Type{T})  = 1e5 |> U32
+samplerate{T<:Rate200kSps}(::Type{T})  = 2e5 |> U32
+samplerate{T<:Rate500kSps}(::Type{T})  = 5e5 |> U32
+samplerate{T<:Rate1MSps}(::Type{T})    = 1e6 |> U32
+samplerate{T<:Rate2MSps}(::Type{T})    = 2e6 |> U32
+samplerate{T<:Rate5MSps}(::Type{T})    = 5e6 |> U32
+samplerate{T<:Rate10MSps}(::Type{T})   = 1e7 |> U32
+samplerate{T<:Rate20MSps}(::Type{T})   = 2e7 |> U32
+samplerate{T<:Rate50MSps}(::Type{T})   = 5e7 |> U32
+samplerate{T<:Rate100MSps}(::Type{T})  = 1e8 |> U32
+samplerate{T<:Rate200MSps}(::Type{T})  = 2e8 |> U32
+samplerate{T<:Rate500MSps}(::Type{T})  = 5e8 |> U32
+samplerate{T<:Rate800MSps}(::Type{T})  = 8e8 |> U32
+samplerate{T<:Rate1000MSps}(::Type{T}) = 1e9 |> U32
+samplerate{T<:Rate1200MSps}(::Type{T}) = 12e8 |> U32
+samplerate{T<:Rate1500MSps}(::Type{T}) = 15e8 |> U32
+samplerate{T<:Rate1800MSps}(::Type{T}) = 18e8 |> U32
+
 
 abstract AlazarMode
 abstract StreamMode <: AlazarMode
@@ -110,32 +222,6 @@ end
 type FFTRecord <: RecordMode
     sam_per_rec::AbstractFloat
     total_recs::Int
-end
-
-"""
-The InstrumentAlazar types represent an AlazarTech device on the local
-system. It can be used to control configuration parameters, to
-start acquisitions and to retrieve the acquired data.
-
-Args:
-
-  systemId (int): The board system identifier of the target
-  board. Defaults to 1, which is suitable when there is only one
-  board in the system.
-
-  boardId (int): The target's board identifier in it's
-  system. Defaults to 1, which is suitable when there is only one
-  board in the system.
-
-"""
-abstract InstrumentAlazar <: Instrument
-
-"""
-Type to link a `dsp_module_handle` with the `InstrumentAlazar` it came from.
-"""
-type DSPModule
-    ins::InstrumentAlazar
-    handle::dsp_module_handle
 end
 
 "Create descriptive exceptions."
@@ -244,13 +330,13 @@ num_systems() = AlazarNumOfSystems()
     AlazarPostAsyncBuffer(a.handle, buffer, bufferLength)
 #@doc "Posts a DMA buffer to a board." post_async_buffer
 
-@eh read_ins(a::InstrumentAlazar, channelId, buffer, elementSize,
+@eh read(a::InstrumentAlazar, channelId, buffer, elementSize,
         record, transferOffset, transferLength) =
     AlazarRead(a.handle, channelId, buffer, elementSize,
         record, transferOffset, transferLength)
 #@doc "Read all or part of a record from on-board memory." read
 
-@eh read_ex_ins(a::InstrumentAlazar, channelId, buffer, elementSize,
+@eh read_ex(a::InstrumentAlazar, channelId, buffer, elementSize,
         record, transferOffset, transferLength) =
     AlazarReadEx(a.handle, channelId, buffer, elementSize,
         record, transferOffset, transferLength)
@@ -529,95 +615,9 @@ Base.show(io::IO, ins::InstrumentAlazar) = begin
     println(io, "  BoardId $(ins.boardId)")
 end
 
-responses = Dict(
-    :Coupling           => Dict(Alazar.AC_COUPLING              => :AC,
-                                Alazar.DC_COUPLING              => :DC),
-
-    :TriggerSlope       => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
-                                Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
-
-    :ClockSlope         => Dict(Alazar.CLOCK_EDGE_RISING        => :RisingClock,
-                                Alazar.CLOCK_EDGE_FALLING       => :FallingClock),
-
-    :ClockSource        => Dict(Alazar.INTERNAL_CLOCK           => :InternalClock,
-                                Alazar.EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
-
-    :SampleRate         => Dict(Alazar.SAMPLE_RATE_1KSPS        =>  :Rate1kSps,
-                                Alazar.SAMPLE_RATE_2KSPS        =>  :Rate2kSps,
-                                Alazar.SAMPLE_RATE_5KSPS        =>  :Rate5kSps,
-                                Alazar.SAMPLE_RATE_10KSPS       =>  :Rate10kSps,
-                                Alazar.SAMPLE_RATE_20KSPS       =>  :Rate20kSps,
-                                Alazar.SAMPLE_RATE_50KSPS       =>  :Rate50kSps,
-                                Alazar.SAMPLE_RATE_100KSPS      =>  :Rate100kSps,
-                                Alazar.SAMPLE_RATE_200KSPS      =>  :Rate200kSps,
-                                Alazar.SAMPLE_RATE_500KSPS      =>  :Rate500kSps,
-                                Alazar.SAMPLE_RATE_1MSPS        =>  :Rate1MSps,
-                                Alazar.SAMPLE_RATE_2MSPS        =>  :Rate2MSps,
-                                Alazar.SAMPLE_RATE_5MSPS        =>  :Rate5MSps,
-                                Alazar.SAMPLE_RATE_10MSPS       =>  :Rate10MSps,
-                                Alazar.SAMPLE_RATE_20MSPS       =>  :Rate20MSps,
-                                Alazar.SAMPLE_RATE_50MSPS       =>  :Rate50MSps,
-                                Alazar.SAMPLE_RATE_100MSPS      =>  :Rate100MSps,
-                                Alazar.SAMPLE_RATE_200MSPS      =>  :Rate200MSps,
-                                Alazar.SAMPLE_RATE_500MSPS      =>  :Rate500MSps,
-                                Alazar.SAMPLE_RATE_800MSPS      =>  :Rate800MSps,
-                                Alazar.SAMPLE_RATE_1000MSPS     =>  :Rate1000MSps,
-                                Alazar.SAMPLE_RATE_1200MSPS     =>  :Rate1200MSps,
-                                Alazar.SAMPLE_RATE_1500MSPS     =>  :Rate1500MSps,
-                                Alazar.SAMPLE_RATE_1800MSPS     =>  :Rate1800MSps),
-
-    :AlazarChannel      => Dict(Alazar.CHANNEL_A                    =>  :ChannelA,
-                                Alazar.CHANNEL_B                    =>  :ChannelB,
-                                Alazar.CHANNEL_A | Alazar.CHANNEL_B =>  :BothChannels),
-
-    :AlazarAux          => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
-                                Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
-                                Alazar.AUX_OUT_PACER         =>  :AuxOutputPacer,
-                                Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
-                                Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
-
-    :AlazarDataPacking  => Dict(Alazar.PACK_DEFAULT            => :DefaultPacking,
-                                Alazar.PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
-                                Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits)
-
-)
-
-generateResponseHandlers(AlazarATS9360, responses)
-
-Rate1GSps(ins::AlazarATS9360) = Rate1000MSps(ins::AlazarATS9360)
-Rate1GSps(ins::AlazarATS9360, state) = Rate1000MSps(ins,state)
-
-# sampleRate(rate::DataType) = begin
-#     @assert rate <: InstrumentSampleRate "$rate <: InstrumentSampleRate"
-#     sampleRate(rate())
-# end
-samplerate{T<:Rate1kSps}(::Type{T})    = 1e3 |> U32
-samplerate{T<:Rate2kSps}(::Type{T})    = 2e3 |> U32
-samplerate{T<:Rate5kSps}(::Type{T})    = 5e3 |> U32
-samplerate{T<:Rate10kSps}(::Type{T})   = 1e4 |> U32
-samplerate{T<:Rate20kSps}(::Type{T})   = 2e4 |> U32
-samplerate{T<:Rate50kSps}(::Type{T})   = 5e4 |> U32
-samplerate{T<:Rate100kSps}(::Type{T})  = 1e5 |> U32
-samplerate{T<:Rate200kSps}(::Type{T})  = 2e5 |> U32
-samplerate{T<:Rate500kSps}(::Type{T})  = 5e5 |> U32
-samplerate{T<:Rate1MSps}(::Type{T})    = 1e6 |> U32
-samplerate{T<:Rate2MSps}(::Type{T})    = 2e6 |> U32
-samplerate{T<:Rate5MSps}(::Type{T})    = 5e6 |> U32
-samplerate{T<:Rate10MSps}(::Type{T})   = 1e7 |> U32
-samplerate{T<:Rate20MSps}(::Type{T})   = 2e7 |> U32
-samplerate{T<:Rate50MSps}(::Type{T})   = 5e7 |> U32
-samplerate{T<:Rate100MSps}(::Type{T})  = 1e8 |> U32
-samplerate{T<:Rate200MSps}(::Type{T})  = 2e8 |> U32
-samplerate{T<:Rate500MSps}(::Type{T})  = 5e8 |> U32
-samplerate{T<:Rate800MSps}(::Type{T})  = 8e8 |> U32
-samplerate{T<:Rate1000MSps}(::Type{T}) = 1e9 |> U32
-samplerate{T<:Rate1200MSps}(::Type{T}) = 12e8 |> U32
-samplerate{T<:Rate1500MSps}(::Type{T}) = 15e8 |> U32
-samplerate{T<:Rate1800MSps}(::Type{T}) = 18e8 |> U32
-
 function samplerate(a::AlazarATS9360)
     a.sampleRate > 0x80 ? a.sampleRate :
-        samplerate(SampleRate(AlazarATS9360,a.sampleRate))::U32
+        samplerate(SampleRate(a,a.sampleRate))::U32
 end
 
 function input_control(a::AlazarATS9360, x...)
@@ -626,7 +626,7 @@ end
 
 # Set by data type
 function set_samplerate{T<:SampleRate}(a::AlazarATS9360, rate::Type{T})
-    val = rate(AlazarATS9360) |> state
+    val = rate(a) |> code
     r = set_captureclock(a, Alazar.INTERNAL_CLOCK, val, a.clockSlope, 0)
     a.clockSource = Alazar.INTERNAL_CLOCK
     a.sampleRate = val
@@ -647,7 +647,7 @@ function set_samplerate(a::AlazarATS9360, rate::Real)
 end
 
 function set_clockslope{T<:ClockSlope}(a::AlazarATS9360, slope::Type{T})
-    val = slope(AlazarATS9360) |> state
+    val = slope(a) |> code
     r = set_captureclock(a, a.clockSource, a.sampleRate, val, a.decimation)
     a.clockSlope = val
     r
@@ -655,7 +655,7 @@ end
 
 function configure_aux_io{S<:AuxOutputTrigger,T<:AuxDigitalInput}(
         a::AlazarATS9360, aux::Union{Type{S},Type{T}})
-    val = aux(AlazarATS9360) |> state
+    val = aux(a) |> code
     r = configure_aux_io(a, val, U32(0))
     a.auxIOMode = val
     a.auxParam = U32(0)
@@ -664,7 +664,7 @@ end #of module
 
 function configure_aux_io{T<:AuxInputTriggerEnable}(
         a::AlazarATS9360, aux::Type{T}, trigSlope::U32)
-    val = aux(AlazarATS9360) |> state
+    val = aux(a) |> code
     r = configure_aux_io(a, val, trigSlope)
     a.auxIOMode = val
     a.auxParam = trigSlope
@@ -673,8 +673,8 @@ end
 
 function configure_aux_io{S<:AuxInputTriggerEnable, T<:TriggerSlope}(
         a::AlazarATS9360, aux::Type{S}, trigSlope::Type{T})
-    val = aux(AlazarATS9360) |> state
-    val2 = trigSlope(AlazarATS9360) |> state
+    val = aux(a) |> code
+    val2 = trigSlope(AlazarATS9360) |> code
     r = configure_aux_io(a, val, val2)
     a.auxIOMode = val
     a.auxParam = val2
@@ -683,7 +683,7 @@ end
 
 function configure_aux_io{T<:AuxOutputPacer}(
         a::AlazarATS9360, aux::Type{T}, divider::Integer)
-    val = aux(AlazarATS9360) |> state
+    val = aux(a) |> code
     r = configure_aux_io(a, val, U32(divider))
     a.auxIOMode = val
     a.auxParam = divider
@@ -692,7 +692,7 @@ end
 
 function configure_aux_io{T<:AuxDigitalOutput}(
         a::AlazarATS9360, aux::Type{T}, level::Integer)
-    val = aux(AlazarATS9360) |> state
+    val = aux(a) |> code
     r = configure_aux_io(a, val, U32(level))
     a.auxIOMode = val
     a.auxParam = level
@@ -825,12 +825,12 @@ adma(::TraditionalRecord)  = Alazar.ADMA_TRADITIONAL_MODE |
 # end
 
 function set_acquisitionchannel{T<:AlazarChannel}(a::AlazarATS9360, ch::Type{T})
-    a.acquisitionChannel = U32((ch)(AlazarATS9360) |> state)
+    a.acquisitionChannel = U32((ch)(a) |> code)
     a.channelCount = 1
 end
 
 function set_acquisitionchannel{T<:BothChannels}(a::AlazarATS9360, ch::Type{T})
-    a.acquisitionChannel = U32((ch)(AlazarATS9360) |> state)
+    a.acquisitionChannel = U32((ch)(a) |> code)
     a.channelCount = 2
 end
 

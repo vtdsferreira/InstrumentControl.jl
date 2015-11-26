@@ -1,6 +1,6 @@
-export RandomInput
-type RandomInput <: Input
+export RandomResponse
+type RandomResponse <: Response
 end
 
 export measure
-measure(ch::RandomInput) = rand()
+measure(ch::RandomResponse) = rand()
