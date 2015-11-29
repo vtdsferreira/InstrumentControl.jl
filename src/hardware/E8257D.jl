@@ -13,6 +13,40 @@ export E8257D
 export E8257DStimulus
 export E8257DPowerStimulus, E8257DFrequencyStimulus, source
 
+export FlatnessCorrection
+export Frequency
+export FrequencyMultiplier
+export FrequencyStart
+export FrequencyStop
+export FrequencyStep
+export FrequencyOffsetLevel
+export FrequencyOffset
+export FrequencyReferenceLevel
+export FrequencyReference
+export OutputBlanking
+export OutputBlankingAuto
+export Power
+export PowerLimit
+export PowerLimitAdjustable
+export PowerStart
+export PowerStop
+export PowerStep
+export PowerOffset
+export PowerReference
+export PowerReferenceLevel
+export PowerSearchProtection
+export PowerOptimizeSNR
+export AttenuatorAuto
+export Phase
+export ALCBandwidth
+export ALCBandwidthAuto
+export ALC
+export ALCLevel
+export SetFrequencyReference
+export SetPhaseReference
+export OutputSettled
+export Output
+
 export flatnesscorrectionfile_load, flatnesscorrectionfile_save
 export boards, cumulativeattenuatorswitches, cumulativepowerons, cumulativeontime
 export options, options_verbose, revision
@@ -49,13 +83,47 @@ end
 
 function source(ch::E8257DPowerStimulus, val::Real)
     ch.val = val
-    setPower(ch.ins,val)
+    configure(ch.ins,Power,val)
 end
 
 function source(ch::E8257DFrequencyStimulus, val::Real)
     ch.val = val
-    setFrequency(ch.ins,val)
+    configure(ch.ins,Frequency,val)
 end
+
+abstract FlatnessCorrection      <: InstrumentProperty
+abstract Frequency               <: InstrumentProperty
+abstract FrequencyMultiplier     <: InstrumentProperty
+abstract FrequencyStart          <: InstrumentProperty
+abstract FrequencyStop           <: InstrumentProperty
+abstract FrequencyStep           <: InstrumentProperty
+abstract FrequencyOffsetLevel    <: InstrumentProperty
+abstract FrequencyOffset         <: InstrumentProperty
+abstract FrequencyReferenceLevel <: InstrumentProperty
+abstract FrequencyReference      <: InstrumentProperty
+abstract OutputBlanking          <: InstrumentProperty
+abstract OutputBlankingAuto      <: InstrumentProperty
+abstract Power                   <: InstrumentProperty
+abstract PowerLimit              <: InstrumentProperty
+abstract PowerLimitAdjustable    <: InstrumentProperty
+abstract PowerStart              <: InstrumentProperty
+abstract PowerStop               <: InstrumentProperty
+abstract PowerStep               <: InstrumentProperty
+abstract PowerOffset             <: InstrumentProperty
+abstract PowerReference          <: InstrumentProperty
+abstract PowerReferenceLevel     <: InstrumentProperty
+abstract PowerSearchProtection   <: InstrumentProperty
+abstract PowerOptimizeSNR        <: InstrumentProperty
+abstract AttenuatorAuto          <: InstrumentProperty
+abstract Phase                   <: InstrumentProperty
+abstract ALCBandwidth            <: InstrumentProperty
+abstract ALCBandwidthAuto        <: InstrumentProperty
+abstract ALC                     <: InstrumentProperty
+abstract ALCLevel                <: InstrumentProperty
+abstract SetFrequencyReference   <: InstrumentProperty
+abstract SetPhaseReference       <: InstrumentProperty
+abstract OutputSettled           <: InstrumentProperty
+abstract Output                  <: InstrumentProperty
 
 responses = Dict(
 
@@ -71,66 +139,51 @@ responses = Dict(
                                   "EXT"  => :ExternalOscillator)
 )
 
-generateResponseHandlers(E8257D, responses)
+generate_handlers(E8257D, responses)
 
-sfd = Dict(
-    "screenshot"                 => ["DISP:CAPT",                           NoArgs],
-    "flatnesscorrection_points"  => ["SOURce:CORRection:FLATness:POINts?",  Int],
-    "flatnesscorrection_factory" => ["SOURce:CORRection:FLATness:PRESet",   NoArgs],
-    "flatnesscorrection_on"      => ["SOURce:CORRection:STATe",             Bool],
-    "frequency_band_on"          => ["SOURce:FREQuency:CHANnels:STATe",     Bool],
-    "frequency"                  => ["SOURce:FREQuency:FIXed",              AbstractFloat],            # units?
-    "frequency_stepup"           => ["SOURce:FREQuency:FIXed UP",           NoArgs],
-    "frequency_stepdown"         => ["SOURce:FREQuency:FIXed DOWN",         NoArgs],
-    "frequency_multiplier"       => ["SOURce:FREQuency:MULTiplier",         Int],
-    "frequency_offset_on"        => ["SOURce:FREQuency:OFFSet:STATe",       Bool],
-    "frequency_offset"           => ["SOURce:FREQuency:OFFSet",             AbstractFloat],
-    "frequency_reference"        => ["SOURce:FREQuency:REFerence",          AbstractFloat],
-    "set_frequency_reference"    => ["SOURce:FREQuency:REFerence:SET",      NoArgs],
-    "frequency_reference_on"     => ["SOURce:FREQuency:REFerence:STATe",    Bool],
-    "frequency_start"            => ["SOURce:FREQuency:STARt",              AbstractFloat],
-    "frequency_stop"             => ["SOURce:FREQuency:STOP",               AbstractFloat],
-    "frequency_step"             => ["SOURce:FREQuency:STEP",               AbstractFloat],
-    "phase"                      => ["SOURce:PHASe:ADJust",                 AbstractFloat],            #radians?
-    "set_phase_reference"        => ["SOURce:PHASe:REFerence",              NoArgs],
-    "referenceoscillator_source" => ["SOURce:ROSCillator:SOURce?",          OscillatorSource],
-    "output_blanking_auto"       => ["SOURce:OUTPut:BLANking:AUTO",         Bool],
-    "output_blanking_on"         => ["SOURce:OUTPut:BLANking:STATe",        Bool],
-    "output_settled"             => [":OUTPut:SETTled?",                    NoArgs],
-    "output_on"                  => [":OUTPut",                             Bool],
-    "alc_bandwidth"              => ["SOURce:POWer:ALC:BANDwidth",          AbstractFloat],
-    "alc_bandwidth_auto"         => ["SOURce:POWer:ALC:BANDwidth:AUTO",     Bool],
-    "alc_level"                  => ["SOURce:POWer:ALC:LEVel",              AbstractFloat],            # step attenuator
-    "alc_powersearch_reflevel"   => ["SOURce:POWer:ALC:SEARch:REF:LEVel",   AbstractFloat],
-    "alc_powersearch_start"      => ["SOURce:POWer:ALC:SEARch:SPAN:START",  AbstractFloat],            # may want units?
-    "alc_powersearch_stop"       => ["SOURce:POWer:ALC:SEARch:SPAN:STOP",   AbstractFloat],            # may want units?
-    "alc_powersearch_spanon"     => ["SOURce:POWer:ALC:SEARch:SPAN:STATe",  Bool],
-    "alc_on"                     => ["SOURce:POWer:ALC:STATe",              Bool],
-    "trigger_sweep"              => ["SOURce:TSWeep",                       NoArgs],
-    "power_attenuator_level"     => ["SOURce:POWer:ATTenuation",            AbstractFloat],            # step attenuator    # may want units?
-    "power_attenuator_auto"      => ["SOURce:POWer:ATTenuation:AUTO",       Bool],        # step attenuator # docstring
-    "power_optimize_snr_on"      => ["SOURce:POWer:NOISe:STATe",            Bool],
-    "power_limit_adjustable"     => ["SOURce:POWer:LIMit:MAX:ADJust",       Bool],
-    "power_limit"                => ["SOURce:POWer:LIMit:MAX",              AbstractFloat],            # units?
-    "power_searchprotection"     => ["SOURce:POWer:PROTection:STATe",       Bool],
-    "power_reference"            => ["SOURce:POWer:REFerence",              AbstractFloat],            # units?
-    "power_reference_on"         => ["SOURce:POWer:REFerence:STATe",        Bool],
-    "power_start"                => ["SOURce:POWer:STARt",                  AbstractFloat],            # units?
-    "power_stop"                 => ["SOURce:POWer:STOP",                   AbstractFloat],            # units?
-    "power_offset"               => ["SOURce:POWer:LEVel:OFFSet",           AbstractFloat],            # units?
-    "power"                      => ["SOURce:POWer",                        AbstractFloat],            # units?
-    "power_step"                 => ["SOURce:POWer:LEVel:STEP",             AbstractFloat],            # units?
+commands = [
+    ("TRIG:SOUR",                           TriggerSource),
+    ("TRIG:OUTP:POL",                       TriggerOutputPolarity),
+    ("SOURce:ROSCillator:SOURce?",          OscillatorSource),
 
-    "lan_configuration"          => ["SYST:COMM:LAN:CONF",                  Network],    # IMPLEMENT ERROR HANDLING
-    "lan_hostname"               => ["SYSTem:COMMunicate:LAN:HOSTname",     ASCIIString],
-    "lan_ip"                     => ["SYSTem:COMMunicate:LAN:IP",           ASCIIString],
-    "lan_subnet"                 => ["SYSTem:COMMunicate:LAN:SUBNet",       ASCIIString],
-    "trigger_outputpolarity"     => ["TRIG:OUTP:POL",                       Polarity],
-    "trigger_source"             => ["TRIG:SOUR",                           TriggerSource]
-)
+    ("SOURce:CORRection:STATe",             FlatnessCorrection,      Bool),
+    ("SOURce:FREQuency:FIXed",              Frequency,               AbstractFloat),
+    ("SOURce:FREQuency:MULTiplier",         FrequencyMultiplier,     Int),
+    ("SOURce:FREQuency:STARt",              FrequencyStart,          AbstractFloat),
+    ("SOURce:FREQuency:STOP",               FrequencyStop,           AbstractFloat),
+    ("SOURce:FREQuency:STEP",               FrequencyStep,           AbstractFloat),
+    ("SOURce:FREQuency:OFFSet",             FrequencyOffsetLevel,    AbstractFloat),
+    ("SOURce:POWer:REFerence:STATe",        FrequencyOffset,         Bool),
+    ("SOURce:FREQuency:REFerence",          FrequencyReferenceLevel, AbstractFloat),
+    ("SOURce:FREQuency:REFerence:STATe",    FrequencyReference,      Bool),
+    ("SOURce:OUTPut:BLANking:STATe",        OutputBlanking,          Bool),
+    ("SOURce:OUTPut:BLANking:AUTO",         OutputBlankingAuto,      Bool),
+    ("SOURce:POWer",                        Power,                   AbstractFloat),
+    ("SOURce:POWer:LIMit:MAX",              PowerLimit,              AbstractFloat),
+    ("SOURce:POWer:LIMit:MAX:ADJust",       PowerLimitAdjustable,    Bool),
+    ("SOURce:POWer:STARt",                  PowerStart,              AbstractFloat),
+    ("SOURce:POWer:STOP",                   PowerStop,               AbstractFloat),
+    ("SOURce:POWer:LEVel:STEP",             PowerStep,               AbstractFloat),
+    ("SOURce:POWer:LEVel:OFFSet",           PowerOffset,             AbstractFloat),
+    ("SOURce:POWer:REFerence:STATe",        PowerReference,          Bool),
+    ("SOURce:POWer:REFerence",              PowerReferenceLevel,     AbstractFloat),
+    ("SOURce:POWer:PROTection:STATe",       PowerSearchProtection,   Bool),
+    ("SOURce:POWer:NOISe:STATe",            PowerOptimizeSNR,        Bool),
+    ("SOURce:POWer:ATTenuation:AUTO",       AttenuatorAuto,          Bool),
+    ("SOURce:PHASe:ADJust",                 Phase,                   AbstractFloat),
+    ("SOURce:POWer:ALC:BANDwidth",          ALCBandwidth,            AbstractFloat),
+    ("SOURce:POWer:ALC:BANDwidth:AUTO",     ALCBandwidthAuto,        Bool),
+    ("SOURce:POWer:ALC:STATe",              ALC,                     Bool),
+    ("SOURce:POWer:ALC:LEVel",              ALCLevel,                AbstractFloat),
+    ("SOURce:FREQuency:REFerence:SET",      SetFrequencyReference,   NoArgs),
+    ("SOURce:PHASe:REFerence",              SetPhaseReference,       NoArgs),
+    (":OUTPut:SETTled?",                    OutputSettled,           NoArgs),
+    (":OUTPut",                             Output,                  Bool)
+]
 
-for (fnName in keys(sfd))
-    createStateFunction(E8257D,fnName,sfd[fnName][1],sfd[fnName][2])
+for args in commands
+    generate_inspect(E8257D,args...)
+    args[1][end] != '?' && generate_configure(E8257D,args...)
 end
 
 flatnesscorrectionfile_load(ins::E8257D, file::ASCIIString) =
@@ -144,7 +197,7 @@ cumulativeattenuatorswitches(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:CCOu
 cumulativepowerons(ins::E8257D)           = ask(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
 cumulativeontime(ins::E8257D)             = ask(ins,"DIAGnostic:INFOrmation:OTIMe?")
 options(ins::E8257D)                      = ask(ins,"DIAGnostic:INFOrmation:OPTions?")
-options_verbose(ins::E8257D)               = ask(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
+options_verbose(ins::E8257D)              = ask(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
 revision(ins::E8257D)                     = ask(ins,"DIAGnostic:INFOrmation:REVision?")
 
 end

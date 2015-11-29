@@ -10,13 +10,40 @@ include("../Metaprogramming.jl")
 
 export E5071C
 
+export Averaging, AveragingFactor
+export FrequencyStart, FrequencyStop, FrequencyCenter, FrequencySpan
+export ExtTriggerDelay, ExtTriggerLowLatency
+export IFBandwidth
+export PowerLevel
+export MarkerX, MarkerY, Marker
+export Smoothing, SmoothingAperture
+export TriggerOutput
+export PhaseOffset
+export ElectricalDelay, ElecticalMedium, WaveguideCutoff
+export YDivisions, YScalePerDivision, YReferencePosition, YReferenceLevel
+export PowerCoupled, PowerSlope, PowerSlopeLevel, PowerLevel
+export NumPoints, NumTraces
+export PointTrigger, AveragingTrigger
+export TraceMaximized
+export PowerSweepFrequency
+export WindowLayout
+export GraphLayout
+export SetActiveMarker
+export MarkerSearch
+export SetActiveTrace
+export SetActiveChannel
+export Autoscale
+export ClearAveraging
+export DataTrace
+export Output
+
 export frequencydata, formatteddata
 
 type E5071C <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
     model::AbstractString
-    
+
     E5071C(x) = begin
         ins = new()
         ins.vi = x
@@ -29,127 +56,165 @@ type E5071C <: InstrumentVISA
     E5071C() = new()
 end
 
+abstract Averaging            <: InstrumentProperty
+abstract AveragingFactor      <: InstrumentProperty
+abstract FrequencyStart       <: InstrumentProperty
+abstract FrequencyStop        <: InstrumentProperty
+abstract FrequencyCenter      <: InstrumentProperty
+abstract FrequencySpan        <: InstrumentProperty
+abstract ExtTriggerDelay      <: InstrumentProperty
+abstract ExtTriggerLowLatency <: InstrumentProperty
+abstract IFBandwidth          <: InstrumentProperty
+abstract PowerLevel           <: InstrumentProperty
+abstract MarkerX              <: InstrumentProperty
+abstract MarkerY              <: InstrumentProperty
+abstract Marker               <: InstrumentProperty
+abstract Smoothing            <: InstrumentProperty
+abstract SmoothingAperture    <: InstrumentProperty
+abstract YDivisions           <: InstrumentProperty
+abstract TriggerOutput        <: InstrumentProperty
+abstract PhaseOffset          <: InstrumentProperty
+abstract ElectricalDelay      <: InstrumentProperty
+abstract ElecticalMedium      <: InstrumentProperty
+abstract WaveguideCutoff      <: InstrumentProperty
+abstract YScalePerDivision    <: InstrumentProperty
+abstract YReferencePosition   <: InstrumentProperty
+abstract YReferenceLevel      <: InstrumentProperty
+abstract PowerCoupled         <: InstrumentProperty
+abstract PowerSlope           <: InstrumentProperty
+abstract PowerSlopeLevel      <: InstrumentProperty
+abstract PowerLevel           <: InstrumentProperty
+abstract NumPoints            <: InstrumentProperty
+abstract NumTraces            <: InstrumentProperty
+abstract PointTrigger         <: InstrumentProperty
+abstract AveragingTrigger     <: InstrumentProperty
+abstract TraceMaximized       <: InstrumentProperty
+abstract PowerSweepFrequency  <: InstrumentProperty
+abstract WindowLayout         <: InstrumentProperty
+abstract GraphLayout          <: InstrumentProperty
+abstract SetActiveMarker      <: InstrumentProperty
+abstract MarkerSearch         <: InstrumentProperty
+abstract SetActiveTrace       <: InstrumentProperty
+abstract SetActiveChannel     <: InstrumentProperty
+abstract Autoscale            <: InstrumentProperty
+abstract ClearAveraging       <: InstrumentProperty
+abstract DataTrace            <: InstrumentProperty
+abstract Output               <: InstrumentProperty
+
 responseDictionary = Dict(
 
-    :Network            => Dict("DHCP" => :DHCP,
-                                "MAN"  => :ManualNetwork),
+    :Network                => Dict("DHCP" => :DHCP,
+                                    "MAN"  => :ManualNetwork),
 
-    :TriggerSource      => Dict("INT"  => :InternalTrigger,
-                                "EXT"  => :ExternalTrigger,
-                                "MAN"  => :ManualTrigger,
-                                "BUS"  => :BusTrigger),
+    :TriggerSource          => Dict("INT"  => :InternalTrigger,
+                                    "EXT"  => :ExternalTrigger,
+                                    "MAN"  => :ManualTrigger,
+                                    "BUS"  => :BusTrigger),
 
-    :Timing             => Dict("BEF"  => :Before,
-                                "AFT"  => :After),
+    :TriggerOutputTiming    => Dict("BEF"  => :TrigOutBeforeMeasuring,
+                                    "AFT"  => :TrigOutAfterMeasuring),
 
-    :TriggerSlope       => Dict("POS"  => :RisingTrigger,
-                                "NEG"  => :FallingTrigger),
+    :TriggerSlope           => Dict("POS"  => :RisingTrigger,
+                                    "NEG"  => :FallingTrigger),
 
-    :Polarity           => Dict("POS"  => :PositivePolarity,
-                                "NEG"  => :NegativePolarity),
+    :TriggerOutputPolarity  => Dict("POS"  => :TrigOutPosPolarity,
+                                    "NEG"  => :TrigOutNegPolarity),
 
-    :Search             => Dict("MAX"  => :Max,
-                                "MIN"  => :Min,
-                                "PEAK" => :Peak,
-                                "LPE"  => :LeftPeak,
-                                "RPE"  => :RightPeak,
-                                "TARG" => :Target,
-                                "LTAR" => :LeftTarget,
-                                "RTAR" => :RightTarget),
+    :Search                 => Dict("MAX"  => :Max,
+                                    "MIN"  => :Min,
+                                    "PEAK" => :Peak,
+                                    "LPE"  => :LeftPeak,
+                                    "RPE"  => :RightPeak,
+                                    "TARG" => :Target,
+                                    "LTAR" => :LeftTarget,
+                                    "RTAR" => :RightTarget),
 
-    :SParameter         => Dict("S11"  => :S11,
-                                "S12"  => :S12,
-                                "S21"  => :S21,
-                                "S22"  => :S22),
+    :SParameter             => Dict("S11"  => :S11,
+                                    "S12"  => :S12,
+                                    "S21"  => :S21,
+                                    "S22"  => :S22),
 
-    :Medium             => Dict("COAX" => :Coaxial,
-                                "WAV"  => :Waveguide),
+    :Medium                 => Dict("COAX" => :Coaxial,
+                                    "WAV"  => :Waveguide),
 
-    :DataRepresentation => Dict("MLOG" => :LogMagnitude,
-                                "PHAS" => :Phase,
-                                "GDEL" => :GroupDelay,
-                                "SLIN" => :SmithLinear,
-                                "SLOG" => :SmithLog,
-                                "SCOM" => :SmithComplex,
-                                "SMIT" => :Smith,
-                                "SADM" => :SmithAdmittance,
-                                "PLIN" => :PolarLinear,
-                                "PLOG" => :PolarLog,
-                                "POL"  => :PolarComplex,
-                                "MLIN" => :LinearMagnitude,
-                                "SWR"  => :SWR,
-                                "REAL" => :RealPart,
-                                "IMAG" => :ImaginaryPart,
-                                "UPH"  => :ExpandedPhase,
-                                "PPH"  => :PositivePhase)
+    :DataRepresentation     => Dict("MLOG" => :LogMagnitude,
+                                    "PHAS" => :Phase,
+                                    "GDEL" => :GroupDelay,
+                                    "SLIN" => :SmithLinear,
+                                    "SLOG" => :SmithLog,
+                                    "SCOM" => :SmithComplex,
+                                    "SMIT" => :Smith,
+                                    "SADM" => :SmithAdmittance,
+                                    "PLIN" => :PolarLinear,
+                                    "PLOG" => :PolarLog,
+                                    "POL"  => :PolarComplex,
+                                    "MLIN" => :LinearMagnitude,
+                                    "SWR"  => :SWR,
+                                    "REAL" => :RealPart,
+                                    "IMAG" => :ImaginaryPart,
+                                    "UPH"  => :ExpandedPhase,
+                                    "PPH"  => :PositivePhase)
 )
 
-generateResponseHandlers(E5071C, responseDictionary)
+generate_handlers(E5071C, responseDictionary)
 
-sfd = Dict(
-    "electricaldelay"              => [":CALC#:TRAC#:CORR:EDEL:TIME",  AbstractFloat],        #1-160, 1-16
-    "electricalmedium"             => [":CALC#:TRAC#:CORR:EDEL:MED",   Medium],    #...
-    "waveguidecutoff"              => [":CALC#:TRAC#:CORR:EDEL:WGC",   AbstractFloat],
-    "phaseoffset"                  => [":CALC#:TRAC#:CORR:OFFS:PHAS",  AbstractFloat],
-    "dataformat"                   => [":CALC#:TRAC#:FORM",            DataRepresentation],
-    "num_traces"                   => [":CALC#:PAR:COUN",              Int],        #1-160, arg: 1-9
-    "smoothingaperture"            => [":CALC#:SMO:APER",              AbstractFloat],
-    "smoothingon"                  => [":CALC1:SMO:STAT",              Bool],
-    "markeron"                     => [":CALC#:MARK#",                 Bool],
-    "setactivemarker"              => [":CALC#:MARK#:ACT",             NoArgs],
-    "marker_x"                     => [":CALC#:MARK#:X",               AbstractFloat],
-    "marker_y"                     => [":CALC#:MARK#:Y?",              AbstractFloat],        #:CALC{1-160}:MARK{1-9}:DATA
-    "marker_search"                => [":CALC#:MARK#:FUNC:EXEC",       NoArgs],
-    #:CALC{1-160}:MARK{1-10}:SET
-    "setactivetrace"               => [":CALC#:PAR#:SEL",              NoArgs],
-    "measurementparameter"         => [":CALC#:PAR#:DEF",              SParameter],
-    "frequencydisplayed"           => [":DISP:ANN:FREQ",               Bool],
-    "displayenabled"               => [":DISP:ENAB",                   Bool],
-    "setactivechannel"             => [":DISP:WIND#:ACT",              NoArgs],
-    "channelmaximized"             => [":DISP:MAX",                    Bool],
-    "windowlayout"                 => [":DISP:SPL",                    ASCIIString],
-    "tracemaximized"               => [":DISP:WIND#:MAX",              Bool], #1-160
-    "graphlayout"                  => [":DISP:WIND#:SPL",              ASCIIString], #1-36 (why?)
-    "autoscale"                    => [":DISP:WIND#:TRAC#:Y:AUTO",     NoArgs],  #1-160, 1-16
-    "yscaleperdivision"            => [":DISP:WIND#:TRAC#:Y:PDIV",     AbstractFloat],
-    "yreferencelevel"              => [":DISP:WIND#:TRAC#:Y:RLEV",     AbstractFloat],
-    "yreferenceposition"           => [":DISP:WIND#:TRAC#:Y:RPOS",     Int],
-    "datatraceon"                  => [":DISP:WIND#:TRAC#:STAT",       Bool],
-    "ydivisions"                   => [":DISP:WIND#:Y:DIV",            Int],
-    "clearaveraging"               => [":SENS#:AVER:CLE",              NoArgs],    #1-160
-    "averagingfactor"              => [":SENS#:AVER:COUN",             Int],            #1-160
-    "averaging"                    => [":SENS#:AVER",                  Bool],
-    "if_bandwidth"                 => [":SENS1:BAND",                  AbstractFloat],
-    "power_sweepfrequency"         => [":SENS#:FREQ",                  AbstractFloat],
+commands = [
 
-    #ch 1--9
-    "frequency_start"              => [":SENS#:FREQ:STAR",             AbstractFloat],
-    "frequency_stop"               => [":SENS#:FREQ:STOP",             AbstractFloat],
-    "frequency_center"             => [":SENS#:FREQ:CENT",             AbstractFloat],
-    "frequency_span"               => [":SENS#:FREQ:SPAN",             AbstractFloat],
-    #2 -- 20001
-    "num_points"                   => [":SENS#:SWE:POIN",              Int],
-    "power_level"                  => [":SOUR#:POW",                   AbstractFloat],    # 1-160
-    "power_coupled"                => [":SOUR#:POW:PORT:COUP",         Bool],
-    #ch 1-9 port 1-6
-    "power_port"                   => [":SOUR#:POW:PORT#",             AbstractFloat],
-    "power_slopelevel"             => [":SOUR#:POW:SLOP",              AbstractFloat],    #dB/GHz
-    "power_slopeon"                => [":SOUR#:POW:SLOP:STAT",         Bool],
+    (":CALC#:TRAC#:FORM",           DataRepresentation)
+    (":TRIG:SOUR",                  TriggerSource),
+    (":TRIG:OUTP:POL",              TriggerOutputPolarity),
+    (":TRIG:OUTP:POS",              TriggerOutputTiming),
+    (":TRIG:SEQ:EXT:SLOP",          ExternalTriggerSlope),
+    (":CALC#:PAR#:DEF",             SParameter),
 
-    "averagingtriggeron"           => [":TRIG:AVER",                   Bool],
-    "externaltrigger_slope"        => [":TRIG:SEQ:EXT:SLOP",           TriggerSlope],
-    "externaltrigger_delay"        => [":TRIG:EXT:DEL",                AbstractFloat],
-    "externaltrigger_lowlatencyon" => [":TRIG:EXT:LLAT",               Bool],
-    "triggeroutput"                => [":TRIG:OUTP:STAT",              Bool],
-    "trigger_outputpolarity"       => [":TRIG:OUTP:POL",               Polarity],
-    "trigger_outputtiming"         => [":TRIG:OUTP:POS",               Timing],
-    "pointtrigger"                 => [":TRIG:POIN",                   Bool],
-    "trigger_source"               => [":TRIG:SOUR",                   TriggerSource],
-    "output_on"                     => [":OUTP",                        Bool]
-)
+    (":SENS#:AVER",                 Averaging,             Bool),
+    (":SENS#:AVER:COUN",            AveragingFactor,       Int),
+    (":SENS#:FREQ:STAR",            FrequencyStart,        AbstractFloat),
+    (":SENS#:FREQ:STOP",            FrequencyStop,         AbstractFloat),
+    (":SENS#:FREQ:CENT",            FrequencyCenter,       AbstractFloat),
+    (":SENS#:FREQ:SPAN",            FrequencySpan,         AbstractFloat),
+    (":TRIG:EXT:DEL",               ExtTriggerDelay,       AbstractFloat),
+    (":TRIG:EXT:LLAT",              ExtTriggerLowLatency,  Bool),
+    (":SENS1:BAND",                 IFBandwidth,           AbstractFloat),
+    (":SOUR#:POW",                  PowerLevel,            AbstractFloat),
+    (":CALC#:MARK#:X",              MarkerX,               AbstractFloat),
+    (":CALC#:MARK#:Y?",             MarkerY,               AbstractFloat),
+    (":CALC#:MARK#",                Marker,                Bool),
+    (":CALC1:SMO:STAT",             Smoothing,             Bool),
+    (":CALC#:SMO:APER",             SmoothingAperture,     AbstractFloat),
+    (":DISP:WIND#:Y:DIV",           YDivisions,            Int),
+    (":TRIG:OUTP:STAT",             TriggerOutput,         Bool),
+    (":CALC#:TRAC#:CORR:OFFS:PHAS", PhaseOffset,           AbstractFloat),
+    (":CALC#:TRAC#:CORR:EDEL:TIME", ElectricalDelay,       AbstractFloat),
+    (":CALC#:TRAC#:CORR:EDEL:MED",  ElecticalMedium,       Medium),
+    (":CALC#:TRAC#:CORR:EDEL:WGC",  WaveguideCutoff,       AbstractFloat),
+    (":DISP:WIND#:TRAC#:Y:PDIV",    YScalePerDivision,     AbstractFloat),
+    (":DISP:WIND#:TRAC#:Y:RPOS",    YReferencePosition,    Int),
+    (":DISP:WIND#:TRAC#:Y:RLEV",    YReferenceLevel,       AbstractFloat),
+    (":SOUR#:POW:PORT:COUP",        PowerCoupled,          Bool),
+    (":SOUR#:POW:SLOP:STAT",        PowerSlope,            Bool),
+    (":SOUR#:POW:SLOP",             PowerSlopeLevel,       AbstractFloat),
+    (":SOUR#:POW:PORT#",            PowerLevel,            AbstractFloat),
+    (":SENS#:SWE:POIN",             NumPoints,             Int),
+    (":CALC#:PAR:COUN",             NumTraces,             Int),
+    (":TRIG:POIN",                  PointTrigger,          Bool),
+    (":TRIG:AVER",                  AveragingTrigger,      Bool),
+    (":DISP:WIND#:MAX",             TraceMaximized,        Bool),
+    (":SENS#:FREQ",                 PowerSweepFrequency,   AbstractFloat),
+    (":DISP:SPL",                   WindowLayout,          ASCIIString),
+    (":DISP:WIND#:SPL",             GraphLayout,           ASCIIString),
+    (":CALC#:MARK#:ACT",            SetActiveMarker,       NoArgs),
+    (":CALC#:MARK#:FUNC:EXEC",      MarkerSearch,          NoArgs),
+    (":CALC#:PAR#:SEL",             SetActiveTrace,        NoArgs),
+    (":DISP:WIND#:ACT",             SetActiveChannel,      NoArgs),
+    (":DISP:WIND#:TRAC#:Y:AUTO",    Autoscale,             NoArgs),
+    (":SENS#:AVER:CLE",             ClearAveraging,        NoArgs),
+    (":DISP:WIND#:TRAC#:STAT",      DataTrace,             Bool),
+    (":OUTP",                       Output,                Bool),
+]
 
-for (fnName in keys(sfd))
-    createStateFunction(E5071C,fnName,sfd[fnName][1],sfd[fnName][2])
+function output(ins::E5071C, on::Bool)
+    write(ins, string(":OUTP ",Int(on)))
 end
 
 function frequencydata(ins::E5071C, channel::Integer, trace::Integer)

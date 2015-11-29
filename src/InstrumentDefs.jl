@@ -1,10 +1,10 @@
 # Instrument Codes
 export InstrumentProperty, NoArgs
 
-export Coupling, DataRepresentation, Lock, Network, State, Timing
+export Coupling, DataRepresentation, Lock, Network, State, TriggerOutputTiming
 export ClockSlope, ClockSource, EventImpedance, EventSlope, EventTiming
 export OscillatorSource, Trigger, TriggerImpedance, TriggerSlope, TriggerSource
-export Polarity, SampleRate, Search, SParameter
+export TriggerOutputPolarity, SampleRate, Search, SParameter
 export Medium
 
 # Exception for instruments
@@ -16,10 +16,6 @@ export All
 
 # Functions shared by multiple instruments
 global code, configure, inspect
-global trigger_source, set_trigger_source
-global trigger_outputpolarity, set_trigger_outputpolarity
-global frequency_start, set_frequency_start
-global frequency_stop, set_frequency_stop
 global phase_rad, set_phase_rad
 global samplerate, set_samplerate
 global output_on, set_output_on
@@ -27,10 +23,6 @@ global referenceoscillator_source, set_referenceoscillator_source
 global options
 
 export code, configure, inspect
-export trigger_source, set_trigger_source
-export trigger_outputpolarity, set_trigger_outputpolarity
-export frequency_start, set_frequency_start
-export frequency_stop, set_frequency_stop
 export phase_rad, set_phase_rad
 export samplerate, set_samplerate
 export output_on, set_output_on
@@ -69,12 +61,12 @@ abstract Lock <: InstrumentProperty
 abstract Medium <: InstrumentProperty
 abstract Network <: InstrumentProperty
 abstract OscillatorSource <: InstrumentProperty
-abstract Polarity <: InstrumentProperty
 abstract SampleRate <: InstrumentProperty
 abstract Search <: InstrumentProperty
 abstract SParameter <: InstrumentProperty
 abstract State <: InstrumentProperty
-abstract Timing <: InstrumentProperty           # deprecate
+abstract TriggerOutputTiming <: InstrumentProperty
+abstract TriggerOutputPolarity <: InstrumentProperty
 abstract Trigger <: InstrumentProperty
 abstract TriggerImpedance <: InstrumentProperty
 abstract TriggerSlope <: InstrumentProperty
@@ -107,11 +99,11 @@ subtypesArray = [
     (:Run,                      State),
     (:Wait,                     State),
 
-    (:EventAsynchronous,        EventTiming),    #AWG5014C
+    (:EventAsynchronous,        EventTiming),
     (:EventSynchronous,         EventTiming),
 
-    (:Before,                   Timing),    #E5071C
-    (:After,                    Timing),
+    (:TrigOutBeforeMeasuring,   TriggerOutputTiming),
+    (:TrigOutAfterMeasuring,    TriggerOutputTiming),
 
     (:RisingClock,              ClockSlope),
     (:FallingClock,             ClockSlope),
@@ -122,8 +114,8 @@ subtypesArray = [
     (:RisingEvent,              EventSlope),
     (:FallingEvent,             EventSlope),
 
-    (:PositivePolarity,         Polarity),
-    (:NegativePolarity,         Polarity),
+    (:TrigOutPosPolarity,       TriggerOutputPolarity),
+    (:TrigOutNegPolarity,       TriggerOutputPolarity),
 
     (:InternalClock,            ClockSource),
     (:ExternalClock,            ClockSource),
@@ -212,10 +204,10 @@ subtypesArray = [
 
 ]::Array{Tuple{Symbol,DataType},1}
 
-# Create all the concrete types we need using the createCodeType function.
+# Create all the concrete types we need using the generate_properties function.
 include("Metaprogramming.jl")
 for ((subtypeSymb,supertype) in subtypesArray)
-    createCodeType(subtypeSymb, supertype)
+    generate_properties(subtypeSymb, supertype)
 end
 # Note that it is tempting to do this as a macro, but you are not allowed to
 # export from a local scope, so there are some headaches with for loops, etc.

@@ -5,9 +5,9 @@ repo_url: https://github.com/ajkeller34/Instruments.jl/
 
 pages:
 - Home: 'index.md'
-- Framework:
-    - 'Instruments': 'instruments.md'
-    - 'Source and measure': 'sm.md'
+- Overview:
+    - 'Design': 'design.md'
+    - 'Implementation': 'implementation.md'
 - About:
     - 'Release notes': 'releases.md'
     - 'License': '../LICENSE.md'

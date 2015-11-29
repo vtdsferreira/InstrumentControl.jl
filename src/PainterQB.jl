@@ -3,8 +3,8 @@ module PainterQB
 #export Response, Stimulus
 
 export AWG5014CModule, E5071CModule, E8257DModule, AlazarModule
-
 export Stimulus, Response
+
 abstract Stimulus
 abstract Response
 

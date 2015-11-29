@@ -102,9 +102,9 @@ subtypesArray = [
 
 ]::Array{Tuple{Symbol,DataType},1}
 
-# Create all the concrete types we need using the createCodeType function.
+# Create all the concrete types we need using the generate_properties function.
 for ((subtypeSymb,supertype) in subtypesArray)
-    createCodeType(subtypeSymb, supertype)
+    generate_properties(subtypeSymb, supertype)
 end
 
 responses = Dict(
@@ -160,7 +160,7 @@ responses = Dict(
 
 )
 
-generateResponseHandlers(InstrumentAlazar, responses)
+generate_handlers(InstrumentAlazar, responses)
 
 Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}) = Rate1000MSps(insType)
 #Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}, code) = Rate1000MSps(insType,code)

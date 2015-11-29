@@ -38,6 +38,7 @@ export WavelistLength
 export TriggerLevel
 export TriggerTimer
 export ChannelOutput
+export Output
 
 export runapplication, applicationstate, validate
 export hardwaresequencertype, load_awg_settings, save_awg_settings, clearwaveforms
@@ -48,7 +49,7 @@ export waveform, set_waveform, set_voltageoffset, voltageoffset
 export phase_deg, set_phase_deg, set_phase_rad, set_phase_rad
 export @allch
 
-# We also export from the createCodeType statement.
+# We also export from the generate_properties statement.
 
 const allWaveforms      = ASCIIString("ALL")
 
@@ -122,6 +123,7 @@ abstract WavelistLength           <: InstrumentProperty
 abstract TriggerLevel             <: InstrumentProperty
 abstract TriggerTimer             <: InstrumentProperty
 abstract ChannelOutput            <: InstrumentProperty
+abstract Output                   <: InstrumentProperty
 
 subtypesArray = [
     (:IntWaveform,          WaveformType),
@@ -133,9 +135,9 @@ subtypesArray = [
 
 ]::Array{Tuple{Symbol,DataType},1}
 
-# Create all the concrete types we need using the createCodeType function.
+# Create all the concrete types we need using the generate_properties function.
 for ((subtypeSymb,supertype) in subtypesArray)
-    createCodeType(subtypeSymb, supertype)
+    generate_properties(subtypeSymb, supertype)
 end
 
 responses = Dict(
@@ -187,7 +189,7 @@ responses = Dict(
                               "ZREF"  => :NormalizedPreservingOffset)
 )
 
-generateResponseHandlers(AWG5014C,responses)
+generate_handlers(AWG5014C,responses)
 
 # Needed because otherwise we need to qualify the run(awg) command with the module name.
 import Main.run
@@ -235,12 +237,19 @@ for args in commands
     args[1][end] != '?' && generate_configure(AWG5014C,args...)
 end
 
+function configure(ins::AWG5014C, ::Type{Output}, on::Bool)
+    if on
+        write(ins, "AWGC:RUN")
+    else
+        write(ins, "AWGC:STOP")
+    end
+end
+
 sfd = Dict(
 #    "calibrate"                         => ["*CAL?",                    InstrumentException],
     "options"                           => ["*OPT?",                    ASCIIString],
     "runstate"                          => ["AWGC:RSTATE?",             State],
-    "run"                               => ["AWGC:RUN",                 NoArgs],
-    "stop"                              => ["AWGC:STOP",                NoArgs],
+
     # The following two methods may return true if the window *cannot* be displayed.
     # They return the correct result (false) if the window can be displayed, but is not displayed.
     "sequencewindowdisplayed"           => ["DISP:WIND1:STAT",          Bool],
