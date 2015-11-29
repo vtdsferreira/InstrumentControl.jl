@@ -11,7 +11,7 @@ include("../Metaprogramming.jl")
 export E5071C
 
 export Averaging, AveragingFactor
-export FrequencyStart, FrequencyStop, FrequencyCenter, FrequencySpan
+export FrequencyCenter, FrequencySpan
 export ExtTriggerDelay, ExtTriggerLowLatency
 export IFBandwidth
 export PowerLevel
@@ -19,7 +19,7 @@ export MarkerX, MarkerY, Marker
 export Smoothing, SmoothingAperture
 export TriggerOutput
 export PhaseOffset
-export ElectricalDelay, ElecticalMedium, WaveguideCutoff
+export ElectricalDelay, ElectricalMedium, WaveguideCutoff
 export YDivisions, YScalePerDivision, YReferencePosition, YReferenceLevel
 export PowerCoupled, PowerSlope, PowerSlopeLevel, PowerLevel
 export NumPoints, NumTraces
@@ -35,7 +35,6 @@ export SetActiveChannel
 export Autoscale
 export ClearAveraging
 export DataTrace
-export Output
 
 export frequencydata, formatteddata
 
@@ -58,8 +57,6 @@ end
 
 abstract Averaging            <: InstrumentProperty
 abstract AveragingFactor      <: InstrumentProperty
-abstract FrequencyStart       <: InstrumentProperty
-abstract FrequencyStop        <: InstrumentProperty
 abstract FrequencyCenter      <: InstrumentProperty
 abstract FrequencySpan        <: InstrumentProperty
 abstract ExtTriggerDelay      <: InstrumentProperty
@@ -75,7 +72,7 @@ abstract YDivisions           <: InstrumentProperty
 abstract TriggerOutput        <: InstrumentProperty
 abstract PhaseOffset          <: InstrumentProperty
 abstract ElectricalDelay      <: InstrumentProperty
-abstract ElecticalMedium      <: InstrumentProperty
+abstract ElectricalMedium     <: InstrumentProperty
 abstract WaveguideCutoff      <: InstrumentProperty
 abstract YScalePerDivision    <: InstrumentProperty
 abstract YReferencePosition   <: InstrumentProperty
@@ -99,7 +96,6 @@ abstract SetActiveChannel     <: InstrumentProperty
 abstract Autoscale            <: InstrumentProperty
 abstract ClearAveraging       <: InstrumentProperty
 abstract DataTrace            <: InstrumentProperty
-abstract Output               <: InstrumentProperty
 
 responseDictionary = Dict(
 
@@ -160,11 +156,11 @@ generate_handlers(E5071C, responseDictionary)
 
 commands = [
 
-    (":CALC#:TRAC#:FORM",           DataRepresentation)
+    (":CALC#:TRAC#:FORM",           DataRepresentation),
     (":TRIG:SOUR",                  TriggerSource),
     (":TRIG:OUTP:POL",              TriggerOutputPolarity),
     (":TRIG:OUTP:POS",              TriggerOutputTiming),
-    (":TRIG:SEQ:EXT:SLOP",          ExternalTriggerSlope),
+    (":TRIG:SEQ:EXT:SLOP",          TriggerSlope),
     (":CALC#:PAR#:DEF",             SParameter),
 
     (":SENS#:AVER",                 Averaging,             Bool),
@@ -186,7 +182,7 @@ commands = [
     (":TRIG:OUTP:STAT",             TriggerOutput,         Bool),
     (":CALC#:TRAC#:CORR:OFFS:PHAS", PhaseOffset,           AbstractFloat),
     (":CALC#:TRAC#:CORR:EDEL:TIME", ElectricalDelay,       AbstractFloat),
-    (":CALC#:TRAC#:CORR:EDEL:MED",  ElecticalMedium,       Medium),
+    (":CALC#:TRAC#:CORR:EDEL:MED",  ElectricalMedium,      Medium),
     (":CALC#:TRAC#:CORR:EDEL:WGC",  WaveguideCutoff,       AbstractFloat),
     (":DISP:WIND#:TRAC#:Y:PDIV",    YScalePerDivision,     AbstractFloat),
     (":DISP:WIND#:TRAC#:Y:RPOS",    YReferencePosition,    Int),

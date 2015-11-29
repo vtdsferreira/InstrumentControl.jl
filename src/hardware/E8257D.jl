@@ -37,7 +37,6 @@ export PowerReferenceLevel
 export PowerSearchProtection
 export PowerOptimizeSNR
 export AttenuatorAuto
-export Phase
 export ALCBandwidth
 export ALCBandwidthAuto
 export ALC
@@ -94,8 +93,6 @@ end
 abstract FlatnessCorrection      <: InstrumentProperty
 abstract Frequency               <: InstrumentProperty
 abstract FrequencyMultiplier     <: InstrumentProperty
-abstract FrequencyStart          <: InstrumentProperty
-abstract FrequencyStop           <: InstrumentProperty
 abstract FrequencyStep           <: InstrumentProperty
 abstract FrequencyOffsetLevel    <: InstrumentProperty
 abstract FrequencyOffset         <: InstrumentProperty
@@ -115,7 +112,6 @@ abstract PowerReferenceLevel     <: InstrumentProperty
 abstract PowerSearchProtection   <: InstrumentProperty
 abstract PowerOptimizeSNR        <: InstrumentProperty
 abstract AttenuatorAuto          <: InstrumentProperty
-abstract Phase                   <: InstrumentProperty
 abstract ALCBandwidth            <: InstrumentProperty
 abstract ALCBandwidthAuto        <: InstrumentProperty
 abstract ALC                     <: InstrumentProperty
@@ -123,7 +119,6 @@ abstract ALCLevel                <: InstrumentProperty
 abstract SetFrequencyReference   <: InstrumentProperty
 abstract SetPhaseReference       <: InstrumentProperty
 abstract OutputSettled           <: InstrumentProperty
-abstract Output                  <: InstrumentProperty
 
 responses = Dict(
 

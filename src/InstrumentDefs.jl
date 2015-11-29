@@ -7,6 +7,8 @@ export OscillatorSource, Trigger, TriggerImpedance, TriggerSlope, TriggerSource
 export TriggerOutputPolarity, SampleRate, Search, SParameter
 export Medium
 
+export FrequencyStart, FrequencyStop, Output
+
 # Exception for instruments
 export InstrumentException
 
@@ -72,6 +74,9 @@ abstract TriggerImpedance <: InstrumentProperty
 abstract TriggerSlope <: InstrumentProperty
 abstract TriggerSource <: InstrumentProperty
 
+abstract FrequencyStart <: InstrumentProperty
+abstract FrequencyStop <: InstrumentProperty
+abstract Output <: InstrumentProperty
 
 Base.show{T<:InstrumentProperty}(io::IO, code::T) =
     print(io, "$(code.logicalname) represents as $(code.code)")

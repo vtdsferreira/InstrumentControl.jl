@@ -38,7 +38,6 @@ export WavelistLength
 export TriggerLevel
 export TriggerTimer
 export ChannelOutput
-export Output
 
 export runapplication, applicationstate, validate
 export hardwaresequencertype, load_awg_settings, save_awg_settings, clearwaveforms
@@ -123,7 +122,6 @@ abstract WavelistLength           <: InstrumentProperty
 abstract TriggerLevel             <: InstrumentProperty
 abstract TriggerTimer             <: InstrumentProperty
 abstract ChannelOutput            <: InstrumentProperty
-abstract Output                   <: InstrumentProperty
 
 subtypesArray = [
     (:IntWaveform,          WaveformType),
@@ -244,25 +242,25 @@ function configure(ins::AWG5014C, ::Type{Output}, on::Bool)
         write(ins, "AWGC:STOP")
     end
 end
-
-sfd = Dict(
-#    "calibrate"                         => ["*CAL?",                    InstrumentException],
-    "options"                           => ["*OPT?",                    ASCIIString],
-    "runstate"                          => ["AWGC:RSTATE?",             State],
-
-    # The following two methods may return true if the window *cannot* be displayed.
-    # They return the correct result (false) if the window can be displayed, but is not displayed.
-    "sequencewindowdisplayed"           => ["DISP:WIND1:STAT",          Bool],
-    "waveformwindowdisplayed"           => ["DISP:WIND2:STAT",          Bool],
-    "event_force"                       => ["EVEN",                     NoArgs],
-    "event_level"                       => ["EVEN:LEV",                 AbstractFloat],
-    "sequencer_forcejump"               => ["SEQ:JUMP",                 NoArgs],
-    "waveformloadedinchannel"           => ["SOUR#:FUNC:USER",          ASCIIString],
-)
-
-for (fnName in keys(sfd))
-    createStateFunction(AWG5014C,fnName,sfd[fnName][1],sfd[fnName][2])
-end
+#
+# sfd = Dict(
+# #    "calibrate"                         => ["*CAL?",                    InstrumentException],
+#     "options"                           => ["*OPT?",                    ASCIIString],
+#     "runstate"                          => ["AWGC:RSTATE?",             State],
+#
+#     # The following two methods may return true if the window *cannot* be displayed.
+#     # They return the correct result (false) if the window can be displayed, but is not displayed.
+#     "sequencewindowdisplayed"           => ["DISP:WIND1:STAT",          Bool],
+#     "waveformwindowdisplayed"           => ["DISP:WIND2:STAT",          Bool],
+#     "event_force"                       => ["EVEN",                     NoArgs],
+#     "event_level"                       => ["EVEN:LEV",                 AbstractFloat],
+#     "sequencer_forcejump"               => ["SEQ:JUMP",                 NoArgs],
+#     "waveformloadedinchannel"           => ["SOUR#:FUNC:USER",          ASCIIString],
+# )
+#
+# for (fnName in keys(sfd))
+#     createStateFunction(AWG5014C,fnName,sfd[fnName][1],sfd[fnName][2])
+# end
 
 # And now, the functions we decided to write by hand...
 
