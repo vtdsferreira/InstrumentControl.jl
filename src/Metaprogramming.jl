@@ -206,8 +206,8 @@ function generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)
             @eval ($fnSymb)(ins::$insType) = ($fnSymb)(ins,$response)
         end
 
-        # e.g. InstrumentReference(AWG5014C, "INT") =
-        #          InstrumentInternal{AWG5014C,symbol("INT")}
+        # e.g. InstrumentReference(ins::AWG5014C, "INT") =
+        #          InstrumentInternal(AWG5014C,"INT")
         @eval ($supertypeSymb)(ins::$insType, res::AbstractString) =
             (typeof(parse(res)) <: Number ?
             Expr(:call, ($d)[parse(res)],  ins, res) :

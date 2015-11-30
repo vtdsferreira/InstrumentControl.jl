@@ -17,7 +17,8 @@
 #     io
 # end
 
-function measure(a::AlazarATS9360, m::StreamMode, buf_count=buffercount(a), buf_size=buffersize(a))
+function measure(a::AlazarATS9360, m::StreamMode,
+        buf_count=inspect(a, BufferCount), buf_size=inspect(a, BufferSize))
 
     # set record size; no-op'd for StreamMode
     set_recordsize(a, m)
@@ -25,7 +26,7 @@ function measure(a::AlazarATS9360, m::StreamMode, buf_count=buffercount(a), buf_
     # Allocate memory for DMA buffers
     buf_array = bufferarray(a, buf_count, buf_size)
 
-    before_async_read(a,m)
+    before_async_read(a, m)
 
     # Add the buffers to a list of buffers available to be filled by the board
     for (buf_index = 1:buf_count)
@@ -38,7 +39,7 @@ function measure(a::AlazarATS9360, m::StreamMode, buf_count=buffercount(a), buf_
     timeout_ms = 5000
     buf_completed = 0
     by_transferred = 0
-    buf_per_acq = buffersperacquisition(a,m)
+    buf_per_acq = inspect_per(a, m, Buffer, Acquisition)
 
     try
         println("Capturing $buf_per_acq buffers ... ")
@@ -77,7 +78,7 @@ function measure(a::AlazarATS9360, m::StreamMode, buf_count=buffercount(a), buf_
         transfertime_s = time() - starttime
         println("Capture completed in $transfertime_s s")
 
-        rec_transferred = recordsperbuffer(a,m) * buf_completed
+        rec_transferred = inspect_per(a,m,Record,Buffer) * buf_completed
 
         if (transfertime_s > 0.)
             buf_per_s = buf_completed / transfertime_s
@@ -95,7 +96,7 @@ function measure(a::AlazarATS9360, m::StreamMode, buf_count=buffercount(a), buf_
 
     finally
         # Abort the acquisition
-        abort_async_read(a)
+        abort(a)
     end
     postprocess(a,m,buf_array)
 end

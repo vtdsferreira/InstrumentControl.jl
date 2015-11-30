@@ -34,8 +34,14 @@ ats = AlazarATS9360()
 To do
 -----
 
+#### Globally
+
 - Units! A good starting point would be the
 [SIUnits.jl](https://github.com/Keno/SIUnits.jl) package. It currently does
 not support fractional units like V/sqrt(Hz) but support could be added.
 
 - How to save / load configurations for instruments? Maybe JSON files?
+
+#### AWG5014C
+
+- Waveform methods could be made more Julian

@@ -19,12 +19,12 @@ DMABuffer: Holds a memory buffer suitable for data transfer with digitizers.
 module AlazarModule
 
 using Alazar
-import Base: read
 importall PainterQB
 include("../../Metaprogramming.jl")
 
 # Play nice with Instruments
 export AlazarAux, AlazarDataPacking, AlazarChannel
+export AuxSoftwareTriggerEnabled, LED
 
 export AlazarMode
 export StreamMode, RecordMode
@@ -37,23 +37,16 @@ export AlazarATS9360
 
 export DSPModule
 
-export abort_async_read, abortcapture
-export before_async_read, boardkind, boardhandle, boards_in_system, busy
-export configure_aux_io, configure_lsb, configurerecordaverage
-export forcetrigger, forcetriggerenable, getchannelinfo
-export inputcontrol, num_systems, post_async_buffer, read, read_ex
-export resettimestamp, set_bw_limit, set_captureclock, set_externalclocklevel
-export set_externaltrigger, set_led, set_parameter, set_parameter_ul
-export set_recordcount, set_recordsize, set_triggerdelay_samples
-export set_triggeroperation, set_triggertimeout_s, set_triggertimeout_ticks
-export sleep_ins, startcapture, triggered, wait_async_buffer
+export abort, before_async_read
+export startcapture, wait_async_buffer, post_async_buffer
 
-export set_samplerate, set_clockslope, set_aux_softwaretriggerenabled
-export set_acquisitionlength, set_datapacking, set_acquisitionchannel, acquisitionlength
+export busy
+export forcetrigger, forcetriggerenable
+export inputcontrol, set_parameter, set_parameter_ul
+export set_triggeroperation, triggered
 
-export samplesperbuffer, samplesperrecord, recordsperbuffer, buffersperacquisition, recordsperacquisition
-export channelcount, bytespersample
-export bufferarray, buffercount, buffersize, adma, samplerate
+export inspect_per
+export bufferarray, adma
 
 """
 The InstrumentAlazar types represent an AlazarTech device on the local
@@ -72,6 +65,7 @@ Args:
 
 """
 abstract InstrumentAlazar <: Instrument
+abstract AlazarProperty <: InstrumentProperty
 
 """
 Type to link a `dsp_module_handle` with the `InstrumentAlazar` it came from.
@@ -81,24 +75,40 @@ type DSPModule
     handle::dsp_module_handle
 end
 
-abstract AlazarAux         <: InstrumentProperty
-abstract AlazarDataPacking <: InstrumentProperty
-abstract AlazarChannel     <: InstrumentProperty
+abstract AlazarAux            <: AlazarProperty
+abstract AlazarChannel        <: AlazarProperty
+abstract AlazarDataPacking    <: AlazarProperty
+abstract AlazarLSB            <: AlazarProperty
+abstract AlazarTimestampReset <: AlazarProperty
+abstract AlazarTriggerRange   <: AlazarProperty
 
 subtypesArray = [
-    (:ChannelA                          , AlazarChannel),
-    (:ChannelB                          , AlazarChannel),
-    (:BothChannels                      , AlazarChannel),
 
-    (:AuxOutputTrigger                  , AlazarAux),
-    (:AuxInputTriggerEnable             , AlazarAux),
-    (:AuxOutputPacer                    , AlazarAux),
-    (:AuxDigitalInput                   , AlazarAux),
-    (:AuxDigitalOutput                  , AlazarAux),
+    (:AuxOutputTrigger,          AlazarAux),
+    (:AuxInputTriggerEnable,     AlazarAux),
+    (:AuxOutputPacer,            AlazarAux),
+    (:AuxDigitalInput,           AlazarAux),
+    (:AuxDigitalOutput,          AlazarAux),
 
-    (:DefaultPacking                    , AlazarDataPacking),
-    (:Pack8Bits                         , AlazarDataPacking),
-    (:Pack12Bits                        , AlazarDataPacking)
+    (:ChannelA,                  AlazarChannel),
+    (:ChannelB,                  AlazarChannel),
+    (:BothChannels,              AlazarChannel),
+
+    (:DefaultPacking,            AlazarDataPacking),
+    (:Pack8Bits,                 AlazarDataPacking),
+    (:Pack12Bits,                AlazarDataPacking),
+
+    (:LSBDefault,                AlazarLSB),
+    (:LSBExtTrigger,             AlazarLSB),
+    (:LSBAuxIn0,                 AlazarLSB),
+    (:LSBAuxIn1,                 AlazarLSB),
+
+    (:TimestampResetOnce,        AlazarTimestampReset),
+    (:TimestampResetAlways,      AlazarTimestampReset),
+
+    (:ExtTrigger5V,              AlazarTriggerRange),
+    (:ExtTriggerTTL,             AlazarTriggerRange),
+    (:ExtTrigger2V5,             AlazarTriggerRange)
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -110,9 +120,6 @@ end
 responses = Dict(
     :Coupling           => Dict(Alazar.AC_COUPLING              => :AC,
                                 Alazar.DC_COUPLING              => :DC),
-
-    :TriggerSlope       => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
-                                Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
 
     :ClockSlope         => Dict(Alazar.CLOCK_EDGE_RISING        => :RisingClock,
                                 Alazar.CLOCK_EDGE_FALLING       => :FallingClock),
@@ -144,9 +151,8 @@ responses = Dict(
                                 Alazar.SAMPLE_RATE_1500MSPS     => :Rate1500MSps,
                                 Alazar.SAMPLE_RATE_1800MSPS     => :Rate1800MSps),
 
-    :AlazarChannel      => Dict(Alazar.CHANNEL_A                    => :ChannelA,
-                                Alazar.CHANNEL_B                    => :ChannelB,
-                                Alazar.CHANNEL_A | Alazar.CHANNEL_B => :BothChannels),
+    :TriggerSlope       => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
+                                Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
 
     :AlazarAux          => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
                                 Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
@@ -154,16 +160,48 @@ responses = Dict(
                                 Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
                                 Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
 
+    :AlazarChannel      => Dict(Alazar.CHANNEL_A                    => :ChannelA,
+                                Alazar.CHANNEL_B                    => :ChannelB,
+                                Alazar.CHANNEL_A | Alazar.CHANNEL_B => :BothChannels),
+
     :AlazarDataPacking  => Dict(Alazar.PACK_DEFAULT            => :DefaultPacking,
                                 Alazar.PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
-                                Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits)
+                                Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits),
+
+    :AlazarTimestampReset => Dict(Alazar.TIMESTAMP_RESET_ALWAYS  => :TimestampResetAlways,
+                                  Alazar.TIMESTAMP_RESET_FIRSTTIME_ONLY => :TimestampResetOnce),
+
+    :AlazarTriggerRange => Dict(Alazar.ETR_5V   => :ExternalTrigger5V,
+                                Alazar.ETR_2V5  => :ExternalTrigger2V5,
+                                Alazar.ETR_TTL  => :ExternalTriggerTTL)
 
 )
 
 generate_handlers(InstrumentAlazar, responses)
 
 Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}) = Rate1000MSps(insType)
-#Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}, code) = Rate1000MSps(insType,code)
+
+abstract AuxSoftwareTriggerEnabled <: AlazarProperty
+abstract BitsPerSample             <: AlazarProperty
+abstract BytesPerSample            <: AlazarProperty
+abstract BufferCount               <: AlazarProperty
+abstract BufferSize                <: AlazarProperty
+abstract LED                       <: AlazarProperty
+abstract RecordCount               <: AlazarProperty
+abstract SampleMemoryPerChannel    <: AlazarProperty
+abstract Sleep                     <: AlazarProperty
+abstract TriggerDelaySamples       <: AlazarProperty
+abstract TriggerTimeoutS           <: AlazarProperty
+abstract TriggerTimeoutTicks       <: AlazarProperty
+
+abstract PerProperty
+
+abstract Bit         <: PerProperty
+abstract Byte        <: PerProperty
+abstract Sample      <: PerProperty
+abstract Buffer      <: PerProperty
+abstract Record      <: PerProperty
+abstract Acquisition <: PerProperty
 
 # sampleRate(rate::DataType) = begin
 #     @assert rate <: InstrumentSampleRate "$rate <: InstrumentSampleRate"
@@ -241,27 +279,36 @@ macro eh(expr)
     end
 end
 
-@eh abort_async_read(a::InstrumentAlazar) = AlazarAbortAsyncRead(a.handle)
-#@doc "Cancels any asynchronous acquisition running on a board." abort_async_read
+macro eh2(expr)
+    quote
+        esc(r) = $(esc(expr))
+        r != alazar_no_error && throw(InstrumentException(a,r))
+    end
+end
 
-@eh abortcapture(a::InstrumentAlazar) = AlazarAbortCapture(a.handle)
-#@doc "Abort an acquisition to on-board memory." abortcapture
+abort(a::InstrumentAlazar, async::Bool=true) =
+    if async
+        @eh2 AlazarAbortAsyncRead(a.handle)
+    else
+        @eh2 AlazarAbortCapture(a.handle)
+    end
+    r
+end
 
 function before_async_read(a::InstrumentAlazar, m::AlazarMode)
 
     r = AlazarBeforeAsyncRead(a.handle,
                               a.acquisitionChannel,
                               -pretriggersamples(m),
-                              samplesperrecord(a,m),
-                              recordsperbuffer(a,m),
-                              recordsperacquisition(a,m),
+                              inspect_per(a,m,Sample,Record),
+                              inspect_per(a,m,Record,Buffer),
+                              inspect_per(a,m,Record,Acquisition),
                               adma(m))
     if r != alazar_no_error
         throw(InstrumentException(a,r))
     end
 
 end
-#@doc "Prepares the board for an asynchronous acquisition." before_async_read
 
 function boardhandle(sysid::Integer,boardid::Integer)
     r = AlazarGetBoardBySystemID(sysid,boardid)
@@ -271,34 +318,18 @@ end
 
 boardkind(handle::U32) = AlazarGetBoardKind(handle)
 
-@eh boards_in_system(sid::Integer) = AlazarBoardsInSystemBySystemID(sid)
-#@doc "Queries the number of boards in the system?" boards_in_system
+busy(a::InstrumentAlazar) = AlazarBusy(a.handle) > 0 ? true : false
+#@doc "Determine if an acquisition to on-board memory is in progress."
 
-busy_ins(a::InstrumentAlazar) = AlazarBusy(a.handle) > 0 ? true : false
-#@doc "Determine if an acquisition to on-board memory is in progress." busy_ins
-
-function configure_aux_io(a::InstrumentAlazar, mode, parameter)
-    r = AlazarConfigureAuxIO(a.handle, mode, parameter)
-    if r != alazar_no_error
-        throw(InstrumentException(a,r))
-    else
-        a.auxIOMode = mode
-        a.auxParam = parameter
-    end
-    r
+function configure{S<:AlazarLSB, T<:AlazarLSB}(a::AlazarATS9440,
+        lsb0::Type{S}, lsb1::Type{T})
+    (lsb1 == AlazarLSB || lsb0 = AlazarLSB) && error("Choose a subtype of AlazarLSB.")
+    val0 = code(lsb0(a))
+    val1 = code(lsb1(a))
+    @eh2 AlazarConfigureLSB(a.handle, val0, val1)
+    a.lsb0 = val0
+    a.lsb1 = val1
 end
-
-#@doc "Configures the auxiliary output." configure_aux_io
-
-@eh configure_lsb(a::InstrumentAlazar, valueLSB0, valueLSB1) =
-    AlazarConfigureLSB(a.handle, valueLSB0, valueLSB1)
-#@doc "Change unused bits to digital outputs." configure_lsb
-
-@eh configurerecordaverage(a::InstrumentAlazar, mode, samplesPerRecord,
-        recordsPerAverage, options) =
-    AlazarConfigureRecordAverage(a.handle, mode, samplesPerRecord,
-        recordsPerAverage, options)
-#@doc "Co-add ADC samples into accumulator record." configurerecordaverage
 
 @eh forcetrigger(a::InstrumentAlazar) = AlazarForceTrigger(a.handle)
 #@doc "Generate a software trigger event." forcetrigger
@@ -306,98 +337,98 @@ end
 @eh forcetriggerenable(a::InstrumentAlazar) = AlazarForceTriggerEnable(a.handle)
 #@doc "Generate a software trigger enable event." forcetriggerenable
 
-"Get the on-board memory in samples per channel and sample size in bits per sample."
-getchannelinfo(a::InstrumentAlazar) = begin
+inspect(a::InstrumentAlazar, ::Type{SampleMemoryPerChannel}) = begin
     memorysize_samples = Array{U32}(1)
     memorysize_samples[1] = U32(0)
+
     bitspersample = Array{U8}(1)
     bitspersample[1] = U8(0)
-    r = AlazarGetChannelInfo(a.handle, memorysize_samples, bitspersample)
-    if (r != alazar_no_error)
-        throw(InstrumentException(a,r))
-    end
-    return (memorysize_samples[1], bitspersample[1])
+
+    @eh2 AlazarGetChannelInfo(a.handle, memorysize_samples, bitspersample)
+
+    return memorysize_samples[1]
+end
+
+function inspect_per{S<:PerProperty, T<:PerProperty}(
+        a::InstrumentAlazar, ::Type{S}, ::Type{T})
+    error("inspect_per not implemented for this pair.")
+end
+
+function inspect_per{S<:PerProperty, T<:PerProperty}(
+        a::InstrumentAlazar, mode::AlazarMode, ::Type{S}, ::Type{T})
+    error("inspect_per not implemented for this pair.")
+end
+
+inspect_per(a::InstrumentAlazar, ::Type{Bit}, ::Type{Sample}) = begin
+    memorysize_samples = Array{U32}(1)
+    memorysize_samples[1] = U32(0)
+
+    bitspersample = Array{U8}(1)
+    bitspersample[1] = U8(0)
+
+    @eh2 AlazarGetChannelInfo(a.handle, memorysize_samples, bitspersample)
+
+    return bitspersample[1]
 end
 
 @eh inputcontrol(a::InstrumentAlazar, channel, coupling, inputRange, impedance) =
     AlazarInputControl(a.handle, channel, coupling, inputRange, impedance)
 #@doc "Configures one input channel on a board." inputcontrol
 
-num_systems() = AlazarNumOfSystems()
-#@doc "Returns the number of board systems installed." num_systems
-
 @eh post_async_buffer(a::InstrumentAlazar, buffer, bufferLength) =
     AlazarPostAsyncBuffer(a.handle, buffer, bufferLength)
 #@doc "Posts a DMA buffer to a board." post_async_buffer
 
-@eh read(a::InstrumentAlazar, channelId, buffer, elementSize,
-        record, transferOffset, transferLength) =
-    AlazarRead(a.handle, channelId, buffer, elementSize,
-        record, transferOffset, transferLength)
-#@doc "Read all or part of a record from on-board memory." read
+# not supported by ATS310, 330, 850.
+function configure{T<:AlazarTimestampReset}(a::InstrumentAlazar, t::Type{T})
+    (t == AlazarTimestampReset) && error("Choose TimestampResetOnce or ...Always")
+    option = code(t(a))
+    @eh2 AlazarResetTimeStamp(a.handle, option)
+    r
+end
 
-@eh read_ex(a::InstrumentAlazar, channelId, buffer, elementSize,
-        record, transferOffset, transferLength) =
-    AlazarReadEx(a.handle, channelId, buffer, elementSize,
-        record, transferOffset, transferLength)
-#@doc "Read all or part of a record from on-board memory." read_ex_ins
+function configure{T<:Coupling}(a::InstrumentAlazar, coupling::Type{T})
+    coup = code(coupling(a))
+    @eh2 AlazarSetExternalTrigger(a, coup, a.triggerRange)
+    r
+end
 
-@eh resettimestamp(a::InstrumentAlazar, option) =
-    AlazarResetTimeStamp(a.handle, option)
-#@doc "Control record timestamp counter reset." resettimestamp
+function configure{T<:AlazarTriggerRange}(a::InstrumentAlazar, range::Type{T}...)
+    rang = code(range(a))
+    @eh2 AlazarSetExternalTrigger(a, a.coupling, rang)
+    r
+end
 
-@eh set_bw_limit(a::InstrumentAlazar, channel, enable) =
-    AlazarSetBWLimit(a.handle, channel, enable)
-#@doc "Activates or deactivates the low-pass filter on a given channel." set_bw_limit
+@eh configure(a::InstrumentAlazar, ::Type{LED}, ledState::Bool) = AlazarSetLED(a.handle, ledState)
 
-function set_captureclock(a::InstrumentAlazar, source, rate, edge, decimation)
-    r = AlazarSetCaptureClock(a.handle, source, rate, edge, decimation)
+function inspect{T<:AlazarChannel}(a::InstrumentAlazar, ::Type{AlazarDataPacking}, ch::Type{T})
+    ch == AlazarChannel && error("Specify a particular channel.")
+
+    arr = Array{Clong}(1)
+    arr[0] = Clong(0)
+
+    r = AlazarGetParameter(a.handle, code(ch(a))), Alazar.PACK_MODE, arr)
     if r != alazar_no_error
         throw(InstrumentException(a,r))
     else
-        a.clockSource = source
-        a.sampleRate = rate
-        a.clockSlope = edge
-        a.decimation = decimation
+
     end
-    r
+
+
 end
-#@doc "Configures the board's acquisition clock." set_captureclock
-
-@eh set_externalclocklevel(a::InstrumentAlazar, level_percent) =
-    AlazarSetExternalClockLevel(a.handle, level_percent)
-#@doc "Set the external clock comparator level." set_externalclocklevel
-
-function set_externaltrigger(a::InstrumentAlazar, coupling, range)
-    r = AlazarSetExternalTrigger(a.handle, coupling, range)
-    if r != alazar_no_error
-        throw(InstrumentException(a,r))
-    else
-        a.coupling = coupling
-        a.triggerRange = range
-    end
-    r
-end
-#@doc "Configure the external trigger." set_externaltrigger
-
-@eh set_led(a::InstrumentAlazar, ledState) = AlazarSetLED(a.handle, ledState)
-#@doc "Control LED on a board's mounting bracket." set_led
 
 @eh set_parameter(a::InstrumentAlazar, channelId, parameterId, value) =
     AlazarSetParameter(a.handle, channelId, parameterId, value)
-#@doc "Set a device parameter as a signed long value." set_parameter
 
 @eh set_parameter_ul(a::InstrumentAlazar, channelId, parameterId, value) =
     AlazarSetParameterUL(a.handle, channelId, parameterId, value)
-#@doc "Set a device parameter as a U32 value." set_parameter_ul
 
-@eh set_recordcount(a::InstrumentAlazar, count) =
-    AlazarSetRecordCount(a.handle, count)
-#@doc "Configure the record count for single ported acquisitions." set_recordcount
+configure(a::InstrumentAlazar, ::Type{RecordCount}, count) =
+    @eh2 AlazarSetRecordCount(a.handle, count)
 
-function set_recordsize(a::InstrumentAlazar, m::RecordMode)
+function configure(a::InstrumentAlazar, m::RecordMode)
 
-    nearest = max(cld(m.sam_per_rec,128)*128,256)
+    nearest = max(cld(m.sam_per_rec, 128) * 128, 256)
     if nearest != m.sam_per_rec
         m.sam_per_rec = nearest
         warning("Adjusted samples per record to $nearest.")
@@ -413,7 +444,7 @@ function set_recordsize(a::InstrumentAlazar, m::RecordMode)
     r
 end
 
-function set_recordsize(a::InstrumentAlazar, m::TraditionalRecord)
+function configure(a::InstrumentAlazar, m::TraditionalRecord)
 
     pre_nearest  = cld(m.pre_sam_per_rec,  128) * 128
     post_nearest = cld(m.post_sam_per_rec, 128) * 128
@@ -438,21 +469,15 @@ function set_recordsize(a::InstrumentAlazar, m::TraditionalRecord)
 end
 
 # In streaming mode we don't need to do anything.
-function set_recordsize(a::InstrumentAlazar, m::StreamMode)
+function configure(a::InstrumentAlazar, m::StreamMode)
     nothing
 end
-#@doc "Configures the acquisition records size." set_recordsize
 
-function set_triggerdelay_samples(a::InstrumentAlazar, delay_samples)
-    r = AlazarSetTriggerDelay(a.handle, delay_samples)
-    if r != alazar_no_error
-        throw(InstrumentException(a,r))
-    else
-        a.triggerDelaySamples = delay_samples
-    end
+function configure(a::InstrumentAlazar, ::Type{TriggerDelaySamples}, delay_samples)
+    @eh2 AlazarSetTriggerDelay(a.handle, delay_samples)
+    a.triggerDelaySamples = delay_samples
     r
 end
-#@doc "Configures the trigger delay in samples." set_triggerdelay_samples
 
 function set_triggeroperation(a::InstrumentAlazar, args...)
     if length(args) != 7
@@ -472,23 +497,19 @@ function set_triggeroperation(a::InstrumentAlazar, args...)
 end
 #@doc "Set trigger operation." set_triggeroperation
 
-function set_triggertimeout_ticks(a::InstrumentAlazar, ticks)
-    r = AlazarSetTriggerTimeOut(a.handle, ticks)
-    if r != alazar_no_error
-        throw(InstrumentException(a,r))
-    else
-        a.triggerTimeoutTicks = ticks
-    end
+function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutTicks}, ticks)
+    @eh2 AlazarSetTriggerTimeOut(a.handle, ticks)
+    a.triggerTimeoutTicks = ticks
     r
 end
 #@doc "Configures the trigger timeout in ticks (10 us units). Fractional ticks get rounded up. 0 means wait forever." set_triggertimeout_ticks
 
-function set_triggertimeout_s(a::InstrumentAlazar, timeout_s)
-    set_triggertimeout_ticks(a, ceil(timeout_s * 1.e5))
+function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutS}, timeout_s)
+    configure(a, TriggerTimeoutTicks, ceil(timeout_s * 1.e5))
 end
 #@doc "Configures the trigger timeout in seconds, rounded up to the nearest 10 us. 0 means wait forever." set_triggertimeout_s
 
-@eh sleep_ins(a::InstrumentAlazar, sleepState) =
+@eh configure(a::InstrumentAlazar, ::Type{Sleep}, sleepState) =
     AlazarSleepDevice(a.handle, sleepState)
 #@doc "Control power to ADC devices" sleep_ins
 
@@ -501,6 +522,8 @@ end
 @eh wait_async_buffer(a::InstrumentAlazar, buffer, timeout_ms) =
     AlazarWaitAsyncBufferComplete(a.handle, buffer, timeout_ms)
 #@doc "Blocks until the board confirms that buffer is filled with data." wait_async_buffer
+
+abstract AlazarATS9440 <: InstrumentAlazar
 
 """
 ATS9360 is a concrete subtype of InstrumentAlazar.
@@ -533,14 +556,11 @@ type AlazarATS9360 <: InstrumentAlazar
     auxIOMode::U32
     auxParam::U32
 
-#    acquisitionLength::Float64
     acquisitionChannel::U32
     channelCount::U32
 
     packingA::Clong
     packingB::Clong
-
-    # bufferArray::Array{DMABuffer{UInt16},1}
 
     dspModules::Array{DSPModule,1}
 
@@ -549,6 +569,7 @@ type AlazarATS9360 <: InstrumentAlazar
 
     bufferCount::U32
     bufferSize::U32
+
     # defaults
     inputcontrol_defaults(a::AlazarATS9360) = begin
         invoke(inputcontrol,(InstrumentAlazar,Any,Any,Any,Any), a,
@@ -561,11 +582,32 @@ type AlazarATS9360 <: InstrumentAlazar
         # the only possible options for this particular instrument!
     end
 
-    # packingDefaults(a::AlazarATS9360) = setDataPacking(a,BothChannels,DefaultPacking)
+    captureclock_defaults(a::AlazarATS9360) = begin
+        a.clockSource = Alazar.INTERNAL_CLOCK
+        a.sampleRate = Alazar.SAMPLE_RATE_1000MSPS
+        a.clockSlope = Alazar.CLOCK_EDGE_RISING
+        a.decimation = 0
+        @eh2 AlazarSetCaptureClock(a,
+            a.clockSource, a.sampleRate, a.clockSlope, a.decimation)
+    end
+
+    externaltrigger_defaults(a::AlazarATS9360) = begin
+        a.coupling = Alazar.DC_COUPLING
+        a.triggerRange = Alazar.ETR_5V
+        @eh2 AlazarSetExternalTrigger(a, a.coupling, a.triggerRange)
+    end
 
     dsp_populate(a::AlazarATS9360) = begin
         dspModuleHandles = dsp_getmodulehandles(a)
         a.dspModules = map(x->DSPModule(a,x),dspModuleHandles)
+    end
+
+    # Ideal buffer size in bytes. Should be fixed to optimize performance for a
+    # given Alazar digitizer (and possibly motherboard?). The way we do things,
+    # it should also be divisible by channelcount and bytespersample.
+    buffer_defaults(a::AlazarATS9360) = begin
+        a.bufferSize = U32(409600*2*2)
+        a.bufferCount = U32(4)
     end
 
     AlazarATS9360() = AlazarATS9360(1,1)
@@ -574,18 +616,19 @@ type AlazarATS9360 <: InstrumentAlazar
         if (handle == 0)
             error("Board $a.$b not found.")
         end
+
         btype = boardkind(handle)
         if (btype != Alazar.ATS9360)
             error("Board at $a.$b is not an ATS9360.")
         end
+
         at = new()
         at.systemId = a
         at.boardId = b
         at.handle = handle
-        # at.bufferArray = Array{DMABuffer{UInt16},1}()
+
         inputcontrol_defaults(at)
-        set_captureclock(at, Alazar.INTERNAL_CLOCK, Alazar.SAMPLE_RATE_1000MSPS,
-            Alazar.CLOCK_EDGE_RISING, 0)
+        captureclock_defaults(at)
         set_triggeroperation(at,
                             Alazar.TRIG_ENGINE_OP_J,
                             Alazar.TRIG_CHAN_A,
@@ -594,12 +637,13 @@ type AlazarATS9360 <: InstrumentAlazar
                             Alazar.TRIG_DISABLE,
                             Alazar.TRIGGER_SLOPE_POSITIVE,
                             128)
-        set_externaltrigger(at, Alazar.DC_COUPLING, Alazar.ETR_5V)
+        externaltrigger_defaults(at)
         set_triggerdelay_samples(at, U32(0))
         set_triggertimeout_ticks(at, U32(0))
-        configure_aux_io(at, Alazar.AUX_OUT_TRIGGER, U32(0))
-        #packingDefaults(at)
-#        set_acquisitionlength(at,1.0) #1s
+
+        configure(at, AuxOutputTrigger)
+        configure(at, AlazarDataPacking, PackDefault, BothChannels)
+
         set_acquisitionchannel(at,BothChannels)
         pre_sam_per_rec = 0
         post_sam_per_rec = 0
@@ -615,131 +659,140 @@ Base.show(io::IO, ins::InstrumentAlazar) = begin
     println(io, "  BoardId $(ins.boardId)")
 end
 
-function samplerate(a::AlazarATS9360)
+function inspect(a::AlazarATS9360, ::Type{SampleRate})
     a.sampleRate > 0x80 ? a.sampleRate :
         samplerate(SampleRate(a,a.sampleRate))::U32
 end
 
-function input_control(a::AlazarATS9360, x...)
-    warning("This function has been no-op'd since there are no choices for the ATS9360.")
-end
-
 # Set by data type
-function set_samplerate{T<:SampleRate}(a::AlazarATS9360, rate::Type{T})
+function configure{T<:SampleRate}(a::AlazarATS9360, rate::Type{T})
+    rate == SampleRate && error("Choose a sample rate.")
+
     val = rate(a) |> code
-    r = set_captureclock(a, Alazar.INTERNAL_CLOCK, val, a.clockSlope, 0)
+
+    @eh2 AlazarSetCaptureClock(a, Alazar.INTERNAL_CLOCK, val, a.clockSlope, 0)
+
     a.clockSource = Alazar.INTERNAL_CLOCK
     a.sampleRate = val
     a.decimation = 0
     r
 end
 
-function set_samplerate(a::AlazarATS9360, rate::Real)
+function configure(a::AlazarATS9360, ::Type{SampleRate}, rate::Real)
+
     actualRate = U32(fld(rate,1e6)*1e6)
     if (rate != actualRate)
         warning("Rate must be in increments of 1 MHz. Setting ",actualRate," Hz")
     end
-    r = set_captureclock(a, EXTERNAL_CLOCK_10MHz_REF, actualRate, a.clockSlope, 1)
+
+    @eh2 AlazarSetCaptureClock(a, EXTERNAL_CLOCK_10MHz_REF, actualRate, a.clockSlope, 1)
+
     a.clockSource = EXTERNAL_CLOCK_10MHz_REF
     a.sampleRate = actualRate
     a.decimation = 1
     r
 end
 
-function set_clockslope{T<:ClockSlope}(a::AlazarATS9360, slope::Type{T})
+function configure{T<:ClockSlope}(a::AlazarATS9360, slope::Type{T})
+    slope == ClockSlope && error("Choose a clock slope.")
+
     val = slope(a) |> code
-    r = set_captureclock(a, a.clockSource, a.sampleRate, val, a.decimation)
+
+    @eh2 AlazarSetCaptureClock(a, a.clockSource, a.sampleRate, val, a.decimation)
+
     a.clockSlope = val
     r
 end
 
-function configure_aux_io{S<:AuxOutputTrigger,T<:AuxDigitalInput}(
+function configure{S<:AuxOutputTrigger,T<:AuxDigitalInput}(
         a::AlazarATS9360, aux::Union{Type{S},Type{T}})
     val = aux(a) |> code
-    r = configure_aux_io(a, val, U32(0))
-    a.auxIOMode = val
-    a.auxParam = U32(0)
+
+    @eh2 AlazarConfigureAuxIO(a, val, U32(0))
+    a.auxIOMode = mode
+    a.auxParam = parameter
+
     r
 end #of module
 
-function configure_aux_io{T<:AuxInputTriggerEnable}(
+function configure{T<:AuxInputTriggerEnable}(
         a::AlazarATS9360, aux::Type{T}, trigSlope::U32)
     val = aux(a) |> code
-    r = configure_aux_io(a, val, trigSlope)
+
+    @eh2 AlazarConfigureAuxIO(a, val, trigSlope)
     a.auxIOMode = val
     a.auxParam = trigSlope
+
     r
 end
 
-function configure_aux_io{S<:AuxInputTriggerEnable, T<:TriggerSlope}(
+function configure{S<:AuxInputTriggerEnable, T<:TriggerSlope}(
         a::AlazarATS9360, aux::Type{S}, trigSlope::Type{T})
     val = aux(a) |> code
-    val2 = trigSlope(AlazarATS9360) |> code
-    r = configure_aux_io(a, val, val2)
+    val2 = trigSlope(a) |> code
+
+    @eh2 AlazarConfigureAuxIO(a, val, val2)
     a.auxIOMode = val
     a.auxParam = val2
+
     r
 end
 
-function configure_aux_io{T<:AuxOutputPacer}(
+function configure{T<:AuxOutputPacer}(
         a::AlazarATS9360, aux::Type{T}, divider::Integer)
     val = aux(a) |> code
-    r = configure_aux_io(a, val, U32(divider))
+
+    @eh2 AlazarConfigureAuxIO(a, val, U32(divider))
     a.auxIOMode = val
     a.auxParam = divider
+
     r
 end
 
-function configure_aux_io{T<:AuxDigitalOutput}(
+function configure{T<:AuxDigitalOutput}(
         a::AlazarATS9360, aux::Type{T}, level::Integer)
     val = aux(a) |> code
-    r = configure_aux_io(a, val, U32(level))
+
+    @eh2 AlazarConfigureAuxIO(a, val, U32(level))
     a.auxIOMode = val
     a.auxParam = level
+
     r
 end
 
-function set_aux_softwaretriggerenabled(a::AlazarATS9360, b::Bool)
-    if true
-        r = configure_aux_io(a, a.auxIOMode, a.auxParam | Alazar.AUX_OUT_TRIGGER_ENABLE)
+function configure(a::AlazarATS9360, ::Type{AuxSoftwareTriggerEnabled}, b::Bool)
+    if b == true
+        @eh2 AlazarConfigureAuxIO(a, a.auxIOMode, a.auxParam | Alazar.AUX_OUT_TRIGGER_ENABLE)
         a.auxParam = a.auxParam | Alazar.AUX_OUT_TRIGGER_ENABLE
     else
-        r = configure_aux_io(a, a.auxIOMode, a.auxParam & ~Alazar.AUX_OUT_TRIGGER_ENABLE)
+        @eh2 AlazarConfigureAuxIO(a, a.auxIOMode, a.auxParam & ~Alazar.AUX_OUT_TRIGGER_ENABLE)
         a.auxParam = a.auxParam & ~Alazar.AUX_OUT_TRIGGER_ENABLE
     end
+
     r
 end
-
-# function set_acquisitionlength(a::AlazarATS9360, l::Real)
-#     a.acquisitionLength = convert(Float64,l)
-# end
-#
-# acquisitionlength(a::AlazarATS9360) = a.acquisitionLength
 
 # In the following, a "sample" defines to a value from a single channel.
 # You need to have memory for two samples if you are measuring both channels.
 
 # Bytes per sample is set by digitizer hardware.
-# It can be determined using getchannelinfo but we bypass for our ATS9360.
-bytespersample(a::InstrumentAlazar) = cld(getchannelinfo(a)[2], 8)
-bytespersample(a::AlazarATS9360)    = 2
+# We bypass for our ATS9360.
+inspect_per(a::InstrumentAlazar, ::Type{Byte}, ::Type{Sample}) =
+    Int(cld(inspect_per(a, Bit, Sample), 8))
 
-# Ideal buffer size in bytes. Should be fixed to optimize performance for a
-# given Alazar digitizer (and possibly motherboard?). The way we do things,
-# it should also be divisible by channelcount and bytespersample.
+inspect_per(a::InstrumentAlazar, ::Type{Sample}, ::Type{Byte}) =
+    float(1.0/inspect_per(a,Byte,Sample))
 
-buffer_defaults(a::AlazarATS9360) = begin
-    a.bufferSize = U32(409600*2*2)
-    a.bufferCount = U32(4)
-end
-buffersize(a::AlazarATS9360) = a.bufferSize
-buffercount(a::AlazarATS9360) = a.bufferCount
+inspect_per(a::AlazarATS9360, ::Type{Byte}, ::Type{Sample}) = 2
+
+inspect(a::InstrumentAlazar, ::Type{BufferSize})  = a.bufferSize
+inspect(a::InstrumentAlazar, ::Type{BufferCount}) = a.bufferCount
 
 function bufferarray(a::InstrumentAlazar, n_buf::Integer, size_buf::Integer)
     buf_array = Array{Alazar.DMABuffer{UInt16},1}()
 
     for (buf_index = 1:n_buf)
-        push!(buf_array,Alazar.DMABuffer(bytespersample(a),size_buf))
+        push!(buf_array,Alazar.DMABuffer(inspect_per(a,Byte,Sample),size_buf))
     end
 
     buf_array
@@ -749,39 +802,51 @@ pretriggersamples(m::TraditionalRecord) = m.pre_sam_per_rec
 pretriggersamples(m::AlazarMode) = 0
 
 # Since records/buffer is always 1 in stream mode, we fix samples/record:
-samplesperrecord(a::InstrumentAlazar, ::StreamMode) =
-    U32(buffersize(a) / (channelcount(a) * bytespersample(a)))
+inspect_per(a::InstrumentAlazar, m::StreamMode,
+        ::Type{Sample}, ::Type{Record}) =
+    Int(inspect(a,BufferSize) /
+        (inspect(a,ChannelCount) * inspect_per(a,Byte,Sample)))
 
 # For record mode, the number of samples per record must be specified.
-samplesperrecord(a::AlazarATS9360, m::RecordMode) = m.sam_per_rec
-samplesperrecord(a::AlazarATS9360, m::TraditionalRecord) =
-    m.pre_sam_per_rec + m.post_sam_per_rec
+inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Sample}, ::Type{Record}) =
+    m.sam_per_rec
+
+inspect_per(a::AlazarATS9360, m::TraditionalRecord,
+    ::Type{Sample}, ::Type{Record}) = m.pre_sam_per_rec + m.post_sam_per_rec
 
 # For any Alazar digitizer in stream mode, records per buffer should be 1.
-recordsperbuffer(a::InstrumentAlazar, m::StreamMode) = 1
+inspect_per(a::InstrumentAlazar, m::StreamMode,
+    ::Type{Record}, ::Type{Buffer}) = 1
 
 # For record mode, the number of records per buffer is fixed based on the
 # desired buffer size and samples per record.
-recordsperbuffer(a::AlazarATS9360, m::RecordMode) =
-    fld(buffersize(a),samplesperrecord(a,m)*bytespersample(a)*channelcount(a))
+inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Record}, ::Type{Buffer}) =
+    Int(fld(inspect(a,BufferSize),
+        inspect_per(a,m,Sample,Record)*
+            inspect_per(a,Byte,Sample)*inspect(a,ChannelCount)))
 
 # Pretty straightforward...
-samplesperbuffer(a::InstrumentAlazar, m::AlazarMode) =
-    samplesperrecord(a,m) * recordsperbuffer(a,m)
+inspect_per(a::InstrumentAlazar, m::AlazarMode, ::Type{Sample}, ::Type{Buffer}) =
+    inspect_per(a,m,Sample,Record) * inspect_per(a,m,Record,Buffer)
 
 # Parameter is ignored in stream mode for any Alazar digitizer.
-recordsperacquisition(a::InstrumentAlazar, ::StreamMode) = inf_records
+inspect_per(::StreamMode, ::Type{Record}, ::Type{Acquisition}) = inf_records
+inspect_per(a::InstrumentAlazar, m::StreamMode,
+    ::Type{Record}, ::Type{Acquisition}) = inspect_per(m,Record,Acquisition)
 
 # Pass 0x7FFFFFFF for indefinite acquisition count.
-recordsperacquisition(a::AlazarATS9360, m::RecordMode) = m.total_recs
+inspect_per(m::RecordMode, ::Type{Record}, ::Type{Acquisition}) = m.total_recs
+inspect_per(a::InstrumentAlazar, m::RecordMode,
+    ::Type{Record}, ::Type{Acquisition}) = inspect_per(m,Record,Acquisition)
 
-channelcount(a::InstrumentAlazar) = a.channelCount
+inspect_per(a::AlazarATS9360, m::StreamMode, ::Type{Buffer}, ::Type{Acquisition}) =
+    Int(cld(m.total_acq_time_s * inspect(a,SampleRate),
+        inspect_per(a,m,Sample,Buffer)))
 
-buffersperacquisition(a::AlazarATS9360, m::StreamMode) =
-    Int(cld(m.total_acq_time_s*samplerate(a), samplesperbuffer(a,m)))
+inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Buffer}, ::Type{Acquisition}) =
+    Int(cld(m.total_recs, inspect_per(a,m,Record,Buffer)))
 
-buffersperacquisition(a::AlazarATS9360, m::RecordMode) =
-    cld(m.total_recs,recordsperbuffer(a,m))
+inspect(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
 
 adma(::ContinuousStream)   = Alazar.ADMA_CONTINUOUS_MODE |
                              Alazar.ADMA_FIFO_ONLY_STREAMING |
@@ -802,39 +867,73 @@ adma(::FFTRecord)          = Alazar.ADMA_NPT |
 adma(::TraditionalRecord)  = Alazar.ADMA_TRADITIONAL_MODE |
                              Alazar.ADMA_EXTERNAL_STARTCAPTURE # other flags?
 
-# function set_datapacking(a::AlazarATS9360, ch::DataType, pack::DataType)
-#     @assert ch <: AlazarChannel "$ch <: AlazarChannel"
-#     setDataPacking(a, (ch)(a), (pack)(a))
-# end
-#
-# function set_datapacking(a::AlazarATS9360, ch::ChannelA, pack::AlazarDataPacking)
-#     setParameter(a, ch.state, PACK_MODE, Ref{Clong}(pack.state))
-#     a.packingA = pack.state
-# end
-#
-# function set_datapacking(a::AlazarATS9360, ch::ChannelB, pack::AlazarDataPacking)
-#     setParameter(a, ch.state, PACK_MODE, Ref{Clong}(pack.state))
-#     a.packingB = pack.state
-# end
-#
-# function set_datapacking(a::AlazarATS9360, ch::BothChannels, pack::AlazarDataPacking)
-#     setParameter(a, ChannelA(a).state, PACK_MODE, Ref{Clong}(pack.state))
-#     a.packingA = pack.state
-#     setParameter(a, ChannelB(a).state, PACK_MODE, Ref{Clong}(pack.state))
-#     a.packingB = pack.state
-# end
+function configure{S<:AlazarDataPacking}(
+        a::InstrumentAlazar, ::Type{AlazarDataPacking},
+        pack::Type{S}, ch::Type{ChannelA})
 
-function set_acquisitionchannel{T<:AlazarChannel}(a::AlazarATS9360, ch::Type{T})
+    chcode = Alazar.CHANNEL_A
+
+    arr = Array{Clong}(1)
+    arr[1] = code((pack)(a))
+
+    r = AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, arr)
+    if r != alazar_no_error
+        throw(InstrumentException(a,r))
+    else
+        a.packingA = arr[1]
+    end
+
+end
+
+function configure{S<:AlazarDataPacking}(
+        a::InstrumentAlazar, ::Type{AlazarDataPacking},
+        pack::Type{S}, ch::Type{ChannelB})
+
+    chcode = Alazar.CHANNEL_B
+
+    arr = Array{Clong}(1)
+    arr[1] = code((pack)(a))
+
+    r = AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, arr)
+    if r != alazar_no_error
+        throw(InstrumentException(a,r))
+    else
+        a.packingB = arr[1]
+    end
+
+end
+
+function configure{S<:AlazarDataPacking}(
+        a::InstrumentAlazar, ::Type{AlazarDataPacking},
+        pack::Type{S}, ch::Type{BothChannels})
+
+    chcode = Alazar.CHANNEL_A | Alazar.CHANNEL_B
+
+    arr = Array{Clong}(1)
+    arr[1] = code((pack)(a))
+
+    r = AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, arr)
+    if r != alazar_no_error
+        throw(InstrumentException(a,r))
+    else
+        a.packingA = arr[1]
+        a.packingB = arr[1]
+    end
+
+end
+
+function configure{T<:AlazarChannel}(a::AlazarATS9360, ch::Type{T})
+    ch == AlazarChannel && error("You must choose a channel.")
     a.acquisitionChannel = U32((ch)(a) |> code)
     a.channelCount = 1
 end
 
-function set_acquisitionchannel{T<:BothChannels}(a::AlazarATS9360, ch::Type{T})
+function configure{T<:BothChannels}(a::AlazarATS9360, ch::Type{T})
     a.acquisitionChannel = U32((ch)(a) |> code)
     a.channelCount = 2
 end
 
-function acquisitionchannel(a::AlazarATS9360)
+function inspect(a::AlazarATS9360, ::Type{AlazarChannel})
     AlazarChannel(a,a.acquisitionChannel)
 end
 

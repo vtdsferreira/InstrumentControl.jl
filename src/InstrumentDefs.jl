@@ -1,13 +1,13 @@
 # Instrument Codes
 export InstrumentProperty, NoArgs
 
-export Coupling, DataRepresentation, Lock, Network, State, TriggerOutputTiming
+export Coupling, DataRepresentation, Lock, Network, TriggerOutputTiming
 export ClockSlope, ClockSource, EventImpedance, EventSlope, EventTiming
 export OscillatorSource, Trigger, TriggerImpedance, TriggerSlope, TriggerSource
 export TriggerOutputPolarity, SampleRate, Search, SParameter
 export Medium
 
-export FrequencyStart, FrequencyStop, Output
+export ChannelCount, FrequencyStart, FrequencyStop, Output
 
 # Exception for instruments
 export InstrumentException
@@ -20,14 +20,12 @@ export All
 global code, configure, inspect
 global phase_rad, set_phase_rad
 global samplerate, set_samplerate
-global output_on, set_output_on
 global referenceoscillator_source, set_referenceoscillator_source
 global options
 
 export code, configure, inspect
 export phase_rad, set_phase_rad
 export samplerate, set_samplerate
-export output_on, set_output_on
 export referenceoscillator_source, set_referenceoscillator_source
 export options
 
@@ -74,6 +72,7 @@ abstract TriggerImpedance <: InstrumentProperty
 abstract TriggerSlope <: InstrumentProperty
 abstract TriggerSource <: InstrumentProperty
 
+abstract ChannelCount <: InstrumentProperty
 abstract FrequencyStart <: InstrumentProperty
 abstract FrequencyStop <: InstrumentProperty
 abstract Output <: InstrumentProperty
@@ -99,10 +98,6 @@ subtypesArray = [
 
     (:DHCP,                     Network),
     (:ManualNetwork,            Network),
-
-    (:Stop,                     State),
-    (:Run,                      State),
-    (:Wait,                     State),
 
     (:EventAsynchronous,        EventTiming),
     (:EventSynchronous,         EventTiming),
@@ -222,3 +217,6 @@ typealias Rate1GSps Rate1000MSps
 "The All type is meant to be dispatched upon and not instantiated."
 immutable All
 end
+
+
+inspect(ins::Instrument, args::Tuple{Vararg{DataType}}) = map((x)->inspect(ins,x),args...)

@@ -15,37 +15,42 @@ export allWaveforms
 
 export AWG5014CData
 
-export WaveformType, Normalization
-export DCOutput, DCOutputLevel
-export RepRate
-export RepRateHeld
-export SequencerLength
-export SequencerPosition
-export SequencerGOTOTarget
-export OutputFilterFrequency
-export SequencerGOTOState
-export SequencerEventJumpTarget
-export SequencerLoopCount
-export SequencerInfiniteLoop
-export ExtInputAddsToOutput
+export Normalization, SequencerType, WaveformType
+
+export Amplitude
 export AnalogOutputDelay
+export ChannelOutput
+export DCOutput
+export DCOutputLevel
+export ExtInputAddsToOutput
+export ExtOscDividerRate
 export MarkerDelay
+export OutputFilterFrequency
 export RefOscFrequency
 export RefOscMultiplier
+export RepRate
+export RepRateHeld
 export SCPIVersion
-export NumAvailableChannels
-export WavelistLength
+export SequencerEventJumpTarget
+export SequencerGOTOTarget
+export SequencerGOTOState
+export SequencerInfiniteLoop
+export SequencerLength
+export SequencerLoopCount
+export SequencerPosition
 export TriggerLevel
 export TriggerTimer
-export ChannelOutput
+export WavelistLength
+export VoltageOffset
 
 export runapplication, applicationstate, validate
-export hardwaresequencertype, load_awg_settings, save_awg_settings, clearwaveforms
-export deleteuserwaveform, waveformispredefined, waveformtimestamp, waveformtype
-export waveformname, waveformlength, pullfrom_awg, pushto_awg, newwaveform
-export set_amplitude_vpp, amplitude_vpp, samplerate, set_samplerate
-export waveform, set_waveform, set_voltageoffset, voltageoffset
-export phase_deg, set_phase_deg, set_phase_rad, set_phase_rad
+export load_awg_settings, save_awg_settings
+export clearwaveforms, deletewaveform, newwaveform
+export normalizewaveform, resamplewaveform
+export waveformexists, waveformispredefined
+export waveformlength, waveformname, waveformtimestamp, waveformtype
+export pullfrom_awg, pushto_awg
+
 export @allch
 
 # We also export from the generate_properties statement.
@@ -95,41 +100,21 @@ exceptions    = Dict(
 
 InstrumentException(ins::AWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
-abstract WaveformType      <: InstrumentProperty
 abstract Normalization     <: InstrumentProperty
-
-abstract ExtOscDividerRate        <: InstrumentProperty
-abstract DCOutput                 <: InstrumentProperty
-abstract DCOutputLevel            <: InstrumentProperty
-abstract RepRate                  <: InstrumentProperty
-abstract RepRateHeld              <: InstrumentProperty
-abstract SequencerLength          <: InstrumentProperty
-abstract SequencerPosition        <: InstrumentProperty
-abstract SequencerGOTOTarget      <: InstrumentProperty
-abstract OutputFilterFrequency    <: InstrumentProperty
-abstract SequencerGOTOState       <: InstrumentProperty
-abstract SequencerEventJumpTarget <: InstrumentProperty
-abstract SequencerLoopCount       <: InstrumentProperty
-abstract SequencerInfiniteLoop    <: InstrumentProperty
-abstract ExtInputAddsToOutput     <: InstrumentProperty
-abstract AnalogOutputDelay        <: InstrumentProperty
-abstract MarkerDelay              <: InstrumentProperty
-abstract RefOscFrequency          <: InstrumentProperty
-abstract RefOscMultiplier         <: InstrumentProperty
-abstract SCPIVersion              <: InstrumentProperty
-abstract NumAvailableChannels     <: InstrumentProperty
-abstract WavelistLength           <: InstrumentProperty
-abstract TriggerLevel             <: InstrumentProperty
-abstract TriggerTimer             <: InstrumentProperty
-abstract ChannelOutput            <: InstrumentProperty
+abstract SequencerType     <: InstrumentProperty
+abstract WaveformType      <: InstrumentProperty
 
 subtypesArray = [
-    (:IntWaveform,          WaveformType),
-    (:RealWaveform,         WaveformType),
 
     (:NotNormalized,        Normalization),
     (:FullScale,            Normalization),
-    (:PreservingOffset,     Normalization)
+    (:PreservingOffset,     Normalization),
+
+    (:HardwareSequencer,    SequencerType),
+    (:SoftwareSequencer,    SequencerType),
+
+    (:IntWaveform,          WaveformType),
+    (:RealWaveform,         WaveformType),
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -138,7 +123,45 @@ for ((subtypeSymb,supertype) in subtypesArray)
     generate_properties(subtypeSymb, supertype)
 end
 
+abstract Amplitude                <: InstrumentProperty
+abstract AnalogOutputDelay        <: InstrumentProperty
+abstract ChannelOutput            <: InstrumentProperty
+abstract DCOutput                 <: InstrumentProperty
+abstract DCOutputLevel            <: InstrumentProperty
+abstract ExtInputAddsToOutput     <: InstrumentProperty
+abstract ExtOscDividerRate        <: InstrumentProperty
+abstract MarkerDelay              <: InstrumentProperty
+abstract OutputFilterFrequency    <: InstrumentProperty
+abstract RefOscFrequency          <: InstrumentProperty
+abstract RefOscMultiplier         <: InstrumentProperty
+abstract RepRate                  <: InstrumentProperty
+abstract RepRateHeld              <: InstrumentProperty
+abstract SCPIVersion              <: InstrumentProperty
+abstract SequencerEventJumpTarget <: InstrumentProperty
+abstract SequencerGOTOTarget      <: InstrumentProperty
+abstract SequencerGOTOState       <: InstrumentProperty
+abstract SequencerInfiniteLoop    <: InstrumentProperty
+abstract SequencerLength          <: InstrumentProperty
+abstract SequencerLoopCount       <: InstrumentProperty
+abstract SequencerPosition        <: InstrumentProperty
+abstract TriggerLevel             <: InstrumentProperty
+abstract TriggerTimer             <: InstrumentProperty
+abstract WavelistLength           <: InstrumentProperty
+abstract VoltageOffset            <: InstrumentProperty
+
 responses = Dict(
+
+    :Normalization    => Dict("NONE"  => :NotNormalized,
+                              "FSC"   => :NormalizedFullScale,
+                              "ZREF"  => :NormalizedPreservingOffset),
+
+    :SequencerType    => Dict("HARD"  => :HardwareSequencer,
+                              "SOFT"  => :SoftwareSequencer),
+
+    :WaveformType     => Dict("INT"   => :IntWaveform,
+                              "REAL"  => :RealWaveform),
+
+########
 
     :ClockSlope       => Dict("POS"   => :RisingClock,
                               "NEG"   => :FallingClock),
@@ -158,10 +181,6 @@ responses = Dict(
     :OscillatorSource => Dict("INT"   => :InternalOscillator,
                               "EXT"   => :ExternalOscillator),
 
-    :State            => Dict(0       => :Stop,
-                              2       => :Run,
-                              1       => :Wait),
-
     :Trigger          => Dict("TRIG"  => :Triggered,
                               "CONT"  => :Continuous,
                               "GAT"   => :Gated,
@@ -176,21 +195,9 @@ responses = Dict(
     :TriggerSource    => Dict("INT"   => :InternalTrigger,
                               "EXT"   => :ExternalTrigger),
 
-    :Lock             => Dict(0       => :Local,
-                              1       => :Remote),
-
-    :WaveformType     => Dict("INT"   => :IntWaveform,
-                              "REAL"  => :RealWaveform),
-
-    :Normalization    => Dict("NONE"  => :NotNormalized,
-                              "FSC"   => :NormalizedFullScale,
-                              "ZREF"  => :NormalizedPreservingOffset)
 )
 
 generate_handlers(AWG5014C,responses)
-
-# Needed because otherwise we need to qualify the run(awg) command with the module name.
-import Main.run
 
 commands = [
     ("AWGC:CLOC:SOUR",      ClockSource), #reference clock source
@@ -225,9 +232,10 @@ commands = [
     ("SOUR:ROSC:FREQ",      RefOscFrequency,           AbstractFloat),
     ("SOUR:ROSC:MULT",      RefOscMultiplier,          Int),
     ("SYST:VERS?",          SCPIVersion,               ASCIIString),
-    ("AWGC:CONF:CNUM?",     NumAvailableChannels,      Int),
+    ("AWGC:CONF:CNUM?",     ChannelCount,              Int),
     ("OUTP#:STAT",          ChannelOutput,             Bool),
     ("WLIST:SIZE?",         WavelistLength,            Int),
+    ("SOUR#:VOLT:OFFS",     VoltageOffset,             AbstractFloat),  #-2.25 to 2.25V
 ]
 
 for args in commands
@@ -236,15 +244,19 @@ for args in commands
 end
 
 function configure(ins::AWG5014C, ::Type{Output}, on::Bool)
-    if on
-        write(ins, "AWGC:RUN")
-    else
-        write(ins, "AWGC:STOP")
-    end
+    on ? write(ins, "AWGC:RUN") : write(ins, "AWGC:STOP")
+end
+
+function inspect(ins::AWG5014C, ::Type{Output})
+    parse(ask(ins,"AWGC:RSTATE?")) > 0 ? true : false
+end
+
+function inspect(ins::AWG5014C, ::Type{WaitingForTrigger})
+    parse(ask(ins,"AWGC:RSTATE?")) == 1 ? true : false
 end
 #
 # sfd = Dict(
-# #    "calibrate"                         => ["*CAL?",                    InstrumentException],
+#     "calibrate"                         => ["*CAL?",                    InstrumentException],
 #     "options"                           => ["*OPT?",                    ASCIIString],
 #     "runstate"                          => ["AWGC:RSTATE?",             State],
 #
@@ -284,77 +296,68 @@ macro allch(x::Expr)
 end
 
 "Get the output phase in degrees for a given channel."
-function phase_deg(ins::AWG5014C, ch::Integer)
+function inspect(ins::AWG5014C, ::Type{Phase}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(ask(ins,string("SOUR",ch,":PHAS?")))
 end
 
 "Set the output phase in degrees for a given channel."
-function set_phase_deg(ins::AWG5014C, phase::Real, ch::Integer)
+function configure(ins::AWG5014C, ::Type{Phase}, phase::Real, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     ph = phase+180.
     ph = mod(ph,360.)
     ph -= 180.
     parse(ask(ins,string("SOUR",ch,":PHAS ",phase)))
 end
+#
+# "Get the output phase in radians for a given channel."
+# function phase_rad(ins::AWG5014C, ch::Integer)
+#     phaseDegrees(ins,ch) * π / 180.
+# end
+#
+# "Set the output phase in radians for a given channel."
+# function set_phase_rad(ins::AWG5014C, phase::Real, ch::Integer)
+#     setPhaseDegrees(ins, phase*180./π, ch)
+# end
 
-"Get the output phase in radians for a given channel."
-function phase_rad(ins::AWG5014C, ch::Integer)
-    phaseDegrees(ins,ch) * π / 180.
-end
-
-"Set the output phase in radians for a given channel."
-function set_phase_rad(ins::AWG5014C, phase::Real, ch::Integer)
-    setPhaseDegrees(ins, phase*180./π, ch)
-end
-
-"Get the voltage offset for a given channel."
-function voltageoffset(ins::AWG5014C, ch::Integer)
-    @assert (1 <= ch <= 4) "Channel out of range."
-    parse(ask(ins,string("SOUR",ch,":VOLT:OFFS?")))
-end
-
-"Set the voltage offset between -2.25 V and 2.25 V for a given channel."
-function set_voltageoffset(ins::AWG5014C, voff::Real, ch::Integer)
-    @assert (1 <= ch <= 4) "Channel out of range."
-    @assert (-2.25 <= voff <= 2.25) "Offset out of range."
-    write(ins,string("SOUR",ch,":VOLT:OFFS ",voff))
-end
-
-"Get the waveform name for a given channel."
-function waveform(ins::AWG5014C, ch::Integer)
-    @assert (1 <= ch <= 4) "Channel out of range."
-    ask(ins,string("SOUR",ch,":WAV?"))
-end
-
-"Set the waveform by name for a given channel."
-function set_waveform(ins::AWG5014C, name::ASCIIString, ch::Integer)
+# Set the waveform by name for a given channel.
+function configure(ins::AWG5014C, ::Type{WaveformName}, name::ASCIIString, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":WAV ",quoted(name)))
 end
 
-"Set Vpp for a given channel between 0.05 V and 2 V."
-function set_amplitude_vpp(ins::AWG5014C, ampl::Real, ch::Integer)
+function inspect(ins::AWG5014C, ::Type{WaveformName}, ch::Integer)
+    @assert (1 <= ch <= 4) "Channel out of range."
+    unquoted(ask(ins,string("SOUR",ch,":WAV?")))
+end
+
+# Set Vpp for a given channel between 0.05 V and 2 V.
+function configure(ins::AWG5014C, ::Type{Amplitude}, ampl::Real, ch::Integer)
     @assert (0.05 <= ampl <= 2) "Amplitude out of range."
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":VOLT ",ampl))
 end
 
-"Get Vpp for a given channel."
-function amplitude_vpp(ins::AWG5014C, ch::Integer)
+# Vpp for a given channel.
+function inspect(ins::AWG5014C, ::Type{Amplitude}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(ask(ins,string("SOUR",ch,":VOLT?")))
 end
 
 "Set the sample rate in Hz between 10 MHz and 10 GHz. Output rate = sample rate / number of points."
-function set_samplerate(ins::AWG5014C, rate::Real)
+function configure(ins::AWG5014C, ::Type{SampleRate}, rate::Real)
     @assert (10e6 <= rate <= 10e9) "Sample rate out of range."
     write(ins,string("SOUR:FREQ ",rate))
 end
 
 "Get the sample rate in Hz. Output rate = sample rate / number of points."
-function samplerate(ins::AWG5014C)
+function inspect(ins::AWG5014C, ::Type{SampleRate})
     parse(ask(ins,"SOUR:FREQ?"))
+end
+
+"Current sequencer type"
+function inspect(ins::AWG5014C, ::Type{SequencerType})
+    SequencerType(ins,ask(ins,"AWGC:SEQ:TYPE?"))
 end
 
 "Run an application, e.g. SerialXpress"
@@ -364,10 +367,6 @@ end
 
 function applicationstate(ins::AWG5014C, app::ASCIIString)
     ask(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? StopState(ins) : RunState(ins)
-end
-
-function hardwaresequencertype(ins::AWG5014C)
-    chomp(ask(ins,"AWGC:SEQ:TYPE?")) == "HARD" ? true : false
 end
 
 function load_awg_settings(ins::AWG5014C,filePath::ASCIIString)
@@ -390,28 +389,16 @@ function deletewaveform(ins::AWG5014C, name::ASCIIString)
 end
 
 function newwaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
+    wvtype == WaveformType ? error("Specify IntWaveform or RealWaveform.") : nothing
     write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*code((wvtype)(ins)))
-end
-
-function resamplewaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
-    write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
 end
 
 function normalizewaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
     write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(norm(ins)))
 end
 
-"Uses Julia style indexing (begins at 1) to retrieve the name of a waveform."
-function waveformname(ins::AWG5014C, num::Integer)
-    strip(ask(ins, "WLIST:NAME? "*string(num-1)),'"')
-end
-
-function waveformlength(ins::AWG5014C, name::ASCIIString)
-    parse(ask(ins, "WLIST:WAV:LENG? "*quoted(name)))
-end
-
-function waveformispredefined(ins::AWG5014C, name::ASCIIString)
-    Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
+function resamplewaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
+    write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
 end
 
 function waveformexists(ins::AWG5014C, name::ASCIIString)
@@ -424,8 +411,21 @@ function waveformexists(ins::AWG5014C, name::ASCIIString)
     return false
 end
 
+function waveformispredefined(ins::AWG5014C, name::ASCIIString)
+    Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
+end
+
+function waveformlength(ins::AWG5014C, name::ASCIIString)
+    parse(ask(ins, "WLIST:WAV:LENG? "*quoted(name)))
+end
+
+"Uses Julia style indexing (begins at 1) to retrieve the name of a waveform."
+function waveformname(ins::AWG5014C, num::Integer)
+    strip(ask(ins, "WLIST:NAME? "*string(num-1)),'"')
+end
+
 function waveformtimestamp(ins::AWG5014C, name::ASCIIString)
-    strip(ask(ins,"WLIS:WAV:TST? "*quoted(name)),"\"")
+    unquoted(ask(ins,"WLIS:WAV:TST? "*quoted(name)))
 end
 
 "Returns the type of the waveform. The AWG hardware ultimately uses an `IntWaveform` but `RealWaveform` is more convenient."
