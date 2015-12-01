@@ -218,5 +218,5 @@ typealias Rate1GSps Rate1000MSps
 immutable All
 end
 
-
-inspect(ins::Instrument, args::Tuple{Vararg{DataType}}) = map((x)->inspect(ins,x),args...)
+inspect(ins::Instrument, args::Tuple{Vararg{DataType}}) =
+    map((x)->inspect(ins,x),(args...))

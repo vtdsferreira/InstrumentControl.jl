@@ -142,7 +142,7 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
         !isa(args[1],$returntype[1]) &&
             error(cmd," requires a ",$returntype[1]," argument.")
 
-        for infix in args
+        for infix in args[end-($nhash-1):end]
             cmd = replace(cmd,"#",infix,1)
         end
 

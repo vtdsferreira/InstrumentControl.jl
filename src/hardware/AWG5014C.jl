@@ -40,6 +40,8 @@ export SequencerLoopCount
 export SequencerPosition
 export TriggerLevel
 export TriggerTimer
+export WaitingForTrigger
+export WaveformName
 export WavelistLength
 export VoltageOffset
 
@@ -146,6 +148,8 @@ abstract SequencerLoopCount       <: InstrumentProperty
 abstract SequencerPosition        <: InstrumentProperty
 abstract TriggerLevel             <: InstrumentProperty
 abstract TriggerTimer             <: InstrumentProperty
+abstract WaitingForTrigger        <: InstrumentProperty
+abstract WaveformName             <: InstrumentProperty
 abstract WavelistLength           <: InstrumentProperty
 abstract VoltageOffset            <: InstrumentProperty
 

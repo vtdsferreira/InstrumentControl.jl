@@ -82,8 +82,6 @@ abstract ExtTriggerDelay      <: InstrumentProperty
 abstract ExtTriggerLowLatency <: InstrumentProperty
 abstract FrequencyCenter      <: InstrumentProperty
 abstract FrequencySpan        <: InstrumentProperty
-abstract FrequencyStart       <: InstrumentProperty
-abstract FrequencyStop        <: InstrumentProperty
 abstract GraphLayout          <: InstrumentProperty
 abstract IFBandwidth          <: InstrumentProperty
 abstract Marker               <: InstrumentProperty
@@ -92,7 +90,6 @@ abstract MarkerX              <: InstrumentProperty
 abstract MarkerY              <: InstrumentProperty
 abstract NumPoints            <: InstrumentProperty
 abstract NumTraces            <: InstrumentProperty
-abstract Output               <: InstrumentProperty
 abstract PhaseOffset          <: InstrumentProperty
 abstract PointTrigger         <: InstrumentProperty
 abstract PowerCoupled         <: InstrumentProperty
