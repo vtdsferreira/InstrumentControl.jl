@@ -1,4 +1,4 @@
-Most everything in the visa folder:
+Large majority of code in VISA.jl package:
 > Copyright (c) 2014: Colm Ryan.
 
 Random.jl, Time.jl, and a few other snippets here and there:

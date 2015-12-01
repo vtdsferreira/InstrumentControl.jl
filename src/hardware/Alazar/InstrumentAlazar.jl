@@ -6,8 +6,9 @@ Adapted from the C and Python APIs by Andrew Keller (andrew.keller.09@gmail.com)
 Please see the ATS-SDK Guide for detailed specification of any functions
 from the Alazar API.
 
-Remember that a "sample" refers to a value from a single digitizer channel.
-You need to have memory for two samples if you are measuring both channels.
+Remember that a "sample" refers to a single channel.
+One channel, one sample --> one value; Two channels, one sample --> two values.
+You need to alloc memory for two values if you are measuring both channels.
 
 Types:
 
@@ -40,7 +41,11 @@ export BitsPerSample
 export BytesPerSample
 export BufferCount
 export BufferSize
+export DefaultBufferCount
+export DefaultBufferSize
 export LED
+export MaxBufferSize
+export MinValuesPerRecord
 export RecordCount
 export SampleMemoryPerChannel
 export Sleep
@@ -57,8 +62,8 @@ export Acquisition
 
 export AlazarMode
 export StreamMode, RecordMode
-export ContinuousStream, TriggeredStream
-export NPTRecord, TraditionalRecord, FFTRecord
+export ContinuousStreamMode, TriggeredStreamMode
+export NPTRecordMode, TraditionalRecordMode, FFTRecordMode
 export inf_records
 
 export InstrumentAlazar
@@ -215,7 +220,11 @@ abstract BitsPerSample             <: AlazarProperty
 abstract BytesPerSample            <: AlazarProperty
 abstract BufferCount               <: AlazarProperty
 abstract BufferSize                <: AlazarProperty
+abstract DefaultBufferCount        <: AlazarProperty
+abstract DefaultBufferSize         <: AlazarProperty
 abstract LED                       <: AlazarProperty
+abstract MaxBufferSize             <: AlazarProperty
+abstract MinValuesPerRecord        <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
 abstract Sleep                     <: AlazarProperty
@@ -267,26 +276,26 @@ abstract RecordMode <: AlazarMode
 
 const inf_records = U32(0x7FFFFFFF)
 
-type ContinuousStream <: StreamMode
-    total_acq_time_s::AbstractFloat
+type ContinuousStreamMode <: StreamMode
+    total_samples::Integer
 end
 
-type TriggeredStream <: StreamMode
-    total_acq_time_s::AbstractFloat
+type TriggeredStreamMode <: StreamMode
+    total_samples::Integer
 end
 
-type NPTRecord <: RecordMode
+type NPTRecordMode <: RecordMode
     sam_per_rec::Integer
     total_recs::Integer
 end
 
-type TraditionalRecord <: RecordMode
+type TraditionalRecordMode <: RecordMode
     pre_sam_per_rec::Integer
     post_sam_per_rec::Integer
     total_recs::Integer
 end
 
-type FFTRecord <: RecordMode
+type FFTRecordMode <: RecordMode
     sam_per_rec::AbstractFloat
     total_recs::Int
 end
@@ -330,9 +339,9 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
     r = @eh2 AlazarBeforeAsyncRead(a.handle,
                               a.acquisitionChannel,
                               -pretriggersamples(m),
-                              inspect_per(a,m,Sample,Record),
-                              inspect_per(a,m,Record,Buffer),
-                              inspect_per(a,m,Record,Acquisition),
+                              inspect_per(a, m, Sample, Record),
+                              inspect_per(a, m, Record, Buffer),
+                              inspect_per(a, m, Record, Acquisition),
                               adma(m))
     r
 
@@ -474,8 +483,8 @@ type AlazarATS9360 <: InstrumentAlazar
     # given Alazar digitizer (and possibly motherboard?). The way we do things,
     # it should also be divisible by channelcount and bytespersample.
     buffer_defaults(a::AlazarATS9360) = begin
-        a.bufferSize = U32(409600*2*2)
-        a.bufferCount = U32(4)
+        a.bufferSize = inspect(a,DefaultBufferSize)
+        a.bufferCount = inspect(a,DefaultBufferCount)
     end
 
     AlazarATS9360() = AlazarATS9360(1,1)
@@ -620,10 +629,11 @@ function configure(a::InstrumentAlazar, m::RecordMode)
         a.preTriggerSamples = 0
         a.postTriggerSamples = m.sam_per_rec
     end
-    r
+
+    before_async_read(a, m)
 end
 
-function configure(a::InstrumentAlazar, m::TraditionalRecord)
+function configure(a::InstrumentAlazar, m::TraditionalRecordMode)
 
     pre_nearest  = cld(m.pre_sam_per_rec,  128) * 128
     post_nearest = cld(m.post_sam_per_rec, 128) * 128
@@ -644,12 +654,13 @@ function configure(a::InstrumentAlazar, m::TraditionalRecord)
         a.preTriggerSamples = m.pre_sam_pre_rec
         a.postTriggerSamples = m.post_sam_per_rec
     end
-    r
+
+    before_async_read(a, m)
 end
 
 # In streaming mode we don't need to do anything.
 function configure(a::InstrumentAlazar, m::StreamMode)
-    nothing
+    before_async_read(a,m)
 end
 
 function configure(a::InstrumentAlazar, ::Type{TriggerDelaySamples}, delay_samples)
@@ -847,7 +858,16 @@ inspect_per(a::InstrumentAlazar, ::Type{Sample}, ::Type{Byte}) =
 inspect_per(a::AlazarATS9360, ::Type{Byte}, ::Type{Sample}) = 2
 
 inspect(a::InstrumentAlazar, ::Type{BufferSize})  = a.bufferSize
+function configure(a::InstrumentAlazar, ::Type{BufferSize}, bufsize::Integer)
+    a.bufferSize = U32(bufsize)
+end
+inspect(a::AlazarATS9360, ::Type{DefaultBufferSize}) = U32(409600*2*2)
+
 inspect(a::InstrumentAlazar, ::Type{BufferCount}) = a.bufferCount
+function configure(a::InstrumentAlazar, ::Type{BufferCount}, bufcount::Integer)
+    a.bufferCount = U32(bufcount)
+end
+inspect(a::AlazarATS9360, ::Type{DefaultBufferCount}) = U32(4)
 
 function bufferarray(a::InstrumentAlazar, n_buf::Integer, size_buf::Integer)
     buf_array = Array{Alazar.DMABuffer{UInt16},1}()
@@ -859,9 +879,6 @@ function bufferarray(a::InstrumentAlazar, n_buf::Integer, size_buf::Integer)
     buf_array
 end
 
-pretriggersamples(m::TraditionalRecord) = m.pre_sam_per_rec
-pretriggersamples(m::AlazarMode) = 0
-
 # Since records/buffer is always 1 in stream mode, we fix samples/record:
 inspect_per(a::InstrumentAlazar, m::StreamMode,
         ::Type{Sample}, ::Type{Record}) =
@@ -872,7 +889,7 @@ inspect_per(a::InstrumentAlazar, m::StreamMode,
 inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Sample}, ::Type{Record}) =
     m.sam_per_rec
 
-inspect_per(a::AlazarATS9360, m::TraditionalRecord,
+inspect_per(a::AlazarATS9360, m::TraditionalRecordMode,
     ::Type{Sample}, ::Type{Record}) = m.pre_sam_per_rec + m.post_sam_per_rec
 
 # For any Alazar digitizer in stream mode, records per buffer should be 1.
@@ -888,7 +905,7 @@ inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Record}, ::Type{Buffer}) =
 
 # Pretty straightforward...
 inspect_per(a::InstrumentAlazar, m::AlazarMode, ::Type{Sample}, ::Type{Buffer}) =
-    inspect_per(a, m, Sample, Record) * inspect_per(a, m, Record,Buffer)
+    inspect_per(a, m, Sample, Record) * inspect_per(a, m, Record, Buffer)
 
 # Parameter is ignored in stream mode for any Alazar digitizer.
 inspect_per(::StreamMode, ::Type{Record}, ::Type{Acquisition}) = inf_records
@@ -901,33 +918,39 @@ inspect_per(a::InstrumentAlazar, m::RecordMode,
     ::Type{Record}, ::Type{Acquisition}) = inspect_per(m, Record, Acquisition)
 
 inspect_per(a::AlazarATS9360, m::StreamMode, ::Type{Buffer}, ::Type{Acquisition}) =
-    Int(cld(m.total_acq_time_s * inspect(a, SampleRate),
-        inspect_per(a, m, Sample, Buffer)))
+    Int(cld(m.total_samples, inspect_per(a, m, Sample, Buffer)))
+    # Int(cld(m.total_acq_time_s * inspect(a, SampleRate),
+    #     inspect_per(a, m, Sample, Buffer)))
 
 inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Buffer}, ::Type{Acquisition}) =
     Int(cld(m.total_recs, inspect_per(a, m, Record, Buffer)))
 
 inspect(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
 
-adma(::ContinuousStream)   = Alazar.ADMA_CONTINUOUS_MODE |
-                             Alazar.ADMA_FIFO_ONLY_STREAMING |
-                             Alazar.ADMA_EXTERNAL_STARTCAPTURE
+adma(::ContinuousStreamMode)   = Alazar.ADMA_CONTINUOUS_MODE |
+                                 Alazar.ADMA_FIFO_ONLY_STREAMING |
+                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
-adma(::TriggeredStream)    = Alazar.ADMA_TRIGGERED_STREAMING |
-                             Alazar.ADMA_FIFO_ONLY_STREAMING |
-                             Alazar.ADMA_EXTERNAL_STARTCAPTURE
+adma(::TriggeredStreamMode)    = Alazar.ADMA_TRIGGERED_STREAMING |
+                                 Alazar.ADMA_FIFO_ONLY_STREAMING |
+                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
-adma(::NPTRecord)          = Alazar.ADMA_NPT |
-                             Alazar.ADMA_FIFO_ONLY_STREAMING |
-                             Alazar.ADMA_EXTERNAL_STARTCAPTURE
+adma(::NPTRecordMode)          = Alazar.ADMA_NPT |
+                                 Alazar.ADMA_FIFO_ONLY_STREAMING |
+                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
-adma(::FFTRecord)          = Alazar.ADMA_NPT |
-                             Alazar.ADMA_DSP |
-                             Alazar.ADMA_EXTERNAL_STARTCAPTURE
+adma(::FFTRecordMode)          = Alazar.ADMA_NPT |
+                                 Alazar.ADMA_DSP |
+                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
-adma(::TraditionalRecord)  = Alazar.ADMA_TRADITIONAL_MODE |
-                             Alazar.ADMA_EXTERNAL_STARTCAPTURE # other flags?
+adma(::TraditionalRecordMode)  = Alazar.ADMA_TRADITIONAL_MODE |
+                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE   # other flags?
 
+pretriggersamples(m::TraditionalRecordMode) = m.pre_sam_per_rec
+pretriggersamples(m::AlazarMode) = 0
+
+inspect(a::AlazarATS9360, ::Type{MinValuesPerRecord}) = 256
+inspect(a::AlazarATS9360, ::Type{MaxBufferSize}) = 64e6
 
 include("AlazarDSP.jl")
 

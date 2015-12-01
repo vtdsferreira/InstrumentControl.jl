@@ -107,11 +107,15 @@ Now that we have abstracted `source` and `measure`, we can think about archetypa
 measurement schemes. Often we want to do a 1D sweep:
 
 ```
-function sweep1d(stimulus::Stimulus, response::Response)
+# Just an example; not necessarily implemented this way...
+function sweep1d(stimulus::Stimulus, response::Response, iterator)
+    a = Array()
     for value in iterator
         source(stimulus,value)
-        measure(response)
+        r = measure(response)
+        push!(a,r)
     end
+    return a
 end
 ```
 

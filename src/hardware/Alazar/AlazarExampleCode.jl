@@ -1,32 +1,56 @@
-# Call set_recordsize first
-# function process(a::AlazarATS9360, m::StreamMode, c::Channel)
-#     # buffers per Acquisition
-#     buf_per_acq = buffersperacquisition(a,m)
-#     c = Channel{Array{UInt16,1}}(buffercount(a))
-#
-#     io = IOBuffer(buf_per_acq * buffersize(a))
-#
-#     @schedule producer(a,m,c)
-#     for (i = 1:buf_per_acq)
-#         array = take!(c)
-#         for sample in 1:length(array)
-#             write(io,ltoh(i))
-#         end
-#     end
-#
-#     io
-# end
+abstract AlazarResponse <: Response
 
-function measure(a::AlazarATS9360, m::StreamMode,
-        buf_count=inspect(a, BufferCount), buf_size=inspect(a, BufferSize))
+type RawTimeDomainResponse <: AlazarResponse
+    ins::InstrumentAlazar
+    total_samples::Integer      # per channel, in this case...
 
-    # set record size; no-op'd for StreamMode
+    RawTimeDomainResponse(a,b) = begin
+        b <= 0 && error("Need at least one sample!")
+        tdr = new(a,b)
+    end
+end
+
+function measure(ch::RawTimeDomainResponse)
+
+    a = ch.ins
+
+    ts = ch.total_samples
+    chans = inspect(a, ChannelCount)
+    min_vals = inspect(a, MinValuesPerRecord)
+
+    if ts * chans < min_vals
+        ts = Int(cld(min_vals, chans))
+        warn("Sample count is small. ",
+            "Will measure minimum required time and trim afterwards.")
+    end
+
+    m = ContinuousStreamMode(ts)
+
+    # buffers/acquisition is not the same as buffer count, in general.
+    # buffer count determines how many buffers are allocated; a greater numbers
+    # of buffers/acquisition may result in reuse of the allocated buffers.
+    # In this case we do not want reuse.
+
+    configure(a, BufferSize,
+        ts * inspect_per(a, Byte, Sample) * chans)
+    buf_per_acq = inspect_per(a, m, Buffer, Acquisition)
+
+    configure(a, BufferCount, buf_per_acq)   # may fail if bigger than 64MB
+
+    buf_array = measure(a, m)
+    postprocess(ch, buf_array)
+end
+
+function measure(a::AlazarATS9360, m::StreamMode)
+
+    # Sets record size; no-op'd for StreamMode
     configure(a, m)
 
-    # Allocate memory for DMA buffers
-    buf_array = bufferarray(a, buf_count, buf_size)
+    buf_count = inspect(a, BufferCount)
+    buf_size = inspect(a, BufferSize)
 
-    before_async_read(a, m)
+    # Allocate memory for DMA buffers
+    buf_array = bufferarray(a, buf_count, buf_size) # allocate linear in memory?
 
     # Add the buffers to a list of buffers available to be filled by the board
     for (buf_index = 1:buf_count)
@@ -98,10 +122,11 @@ function measure(a::AlazarATS9360, m::StreamMode,
         # Abort the acquisition
         abort(a)
     end
-    postprocess(a,m,buf_array)
+
+    buf_array
 end
 
-function postprocess(a::AlazarATS9360, m::StreamMode, array::AbstractArray)
+function postprocess(ch::RawTimeDomainResponse, array::AbstractArray)
     out = Array{AbstractFloat,1}()
     for dma_buffer in array
         for sample in dma_buffer.array
