@@ -21,7 +21,7 @@ function measure(a::AlazarATS9360, m::StreamMode,
         buf_count=inspect(a, BufferCount), buf_size=inspect(a, BufferSize))
 
     # set record size; no-op'd for StreamMode
-    set_recordsize(a, m)
+    configure(a, m)
 
     # Allocate memory for DMA buffers
     buf_array = bufferarray(a, buf_count, buf_size)
