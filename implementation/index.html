@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>Implementation - PainterQB.jl</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">PainterQB.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Overview <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../design/">Design</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Implementation</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../releases/">Release notes</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../LICENSE/">License</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../design/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../releases/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/ajkeller34/Instruments.jl/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#implementation-overview">Implementation overview</a></li>
+        
+            <li><a href="#code-organization">Code organization</a></li>
+        
+            <li><a href="#visa-instruments">VISA Instruments</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="implementation-overview">Implementation overview</h1>
+<h2 id="code-organization">Code organization</h2>
+<p><em>Organizing the code into Julia modules is tricky and the organization may change
+in future releases. It would not be surprising if the way Julia implements modules
+changes before Julia v1.0.</em></p>
+<ul>
+<li>With few exceptions, all code is kept inside a single package. For now the
+package is unregistered and must be retrieved from the repository with
+<code>Pkg.clone()</code> rather than <code>Pkg.add()</code>.<ul>
+<li>Low-level wrappers for shared libraries are kept in their own packages
+(e.g. VISA and Alazar calls). This way, at least some code can be reused if
+someone else does not want to use our codebase.</li>
+</ul>
+</li>
+<li>All code is kept inside a "main" <code>PainterQB</code> module, defined inside <code>src/PainterQB.jl</code>.<ul>
+<li>Common instrument definitions and functions are defined in <code>src/InstrumentDefs.jl</code>.</li>
+<li><code>InstrumentVISA</code> and associated functions are defined in <code>src/InstrumentVISA.jl</code>.</li>
+</ul>
+</li>
+<li>Each instrument is defined within its own module, a submodule of <code>PainterQB</code>.<ul>
+<li>Each instrument has a corresponding .jl file in <code>src/hardware</code>.</li>
+<li>Instrument model numbers are used for type definitions (e.g. <code>AWG5014C</code>),
+so module names have "Module" appended (e.g. <code>AWG5014CModule</code>).</li>
+<li><code>export</code> statements from an instrument submodule are not currently exported
+from <code>PainterQB</code>. The statement <code>using PainterQB.AWG5014CModule</code>
+may be desired when using the AWG, for instance.</li>
+</ul>
+</li>
+<li>To test for possible namespace conflicts when adding new instruments,
+uncomment the <code>importall</code> statements in <code>src/PainterQB.jl</code>.<ul>
+<li>As functions from different instrument modules are imported, any functions
+that are defined in different modules will be printed and warned about. The
+solution is to define the shared function name in <code>src/InstrumentDefs.jl</code>
+(<code>global</code> and <code>export</code>) such that the submodules can both import the function.</li>
+</ul>
+</li>
+</ul>
+<h2 id="visa-instruments">VISA Instruments</h2>
+<p>Many commercial instruments support a common communications protocol and command
+syntax (VISA and SCPI respectively). For such instruments, many methods for
+<code>configure</code> and <code>inspect</code> can be generated with metaprogramming, rather than
+typing them out explicitly.</p>
+<p>Technical note: The file <code>src/Metaprogramming.jl</code> is included in each VISA
+instrument's source file, and therefore in each instrument's own module.
+Initially this file was included directly in the PainterQB module, but it seems
+there are subtleties regarding the use of the <code>@eval</code> macro between modules.</p>
+<h3 id="metaprogramming">Metaprogramming</h3>
+<h4 id="generate_inspect">generate_inspect</h4>
+<div class="codehilite"><pre>generate_inspect{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+</pre></div>
+
+
+<p>This command takes an <code>Instrument</code> subtype <code>instype</code>, a VISA command, an
+<code>InstrumentProperty</code> subtype <code>proptype</code>, and possibly an argument. It will
+generate the following method in the module where <code>generate_inspect</code> is defined:</p>
+<p><code>inspect(ins::instype, ::Type{proptype}, infixes::Int...)</code></p>
+<p>The <code>infixes</code> variable argument allows for numbers to be inserted within the
+commands, for instance in <code>OUTP#:FILT:FREQ</code>, where the <code>#</code> sign should be
+replaced by an integer. The replacements are done in the order of the arguments.
+Error checking is done on the number of arguments.</p>
+<p>For a given property, <code>inspect</code> will return either an InstrumentProperty object,
+a number, a boolean, or a string as appropriate.</p>
+<h4 id="generate_configure">generate_configure</h4>
+<div class="codehilite"><pre>generate_configure{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+</pre></div>
+
+
+<p>This command takes an <code>Instrument</code> subtype <code>InsType</code>, a VISA command, an
+<code>InstrumentProperty</code> type, and possibly an argument. It will generate one of the
+following methods in the module where <code>generate_inspect</code> is defined:</p>
+<div class="codehilite"><pre>configure(ins::InsType, PropertySubtype)
+configure(ins::InsType, Property, values..., infixes...)
+</pre></div>
+
+
+<h4 id="generate_properties">generate_properties</h4>
+<div class="codehilite"><pre>generate_properties{S&lt;:InstrumentProperty}(subtype::Symbol, supertype::Type{S})
+</pre></div>
+
+
+<p>This makes it easy to generate new <code>InstrumentProperty</code> subtypes. Typically
+this function is called inside a for loop. Calling this function is equivalent
+to writing the following pseudocode:</p>
+<div class="codehilite"><pre>immutable (subtype){T} &lt;: supertype
+    ins::Instrument
+    code::T
+    logicalname::AbstractString
+
+    (subtype)(a,b) = new(a,b,string(subtype))
+end
+
+(subtype){T}(a::Instrument,b::T) = (subtype){T}(a,b)
+
+export subtype
+
+code{T}(inscode::subtype{T}) = inscode.code::T
+</pre></div>
+
+
+<p>Access to the <code>code</code> field is given through a method to allow for a little
+flexibility in case implementation details change.</p>
+<h4 id="generate_handlers">generate_handlers</h4></div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

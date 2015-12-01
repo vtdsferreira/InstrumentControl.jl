@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>Design - PainterQB.jl</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">PainterQB.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Overview <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li class="active">
+    <a href="./">Design</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../implementation/">Implementation</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../releases/">Release notes</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../LICENSE/">License</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="..">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../implementation/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/ajkeller34/Instruments.jl/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#design-overview">Design overview</a></li>
+        
+            <li><a href="#what-is-an-instrument">What is an instrument?</a></li>
+        
+            <li><a href="#instrument-types">Instrument types</a></li>
+        
+            <li><a href="#instrument-interface">Instrument interface</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="design-overview">Design overview</h1>
+<h2 id="what-is-an-instrument">What is an instrument?</h2>
+<p><code>abstract Instrument</code></p>
+<p>For the purposes of this package, an instrument is just something connected to the
+computer that we need to communicate with, and which can source or measure something.
+Every instrument may connect to the computer by different hardware,
+comms protocols, and command dialects.</p>
+<p>All instruments are Julia objects, subtypes of the abstract type <code>Instrument</code>.</p>
+<h2 id="instrument-types">Instrument types</h2>
+<p>Many instruments share the same communications protocols. We subtype <code>Instrument</code>
+based on these protocols.</p>
+<h3 id="visa">VISA</h3>
+<p><code>abstract InstrumentVISA &lt;: Instrument</code></p>
+<p>Many instruments are able to be addressed using the
+<a href="http://www.ivifoundation.org/docs/vpp432_2014-06-19.pdf">VISA</a> standard (Virtual
+Instrument Software Architecture), currently maintained by the IVI Foundation.</p>
+<p>To talk to VISA instruments will require the Julia package <a href="http://www.github.com/ajkeller34/VISA.jl">VISA.jl</a>
+as well as the <a href="https://www.ni.com/visa/">National Instruments VISA libraries</a>.
+Installation instructions are available at each link.</p>
+<h3 id="alazar-digitizers">Alazar digitizers</h3>
+<p><code>abstract InstrumentAlazar &lt;: Instrument</code></p>
+<p>Digitizers made by <a href="http://www.alazartech.com">AlazarTech</a> are notably <em>not</em>
+compatible with the VISA standard. The VISA standard was probably not intended
+for PCIe cards with extreme data throughput. All Alazar digitizers are addressable by an API
+supplied by the company, which talks to the card through a shared library (think .dll on
+Windows or .so on Linux).</p>
+<p>The shared library files and API documentation are only available from AlazarTech.</p>
+<h2 id="instrument-interface">Instrument interface</h2>
+<h3 id="properties">Properties</h3>
+<p>Instrument properties are configured and inspected using two functions,
+<code>configure</code> and <code>inspect</code>. Why not <code>set</code> and <code>get</code>? Ultimately these verbs are
+pretty generic and often have implicit meanings in other programming languages.
+In C, for instance, <code>get</code> often implies that the function will return an address
+in memory rather than a value.</p>
+<p><a href="http://m-w.com/dictionary/configure">"configure"</a>:
+"to arrange or prepare (something) so that it can be used."</p>
+<p><a href="http://m-w.com/dictionary/inspect">"inspect"</a>:
+"to look at (something) carefully in order to learn more about it, to find problems, etc."</p>
+<h3 id="source-and-measure">Source and measure</h3>
+<p>Two functions are provided to abstract away many kinds of measurements: <code>source</code>
+and <code>measure</code>. In an experiment you source some stimulus and measure a response.
+Therefore <code>source</code> takes as an argument an object matching type signature
+<code>Stimulus</code>, which can have different fields for different types of stimuli.
+<code>measure</code> takes as an argument an object matching type signature <code>Response</code>. The
+idea is to write new subtypes of <code>Stimulus</code> and <code>Response</code> to describe what you
+are doing, as well as new methods for <code>source</code> and <code>measure</code>.</p>
+<h4 id="stimuli">Stimuli</h4>
+<p>Many common stimuli are already provided. For example, a signal generator may
+have <code>FrequencyStimulus</code> objects, with fields <code>siggen::SignalGenerator</code>
+and <code>frequency::AbstractFloat</code>. To source this stimulus (change the frequency),
+a method <code>source(freqstim::FrequencyStimulus)</code> is defined, which would change
+the frequency of the signal sourced by the generator as specified.</p>
+<p>Not all stimuli are associated with a physical instrument. For instance, a
+<code>DelayStimulus</code> will cause the script to block until a specified time after
+creation of the <code>DelayStimulus</code> object before proceeding with a measurement.
+Perhaps in this case the instrument is the computer itself, but in the
+implementation, a <code>DelayStimulus</code> object has no field matching type signature
+<code>Instrument</code>.</p>
+<p>We have seen that a stimulus need not even be associated with an <code>Instrument</code>. It
+stands to reason that in principle they could be associated with several <code>Instrument</code>
+objects. Maybe a stimulus in a particular experiment is to change all gate voltages
+at once. If these are gate voltages are sourced by several physical instruments,
+then for example, perhaps several <code>Instrument</code>s should be a field in a new
+<code>Stimulus</code> object.</p>
+<h4 id="responses">Responses</h4>
+<p>Responses need not come from instruments. For test purposes, suppose we want to
+mimic a measurement by generating random numbers. <code>RandomResponse</code> produces a
+random number in the unit interval when it is measured. A <code>TimerResponse</code> will
+measure the time since creation of the <code>TimerResponse</code> object.</p>
+<h4 id="feedback-loops">Feedback loops</h4>
+<p>In principle, software feedback loops could be implemented
+with the <a href="http://www.github.com/shashi/Reactive.jl">Reactive.jl</a> package. This
+would probably only be suitable for slowly varying signals, e.g. PID temperature control.</p>
+<h3 id="measurement-archetypes">Measurement archetypes</h3>
+<p>Now that we have abstracted <code>source</code> and <code>measure</code>, we can think about archetypal
+measurement schemes. Often we want to do a 1D sweep:</p>
+<div class="codehilite"><pre><span class="kd">function</span> <span class="nx">sweep1d</span><span class="p">(</span><span class="nx">stimulus</span><span class="o">::</span><span class="nx">Stimulus</span><span class="p">,</span> <span class="nx">response</span><span class="o">::</span><span class="nx">Response</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">value</span> <span class="k">in</span> <span class="nx">iterator</span>
+        <span class="nx">source</span><span class="p">(</span><span class="nx">stimulus</span><span class="p">,</span><span class="nx">value</span><span class="p">)</span>
+        <span class="nx">measure</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+    <span class="nx">end</span>
+<span class="nx">end</span>
+</pre></div>
+
+
+<p>It is clear that in most cases this single 1D sweep function will suffice for
+any kind of 1D sweep we want to do. This is a compelling reason to write
+measurement code in a language that natively supports mulitple dispatch, such as
+Julia.</p></div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
