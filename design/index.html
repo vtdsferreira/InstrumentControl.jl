@@ -230,11 +230,15 @@ would probably only be suitable for slowly varying signals, e.g. PID temperature
 <h3 id="measurement-archetypes">Measurement archetypes</h3>
 <p>Now that we have abstracted <code>source</code> and <code>measure</code>, we can think about archetypal
 measurement schemes. Often we want to do a 1D sweep:</p>
-<div class="codehilite"><pre><span class="kd">function</span> <span class="nx">sweep1d</span><span class="p">(</span><span class="nx">stimulus</span><span class="o">::</span><span class="nx">Stimulus</span><span class="p">,</span> <span class="nx">response</span><span class="o">::</span><span class="nx">Response</span><span class="p">)</span>
+<div class="codehilite"><pre><span class="err">#</span> <span class="nx">Just</span> <span class="nx">an</span> <span class="nx">example</span><span class="p">;</span> <span class="nx">not</span> <span class="nx">necessarily</span> <span class="nx">implemented</span> <span class="k">this</span> <span class="nx">way</span><span class="p">...</span>
+<span class="kd">function</span> <span class="nx">sweep1d</span><span class="p">(</span><span class="nx">stimulus</span><span class="o">::</span><span class="nx">Stimulus</span><span class="p">,</span> <span class="nx">response</span><span class="o">::</span><span class="nx">Response</span><span class="p">,</span> <span class="nx">iterator</span><span class="p">)</span>
+    <span class="nx">a</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">()</span>
     <span class="k">for</span> <span class="nx">value</span> <span class="k">in</span> <span class="nx">iterator</span>
         <span class="nx">source</span><span class="p">(</span><span class="nx">stimulus</span><span class="p">,</span><span class="nx">value</span><span class="p">)</span>
-        <span class="nx">measure</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+        <span class="nx">r</span> <span class="o">=</span> <span class="nx">measure</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+        <span class="nx">push</span><span class="o">!</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="nx">r</span><span class="p">)</span>
     <span class="nx">end</span>
+    <span class="k">return</span> <span class="nx">a</span>
 <span class="nx">end</span>
 </pre></div>
 
