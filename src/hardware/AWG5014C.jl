@@ -125,33 +125,6 @@ for ((subtypeSymb,supertype) in subtypesArray)
     generate_properties(subtypeSymb, supertype)
 end
 
-abstract Amplitude                <: InstrumentProperty
-abstract AnalogOutputDelay        <: InstrumentProperty
-abstract ChannelOutput            <: InstrumentProperty
-abstract DCOutput                 <: InstrumentProperty
-abstract DCOutputLevel            <: InstrumentProperty
-abstract ExtInputAddsToOutput     <: InstrumentProperty
-abstract ExtOscDividerRate        <: InstrumentProperty
-abstract MarkerDelay              <: InstrumentProperty
-abstract OutputFilterFrequency    <: InstrumentProperty
-abstract RefOscFrequency          <: InstrumentProperty
-abstract RefOscMultiplier         <: InstrumentProperty
-abstract RepRate                  <: InstrumentProperty
-abstract RepRateHeld              <: InstrumentProperty
-abstract SCPIVersion              <: InstrumentProperty
-abstract SequencerEventJumpTarget <: InstrumentProperty
-abstract SequencerGOTOTarget      <: InstrumentProperty
-abstract SequencerGOTOState       <: InstrumentProperty
-abstract SequencerInfiniteLoop    <: InstrumentProperty
-abstract SequencerLength          <: InstrumentProperty
-abstract SequencerLoopCount       <: InstrumentProperty
-abstract SequencerPosition        <: InstrumentProperty
-abstract TriggerLevel             <: InstrumentProperty
-abstract TriggerTimer             <: InstrumentProperty
-abstract WaitingForTrigger        <: InstrumentProperty
-abstract WaveformName             <: InstrumentProperty
-abstract WavelistLength           <: InstrumentProperty
-abstract VoltageOffset            <: InstrumentProperty
 
 responses = Dict(
 
@@ -203,6 +176,35 @@ responses = Dict(
 
 generate_handlers(AWG5014C,responses)
 
+abstract Amplitude                <: InstrumentProperty
+abstract AnalogOutputDelay        <: InstrumentProperty
+abstract ChannelOutput            <: InstrumentProperty
+abstract DCOutput                 <: InstrumentProperty
+abstract DCOutputLevel            <: InstrumentProperty
+abstract ExtInputAddsToOutput     <: InstrumentProperty
+abstract ExtOscDividerRate        <: InstrumentProperty
+abstract MarkerDelay              <: InstrumentProperty
+abstract OutputFilterFrequency    <: InstrumentProperty
+abstract RefOscFrequency          <: InstrumentProperty
+abstract RefOscMultiplier         <: InstrumentProperty
+abstract RepRate                  <: InstrumentProperty
+abstract RepRateHeld              <: InstrumentProperty
+abstract SCPIVersion              <: InstrumentProperty
+abstract SequencerEventJumpTarget <: InstrumentProperty
+abstract SequencerGOTOTarget      <: InstrumentProperty
+abstract SequencerGOTOState       <: InstrumentProperty
+abstract SequencerInfiniteLoop    <: InstrumentProperty
+abstract SequencerLength          <: InstrumentProperty
+abstract SequencerLoopCount       <: InstrumentProperty
+abstract SequencerPosition        <: InstrumentProperty
+abstract TriggerLevel             <: InstrumentProperty
+abstract TriggerTimer             <: InstrumentProperty
+abstract WaitingForTrigger        <: InstrumentProperty
+abstract WaveformName             <: InstrumentProperty
+abstract WavelistLength           <: InstrumentProperty
+abstract VoltageOffset            <: InstrumentProperty
+
+
 commands = [
     ("AWGC:CLOC:SOUR",      ClockSource), #reference clock source
     ("EVEN:IMP",            EventImpedance),
@@ -214,30 +216,30 @@ commands = [
     ("TRIG:POL",            TriggerSlope),
     ("TRIG:SOUR",           TriggerSource),
 
-    ("TRIG:LEV",            TriggerLevel,              AbstractFloat),
-    ("TRIG:TIM",            TriggerTimer,              AbstractFloat),
-    ("AWGC:CLOC:DRAT",      ExtOscDividerRate,         Int), # needs error handling?
-    ("AWGC:DC:STAT",        DCOutput,                  Bool),
-    ("AWGC:DC#:VOLT:OFFS",  DCOutputLevel,             AbstractFloat),
-    ("AWGC:RRAT:HOLD",      RepRateHeld,               Bool),
-    ("AWGC:RRAT",           RepRate,                   AbstractFloat),
-    ("SEQ:LENG",            SequencerLength,           Int),
-    ("AWGC:SEQ:POS?",       SequencerPosition,         Int),             ###
-    ("SEQ:ELEM#:GOTO:IND",  SequencerGOTOTarget,       Int),
-    ("OUTP#:FILT:FREQ",     OutputFilterFrequency,     AbstractFloat),
-    ("SEQ:ELEM#:GOTO:STAT", SequencerGOTOState,        Bool),
-    ("SEQ:ELEM#:JTAR:IND",  SequencerEventJumpTarget,  Int),
-    ("SEQ:ELEM#:LOOP:COUN", SequencerLoopCount,        Int),
-    ("SEQ:ELEM#:LOOP:INF",  SequencerInfiniteLoop,     Bool),
-    ("SOUR#:COMB:FEED",     ExtInputAddsToOutput,      ASCIIString),    ### ???
     ("SOUR#:DELAY",         AnalogOutputDelay,         AbstractFloat),
-#    ("SOUR#:DELAY:POIN",   AnalogOutputDelayPoints,   Int),
-    ("SOUR#:MARK#:DEL",     MarkerDelay,               AbstractFloat),
-    ("SOUR:ROSC:FREQ",      RefOscFrequency,           AbstractFloat),
-    ("SOUR:ROSC:MULT",      RefOscMultiplier,          Int),
-    ("SYST:VERS?",          SCPIVersion,               ASCIIString),
     ("AWGC:CONF:CNUM?",     ChannelCount,              Int),
     ("OUTP#:STAT",          ChannelOutput,             Bool),
+    ("AWGC:DC:STAT",        DCOutput,                  Bool),
+    ("AWGC:DC#:VOLT:OFFS",  DCOutputLevel,             AbstractFloat),
+    ("SOUR#:COMB:FEED",     ExtInputAddsToOutput,      ASCIIString),    ### ???
+    ("AWGC:CLOC:DRAT",      ExtOscDividerRate,         Int), # needs error handling?
+    ("SOUR#:MARK#:DEL",     MarkerDelay,               AbstractFloat),
+    ("OUTP#:FILT:FREQ",     OutputFilterFrequency,     AbstractFloat),
+    ("SOUR:ROSC:FREQ",      RefOscFrequency,           AbstractFloat),
+    ("SOUR:ROSC:MULT",      RefOscMultiplier,          Int),
+    ("AWGC:RRAT:HOLD",      RepRateHeld,               Bool),
+    ("AWGC:RRAT",           RepRate,                   AbstractFloat),
+    ("SYST:VERS?",          SCPIVersion,               ASCIIString),
+    ("SEQ:ELEM#:JTAR:IND",  SequencerEventJumpTarget,  Int),
+    ("SEQ:ELEM#:GOTO:STAT", SequencerGOTOState,        Bool),
+    ("SEQ:ELEM#:GOTO:IND",  SequencerGOTOTarget,       Int),
+    ("SEQ:ELEM#:LOOP:INF",  SequencerInfiniteLoop,     Bool),
+    ("SEQ:LENG",            SequencerLength,           Int),
+    ("SEQ:ELEM#:LOOP:COUN", SequencerLoopCount,        Int),
+    ("AWGC:SEQ:POS?",       SequencerPosition,         Int),             ###
+    ("TRIG:LEV",            TriggerLevel,              AbstractFloat),
+    ("TRIG:TIM",            TriggerTimer,              AbstractFloat),
+#    ("SOUR#:DELAY:POIN",   AnalogOutputDelayPoints,   Int),
     ("WLIST:SIZE?",         WavelistLength,            Int),
     ("SOUR#:VOLT:OFFS",     VoltageOffset,             AbstractFloat),  #-2.25 to 2.25V
 ]

@@ -1,18 +1,21 @@
-# Instrument Codes
-export InstrumentProperty, NoArgs
+# Instrument properties
+export InstrumentProperty, NumericalProperty
+export NoArgs
 
+# Properties common to many instruments and representable by codes
 export Coupling, DataRepresentation, Lock, Network, TriggerOutputTiming
 export ClockSlope, ClockSource, EventImpedance, EventSlope, EventTiming
 export OscillatorSource, Trigger, TriggerImpedance, TriggerSlope, TriggerSource
 export TriggerOutputPolarity, SampleRate, Search, SParameter
 export Medium
 
-export ChannelCount, FrequencyStart, FrequencyStop, Output
+# Properties common to many instruments and representable by bits types
+export ChannelCount, Frequency, FrequencyStart, FrequencyStop, Output, Power
 
-# Exception for instruments
+# Exceptions for instruments
 export InstrumentException
 
-# Random stuff below
+# Miscellaneous stuff
 export Rate1GSps
 export All
 
@@ -47,35 +50,38 @@ To retrieve what one has to send the AWG from the type signature, we have
 defined a function `code`.
 """
 abstract InstrumentProperty
+abstract NumericalProperty <: InstrumentProperty
 
 abstract NoArgs
 
-abstract ClockSlope <: InstrumentProperty
-abstract ClockSource <: InstrumentProperty
-abstract Coupling <: InstrumentProperty
-abstract DataRepresentation <: InstrumentProperty
-abstract EventImpedance <: InstrumentProperty
-abstract EventSlope <: InstrumentProperty
-abstract EventTiming <: InstrumentProperty
-abstract Lock <: InstrumentProperty
-abstract Medium <: InstrumentProperty
-abstract Network <: InstrumentProperty
-abstract OscillatorSource <: InstrumentProperty
-abstract SampleRate <: InstrumentProperty
-abstract Search <: InstrumentProperty
-abstract SParameter <: InstrumentProperty
-abstract State <: InstrumentProperty
-abstract TriggerOutputTiming <: InstrumentProperty
+abstract ClockSlope            <: InstrumentProperty
+abstract ClockSource           <: InstrumentProperty
+abstract Coupling              <: InstrumentProperty
+abstract DataRepresentation    <: InstrumentProperty
+abstract EventImpedance        <: InstrumentProperty
+abstract EventSlope            <: InstrumentProperty
+abstract EventTiming           <: InstrumentProperty
+abstract Lock                  <: InstrumentProperty
+abstract Medium                <: InstrumentProperty
+abstract Network               <: InstrumentProperty
+abstract OscillatorSource      <: InstrumentProperty
+abstract SampleRate            <: InstrumentProperty
+abstract Search                <: InstrumentProperty
+abstract SParameter            <: InstrumentProperty
+abstract State                 <: InstrumentProperty
+abstract TriggerOutputTiming   <: InstrumentProperty
 abstract TriggerOutputPolarity <: InstrumentProperty
-abstract Trigger <: InstrumentProperty
-abstract TriggerImpedance <: InstrumentProperty
-abstract TriggerSlope <: InstrumentProperty
-abstract TriggerSource <: InstrumentProperty
+abstract Trigger               <: InstrumentProperty
+abstract TriggerImpedance      <: InstrumentProperty
+abstract TriggerSlope          <: InstrumentProperty
+abstract TriggerSource         <: InstrumentProperty
 
-abstract ChannelCount <: InstrumentProperty
-abstract FrequencyStart <: InstrumentProperty
-abstract FrequencyStop <: InstrumentProperty
-abstract Output <: InstrumentProperty
+abstract ChannelCount          <: NumericalProperty
+abstract Frequency             <: NumericalProperty
+abstract FrequencyStart        <: NumericalProperty
+abstract FrequencyStop         <: NumericalProperty
+abstract Output                <: NumericalProperty
+abstract Power                 <: NumericalProperty
 
 Base.show{T<:InstrumentProperty}(io::IO, code::T) =
     print(io, "$(code.logicalname) represents as $(code.code)")
@@ -93,71 +99,53 @@ Base.showerror(io::IO, e::InstrumentException) =
 # of InstrumentProperty (see just above for some examples). The keys are strings containing
 # the names of the concrete types, and the values are the respective abstract types.
 subtypesArray = [
-    (:AC,                       Coupling),
-    (:DC,                       Coupling),
-
-    (:DHCP,                     Network),
-    (:ManualNetwork,            Network),
-
-    (:EventAsynchronous,        EventTiming),
-    (:EventSynchronous,         EventTiming),
-
-    (:TrigOutBeforeMeasuring,   TriggerOutputTiming),
-    (:TrigOutAfterMeasuring,    TriggerOutputTiming),
-
     (:RisingClock,              ClockSlope),
     (:FallingClock,             ClockSlope),
-
-    (:RisingTrigger,            TriggerSlope),
-    (:FallingTrigger,           TriggerSlope),
-
-    (:RisingEvent,              EventSlope),
-    (:FallingEvent,             EventSlope),
-
-    (:TrigOutPosPolarity,       TriggerOutputPolarity),
-    (:TrigOutNegPolarity,       TriggerOutputPolarity),
 
     (:InternalClock,            ClockSource),
     (:ExternalClock,            ClockSource),
 
-    (:InternalTrigger,          TriggerSource),
-    (:ExternalTrigger,          TriggerSource),
-    (:ManualTrigger,            TriggerSource),
-    (:BusTrigger,               TriggerSource),
+    (:AC,                       Coupling),
+    (:DC,                       Coupling),
 
-    (:InternalOscillator,       OscillatorSource),
-    (:ExternalOscillator,       OscillatorSource),
-
-    (:Triggered,                Trigger),
-    (:Continuous,               Trigger),
-    (:Gated,                    Trigger),
-    (:Sequence,                 Trigger),
+    (:LogMagnitude,             DataRepresentation),
+    (:Phase,                    DataRepresentation),
+    (:GroupDelay,               DataRepresentation),
+    (:SmithLinear,              DataRepresentation),
+    (:SmithLog,                 DataRepresentation),
+    (:SmithComplex,             DataRepresentation),
+    (:Smith,                    DataRepresentation),
+    (:SmithAdmittance,          DataRepresentation),
+    (:PolarLinear,              DataRepresentation),
+    (:PolarLog,                 DataRepresentation),
+    (:PolarComplex,             DataRepresentation),
+    (:LinearMagnitude,          DataRepresentation),
+    (:SWR,                      DataRepresentation),
+    (:RealPart,                 DataRepresentation),
+    (:ImaginaryPart,            DataRepresentation),
+    (:ExpandedPhase,            DataRepresentation),
+    (:PositivePhase,            DataRepresentation),
 
     (:Event50Ohms,              EventImpedance),
     (:Event1kOhms,              EventImpedance),
 
-    (:Trigger50Ohms,            TriggerImpedance),
-    (:Trigger1kOhms,            TriggerImpedance),
+    (:RisingEvent,              EventSlope),
+    (:FallingEvent,             EventSlope),
+
+    (:EventAsynchronous,        EventTiming),
+    (:EventSynchronous,         EventTiming),
 
     (:Local,                    Lock),
     (:Remote,                   Lock),
 
-    (:Max,                      Search),
-    (:Min,                      Search),
-    (:Peak,                     Search),
-    (:LeftPeak,                 Search),
-    (:RightPeak,                Search),
-    (:Target,                   Search),
-    (:LeftTarget,               Search),
-    (:RightTarget,              Search),
-
-    (:S11,                      SParameter),
-    (:S12,                      SParameter),
-    (:S21,                      SParameter),
-    (:S22,                      SParameter),
-
     (:Coaxial,                  Medium),
     (:Waveguide,                Medium),
+
+    (:DHCP,                     Network),
+    (:ManualNetwork,            Network),
+
+    (:InternalOscillator,       OscillatorSource),
+    (:ExternalOscillator,       OscillatorSource),
 
     (:Rate1kSps,                SampleRate),
     (:Rate2kSps,                SampleRate),
@@ -184,23 +172,41 @@ subtypesArray = [
     (:Rate1800MSps,             SampleRate),
     (:RateUser,                 SampleRate),
 
-    (:LogMagnitude,             DataRepresentation),
-    (:Phase,                    DataRepresentation),
-    (:GroupDelay,               DataRepresentation),
-    (:SmithLinear,              DataRepresentation),
-    (:SmithLog,                 DataRepresentation),
-    (:SmithComplex,             DataRepresentation),
-    (:Smith,                    DataRepresentation),
-    (:SmithAdmittance,          DataRepresentation),
-    (:PolarLinear,              DataRepresentation),
-    (:PolarLog,                 DataRepresentation),
-    (:PolarComplex,             DataRepresentation),
-    (:LinearMagnitude,          DataRepresentation),
-    (:SWR,                      DataRepresentation),
-    (:RealPart,                 DataRepresentation),
-    (:ImaginaryPart,            DataRepresentation),
-    (:ExpandedPhase,            DataRepresentation),
-    (:PositivePhase,            DataRepresentation),
+    (:Max,                      Search),
+    (:Min,                      Search),
+    (:Peak,                     Search),
+    (:LeftPeak,                 Search),
+    (:RightPeak,                Search),
+    (:Target,                   Search),
+    (:LeftTarget,               Search),
+    (:RightTarget,              Search),
+
+    (:S11,                      SParameter),
+    (:S12,                      SParameter),
+    (:S21,                      SParameter),
+    (:S22,                      SParameter),
+
+    (:Triggered,                Trigger),
+    (:Continuous,               Trigger),
+    (:Gated,                    Trigger),
+    (:Sequence,                 Trigger),
+
+    (:Trigger50Ohms,            TriggerImpedance),
+    (:Trigger1kOhms,            TriggerImpedance),
+
+    (:TrigOutPosPolarity,       TriggerOutputPolarity),
+    (:TrigOutNegPolarity,       TriggerOutputPolarity),
+
+    (:TrigOutBeforeMeasuring,   TriggerOutputTiming),
+    (:TrigOutAfterMeasuring,    TriggerOutputTiming),
+
+    (:RisingTrigger,            TriggerSlope),
+    (:FallingTrigger,           TriggerSlope),
+
+    (:InternalTrigger,          TriggerSource),
+    (:ExternalTrigger,          TriggerSource),
+    (:ManualTrigger,            TriggerSource),
+    (:BusTrigger,               TriggerSource),
 
 ]::Array{Tuple{Symbol,DataType},1}
 

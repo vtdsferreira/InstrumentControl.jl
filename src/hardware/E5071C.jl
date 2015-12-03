@@ -70,48 +70,6 @@ type E5071C <: InstrumentVISA
     E5071C() = new()
 end
 
-abstract Autoscale            <: InstrumentProperty
-abstract Averaging            <: InstrumentProperty
-abstract AveragingFactor      <: InstrumentProperty
-abstract AveragingTrigger     <: InstrumentProperty
-abstract ClearAveraging       <: InstrumentProperty
-abstract DataTrace            <: InstrumentProperty
-abstract ElectricalDelay      <: InstrumentProperty
-abstract ElectricalMedium     <: InstrumentProperty
-abstract ExtTriggerDelay      <: InstrumentProperty
-abstract ExtTriggerLowLatency <: InstrumentProperty
-abstract FrequencyCenter      <: InstrumentProperty
-abstract FrequencySpan        <: InstrumentProperty
-abstract GraphLayout          <: InstrumentProperty
-abstract IFBandwidth          <: InstrumentProperty
-abstract Marker               <: InstrumentProperty
-abstract MarkerSearch         <: InstrumentProperty
-abstract MarkerX              <: InstrumentProperty
-abstract MarkerY              <: InstrumentProperty
-abstract NumPoints            <: InstrumentProperty
-abstract NumTraces            <: InstrumentProperty
-abstract PhaseOffset          <: InstrumentProperty
-abstract PointTrigger         <: InstrumentProperty
-abstract PowerCoupled         <: InstrumentProperty
-abstract PowerLevel           <: InstrumentProperty
-abstract PowerPortLevel       <: InstrumentProperty
-abstract PowerSlope           <: InstrumentProperty
-abstract PowerSlopeLevel      <: InstrumentProperty
-abstract PowerSweepFrequency  <: InstrumentProperty
-abstract Smoothing            <: InstrumentProperty
-abstract SmoothingAperture    <: InstrumentProperty
-abstract TraceMaximized       <: InstrumentProperty
-abstract TriggerOutput        <: InstrumentProperty
-abstract WaveguideCutoff      <: InstrumentProperty
-abstract YDivisions           <: InstrumentProperty
-abstract YScalePerDivision    <: InstrumentProperty
-abstract YReferenceLevel      <: InstrumentProperty
-abstract YReferencePosition   <: InstrumentProperty
-abstract WindowLayout         <: InstrumentProperty
-abstract SetActiveMarker      <: InstrumentProperty
-abstract SetActiveTrace       <: InstrumentProperty
-abstract SetActiveChannel     <: InstrumentProperty
-
 responseDictionary = Dict(
     :DataRepresentation     => Dict("MLOG" => :LogMagnitude,
                                     "PHAS" => :Phase,
@@ -165,6 +123,48 @@ responseDictionary = Dict(
 )
 
 generate_handlers(E5071C, responseDictionary)
+
+abstract Autoscale            <: InstrumentProperty
+abstract Averaging            <: InstrumentProperty
+abstract AveragingFactor      <: NumericalProperty
+abstract AveragingTrigger     <: InstrumentProperty
+abstract ClearAveraging       <: InstrumentProperty
+abstract DataTrace            <: InstrumentProperty
+abstract ElectricalDelay      <: NumericalProperty
+abstract ElectricalMedium     <: InstrumentProperty
+abstract ExtTriggerDelay      <: NumericalProperty
+abstract ExtTriggerLowLatency <: InstrumentProperty
+abstract FrequencyCenter      <: NumericalProperty
+abstract FrequencySpan        <: NumericalProperty
+abstract GraphLayout          <: InstrumentProperty
+abstract IFBandwidth          <: NumericalProperty
+abstract Marker               <: InstrumentProperty
+abstract MarkerSearch         <: InstrumentProperty
+abstract MarkerX              <: NumericalProperty
+abstract MarkerY              <: InstrumentProperty
+abstract NumPoints            <: InstrumentProperty
+abstract NumTraces            <: InstrumentProperty
+abstract PhaseOffset          <: NumericalProperty
+abstract PointTrigger         <: InstrumentProperty
+abstract PowerCoupled         <: InstrumentProperty
+abstract PowerLevel           <: NumericalProperty
+abstract PowerPortLevel       <: NumericalProperty
+abstract PowerSlope           <: InstrumentProperty
+abstract PowerSlopeLevel      <: NumericalProperty
+abstract PowerSweepFrequency  <: NumericalProperty
+abstract Smoothing            <: InstrumentProperty
+abstract SmoothingAperture    <: NumericalProperty
+abstract TraceMaximized       <: InstrumentProperty
+abstract TriggerOutput        <: InstrumentProperty
+abstract WaveguideCutoff      <: NumericalProperty
+abstract YDivisions           <: InstrumentProperty
+abstract YScalePerDivision    <: NumericalProperty
+abstract YReferenceLevel      <: NumericalProperty
+abstract YReferencePosition   <: InstrumentProperty
+abstract WindowLayout         <: InstrumentProperty
+abstract SetActiveMarker      <: InstrumentProperty
+abstract SetActiveTrace       <: InstrumentProperty
+abstract SetActiveChannel     <: InstrumentProperty
 
 commands = [
 

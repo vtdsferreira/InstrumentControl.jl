@@ -1,14 +1,14 @@
 License
 =======
 
-Large majority of code in VISA.jl package:
-> Copyright (c) 2014: Colm Ryan.
+Most code:
+> Copyright (c) 2015: Andrew Keller.
 
 Random.jl, Time.jl, and a few other snippets here and there:
 > Copyright (c) 2014: Menyoung Lee.
 
-Everything else:
-> Copyright (c) 2015: Andrew Keller.
+Large majority of code in VISA.jl package:
+> Copyright (c) 2014: Colm Ryan.
 
 All of the code is licensed under the MIT "Expat" License by the respective
 copyright holders:

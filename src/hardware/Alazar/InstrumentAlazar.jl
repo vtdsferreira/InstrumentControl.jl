@@ -45,7 +45,7 @@ export DefaultBufferCount
 export DefaultBufferSize
 export LED
 export MaxBufferSize
-export MinValuesPerRecord
+export MinSamplesPerRecord
 export RecordCount
 export SampleMemoryPerChannel
 export Sleep
@@ -80,7 +80,8 @@ export inputcontrol, set_parameter, set_parameter_ul
 export set_triggeroperation, triggered
 
 export inspect_per
-export bufferarray, adma
+export adma
+# export bufferarray
 
 """
 The InstrumentAlazar types represent an AlazarTech device on the local
@@ -224,7 +225,7 @@ abstract DefaultBufferCount        <: AlazarProperty
 abstract DefaultBufferSize         <: AlazarProperty
 abstract LED                       <: AlazarProperty
 abstract MaxBufferSize             <: AlazarProperty
-abstract MinValuesPerRecord        <: AlazarProperty
+abstract MinSamplesPerRecord       <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
 abstract Sleep                     <: AlazarProperty
@@ -869,21 +870,21 @@ function configure(a::InstrumentAlazar, ::Type{BufferCount}, bufcount::Integer)
 end
 inspect(a::AlazarATS9360, ::Type{DefaultBufferCount}) = U32(4)
 
-function bufferarray(a::InstrumentAlazar, n_buf::Integer, size_buf::Integer)
-    buf_array = Array{Alazar.DMABuffer{UInt16},1}()
-
-    for (buf_index = 1:n_buf)
-        push!(buf_array, Alazar.DMABuffer(inspect_per(a, Byte, Sample), size_buf))
-    end
-
-    buf_array
-end
+# function bufferarray(a::InstrumentAlazar, n_buf::Integer, size_buf::Integer)
+#     buf_array = Array{Alazar.DMABuffer{UInt16},1}()
+#
+#     for (buf_index = 1:n_buf)
+#         push!(buf_array, Alazar.DMABuffer(inspect_per(a, Byte, Sample), size_buf))
+#     end
+#
+#     buf_array
+# end
 
 # Since records/buffer is always 1 in stream mode, we fix samples/record:
 inspect_per(a::InstrumentAlazar, m::StreamMode,
         ::Type{Sample}, ::Type{Record}) =
     Int(inspect(a, BufferSize) /
-        (inspect(a, ChannelCount) * inspect_per(a, Byte, Sample)))
+        (inspect_per(a, Byte, Sample)))   # <-- removed channelcount
 
 # For record mode, the number of samples per record must be specified.
 inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Sample}, ::Type{Record}) =
@@ -900,8 +901,7 @@ inspect_per(a::InstrumentAlazar, m::StreamMode,
 # desired buffer size and samples per record.
 inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Record}, ::Type{Buffer}) =
     Int(fld(inspect(a, BufferSize),
-        inspect_per(a, m, Sample, Record) *
-            inspect_per(a, Byte, Sample) * inspect(a, ChannelCount)))
+        inspect_per(a, m, Sample, Record) * inspect_per(a, Byte, Sample))) # <-- removed channel count
 
 # Pretty straightforward...
 inspect_per(a::InstrumentAlazar, m::AlazarMode, ::Type{Sample}, ::Type{Buffer}) =
@@ -949,8 +949,8 @@ adma(::TraditionalRecordMode)  = Alazar.ADMA_TRADITIONAL_MODE |
 pretriggersamples(m::TraditionalRecordMode) = m.pre_sam_per_rec
 pretriggersamples(m::AlazarMode) = 0
 
-inspect(a::AlazarATS9360, ::Type{MinValuesPerRecord}) = 256
-inspect(a::AlazarATS9360, ::Type{MaxBufferSize}) = 64e6
+inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) = 256
+inspect(a::AlazarATS9360, ::Type{MaxBufferSize}) = 64*1024*1024      # 64 MB
 
 include("AlazarDSP.jl")
 
