@@ -92,8 +92,8 @@ immutable InstrumentException <: Exception
     humanReadable::UTF8String
 end
 
-Base.showerror(io::IO, e::InstrumentException) =
-    print(io, "$(e.ins): $(e.humanReadable) (error code $(e.val))")
+# Base.showerror(io::IO, e::InstrumentException) =
+#     print(io, "$(e.ins): $(e.humanReadable) (error code $(e.val))")
 
 # The subtypesArray is used to generate concrete types of the abstract subtypes
 # of InstrumentProperty (see just above for some examples). The keys are strings containing

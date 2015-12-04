@@ -24,6 +24,8 @@ DSPModule: Concrete type representing a DSP module on a particular digitizer.
 
 module AlazarModule
 
+lib_opened = false
+
 using Alazar
 import Base.show
 importall PainterQB
@@ -491,6 +493,9 @@ type AlazarATS9360 <: InstrumentAlazar
 
     AlazarATS9360() = AlazarATS9360(1,1)
     AlazarATS9360(a,b) = begin
+        if (AlazarModule.lib_opened == false)
+            Alazar.libopen()
+        end
         handle = boardhandle(a,b)
         if (handle == 0)
             error("Board $a.$b not found.")

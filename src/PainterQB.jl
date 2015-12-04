@@ -37,3 +37,9 @@ using PainterQB.AWG5014CModule
 using PainterQB.AlazarModule
 using PainterQB.E5071CModule
 using PainterQB.E8257DModule
+
+const PARALLEL_PATH =
+    "C:\\Users\\Discord\\Documents\\Instruments.jl\\src\\ParallelUtils.jl"
+
+reload_parallel() = eval(Main,:(@everywhere include($PARALLEL_PATH)))
+reload_parallel()

@@ -81,7 +81,7 @@ function measure(a::AlazarATS9360, m::StreamMode; during::Function=((x,y,z)->not
 
     # Allocate memory for DMA buffers
     buf_array =
-        Alazar.DMABufferArray(inspect_per(a, Byte, Sample), buf_size, buf_count)
+        Alazar.DMABufferArray(inspect_per(a, Bit, Sample), buf_size, buf_count)
 
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array
@@ -142,7 +142,7 @@ function tofloat!(sam_per_buf::Integer, buf_completed::Integer, backing::SharedA
         samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
         for p in procs(backing)
             @async begin
-                remotecall_wait(p, _tofloat!, backing, samplerange)
+                remotecall_wait(p, worker_tofloat!, backing, samplerange)
             end
         end
     end
@@ -167,5 +167,3 @@ function postprocess(ch::RawTimeDomainResponse, dma_array::Alazar.DMABufferArray
     time()-t0
     #buffer
 end
-
-#@everywhere_wait include("C:\\Users\\Discord\\Documents\\Instruments.jl\\src\\hardware\\Alazar\\AlazarParallel.jl")

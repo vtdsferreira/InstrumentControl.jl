@@ -1,16 +1,21 @@
+import Alazar: Alazar12Bit
 import Base: range_1dim
 import Base: localindexes
 
-function _tofloat!(a::SharedArray{UInt16,1})
+function worker_tofloat!(a::SharedArray{Alazar12Bit,1})
     for i in localindexes(a)
-        a[i] = reinterpret(UInt16,Float16(0.8*(ltoh(a[i])/0xFFF0)-0.4))
+        a[i] = Alazar12Bit(
+                reinterpret(UInt16,Float16(
+                    0.8*(ltoh(convert(UInt16,a[i]))/0xFFF0)-0.4)))
     end
     nothing
 end
 
-function _tofloat!(a::SharedArray{UInt16,1}, subrange::UnitRange)
+function worker_tofloat!(a::SharedArray{Alazar12Bit,1}, subrange::UnitRange)
     for i in localindexes(a, subrange)
-        a[i] = reinterpret(UInt16,Float16(0.8*(ltoh(a[i])/0xFFF0)-0.4))
+        a[i] = Alazar12Bit(
+                reinterpret(UInt16,Float16(
+                    0.8*(ltoh(convert(UInt16,a[i]))/0xFFF0)-0.4)))
     end
     nothing
 end

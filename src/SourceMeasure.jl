@@ -53,8 +53,10 @@ type AveragingResponse{T} <: Response{T}
     r::Response{T}
     n_avg::Int
 end
+AveragingResponse{T}(r::Response{T}, n_avg) = AveragingResponse{T}(r,Int(n_avg))
 
-show(io::IO, ch::ThreadStimulus) = print(io, "Will init workers with: ",ch.initialization)
+show(io::IO, ch::ThreadStimulus) = print(io,
+    "Will init workers with: ", ch.initialization)
 
 function source(ch::PropertyStimulus, val::Real)
     #methodexists?....
@@ -62,38 +64,42 @@ function source(ch::PropertyStimulus, val::Real)
     configure(ch.ins,ch.typ,val,ch.tuple...)
 end
 
-function source(ch::ThreadStimulus, nthreads::Int)
-    ch.nworkers = nworkers
+# function source(ch::ThreadStimulus, nw::Int)
+#     ch.nworkers = nw
+#
+#     (nprocs(),nworkers()) != (1,1) &&
+#         rmprocs(workers())
+#
+#     addprocs(ch.nworkers)
+#
+#     ex = ch.initialization
+#     eval(Main,:(@everywhere $ex))
+# end
+function source(ch::ThreadStimulus, nw::Int)
+    ch.nworkers = nw
 
-    (nprocs(),nworkers()) != (1,1) &&
+    if nw == 0
         rmprocs(workers())
-
-    addprocs(ch.nworkers)
-
-    ex = ch.initialization
-    eval(Main,:(@everywhere $ex))
-end
-
-function measure(ch::AveragingResponse)
-    meas = measure(ch.r)
-    for i = 2:ch.n_avg
-        meas = meas + measure(ch.r)
-    end
-    meas / ch.n_avg
-end
-
-function measure{T<:Number}(ch::AveragingResponse{SharedArray{T}})
-
-    meas = measure(ch.r)::SharedArray{T}
-
-    for i = 2:ch.n_avg
-        @sync begin
-            for p in procs(meas)
-                @async begin
-                    remotecall_wait(p, tofloat!, backing)
-                end
-            end
+    else
+        nprocs() == 1 && (nw += 1)
+        if (nworkers() > nw)
+            rmprocs(workers()[(end-(nworkers() - nw - 1)):end])
+        else
+            addprocs(nw - nworkers())
         end
     end
 
+    ex = ch.initialization
+    try
+        eval(Main,:(@everywhere $ex))
+    catch
+    end
+end
+
+function measure{T}(ch::AveragingResponse{T})
+    meas = measure(ch.r)::T
+    for i = 2:ch.n_avg
+        meas += measure(ch.r)::T
+    end
+    meas / ch.n_avg
 end
