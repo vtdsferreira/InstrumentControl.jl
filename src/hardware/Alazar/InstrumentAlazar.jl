@@ -25,6 +25,7 @@ DSPModule: Concrete type representing a DSP module on a particular digitizer.
 module AlazarModule
 
 using Alazar
+import Base.show
 importall PainterQB
 include("../../Metaprogramming.jl")
 

@@ -1,5 +1,6 @@
 module PainterQB
 
+import Base: show, showerror
 export AWG5014CModule, E5071CModule, E8257DModule, AlazarModule
 
 # Instruments
@@ -26,7 +27,7 @@ include("Random.jl")
 include("Time.jl")
 
 # Utility functions
-# include("Sweep.jl")
+include("Sweep.jl")
 # include("Trace3.jl")
 
 end

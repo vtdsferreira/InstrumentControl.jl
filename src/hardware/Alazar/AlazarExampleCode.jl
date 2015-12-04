@@ -1,6 +1,6 @@
-abstract AlazarResponse <: Response
+import PainterQB: measure, Response
 
-type RawTimeDomainResponse <: AlazarResponse
+type RawTimeDomainResponse <: Response{SharedArray{Float16,1}}
     ins::InstrumentAlazar
     samples_per_ch::Integer
 
@@ -60,11 +60,13 @@ function measure(ch::RawTimeDomainResponse)
 
     configure(a, BufferCount, buf_per_acq)
 
-    buf_array = measure(a, m)
-    postprocess(ch, buf_array)
+    buf_array = measure(a,m,during=processing(ch))
+    convert(SharedArray, reinterpret(Float16, sdata(buf_array.backing)))
 end
 
-function measure(a::AlazarATS9360, m::StreamMode)
+processing(ch::RawTimeDomainResponse) = tofloat!
+
+function measure(a::AlazarATS9360, m::StreamMode; during::Function=((x,y,z)->nothing), diagnostic::Bool=false)
 
     # Initialize some parameters
     buf_size = inspect(a, BufferSize)
@@ -72,6 +74,7 @@ function measure(a::AlazarATS9360, m::StreamMode)
     timeout_ms = 5000
     buf_completed = 0
     by_transferred = 0
+    transfertime_s = 0
 
     # Sets record size and is followed by before_async_read
     configure(a, m)
@@ -81,47 +84,51 @@ function measure(a::AlazarATS9360, m::StreamMode)
         Alazar.DMABufferArray(inspect_per(a, Byte, Sample), buf_size, buf_count)
 
     # Add the buffers to a list of buffers available to be filled by the board
-    for buffer in buf_array
-        post_async_buffer(a, buffer, buf_size)
+    for dmaptr in buf_array
+        post_async_buffer(a, dmaptr, buf_size)
     end
 
+    backing = buf_array.backing
+    sam_per_buf = inspect_per(a,m,Sample,Buffer)
+
     try
-        println("Capturing $(length(buf_array)) buffers...")
-        starttime = time()
+        diagnostic && begin
+            println("Capturing $(length(buf_array)) buffers...")
+            starttime = time()
+        end
 
         # Arm the board system to wait for a trigger event to begin the acquisition
         startcapture(a)
 
-        for buffer in buf_array
+        for dmaptr in buf_array
 
-            wait_async_buffer(a, buffer, timeout_ms)
-
+            wait_async_buffer(a, dmaptr, timeout_ms)
+            during(sam_per_buf, buf_completed, backing)
             buf_completed += 1
-            by_transferred += buf_size
-
-            # post_async_buffer(a, p_buffer, buf_size)
+            # post_async_buffer(a, dmaptr, buf_size)
         end
 
         # Display results
-        transfertime_s = time() - starttime
-        println("Capture completed in $transfertime_s s")
+        diagnostic && begin
+            transfertime_s = time() - starttime
+            println("Capture completed in $transfertime_s s")
 
-        rec_transferred = inspect_per(a, m, Record, Buffer) * buf_completed
+            rec_transferred = inspect_per(a, m, Record, Buffer) * buf_count
 
-        if (transfertime_s > 0.)
-            buf_per_s = buf_completed / transfertime_s
-            by_per_s  = by_transferred / transfertime_s
-            rec_per_s = rec_transferred / transfertime_s
-        else
-            buf_per_s = 0.
-            by_per_s  = 0.
-            rec_per_s = 0.
+            if (transfertime_s > 0.)
+                buf_per_s = buf_completed / transfertime_s
+                by_per_s  = buf_count * buf_size / transfertime_s
+                rec_per_s = rec_transferred / transfertime_s
+            else
+                buf_per_s = 0.
+                by_per_s  = 0.
+                rec_per_s = 0.
+            end
+
+            println("Captured $buf_completed buffers ($buf_per_s buffers / s)")
+            println("Captured $rec_transferred records ($rec_per_s records / s)")
+            println("Transferred $by_transferred bytes ($by_per_s bytes / s)")
         end
-
-        println("Captured $buf_completed buffers ($buf_per_s buffers / s)")
-        println("Captured $rec_transferred records ($rec_per_s records / s)")
-        println("Transferred $by_transferred bytes ($by_per_s bytes / s)")
-
     finally
         # Gracefully stop the acquisition, even if it failed
         abort(a)
@@ -130,13 +137,24 @@ function measure(a::AlazarATS9360, m::StreamMode)
     buf_array
 end
 
+function tofloat!(sam_per_buf::Integer, buf_completed::Integer, backing::SharedArray)
+    @sync begin
+        samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
+        for p in procs(backing)
+            @async begin
+                remotecall_wait(p, _tofloat!, backing, samplerange)
+            end
+        end
+    end
+end
+
 function postprocess(ch::RawTimeDomainResponse, dma_array::Alazar.DMABufferArray)
     t0=time()
-    buffer = dma_array.buffer
+    backing = dma_array.backing
     @sync begin
-        for p in procs(buffer)
+        for p in procs(backing)
             @async begin
-                remotecall_wait(p, tofloat!, buffer)
+                remotecall_wait(p, tofloat!, backing)
             end
         end
     end
@@ -150,4 +168,4 @@ function postprocess(ch::RawTimeDomainResponse, dma_array::Alazar.DMABufferArray
     #buffer
 end
 
-@everywhere include("C:\\Users\\Discord\\Documents\\Instruments.jl\\src\\hardware\\Alazar\\AlazarParallel.jl")
+#@everywhere_wait include("C:\\Users\\Discord\\Documents\\Instruments.jl\\src\\hardware\\Alazar\\AlazarParallel.jl")
