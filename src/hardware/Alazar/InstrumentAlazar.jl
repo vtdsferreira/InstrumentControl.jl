@@ -273,34 +273,33 @@ samplerate{T<:Rate1200MSps}(::Type{T}) = 12e8
 samplerate{T<:Rate1500MSps}(::Type{T}) = 15e8
 samplerate{T<:Rate1800MSps}(::Type{T}) = 18e8
 
-
 abstract AlazarMode
 abstract StreamMode <: AlazarMode
 abstract RecordMode <: AlazarMode
 
 const inf_records = U32(0x7FFFFFFF)
 
-type ContinuousStreamMode <: StreamMode
-    total_samples::Integer
+immutable ContinuousStreamMode <: StreamMode
+    total_samples::Int
 end
 
-type TriggeredStreamMode <: StreamMode
-    total_samples::Integer
+immutable TriggeredStreamMode <: StreamMode
+    total_samples::Int
 end
 
-type NPTRecordMode <: RecordMode
-    sam_per_rec::Integer
-    total_recs::Integer
+immutable NPTRecordMode <: RecordMode
+    sam_per_rec::Int
+    total_recs::Int
 end
 
-type TraditionalRecordMode <: RecordMode
-    pre_sam_per_rec::Integer
-    post_sam_per_rec::Integer
-    total_recs::Integer
+immutable TraditionalRecordMode <: RecordMode
+    pre_sam_per_rec::Int
+    post_sam_per_rec::Int
+    total_recs::Int
 end
 
-type FFTRecordMode <: RecordMode
-    sam_per_rec::AbstractFloat
+immutable FFTRecordMode <: RecordMode
+    sam_per_rec::Int
     total_recs::Int
 end
 
@@ -494,7 +493,7 @@ type AlazarATS9360 <: InstrumentAlazar
     AlazarATS9360() = AlazarATS9360(1,1)
     AlazarATS9360(a,b) = begin
         if (AlazarModule.lib_opened == false)
-            Alazar.libopen()
+            Alazar.alazaropen()
         end
         handle = boardhandle(a,b)
         if (handle == 0)
@@ -517,7 +516,7 @@ type AlazarATS9360 <: InstrumentAlazar
                             Alazar.TRIG_ENGINE_OP_J,
                             Alazar.TRIG_CHAN_A,
                             Alazar.TRIGGER_SLOPE_POSITIVE,
-                            150,
+                            140,
                             Alazar.TRIG_DISABLE,
                             Alazar.TRIGGER_SLOPE_POSITIVE,
                             128)
@@ -589,6 +588,8 @@ inspect_per(a::InstrumentAlazar, ::Type{Bit}, ::Type{Sample}) = begin
     return bitspersample[1]
 end
 
+inspect_per(a::AlazarATS9360, ::Type{Bit}, ::Type{Sample}) = 0x0c
+
 # not supported by ATS310, 330, 850.
 function configure{T<:AlazarTimestampReset}(a::InstrumentAlazar, t::Type{T})
     (t == AlazarTimestampReset) && error("Choose TimestampResetOnce or ...Always")
@@ -622,50 +623,22 @@ configure(a::InstrumentAlazar, ::Type{RecordCount}, count) =
     @eh2 AlazarSetRecordCount(a.handle, count)
 
 function configure(a::InstrumentAlazar, m::RecordMode)
-
-    nearest = max(cld(m.sam_per_rec, 128) * 128, 256)
-    if nearest != m.sam_per_rec
-        m.sam_per_rec = nearest
-        warning("Adjusted samples per record to $nearest.")
-    end
-
-    r = AlazarSetRecordSize(a.handle, 0, m.sam_per_rec)
-    if r != alazar_no_error
-        throw(InstrumentException(a,r))
-    else
-        a.preTriggerSamples = 0
-        a.postTriggerSamples = m.sam_per_rec
-    end
+    r = @eh2 AlazarSetRecordSize(a.handle, 0, m.sam_per_rec)
+    a.preTriggerSamples = 0
+    a.postTriggerSamples = m.sam_per_rec
 
     before_async_read(a, m)
 end
 
 function configure(a::InstrumentAlazar, m::TraditionalRecordMode)
-
-    pre_nearest  = cld(m.pre_sam_per_rec,  128) * 128
-    post_nearest = cld(m.post_sam_per_rec, 128) * 128
-
-    if pre_nearest != m.pre_sam_per_rec
-        warning("Adjusted pretrigger samples per record to $pre_nearest.")
-        m.pre_sam_per_rec = pre_nearest
-    end
-    if post_nearest != m.post_sam_per_rec
-        warning("Adjusted pretrigger samples per record to $post_nearest.")
-        m.post_sam_per_rec = post_nearest
-    end
-
-    r = AlazarSetRecordSize(a.handle, m.pre_sam_pre_rec, m.post_sam_per_rec)
-    if r != alazar_no_error
-        throw(InstrumentException(a,r))
-    else
-        a.preTriggerSamples = m.pre_sam_pre_rec
-        a.postTriggerSamples = m.post_sam_per_rec
-    end
+    r = @eh2 AlazarSetRecordSize(a.handle, m.pre_sam_pre_rec, m.post_sam_per_rec)
+    a.preTriggerSamples = m.pre_sam_pre_rec
+    a.postTriggerSamples = m.post_sam_per_rec
 
     before_async_read(a, m)
 end
 
-# In streaming mode we don't need to do anything.
+# In streaming mode we don't need to do anything besides before_async_read
 function configure(a::InstrumentAlazar, m::StreamMode)
     before_async_read(a,m)
 end

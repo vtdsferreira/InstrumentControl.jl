@@ -1,70 +1,173 @@
 import PainterQB: measure, Response
 
-type RawTimeDomainResponse <: Response{SharedArray{Float16,1}}
-    ins::InstrumentAlazar
-    samples_per_ch::Integer
+abstract AlazarResponse{T} <: Response{T}
+abstract StreamResponse{T} <: AlazarResponse{T}
+abstract RecordResponse{T} <: AlazarResponse{T}
 
-    RawTimeDomainResponse(a,b) = begin
+type ContinuousStreamResponse{T} <: StreamResponse{T}
+    ins::InstrumentAlazar
+    samples_per_ch::Int
+
+    ContinuousStreamResponse(a,b) = begin
         b <= 0 && error("Need at least one sample!")
         new(a,b)
     end
 end
+ContinuousStreamResponse(a::AlazarATS9360, samples_per_ch) =
+    ContinuousStreamResponse{SharedArray{Float16,1}}(a,samples_per_ch)
 
-function measure(ch::RawTimeDomainResponse)
+type TriggeredStreamResponse{T} <: StreamResponse{T}
+    ins::InstrumentAlazar
+    samples_per_ch::Int
 
-    a = ch.ins
-
-    chans = inspect(a, ChannelCount)
-    ts = ch.samples_per_ch * chans
-
-    min_sam = inspect(a, MinSamplesPerRecord)
-    max_size_buf = inspect(a, MaxBufferSize)
-
-    by_sam = inspect_per(a, Byte, Sample)
-    pagesize = Base.Mmap.PAGESIZE
-
-    if ts < min_sam
-
-        # Some digitizers may measure 3 channels or some ugly number so
-        # we want the smallest sample count divisible by the number of channels.
-
-        # Only one buffer so we don't worry about the page size.
-
-        ts = cld(min_sam, chans) * chans
-        size_buf = ts * by_sam
-
-    elseif ts * by_sam > max_size_buf
-
-        # There will be multiple buffers, so we should make sure that they are
-        # sized in multiples of the page size.
-
-        # Choose biggest buffer <= the max size that is commensurate with
-        # *both* the page size and (bytes/sample * channels)
-
-        buf_grain = lcm(by_sam*chans, Base.Mmap.PAGESIZE)
-        size_buf = fld(max_size_buf, buf_grain) * buf_grain
-
-    else
-        size_buf = ts * by_sam
+    TriggeredStreamResponse(a,b) = begin
+        b <= 0 && error("Need at least one sample!")
+        new(a,b)
     end
+end
+TriggeredStreamResponse(a::AlazarATS9360, samples_per_ch) =
+    TriggeredStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
-    m = ContinuousStreamMode(ts)
+type NPTRecordResponse{T} <: RecordResponse{T}
+    ins::InstrumentAlazar
+    sam_per_rec_per_ch::Int
+    total_recs::Int
+
+    NPTRecordResponse(a,b,c) = begin
+        b <= 0 && error("Need at least one sample!")
+        c <= 0 && error("Need at least one record!")
+        new(a,b,c)
+    end
+end
+NPTRecordResponse(a::AlazarATS9360, sam_per_rec_per_ch, total_recs) =
+    NPTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
+
+type FFTRecordResponse{T} <: RecordResponse{T}
+    ins::InstrumentAlazar
+    sam_per_rec_per_ch::Int
+    total_recs::Int
+
+    FFTRecordResponse(a,b,c) = begin
+        b <= 0 && error("Need at least one sample!")
+        c <= 0 && error("Need at least one record!")
+        new(a,b,c)
+    end
+end
+FFTRecordResponse(a::AlazarATS9360, sam_per_rec_per_ch, total_recs) =
+    FFTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
+
+
+function measure(ch::AlazarResponse)
+    a = ch.ins
+    m = mode4response(ch)
+    buffersizing(a,m)
+
+    # Sets record size and is followed by before_async_read
+    configure(a, m)
 
     # Buffers/acquisition is not the same as buffer count, in general.
     # buffer count determines how many buffers are allocated; a greater numbers
     # of buffers/acquisition may result in reuse of the allocated buffers.
-    # In this case we do not want reuse of buffers
+    # In this case we do not want reuse of buffers.
+    configure(a, BufferCount, inspect_per(a, m, Buffer, Acquisition))
 
-    configure(a, BufferSize, size_buf)
-    buf_per_acq = inspect_per(a, m, Buffer, Acquisition)
-
-    configure(a, BufferCount, buf_per_acq)
-
-    buf_array = measure(a,m,during=processing(ch))
-    convert(SharedArray, reinterpret(Float16, sdata(buf_array.backing)))
+    # Measure and interpret as SharedArray{Float16,1}
+    buf_array = measure(a, m, during=processing(ch))
+    postprocess(ch, buf_array)
 end
 
-processing(ch::RawTimeDomainResponse) = tofloat!
+mode4response(ch::ContinuousStreamResponse) =
+    ContinuousStreamMode(ch.samples_per_ch * inspect(ch.ins, ChannelCount))
+mode4response(ch::TriggeredStreamResponse) =
+    TriggeredStreamMode(ch.samples_per_ch * inspect(ch.ins, ChannelCount))
+mode4response(ch::NPTRecordResponse) =
+    NPTRecordMode(ch.sam_per_rec_per_ch * inspect(ch.ins, ChannelCount), ch.total_recs)
+mode4response(ch::FFTRecordResponse) =
+    FFTRecordMode(ch.sam_per_rec_per_ch * inspect(ch.ins, ChannelCount), ch.total_recs)
+
+# function buffersizing(a::InstrumentAlazar, m::RecordMode)
+#
+#     sr = m.sam_per_rec
+#     tr = m.total_recs
+#
+#     chans = inspect(a, ChannelCount)
+#     min_sam = inspect(a, MinSamplesPerRecord)
+#     max_size_buf = inspect(a, MaxBufferSize)
+#     by_sam = inspect_per(a, Byte, Sample)
+#     pagesize = Base.Mmap.PAGESIZE
+#     buf_grain = lcm(by_sam*chans, pagesize)
+#
+#     if sr < min_sam
+#         # Some digitizers may measure 3 channels or some ugly number so
+#         # we want the smallest sample count divisible by the number of channels.
+#         # Only one buffer so we don't worry about the page size.
+#         sr = cld(min_sam, chans) * chans
+#         m.sam_per_rec = sr
+#         warn("Samples per record adjusted to $sr to meet minimum record ",
+#              "length requirements.")
+#
+#         # Now, will everything fit in one buffer or not?
+#         if sr * tr * by_sam > max_size_buf
+#             size_buf = fld(max_size_buf, buf_grain) * buf_grain
+#         else
+#             size_buf = sr * tr * by_sam
+#         end
+#     elseif sr * by_sam > max_size_buf
+#         # There may be multiple buffers, so we should make sure that they are
+#         # sized in multiples of the page size. Choose biggest buffer <= the max
+#         # size that is commensurate with *both* the page size and
+#         # (bytes/sample * channels)
+#         size_buf = fld(max_size_buf, buf_grain) * buf_grain
+#
+#         # We can have at minimum one record per buffer, so we need to truncate
+#         # the record size. There's really no way around this, so we issue a
+#         # warning and proceed.
+#         m.sam_per_rec = fld(size_buf,by_sam)
+#         warn("Samples per record has been truncated to $(m.sam_per_rec) ",
+#              "because of buffer size limitations.")
+#     else
+#         size_b
+#     end
+#
+#     configure(a, BufferSize, size_buf)
+# end
+
+function buffersizing(a::InstrumentAlazar, m::StreamMode)
+
+    ts = m.total_samples
+
+    chans = inspect(a, ChannelCount)
+    min_sam = inspect(a, MinSamplesPerRecord)
+    max_size_buf = inspect(a, MaxBufferSize)
+    by_sam = inspect_per(a, Byte, Sample)
+    pagesize = Base.Mmap.PAGESIZE
+
+    if ts < min_sam
+        # Some digitizers may measure 3 channels or some ugly number so
+        # we want the smallest sample count divisible by the number of channels.
+        # Only one buffer so we don't worry about the page size.
+        ts = cld(min_sam, chans) * chans
+        size_buf = ts * by_sam
+        m.total_samples = ts
+        warn("Total samples adjusted to $ts to meet minimum record ",
+             "length requirements.")
+    elseif ts * by_sam > max_size_buf
+        # There will be multiple buffers, so we should make sure that they are
+        # sized in multiples of the page size. Choose biggest buffer <= the max
+        # size that is commensurate with *both* the page size and
+        # (bytes/sample * channels)
+        buf_grain = lcm(by_sam*chans, pagesize)
+        size_buf = fld(max_size_buf, buf_grain) * buf_grain
+
+        # POTENTIAL BUG: < min_sam samples in last buffer???
+    else
+        size_buf = ts * by_sam
+    end
+
+    configure(a, BufferSize, size_buf)
+end
+
+processing(::StreamResponse) = tofloat!
 
 function measure(a::AlazarATS9360, m::StreamMode; during::Function=((x,y,z)->nothing), diagnostic::Bool=false)
 
@@ -76,9 +179,6 @@ function measure(a::AlazarATS9360, m::StreamMode; during::Function=((x,y,z)->not
     by_transferred = 0
     transfertime_s = 0
 
-    # Sets record size and is followed by before_async_read
-    configure(a, m)
-
     # Allocate memory for DMA buffers
     buf_array =
         Alazar.DMABufferArray(inspect_per(a, Bit, Sample), buf_size, buf_count)
@@ -89,7 +189,7 @@ function measure(a::AlazarATS9360, m::StreamMode; during::Function=((x,y,z)->not
     end
 
     backing = buf_array.backing
-    sam_per_buf = inspect_per(a,m,Sample,Buffer)
+    sam_per_buf = inspect_per(a, m, Sample, Buffer)
 
     try
         diagnostic && begin
@@ -148,22 +248,11 @@ function tofloat!(sam_per_buf::Integer, buf_completed::Integer, backing::SharedA
     end
 end
 
-function postprocess(ch::RawTimeDomainResponse, dma_array::Alazar.DMABufferArray)
-    t0=time()
-    backing = dma_array.backing
-    @sync begin
-        for p in procs(backing)
-            @async begin
-                remotecall_wait(p, tofloat!, backing)
-            end
-        end
+function postprocess{T}(ch::StreamResponse{SharedArray{T,1}}, buf_array::Alazar.DMABufferArray)
+    backing = buf_array.backing
+    if sizeof(T) == sizeof(eltype(backing))
+        convert(SharedArray, reinterpret(T, sdata(backing)))::SharedArray{T,1}
+    else
+        convert(SharedArray, convert(T, sdata(backing)))::SharedArray{T,1}
     end
-    # for i in 1:length(buffer)
-    #     # All Alazar digitizers are little endian.
-    #     buffer[i] = ltoh(buffer[i]) #/ 0xFFF0
-    #     #s = s*0.8
-    #     #buffer[i] = reinterpret(UInt16,s)
-    # end
-    time()-t0
-    #buffer
 end
