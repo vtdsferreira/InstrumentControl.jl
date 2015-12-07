@@ -176,7 +176,7 @@ end
 
 `generate_handlers(insType::DataType, responseDict::Dict)`
 
-Each instrument can have a `responseDictionary`. For each setting of the instrument,
+Each instrument can have a `responseDict`. For each setting of the instrument,
 for instance the `ClockSource`, we need to know the correspondence between a
 logical state `ExternalClock` and how the instrument encodes that logical state, "EXT".
 The responseDictionary is actually a dictionary of dictionaries. The first level keys

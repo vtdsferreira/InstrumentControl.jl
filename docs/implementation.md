@@ -15,10 +15,16 @@ package is unregistered and must be retrieved from the repository with
 - All code is kept inside a "main" `PainterQB` module, defined inside `src/PainterQB.jl`.
     - Common instrument definitions and functions are defined in `src/InstrumentDefs.jl`.
     - `InstrumentVISA` and associated functions are defined in `src/InstrumentVISA.jl`.
+    - Code that should be loaded by Julia workers for parallel processing is
+    actually kept outside the module to avoid loading the whole thing unnecessarily.
+    These are typically functions that are focused on number crunching and don't
+    need to know much about the internals of PainterQB.
 - Each instrument is defined within its own module, a submodule of `PainterQB`.
     - Each instrument has a corresponding .jl file in `src/hardware`.
     - Instrument model numbers are used for type definitions (e.g. `AWG5014C`),
-    so module names have "Module" appended (e.g. `AWG5014CModule`).
+    so module names have "Module" appended (e.g. `AWG5014CModule`). We put all
+    Alazar digitizers in `AlazarModule`; the feature set and API is so similar
+    for the various models that just one module makes sense.
     - `export` statements from an instrument submodule are not currently exported
     from `PainterQB`. The statement `using PainterQB.AWG5014CModule`
     may be desired when using the AWG, for instance.
@@ -34,9 +40,10 @@ uncomment the `importall` statements in `src/PainterQB.jl`.
 Many commercial instruments support a common communications protocol and command
 syntax (VISA and SCPI respectively). For such instruments, many methods for
 `configure` and `inspect` can be generated with metaprogramming, rather than
-typing them out explicitly.
+typing them out explicitly. The implementation could and should be done
+more elegantly, but it seems to work for now.
 
-Technical note: The file `src/Metaprogramming.jl` is included in each VISA
+The file `src/Metaprogramming.jl` is included in each VISA
 instrument's source file, and therefore in each instrument's own module.
 Initially this file was included directly in the PainterQB module, but it seems
 there are subtleties regarding the use of the `@eval` macro between modules.
@@ -110,6 +117,29 @@ Access to the `code` field is given through a method to allow for a little
 flexibility in case implementation details change.
 
 #### generate_handlers
+
+```
+generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)
+```
+
+Each instrument can have a `responseDict`. For each property of the instrument,
+for instance the `ClockSource`, we need to know the correspondence between a
+logical state `ExternalClock` and how the instrument encodes that logical state
+(e.g. "EXT"). The responseDictionary is a dictionary of dictionaries. The first
+level keys are like `ClockSource` and the second level keys are like "EXT".
+
+This function makes a lot of other functions. Given some response from an instrument,
+we require a function to map that response back on to the appropriate logical state.
+
+Example: `ClockSource(ins::AWG5014C,res::AbstractString)` returns an
+`InternalClock(ins,"INT")` or `ExternalClock(ins,"EXT")` object as appropriate,
+based on the logical meaning of the response.
+
+We also want a function to generate logical states without having to know the way
+they are encoded by the instrument.
+
+`InternalClock(ins::AWG5014C)` returns an `InternalClock(ins,"INT")` object,
+with "INT" encoding how to pass this logical state to the instrument `ins`.
 
 ## Alazar instruments
 

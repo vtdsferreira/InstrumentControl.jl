@@ -50,11 +50,23 @@ pretty generic and often have implicit meanings in other programming languages.
 In C, for instance, `get` often implies that the function will return an address
 in memory rather than a value.
 
-["configure"](http://m-w.com/dictionary/configure):
-"to arrange or prepare (something) so that it can be used."
+Both `configure` and `inspect` have a lot of methods that take as one of their
+arguments an `InstrumentProperty` subtype:
 
-["inspect"](http://m-w.com/dictionary/inspect):
-"to look at (something) carefully in order to learn more about it, to find problems, etc."
+```
+abstract InstrumentProperty
+abstract NumericalProperty <: InstrumentProperty
+```
+
+One subtypes `InstrumentProperty` for properties such as `ClockSource`, the
+logical states of which have no obvious consistent encoding. One should instead
+subtype `NumericalProperty` for properties where a number suffices to describe
+the property (up to units).
+
+Properties which may be shared by multiple instruments should be defined in
+`src/InstrumentDefs.jl`. Examples include `Frequency`, `Power`, `SampleRate`, etc.
+They may be imported in each instrument's module as needed. Properties specific
+to a given instrument may of course be defined in that instrument's module.
 
 ### Source and measure
 
