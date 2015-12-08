@@ -42,6 +42,7 @@ export AlazarTriggerRange
 export AuxSoftwareTriggerEnabled
 export BitsPerSample
 export BytesPerSample
+export BufferAlignment
 export BufferCount
 export BufferSize
 export DefaultBufferCount
@@ -49,6 +50,7 @@ export DefaultBufferSize
 export LED
 export MaxBufferSize
 export MinSamplesPerRecord
+export PretriggerAlignment
 export RecordCount
 export SampleMemoryPerChannel
 export Sleep
@@ -222,6 +224,7 @@ Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}) = Rate1000MSps(insType)
 abstract AuxSoftwareTriggerEnabled <: AlazarProperty
 abstract BitsPerSample             <: AlazarProperty
 abstract BytesPerSample            <: AlazarProperty
+abstract BufferAlignment           <: AlazarProperty
 abstract BufferCount               <: AlazarProperty
 abstract BufferSize                <: AlazarProperty
 abstract DefaultBufferCount        <: AlazarProperty
@@ -229,6 +232,7 @@ abstract DefaultBufferSize         <: AlazarProperty
 abstract LED                       <: AlazarProperty
 abstract MaxBufferSize             <: AlazarProperty
 abstract MinSamplesPerRecord       <: AlazarProperty
+abstract PretriggerAlignment       <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
 abstract Sleep                     <: AlazarProperty
@@ -279,26 +283,26 @@ abstract RecordMode <: AlazarMode
 
 const inf_records = U32(0x7FFFFFFF)
 
-immutable ContinuousStreamMode <: StreamMode
+type ContinuousStreamMode <: StreamMode
     total_samples::Int
 end
 
-immutable TriggeredStreamMode <: StreamMode
+type TriggeredStreamMode <: StreamMode
     total_samples::Int
 end
 
-immutable NPTRecordMode <: RecordMode
+type NPTRecordMode <: RecordMode
     sam_per_rec::Int
     total_recs::Int
 end
 
-immutable TraditionalRecordMode <: RecordMode
+type TraditionalRecordMode <: RecordMode
     pre_sam_per_rec::Int
     post_sam_per_rec::Int
     total_recs::Int
 end
 
-immutable FFTRecordMode <: RecordMode
+type FFTRecordMode <: RecordMode
     sam_per_rec::Int
     total_recs::Int
 end
@@ -323,7 +327,7 @@ end
 macro eh2(expr)
     quote
         r = $(esc(expr))
-        r != alazar_no_error && throw(InstrumentException(esc(a),r))
+        r != alazar_no_error && throw(InstrumentException($(esc(expr.args[2].args[1])),r))
         r
     end
 end
@@ -339,10 +343,16 @@ end
 
 function before_async_read(a::InstrumentAlazar, m::AlazarMode)
 
+    sam_rec_ch = Int(inspect_per(a, m, Sample, Record) / inspect(a, ChannelCount))
+    println("Pretrigger samples: $(pretriggersamples(m))")
+    println("Samples per record: $(inspect_per(a, m, Sample, Record))")
+    println("Records per buffer: $(inspect_per(a, m, Record, Buffer))")
+    println("Records per acquis: $(inspect_per(a, m, Record, Acquisition))")
+    sleep(1)
     r = @eh2 AlazarBeforeAsyncRead(a.handle,
                               a.acquisitionChannel,
                               -pretriggersamples(m),
-                              inspect_per(a, m, Sample, Record),
+                              sam_rec_ch,
                               inspect_per(a, m, Record, Buffer),
                               inspect_per(a, m, Record, Acquisition),
                               adma(m))
@@ -516,7 +526,7 @@ type AlazarATS9360 <: InstrumentAlazar
                             Alazar.TRIG_ENGINE_OP_J,
                             Alazar.TRIG_CHAN_A,
                             Alazar.TRIGGER_SLOPE_POSITIVE,
-                            140,
+                            128,
                             Alazar.TRIG_DISABLE,
                             Alazar.TRIGGER_SLOPE_POSITIVE,
                             128)
@@ -844,7 +854,7 @@ end
 inspect(a::AlazarATS9360, ::Type{DefaultBufferSize}) = U32(409600*2*2)
 
 inspect(a::InstrumentAlazar, ::Type{BufferCount}) = a.bufferCount
-function configure(a::InstrumentAlazar, ::Type{BufferCount}, bufcount::Integer)
+function configure(a::InstrumentAlazar, ::Type{BufferCount}, bufcount)
     a.bufferCount = U32(bufcount)
 end
 inspect(a::AlazarATS9360, ::Type{DefaultBufferCount}) = U32(4)
@@ -930,6 +940,8 @@ pretriggersamples(m::AlazarMode) = 0
 
 inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) = 256
 inspect(a::AlazarATS9360, ::Type{MaxBufferSize}) = 64*1024*1024      # 64 MB
+inspect(a::AlazarATS9360, ::Type{BufferAlignment}) = 128 # samples
+inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) = 128
 
 include("AlazarDSP.jl")
 
