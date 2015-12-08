@@ -133,7 +133,9 @@ function buffersizing(a::InstrumentAlazar, m::RecordMode)
     else
         if sr < min_sam
             # Too few samples in record. Choose shortest possible record.
-            sr = cld(min_sam, chans) * chans
+            # It seems that this will always be divisible by the number of channels,
+            # at least for existing Alazar digitizers.
+            sr = min_sam
             m.sam_per_rec = sr
 
             # Issue a warning and proceed.

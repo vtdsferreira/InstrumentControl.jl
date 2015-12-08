@@ -343,7 +343,8 @@ end
 
 function before_async_read(a::InstrumentAlazar, m::AlazarMode)
 
-    sam_rec_ch = Int(inspect_per(a, m, Sample, Record) / inspect(a, ChannelCount))
+    sam_rec_ch = inspect_per(a, m, Sample, Record) / 2
+
     println("Pretrigger samples: $(pretriggersamples(m))")
     println("Samples per record: $(inspect_per(a, m, Sample, Record))")
     println("Records per buffer: $(inspect_per(a, m, Record, Buffer))")
@@ -351,7 +352,7 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
     sleep(1)
     r = @eh2 AlazarBeforeAsyncRead(a.handle,
                               a.acquisitionChannel,
-                              -pretriggersamples(m),
+                              -pretriggersamples(m) / 2,
                               sam_rec_ch,
                               inspect_per(a, m, Record, Buffer),
                               inspect_per(a, m, Record, Acquisition),
@@ -633,7 +634,10 @@ configure(a::InstrumentAlazar, ::Type{RecordCount}, count) =
     @eh2 AlazarSetRecordCount(a.handle, count)
 
 function configure(a::InstrumentAlazar, m::RecordMode)
-    r = @eh2 AlazarSetRecordSize(a.handle, 0, m.sam_per_rec)
+
+    r = @eh2 AlazarSetRecordSize(a.handle,
+                                 0,
+                                 m.sam_per_rec / inspect(a,ChannelCount))
     a.preTriggerSamples = 0
     a.postTriggerSamples = m.sam_per_rec
 
@@ -641,7 +645,9 @@ function configure(a::InstrumentAlazar, m::RecordMode)
 end
 
 function configure(a::InstrumentAlazar, m::TraditionalRecordMode)
-    r = @eh2 AlazarSetRecordSize(a.handle, m.pre_sam_pre_rec, m.post_sam_per_rec)
+    r = @eh2 AlazarSetRecordSize(a.handle,
+                                 m.pre_sam_pre_rec / inspect(a,ChannelCount),
+                                 m.post_sam_per_rec / inspect(a,ChannelCount))
     a.preTriggerSamples = m.pre_sam_pre_rec
     a.postTriggerSamples = m.post_sam_per_rec
 
