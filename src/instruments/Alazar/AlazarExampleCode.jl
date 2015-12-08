@@ -143,6 +143,13 @@ function buffersizing(a::InstrumentAlazar, m::RecordMode)
                  "length requirements.")
         end
 
+        size_rec = cld(by_sam*sr, buf_align)*buf_align
+        sr = Int(size_rec / by_sam) # will be an integer for sure
+        sr != m.sam_per_rec &&
+            warn("Samples per record adjusted to $sr to meet alignment ",
+                 "requirements.")
+        m.sam_per_rec = sr
+
         if sr * tr * by_sam > max_size_buf
             # Not everything will fit in one buffer.
             # Grow samples / record slightly so that it takes up the nearest

@@ -944,10 +944,12 @@ adma(::TraditionalRecordMode)  = Alazar.ADMA_TRADITIONAL_MODE |
 pretriggersamples(m::TraditionalRecordMode) = m.pre_sam_per_rec
 pretriggersamples(m::AlazarMode) = 0
 
-inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) = 256
-inspect(a::AlazarATS9360, ::Type{MaxBufferSize}) = 64*1024*1024      # 64 MB
-inspect(a::AlazarATS9360, ::Type{BufferAlignment}) = 128 # samples
-inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) = 128
+# The following were obtained using Table 8 as a crude guide, followed
+# by some experimentation to see what actually worked
+inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) = Int(512 / inspect(a,ChannelCount))
+inspect(a::AlazarATS9360, ::Type{MaxBufferSize})       = 64*1024*1024      # 64 MB
+inspect(a::AlazarATS9360, ::Type{BufferAlignment})     = 128 * inspect(a,ChannelCount)
+inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) = 128 * inspect(a,ChannelCount)
 
 include("AlazarDSP.jl")
 
