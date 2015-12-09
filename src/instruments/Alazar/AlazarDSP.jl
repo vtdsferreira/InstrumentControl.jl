@@ -96,6 +96,7 @@ function fft_setwindowfunction(dspModule::DSPModule, samplesPerRecord, reArray, 
     if r != alazar_no_error
         throw(InstrumentException(dspModule.ins,r))
     end
+    nothing
 end
 
 # Undocumented in API. Let's hide this one for now...
@@ -115,7 +116,7 @@ function fft_setup(dspModule::DSPModule, recordLength_samples, fftLength_samples
     bytesPerOutputRecord = Array(U32,1)
     bytesPerOutputRecord[1] = 0
 
-    r = AlazarFFTSetup(dspModule.handle, CHANNEL_A, recordLength_samples,
+    r = AlazarFFTSetup(dspModule.handle, Alazar.CHANNEL_A, recordLength_samples,
         fftLength_samples, outputFormat, footer, U32(0), bytesPerOutputRecord)
     if r != alazar_no_error
         throw(InstrumentException(dspModule.ins,r))

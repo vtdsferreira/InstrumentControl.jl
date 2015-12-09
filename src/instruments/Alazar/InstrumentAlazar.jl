@@ -48,7 +48,9 @@ export BufferSize
 export DefaultBufferCount
 export DefaultBufferSize
 export LED
-export MaxBufferSize
+export MaxBufferBytes
+export MinFFTSamples
+export MaxFFTSamples
 export MinSamplesPerRecord
 export PretriggerAlignment
 export RecordCount
@@ -77,7 +79,7 @@ export AlazarATS9360
 export DSPModule
 
 export abort, before_async_read
-export startcapture, wait_async_buffer, post_async_buffer
+export startcapture, wait_buffer, post_async_buffer
 
 export busy
 export forcetrigger, forcetriggerenable
@@ -85,8 +87,9 @@ export inputcontrol, set_parameter, set_parameter_ul
 export set_triggeroperation, triggered
 
 export inspect_per
-export adma
-# export bufferarray
+export adma, outputformat
+
+const inf_records = U32(0x7FFFFFFF)
 
 """
 The InstrumentAlazar types represent an AlazarTech device on the local
@@ -230,8 +233,10 @@ abstract BufferSize                <: AlazarProperty
 abstract DefaultBufferCount        <: AlazarProperty
 abstract DefaultBufferSize         <: AlazarProperty
 abstract LED                       <: AlazarProperty
-abstract MaxBufferSize             <: AlazarProperty
+abstract MinFFTSamples             <: AlazarProperty
 abstract MinSamplesPerRecord       <: AlazarProperty
+abstract MaxBufferBytes            <: AlazarProperty
+abstract MaxFFTSamples             <: AlazarProperty
 abstract PretriggerAlignment       <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
@@ -281,8 +286,6 @@ abstract AlazarMode
 abstract StreamMode <: AlazarMode
 abstract RecordMode <: AlazarMode
 
-const inf_records = U32(0x7FFFFFFF)
-
 type ContinuousStreamMode <: StreamMode
     total_samples::Int
 end
@@ -304,8 +307,17 @@ end
 
 type FFTRecordMode <: RecordMode
     sam_per_rec::Int
+    sam_per_fft::Int
     total_recs::Int
+    output_eltype::DataType
+
+    by_rec::U32
+
+    FFTRecordMode(a,b,c,d) = new(a,b,c,d,0)
 end
+
+pretriggersamples(m::TraditionalRecordMode) = m.pre_sam_per_rec
+pretriggersamples(m::AlazarMode) = 0
 
 "Create descriptive exceptions."
 InstrumentException(ins::InstrumentAlazar, r) =
@@ -332,18 +344,18 @@ macro eh2(expr)
     end
 end
 
-abort(a::InstrumentAlazar, async::Bool=true) = begin
-    if async
-        r = @eh2 AlazarAbortAsyncRead(a.handle)
-    else
-        r = @eh2 AlazarAbortCapture(a.handle)
-    end
-    r
+function abort(a::InstrumentAlazar, m::AlazarMode)
+    @eh2 AlazarAbortAsyncRead(a.handle)
+end
+
+function abort(a::InstrumentAlazar, m::FFTRecordMode)
+    @eh2 AlazarDSPAbortCapture(a.handle)
 end
 
 function before_async_read(a::InstrumentAlazar, m::AlazarMode)
 
-    sam_rec_ch = inspect_per(a, m, Sample, Record) / 2
+    pretrig = -pretriggersamples(m) / inspect(a, ChannelCount)
+    sam_rec_ch = inspect_per(a, m, Sample, Record) / inspect(a, ChannelCount)
 
     println("Pretrigger samples: $(pretriggersamples(m))")
     println("Samples per record: $(inspect_per(a, m, Sample, Record))")
@@ -351,14 +363,32 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
     println("Records per acquis: $(inspect_per(a, m, Record, Acquisition))")
     sleep(1)
     r = @eh2 AlazarBeforeAsyncRead(a.handle,
-                              a.acquisitionChannel,
-                              -pretriggersamples(m) / 2,
-                              sam_rec_ch,
-                              inspect_per(a, m, Record, Buffer),
-                              inspect_per(a, m, Record, Acquisition),
-                              adma(m))
+                                   a.acquisitionChannel,
+                                   pretrig,
+                                   sam_rec_ch,
+                                   inspect_per(a, m, Record, Buffer),
+                                   inspect_per(a, m, Record, Acquisition),
+                                   adma(m))
     r
+end
 
+function before_async_read(a::InstrumentAlazar, m::FFTRecordMode)
+
+    pretrig = -pretriggersamples(m)
+    by_rec  = m.by_rec
+    println("Pretrigger samples: $(pretriggersamples(m))")
+    println("  Bytes per record: $(by_rec)")
+    println("Records per buffer: $(inspect_per(a, m, Record, Buffer))")
+    println("Records per acquis: $(inf_records)")
+    sleep(1)
+    r = @eh2 AlazarBeforeAsyncRead(a.handle,
+                                   Alazar.CHANNEL_A,
+                                   pretrig,
+                                   by_rec,
+                                   inspect_per(a, m, Record, Buffer),
+                                   inf_records,
+                                   adma(m))
+    r
 end
 
 function boardhandle(sysid::Integer,boardid::Integer)
@@ -370,21 +400,16 @@ end
 boardkind(handle::U32) = AlazarGetBoardKind(handle)
 
 busy(a::InstrumentAlazar) = AlazarBusy(a.handle) > 0 ? true : false
-#@doc "Determine if an acquisition to on-board memory is in progress."
 
 @eh forcetrigger(a::InstrumentAlazar) = AlazarForceTrigger(a.handle)
-#@doc "Generate a software trigger event." forcetrigger
 
 @eh forcetriggerenable(a::InstrumentAlazar) = AlazarForceTriggerEnable(a.handle)
-#@doc "Generate a software trigger enable event." forcetriggerenable
 
 @eh inputcontrol(a::InstrumentAlazar, channel, coupling, inputRange, impedance) =
     AlazarInputControl(a.handle, channel, coupling, inputRange, impedance)
-#@doc "Configures one input channel on a board." inputcontrol
 
 @eh post_async_buffer(a::InstrumentAlazar, buffer, bufferLength) =
     AlazarPostAsyncBuffer(a.handle, buffer, bufferLength)
-#@doc "Posts a DMA buffer to a board." post_async_buffer
 
 @eh set_parameter(a::InstrumentAlazar, channelId, parameterId, value) =
     AlazarSetParameter(a.handle, channelId, parameterId, value)
@@ -404,17 +429,17 @@ function set_triggeroperation(a::InstrumentAlazar, args...)
         a.triggerKChannel, a.triggerKSlope, a.triggerKLevel) = (args...)
     r
 end
-#@doc "Set trigger operation." set_triggeroperation
 
 @eh startcapture(a::InstrumentAlazar) = AlazarStartCapture(a.handle)
-@doc "Starts the acquisition." startcapture
-
 @eh triggered(a::InstrumentAlazar) = AlazarTriggered(a.handle)
-@doc "Determine if a board has triggered during the current acquisition." triggered
 
-@eh wait_async_buffer(a::InstrumentAlazar, buffer, timeout_ms) =
-    AlazarWaitAsyncBufferComplete(a.handle, buffer, timeout_ms)
-@doc "Blocks until the board confirms that buffer is filled with data." wait_async_buffer
+function wait_buffer(a::InstrumentAlazar, m::AlazarMode, buffer, timeout_ms)
+    @eh2 AlazarWaitAsyncBufferComplete(a.handle, buffer, timeout_ms)
+end
+
+function wait_buffer(a::InstrumentAlazar, m::FFTRecordMode, buffer, timeout_ms)
+    @eh2 AlazarDSPGetBuffer(a.handle, buffer, timeout_ms)
+end
 
 """
 ATS9360 is a concrete subtype of InstrumentAlazar.
@@ -454,9 +479,6 @@ type AlazarATS9360 <: InstrumentAlazar
     packingB::Clong
 
     dspModules::Array{DSPModule,1}
-
-    preTriggerSamples::U32
-    postTriggerSamples::U32
 
     bufferCount::U32
     bufferSize::U32
@@ -539,8 +561,6 @@ type AlazarATS9360 <: InstrumentAlazar
         # configure(at, AlazarDataPacking, Pack12Bits, BothChannels)
 
         configure(at, BothChannels)
-        pre_sam_per_rec = 0
-        post_sam_per_rec = 0
         dsp_populate(at)
         buffer_defaults(at)
         return at
@@ -624,7 +644,7 @@ function inspect{T<:AlazarChannel}(a::InstrumentAlazar, ::Type{AlazarDataPacking
     ch == AlazarChannel && error("Specify a particular channel.")
 
     arr = Array{Clong}(1)
-    arr[1] = Clong(0)
+    arr[1] = 0
 
     r = @eh2 AlazarGetParameter(a.handle, code(ch(a)), Alazar.PACK_MODE, arr)
     AlazarDataPacking(a,arr[1])
@@ -634,24 +654,36 @@ configure(a::InstrumentAlazar, ::Type{RecordCount}, count) =
     @eh2 AlazarSetRecordCount(a.handle, count)
 
 function configure(a::InstrumentAlazar, m::RecordMode)
-
     r = @eh2 AlazarSetRecordSize(a.handle,
                                  0,
                                  m.sam_per_rec / inspect(a,ChannelCount))
-    a.preTriggerSamples = 0
-    a.postTriggerSamples = m.sam_per_rec
 
-    before_async_read(a, m)
+    before_async_read(a,m)
+end
+
+function configure(a::InstrumentAlazar, m::FFTRecordMode)
+    dspmodule = dsp_modules(a)[1]
+
+    fft_setwindowfunction(dspmodule,
+                          m.sam_per_rec,
+                          C_NULL,
+                          C_NULL)
+
+    m.by_rec  = fft_setup(dspmodule,
+                          m.sam_per_rec,  # / ChannelCount, which is always 1
+                          m.sam_per_fft,
+                          outputformat(m.output_eltype),
+                          Alazar.FFT_FOOTER_NONE)
+
+    before_async_read(a,m)
 end
 
 function configure(a::InstrumentAlazar, m::TraditionalRecordMode)
     r = @eh2 AlazarSetRecordSize(a.handle,
                                  m.pre_sam_pre_rec / inspect(a,ChannelCount),
                                  m.post_sam_per_rec / inspect(a,ChannelCount))
-    a.preTriggerSamples = m.pre_sam_pre_rec
-    a.postTriggerSamples = m.post_sam_per_rec
 
-    before_async_read(a, m)
+    before_async_read(a,m)
 end
 
 # In streaming mode we don't need to do anything besides before_async_read
@@ -670,12 +702,10 @@ function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutTicks}, ticks)
     a.triggerTimeoutTicks = ticks
     r
 end
-#@doc "Configures the trigger timeout in ticks (10 us units). Fractional ticks get rounded up. 0 means wait forever." set_triggertimeout_ticks
 
 function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutS}, timeout_s)
     configure(a, TriggerTimeoutTicks, ceil(timeout_s * 1.e5))
 end
-#@doc "Configures the trigger timeout in seconds, rounded up to the nearest 10 us. 0 means wait forever." set_triggertimeout_s
 
 @eh configure(a::InstrumentAlazar, ::Type{Sleep}, sleepState) =
     AlazarSleepDevice(a.handle, sleepState)
@@ -720,8 +750,11 @@ function configure{T<:ClockSlope}(a::AlazarATS9360, slope::Type{T})
 
     val = slope(a) |> code
 
-    r = @eh2 AlazarSetCaptureClock(a.handle, a.clockSource, a.sampleRate, val, a.decimation)
-
+    r = @eh2 AlazarSetCaptureClock(a.handle,
+                                   a.clockSource,
+                                   a.sampleRate,
+                                   val,
+                                   a.decimation)
     a.clockSlope = val
     r
 end
@@ -784,10 +817,14 @@ end
 
 function configure(a::AlazarATS9360, ::Type{AuxSoftwareTriggerEnabled}, b::Bool)
     if b == true
-        r = @eh2 AlazarConfigureAuxIO(a.handle, a.auxIOMode, a.auxParam | Alazar.AUX_OUT_TRIGGER_ENABLE)
+        r = @eh2 AlazarConfigureAuxIO(a.handle,
+                                      a.auxIOMode,
+                                      a.auxParam | Alazar.AUX_OUT_TRIGGER_ENABLE)
         a.auxParam = a.auxParam | Alazar.AUX_OUT_TRIGGER_ENABLE
     else
-        r = @eh2 AlazarConfigureAuxIO(a.handle, a.auxIOMode, a.auxParam & ~Alazar.AUX_OUT_TRIGGER_ENABLE)
+        r = @eh2 AlazarConfigureAuxIO(a.handle,
+                                      a.auxIOMode,
+                                      a.auxParam & ~Alazar.AUX_OUT_TRIGGER_ENABLE)
         a.auxParam = a.auxParam & ~Alazar.AUX_OUT_TRIGGER_ENABLE
     end
 
@@ -825,7 +862,6 @@ function configure{S<:AlazarDataPacking}(
         pack::Type{S}, ch::Type{BothChannels})
 
     map((c)->configure(a,AlazarDataPacking,pack,c), (ChannelA, ChannelB))
-
 end
 
 function configure{T<:AlazarChannel}(a::AlazarATS9360, ch::Type{T})
@@ -865,21 +901,11 @@ function configure(a::InstrumentAlazar, ::Type{BufferCount}, bufcount)
 end
 inspect(a::AlazarATS9360, ::Type{DefaultBufferCount}) = U32(4)
 
-# function bufferarray(a::InstrumentAlazar, n_buf::Integer, size_buf::Integer)
-#     buf_array = Array{Alazar.DMABuffer{UInt16},1}()
-#
-#     for (buf_index = 1:n_buf)
-#         push!(buf_array, Alazar.DMABuffer(inspect_per(a, Byte, Sample), size_buf))
-#     end
-#
-#     buf_array
-# end
-
 # Since records/buffer is always 1 in stream mode, we fix samples/record:
 inspect_per(a::InstrumentAlazar, m::StreamMode,
         ::Type{Sample}, ::Type{Record}) =
     Int(inspect(a, BufferSize) /
-        (inspect_per(a, Byte, Sample)))   # <-- removed channelcount
+        (inspect_per(a, Byte, Sample)))
 
 # For record mode, the number of samples per record must be specified.
 inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Sample}, ::Type{Record}) =
@@ -896,7 +922,7 @@ inspect_per(a::InstrumentAlazar, m::StreamMode,
 # desired buffer size and samples per record.
 inspect_per(a::AlazarATS9360, m::RecordMode, ::Type{Record}, ::Type{Buffer}) =
     Int(fld(inspect(a, BufferSize),
-        inspect_per(a, m, Sample, Record) * inspect_per(a, Byte, Sample))) # <-- removed channel count
+        inspect_per(a, m, Sample, Record) * inspect_per(a, Byte, Sample)))
 
 # Pretty straightforward...
 inspect_per(a::InstrumentAlazar, m::AlazarMode, ::Type{Sample}, ::Type{Buffer}) =
@@ -939,17 +965,34 @@ adma(::FFTRecordMode)          = Alazar.ADMA_NPT |
                                  Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
 adma(::TraditionalRecordMode)  = Alazar.ADMA_TRADITIONAL_MODE |
-                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE   # other flags?
+                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
+                                 # other flags?
 
-pretriggersamples(m::TraditionalRecordMode) = m.pre_sam_per_rec
-pretriggersamples(m::AlazarMode) = 0
+outputformat(::Type{Alazar.U32})       = Alazar.FFT_OUTPUT_FORMAT_U32
+outputformat(::Type{Alazar.U16Log})    = Alazar.FFT_OUTPUT_FORMAT_U16_LOG
+outputformat(::Type{Alazar.U16Amp2})   = Alazar.FFT_OUTPUT_FORMAT_U16_AMP2
+outputformat(::Type{Alazar.U8Log})     = Alazar.FFT_OUTPUT_FORMAT_U8_LOG
+outputformat(::Type{Alazar.U8Amp2})    = Alazar.FFT_OUTPUT_FORMAT_U8_AMP2
+outputformat(::Type{Alazar.S32Real})   = Alazar.FFT_OUTPUT_FORMAT_REAL_S32
+outputformat(::Type{Alazar.S32Imag})   = Alazar.FFT_OUTPUT_FORMAT_IMAG_S32
+outputformat(::Type{Alazar.FloatAmp2}) = Alazar.FFT_OUTPUT_FORMAT_FLOAT_AMP2
+outputformat(::Type{Alazar.FloatLog})  = Alazar.FFT_OUTPUT_FORMAT_FLOAT_LOG
+
 
 # The following were obtained using Table 8 as a crude guide, followed
-# by some experimentation to see what actually worked
-inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) = Int(512 / inspect(a,ChannelCount))
-inspect(a::AlazarATS9360, ::Type{MaxBufferSize})       = 64*1024*1024      # 64 MB
-inspect(a::AlazarATS9360, ::Type{BufferAlignment})     = 128 * inspect(a,ChannelCount)
-inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) = 128 * inspect(a,ChannelCount)
+# by some experimentation to see what actually worked.
+#
+# Romain Deterre at AlazarTech claims Table 8 is samples / record / channel,
+# but that does not explain the observed behavior with MinSamplesPerRecord.
+inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) =
+    Int(512 / inspect(a, ChannelCount))
+inspect(a::AlazarATS9360, ::Type{MaxBufferBytes}) = 64*1024*1024  # 64 MB
+inspect(a::AlazarATS9360, ::Type{MinFFTSamples}) = 128
+inspect(a::AlazarATS9360, ::Type{MaxFFTSamples}) = 4096
+inspect(a::AlazarATS9360, ::Type{BufferAlignment}) =
+    128 * inspect(a, ChannelCount)
+inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) =
+    128 * inspect(a, ChannelCount)
 
 include("AlazarDSP.jl")
 
