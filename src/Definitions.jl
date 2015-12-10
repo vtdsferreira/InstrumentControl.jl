@@ -32,6 +32,10 @@ export samplerate, set_samplerate
 export referenceoscillator_source, set_referenceoscillator_source
 export options
 
+export Instrument
+
+abstract Instrument
+
 """
 ### InstrumentProperty
 `abstract InstrumentProperty <: Any`

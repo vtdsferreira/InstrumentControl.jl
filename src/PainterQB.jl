@@ -3,12 +3,16 @@ module PainterQB
 import Base: show, showerror
 export AWG5014CModule, E5071CModule, E8257DModule, AlazarModule
 
-# Instruments
-include("Instrument.jl")
+# Define common types and shared functions
+include("Definitions.jl")
+
+# Define anything needed for a VISA instrument
+include("VISA.jl")
 
 # Stimuli, responses, source, measure...
 include("sourcemeasure/SourceMeasure.jl")
 
+# Various instruments
 include("instruments/E5071C.jl")
 include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
