@@ -12,7 +12,7 @@ include("sourcemeasure/SourceMeasure.jl")
 include("instruments/E5071C.jl")
 include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
-include("instruments/Alazar/InstrumentAlazar.jl")
+include("instruments/Alazar/Alazar.jl")
 
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
