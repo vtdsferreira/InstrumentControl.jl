@@ -60,7 +60,9 @@ include("Errors.jl")
 include("Modes.jl")
 include("Properties.jl")
 include("Functions.jl")
-include("ConfigureInspect.jl")
+include("Configure.jl")
+include("Inspect.jl")
+
 include("DSP.jl")
 
 # Model-specific type definitions and methods
