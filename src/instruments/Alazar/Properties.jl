@@ -5,6 +5,7 @@ export AlazarChannel
 export AlazarDataPacking
 export AlazarLSB
 export AlazarTimestampReset
+export AlazarTriggerEngine
 export AlazarTriggerRange
 
 export AuxSoftwareTriggerEnabled
@@ -38,6 +39,7 @@ abstract AlazarChannel        <: AlazarProperty
 abstract AlazarDataPacking    <: AlazarProperty
 abstract AlazarLSB            <: AlazarProperty
 abstract AlazarTimestampReset <: AlazarProperty
+abstract AlazarTriggerEngine  <: AlazarProperty
 abstract AlazarTriggerRange   <: AlazarProperty
 
 subtypesArray = [
@@ -64,9 +66,19 @@ subtypesArray = [
     (:TimestampResetOnce,        AlazarTimestampReset),
     (:TimestampResetAlways,      AlazarTimestampReset),
 
+    (:TriggerOnJ,                AlazarTriggerEngine),
+    (:TriggerOnK,                AlazarTriggerEngine),
+    (:TriggerOnJOrK,             AlazarTriggerEngine),
+    (:TriggerOnJAndK,            AlazarTriggerEngine),
+    (:TriggerOnJXorK,            AlazarTriggerEngine),
+    (:TriggerOnJAndNotK,         AlazarTriggerEngine),
+    (:TriggerOnNotJAndK,         AlazarTriggerEngine),
+
     (:ExtTrigger5V,              AlazarTriggerRange),
     (:ExtTriggerTTL,             AlazarTriggerRange),
-    (:ExtTrigger2V5,             AlazarTriggerRange)
+    (:ExtTrigger2V5,             AlazarTriggerRange),
+
+    (:DisableTrigger,            TriggerSource)
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -76,63 +88,78 @@ for ((subtypeSymb,supertype) in subtypesArray)
 end
 
 responses = Dict(
-    :Coupling           => Dict(Alazar.AC_COUPLING              => :AC,
-                                Alazar.DC_COUPLING              => :DC),
+    :Coupling       => Dict(Alazar.AC_COUPLING              => :AC,
+                            Alazar.DC_COUPLING              => :DC),
 
-    :ClockSlope         => Dict(Alazar.CLOCK_EDGE_RISING        => :RisingClock,
-                                Alazar.CLOCK_EDGE_FALLING       => :FallingClock),
+    :ClockSlope     => Dict(Alazar.CLOCK_EDGE_RISING        => :RisingClock,
+                            Alazar.CLOCK_EDGE_FALLING       => :FallingClock),
 
-    :ClockSource        => Dict(Alazar.INTERNAL_CLOCK           => :InternalClock,
-                                Alazar.EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
+    :ClockSource    => Dict(Alazar.INTERNAL_CLOCK           => :InternalClock,
+                            Alazar.EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
 
-    :SampleRate         => Dict(Alazar.SAMPLE_RATE_1KSPS        => :Rate1kSps,
-                                Alazar.SAMPLE_RATE_2KSPS        => :Rate2kSps,
-                                Alazar.SAMPLE_RATE_5KSPS        => :Rate5kSps,
-                                Alazar.SAMPLE_RATE_10KSPS       => :Rate10kSps,
-                                Alazar.SAMPLE_RATE_20KSPS       => :Rate20kSps,
-                                Alazar.SAMPLE_RATE_50KSPS       => :Rate50kSps,
-                                Alazar.SAMPLE_RATE_100KSPS      => :Rate100kSps,
-                                Alazar.SAMPLE_RATE_200KSPS      => :Rate200kSps,
-                                Alazar.SAMPLE_RATE_500KSPS      => :Rate500kSps,
-                                Alazar.SAMPLE_RATE_1MSPS        => :Rate1MSps,
-                                Alazar.SAMPLE_RATE_2MSPS        => :Rate2MSps,
-                                Alazar.SAMPLE_RATE_5MSPS        => :Rate5MSps,
-                                Alazar.SAMPLE_RATE_10MSPS       => :Rate10MSps,
-                                Alazar.SAMPLE_RATE_20MSPS       => :Rate20MSps,
-                                Alazar.SAMPLE_RATE_50MSPS       => :Rate50MSps,
-                                Alazar.SAMPLE_RATE_100MSPS      => :Rate100MSps,
-                                Alazar.SAMPLE_RATE_200MSPS      => :Rate200MSps,
-                                Alazar.SAMPLE_RATE_500MSPS      => :Rate500MSps,
-                                Alazar.SAMPLE_RATE_800MSPS      => :Rate800MSps,
-                                Alazar.SAMPLE_RATE_1000MSPS     => :Rate1000MSps,
-                                Alazar.SAMPLE_RATE_1200MSPS     => :Rate1200MSps,
-                                Alazar.SAMPLE_RATE_1500MSPS     => :Rate1500MSps,
-                                Alazar.SAMPLE_RATE_1800MSPS     => :Rate1800MSps),
+    :SampleRate     => Dict(Alazar.SAMPLE_RATE_1KSPS        => :Rate1kSps,
+                            Alazar.SAMPLE_RATE_2KSPS        => :Rate2kSps,
+                            Alazar.SAMPLE_RATE_5KSPS        => :Rate5kSps,
+                            Alazar.SAMPLE_RATE_10KSPS       => :Rate10kSps,
+                            Alazar.SAMPLE_RATE_20KSPS       => :Rate20kSps,
+                            Alazar.SAMPLE_RATE_50KSPS       => :Rate50kSps,
+                            Alazar.SAMPLE_RATE_100KSPS      => :Rate100kSps,
+                            Alazar.SAMPLE_RATE_200KSPS      => :Rate200kSps,
+                            Alazar.SAMPLE_RATE_500KSPS      => :Rate500kSps,
+                            Alazar.SAMPLE_RATE_1MSPS        => :Rate1MSps,
+                            Alazar.SAMPLE_RATE_2MSPS        => :Rate2MSps,
+                            Alazar.SAMPLE_RATE_5MSPS        => :Rate5MSps,
+                            Alazar.SAMPLE_RATE_10MSPS       => :Rate10MSps,
+                            Alazar.SAMPLE_RATE_20MSPS       => :Rate20MSps,
+                            Alazar.SAMPLE_RATE_50MSPS       => :Rate50MSps,
+                            Alazar.SAMPLE_RATE_100MSPS      => :Rate100MSps,
+                            Alazar.SAMPLE_RATE_200MSPS      => :Rate200MSps,
+                            Alazar.SAMPLE_RATE_500MSPS      => :Rate500MSps,
+                            Alazar.SAMPLE_RATE_800MSPS      => :Rate800MSps,
+                            Alazar.SAMPLE_RATE_1000MSPS     => :Rate1000MSps,
+                            Alazar.SAMPLE_RATE_1200MSPS     => :Rate1200MSps,
+                            Alazar.SAMPLE_RATE_1500MSPS     => :Rate1500MSps,
+                            Alazar.SAMPLE_RATE_1800MSPS     => :Rate1800MSps),
 
-    :TriggerSlope       => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
-                                Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
+    :TriggerSlope => Dict(Alazar.TRIGGER_SLOPE_POSITIVE => :RisingTrigger,
+                          Alazar.TRIGGER_SLOPE_NEGATIVE => :FallingTrigger),
 
-    :AlazarAux          => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
-                                Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
-                                Alazar.AUX_OUT_PACER         =>  :AuxOutputPacer,
-                                Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
-                                Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
+    :TriggerSource => Dict(Alazar.TRIG_EXTERNAL => :ExternalTrigger,
+                           Alazar.TRIG_DISABLE  => :DisableTrigger,
+                           Alazar.TRIG_CHAN_A   => :ChannelA,
+                           Alazar.TRIG_CHAN_B   => :ChannelB),
 
-    :AlazarChannel      => Dict(Alazar.CHANNEL_A                    => :ChannelA,
-                                Alazar.CHANNEL_B                    => :ChannelB,
-                                Alazar.CHANNEL_A | Alazar.CHANNEL_B => :BothChannels),
+    :AlazarAux  => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
+                        Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
+                        Alazar.AUX_OUT_PACER         =>  :AuxOutputPacer,
+                        Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
+                        Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
 
-    :AlazarDataPacking  => Dict(Alazar.PACK_DEFAULT            => :DefaultPacking,
-                                Alazar.PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
-                                Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits),
+    :AlazarChannel => Dict(Alazar.CHANNEL_A                    => :ChannelA,
+                           Alazar.CHANNEL_B                    => :ChannelB,
+                           Alazar.CHANNEL_A | Alazar.CHANNEL_B => :BothChannels),
 
-    :AlazarTimestampReset => Dict(Alazar.TIMESTAMP_RESET_ALWAYS  => :TimestampResetAlways,
-                                  Alazar.TIMESTAMP_RESET_FIRSTTIME_ONLY => :TimestampResetOnce),
+    :AlazarDataPacking =>
+            Dict(Alazar.PACK_DEFAULT            => :DefaultPacking,
+                 Alazar.PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
+                 Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits),
+
+    :AlazarTimestampReset =>
+            Dict(Alazar.TIMESTAMP_RESET_ALWAYS         => :TimestampResetAlways,
+                 Alazar.TIMESTAMP_RESET_FIRSTTIME_ONLY => :TimestampResetOnce),
+
+    :AlazarTriggerEngine =>
+            Dict(Alazar.TRIG_ENGINE_OP_J           => :TriggerOnJ,
+                 Alazar.TRIG_ENGINE_OP_K           => :TriggerOnK,
+                 Alazar.TRIG_ENGINE_OP_J_OR_K      => :TriggerOnJOrK,
+                 Alazar.TRIG_ENGINE_OP_J_AND_K     => :TriggerOnJAndK,
+                 Alazar.TRIG_ENGINE_OP_J_XOR_K     => :TriggerOnJXorK,
+                 Alazar.TRIG_ENGINE_OP_J_AND_NOT_K => :TriggerOnJAndNotK,
+                 Alazar.TRIG_ENGINE_OP_NOT_J_AND_K => :TriggerOnNotJAndK),
 
     :AlazarTriggerRange => Dict(Alazar.ETR_5V   => :ExternalTrigger5V,
                                 Alazar.ETR_2V5  => :ExternalTrigger2V5,
                                 Alazar.ETR_TTL  => :ExternalTriggerTTL)
-
 )
 
 generate_handlers(InstrumentAlazar, responses)

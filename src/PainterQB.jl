@@ -27,6 +27,7 @@ importall .AWG5014CModule
 importall .AlazarModule
 
 # Utility functions
+include("Reflection.jl")
 include("Sweep.jl")
 # include("Trace3.jl")
 

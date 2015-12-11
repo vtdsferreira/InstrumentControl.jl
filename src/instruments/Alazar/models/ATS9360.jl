@@ -17,13 +17,13 @@ type AlazarATS9360 <: InstrumentAlazar
     coupling::U32
     triggerRange::U32
 
-    triggerOperation::U32
-    triggerJChannel::U32
-    triggerJSlope::U32
-    triggerJLevel::U32
-    triggerKChannel::U32
-    triggerKSlope::U32
-    triggerKLevel::U32
+    engine::U32
+    channelJ::U32
+    slopeJ::U32
+    levelJ::AbstractFloat
+    channelK::U32
+    slopeK::U32
+    levelK::AbstractFloat
 
     triggerDelaySamples::U32
     triggerTimeoutTicks::U32
@@ -46,9 +46,9 @@ type AlazarATS9360 <: InstrumentAlazar
     inputcontrol_defaults(a::AlazarATS9360) = begin
         # There are no internal variables in the AlazarATS9360 type because
         # these are the only possible options for this particular instrument!
-        AlazarInputControl(a.handle, Alazar.CHANNEL_A, Alazar.DC_COUPLING,
+        @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_A, Alazar.DC_COUPLING,
             Alazar.INPUT_RANGE_PM_400_MV, Alazar.IMPEDANCE_50_OHM)
-        AlazarInputControl(a.handle, Alazar.CHANNEL_B, Alazar.DC_COUPLING,
+        @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_B, Alazar.DC_COUPLING,
             Alazar.INPUT_RANGE_PM_400_MV, Alazar.IMPEDANCE_50_OHM)
     end
 
@@ -59,6 +59,12 @@ type AlazarATS9360 <: InstrumentAlazar
         a.decimation = 0
         @eh2 AlazarSetCaptureClock(a.handle,
             a.clockSource, a.sampleRate, a.clockSlope, a.decimation)
+    end
+
+    trigger_defaults(a::AlazarATS9360) = begin
+        set_triggeroperation(a,  Alazar.TRIG_ENGINE_OP_J,
+            Alazar.TRIG_CHAN_A,  Alazar.TRIGGER_SLOPE_POSITIVE, 0.0,
+            Alazar.TRIG_DISABLE, Alazar.TRIGGER_SLOPE_POSITIVE, 0.0)
     end
 
     externaltrigger_defaults(a::AlazarATS9360) = begin
@@ -94,14 +100,7 @@ type AlazarATS9360 <: InstrumentAlazar
 
         inputcontrol_defaults(at)
         captureclock_defaults(at)
-        set_triggeroperation(at,
-                            Alazar.TRIG_ENGINE_OP_J,
-                            Alazar.TRIG_CHAN_A,
-                            Alazar.TRIGGER_SLOPE_POSITIVE,
-                            128,
-                            Alazar.TRIG_DISABLE,
-                            Alazar.TRIGGER_SLOPE_POSITIVE,
-                            128)
+        trigger_defaults(at)
         externaltrigger_defaults(at)
         configure(at, TriggerDelaySamples, 0) #U32(0)
         configure(at, TriggerTimeoutTicks, 0) #U32(0)
@@ -148,3 +147,5 @@ inspect(a::AlazarATS9360, ::Type{BufferAlignment}) =
     128 * inspect(a, ChannelCount)
 inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) =
     128 * inspect(a, ChannelCount)
+
+triglevel(a::AlazarATS9360, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))

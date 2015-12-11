@@ -182,12 +182,50 @@ end
 
 ## Trigger engine ###########
 
+function configure{T<:AlazarTriggerEngine}(a::InstrumentAlazar, engine::Type{T})
+    eng = code(engine(a))
+    set_triggeroperation(a, eng,
+        a.channelJ, a.slopeJ, a.levelJ,
+        a.channelK, a.slopeK, a.levelK)
+end
+
+function configure{S<:TriggerSlope,T<:TriggerSlope}(
+    a::InstrumentAlazar, slopeJ::Type{S}, slopeK::Type{T})
+
+    sJ = code(slopeJ(a))
+    sK = code(slopeK(a))
+    set_triggeroperation(a, a.engine,
+        a.channelJ, sJ, a.levelJ,
+        a.channelK, sK, a.levelK)
+end
+
+function configure{S<:Union{AlazarChannel,TriggerSource},
+                   T<:Union{AlazarChannel,TriggerSource}}(a::InstrumentAlazar,
+                   ::Type{TriggerSource}, sourceJ::Type{S}, sourceK::Type{T})
+
+    sJ = trigsrc(a, sourceJ)
+    sK = trigsrc(a, sourceK)
+    set_triggeroperation(a, a.engine,
+        sJ, a.slopeJ, a.levelJ,
+        sK, a.slopeK, a.levelK)
+end
+
+trigsrc(a::InstrumentAlazar, ::Type{ChannelA}) = Alazar.TRIG_CHAN_A
+trigsrc(a::InstrumentAlazar, ::Type{ChannelB}) = Alazar.TRIG_CHAN_B
+trigsrc{T<:TriggerSource}(a::InstrumentAlazar, s::Type{T}) = code(s(a))
+
+function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
+    set_triggeroperation(a.handle, a.engine,
+        a.channelJ, a.slopeJ, levelJ,
+        a.channelK, a.slopeK, levelK)
+end
+
 function configure{T<:Coupling}(a::InstrumentAlazar, coupling::Type{T})
     coup = code(coupling(a))
     @eh2 AlazarSetExternalTrigger(a.handle, coup, a.triggerRange)
 end
 
-function configure{T<:AlazarTriggerRange}(a::InstrumentAlazar, range::Type{T}...)
+function configure{T<:AlazarTriggerRange}(a::InstrumentAlazar, range::Type{T})
     rang = code(range(a))
     @eh2 AlazarSetExternalTrigger(a.handle, a.coupling, rang)
 end

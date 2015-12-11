@@ -10,7 +10,13 @@ export TriggerOutputPolarity, SampleRate, Search, SParameter
 export Medium
 
 # Properties common to many instruments and representable by bits types
-export ChannelCount, Frequency, FrequencyStart, FrequencyStop, Output, Power
+export ChannelCount
+export Frequency
+export FrequencyStart
+export FrequencyStop
+export Output
+export Power
+export TriggerLevel
 
 # Exceptions for instruments
 export InstrumentException
@@ -86,6 +92,7 @@ abstract FrequencyStart        <: NumericalProperty
 abstract FrequencyStop         <: NumericalProperty
 abstract Output                <: NumericalProperty
 abstract Power                 <: NumericalProperty
+abstract TriggerLevel          <: NumericalProperty
 
 Base.show{T<:InstrumentProperty}(io::IO, code::T) =
     print(io, "$(code.logicalname) represents as $(code.code)")

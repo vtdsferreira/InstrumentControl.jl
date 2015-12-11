@@ -38,7 +38,6 @@ export SequencerInfiniteLoop
 export SequencerLength
 export SequencerLoopCount
 export SequencerPosition
-export TriggerLevel
 export TriggerTimer
 export WaitingForTrigger
 export WaveformName
@@ -197,7 +196,6 @@ abstract SequencerInfiniteLoop    <: InstrumentProperty
 abstract SequencerLength          <: InstrumentProperty
 abstract SequencerLoopCount       <: InstrumentProperty
 abstract SequencerPosition        <: InstrumentProperty
-abstract TriggerLevel             <: InstrumentProperty
 abstract TriggerTimer             <: InstrumentProperty
 abstract WaitingForTrigger        <: InstrumentProperty
 abstract WaveformName             <: InstrumentProperty

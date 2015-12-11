@@ -216,14 +216,15 @@ end
 
 function set_triggeroperation(a::InstrumentAlazar, args...)
     if length(args) != 7
-        error("Need 7 arguments beside the instrument: operation, source1, ",
+        error("Need 7 arguments beside the instrument: engine, source1, ",
             "slope1, level1, source2, slope2, level2.")
     end
-    r = @eh2 AlazarSetTriggerOperation(a.handle, args[1], Alazar.TRIG_ENGINE_J,
-            args[2:4]..., Alazar.TRIG_ENGINE_K, args[5:7]...)
-    (a.triggerOperation,
-        a.triggerJChannel, a.triggerJSlope, a.triggerJLevel,
-        a.triggerKChannel, a.triggerKSlope, a.triggerKLevel) = (args...)
+    r = @eh2 AlazarSetTriggerOperation(a.handle, args[1],
+        Alazar.TRIG_ENGINE_J, args[2], args[3], triglevel(a,args[4]),
+        Alazar.TRIG_ENGINE_K, args[5], args[6], triglevel(a,args[7]))
+    (a.engine,
+        a.channelJ, a.slopeJ, a.levelJ,
+        a.channelK, a.slopeK, a.levelK) = (args...)
     r
 end
 
