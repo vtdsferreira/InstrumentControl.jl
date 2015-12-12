@@ -303,3 +303,17 @@ function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.
     array = reshape(array, sam_per_rec, rec_per_acq)
     convert(SharedArray, array)::SharedArray{T,2}
 end
+
+function postprocess{T}(ch::FFTRecordResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
+    backing = buf_array.backing
+    if sizeof(T) == sizeof(eltype(backing))
+        array = reinterpret(T, sdata(backing))  # now it has els of type T
+        # Get 2D dimensions
+    else
+        array = convert(T, sdata(backing))
+    end
+    sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
+    rec_per_acq = records_per_acquisition(ch.ins, ch.m)
+    array = reshape(array, sam_per_rec, rec_per_acq)
+    convert(SharedArray, array)::SharedArray{T,2}
+end

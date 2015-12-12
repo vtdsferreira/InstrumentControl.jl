@@ -285,10 +285,10 @@ function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
              "length requirements.")
     end
 
-    size_fft_rec = cld(by_fft_sam * sf, rec_fft_align) * rec_fft_align
+    size_fft_rec = cld(by_fft_sam * sf / 2, rec_fft_align) * rec_fft_align
     sf = Int(size_fft_rec / by_fft_sam) # will be an integer for sure
-    sf != m.sam_per_fft &&
-        error("Samples per FFT does not meet record alignment criteria, somehow.")
+    sf != m.sam_per_fft / 2 &&
+        error("Unexpected error.")
 
     if sf * tr * by_fft_sam > max_size_buf
         # Not everything will fit in one buffer. Changing samples per FFT
@@ -391,6 +391,8 @@ samples_per_record_measured(a::InstrumentAlazar, m::TraditionalRecordMode) =
 samples_per_record_returned(a::InstrumentAlazar, m::TraditionalRecordMode) =
     m.pre_sam_per_rec + m.post_sam_per_rec
 
+samples_per_record_returned(a::InstrumentAlazar, m::FFTRecordMode) =
+    Int(m.sam_per_fft / 2)
 
 function set_parameter(a::InstrumentAlazar, channelId, parameterId, value)
     @eh2 AlazarSetParameter(a.handle, channelId, parameterId, value)
