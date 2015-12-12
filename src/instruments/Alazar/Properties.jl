@@ -12,10 +12,10 @@ export AuxSoftwareTriggerEnabled
 export BitsPerSample
 export BytesPerSample
 export BufferAlignment
-export BufferCount
-export BufferSize
 export LED
 export MaxBufferBytes
+export MinFFTSamples
+export MaxFFTSamples
 export MinSamplesPerRecord
 export PretriggerAlignment
 export RecordCount
@@ -25,19 +25,13 @@ export TriggerDelaySamples
 export TriggerTimeoutS
 export TriggerTimeoutTicks
 
-export Bit
-export Byte
-export Sample
-export Buffer
-export Record
-export Acquisition
-
 abstract AlazarProperty <: InstrumentProperty
 
 abstract AlazarAux            <: AlazarProperty
 abstract AlazarChannel        <: AlazarProperty
 abstract AlazarDataPacking    <: AlazarProperty
 abstract AlazarLSB            <: AlazarProperty
+abstract AlazarOutputTTLLevel <: AlazarProperty
 abstract AlazarTimestampReset <: AlazarProperty
 abstract AlazarTriggerEngine  <: AlazarProperty
 abstract AlazarTriggerRange   <: AlazarProperty
@@ -63,6 +57,9 @@ subtypesArray = [
     (:LSBAuxIn0,                 AlazarLSB),
     (:LSBAuxIn1,                 AlazarLSB),
 
+    (:TTLHigh,                   AlazarOutputTTLLevel),
+    (:TTLLow,                    AlazarOutputTTLLevel),
+
     (:TimestampResetOnce,        AlazarTimestampReset),
     (:TimestampResetAlways,      AlazarTimestampReset),
 
@@ -78,6 +75,8 @@ subtypesArray = [
     (:ExtTriggerTTL,             AlazarTriggerRange),
     (:ExtTrigger2V5,             AlazarTriggerRange),
 
+    (:ChannelATrigger,           TriggerSource),
+    (:ChannelBTrigger,           TriggerSource),
     (:DisableTrigger,            TriggerSource)
 
 ]::Array{Tuple{Symbol,DataType},1}
@@ -121,19 +120,19 @@ responses = Dict(
                             Alazar.SAMPLE_RATE_1500MSPS     => :Rate1500MSps,
                             Alazar.SAMPLE_RATE_1800MSPS     => :Rate1800MSps),
 
-    :TriggerSlope => Dict(Alazar.TRIGGER_SLOPE_POSITIVE => :RisingTrigger,
-                          Alazar.TRIGGER_SLOPE_NEGATIVE => :FallingTrigger),
+    :TriggerSlope   => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
+                            Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
 
-    :TriggerSource => Dict(Alazar.TRIG_EXTERNAL => :ExternalTrigger,
-                           Alazar.TRIG_DISABLE  => :DisableTrigger,
-                           Alazar.TRIG_CHAN_A   => :ChannelA,
-                           Alazar.TRIG_CHAN_B   => :ChannelB),
+    :TriggerSource  => Dict(Alazar.TRIG_EXTERNAL            => :ExternalTrigger,
+                            Alazar.TRIG_DISABLE             => :DisableTrigger,
+                            Alazar.TRIG_CHAN_A              => :ChannelATrigger,
+                            Alazar.TRIG_CHAN_B              => :ChannelBTrigger),
 
-    :AlazarAux  => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
-                        Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
-                        Alazar.AUX_OUT_PACER         =>  :AuxOutputPacer,
-                        Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
-                        Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
+    :AlazarAux      => Dict(Alazar.AUX_OUT_TRIGGER       =>  :AuxOutputTrigger,
+                            Alazar.AUX_IN_TRIGGER_ENABLE =>  :AuxInputTriggerEnable,
+                            Alazar.AUX_OUT_PACER         =>  :AuxOutputPacer,
+                            Alazar.AUX_IN_AUXILIARY      =>  :AuxDigitalInput,
+                            Alazar.AUX_OUT_SERIAL_DATA   =>  :AuxDigitalOutput),
 
     :AlazarChannel => Dict(Alazar.CHANNEL_A                    => :ChannelA,
                            Alazar.CHANNEL_B                    => :ChannelB,
@@ -143,6 +142,9 @@ responses = Dict(
             Dict(Alazar.PACK_DEFAULT            => :DefaultPacking,
                  Alazar.PACK_8_BITS_PER_SAMPLE  => :Pack8Bits,
                  Alazar.PACK_12_BITS_PER_SAMPLE => :Pack12Bits),
+
+    :AlazarOutputTTLLevel => Dict(U32(0) => :TTLLow,
+                                  U32(1) => :TTLHigh),
 
     :AlazarTimestampReset =>
             Dict(Alazar.TIMESTAMP_RESET_ALWAYS         => :TimestampResetAlways,
@@ -170,11 +172,11 @@ abstract AuxSoftwareTriggerEnabled <: AlazarProperty
 abstract BitsPerSample             <: AlazarProperty
 abstract BytesPerSample            <: AlazarProperty
 abstract BufferAlignment           <: AlazarProperty
-abstract BufferCount               <: AlazarProperty
-abstract BufferSize                <: AlazarProperty
 abstract LED                       <: AlazarProperty
 abstract MinSamplesPerRecord       <: AlazarProperty
 abstract MaxBufferBytes            <: AlazarProperty
+abstract MinFFTSamples             <: AlazarProperty
+abstract MaxFFTSamples             <: AlazarProperty
 abstract PretriggerAlignment       <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
@@ -182,15 +184,6 @@ abstract Sleep                     <: AlazarProperty
 abstract TriggerDelaySamples       <: AlazarProperty
 abstract TriggerTimeoutS           <: AlazarProperty
 abstract TriggerTimeoutTicks       <: AlazarProperty
-
-abstract PerProperty
-
-abstract Bit         <: PerProperty
-abstract Byte        <: PerProperty
-abstract Sample      <: PerProperty
-abstract Buffer      <: PerProperty
-abstract Record      <: PerProperty
-abstract Acquisition <: PerProperty
 
 samplerate{T<:Rate1kSps}(::Type{T})    = 1e3
 samplerate{T<:Rate2kSps}(::Type{T})    = 2e3

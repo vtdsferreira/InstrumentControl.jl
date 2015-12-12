@@ -9,14 +9,7 @@ from the Alazar API.
 In our implementation a "sample" refers to a value from a single channel.
 You need to allocate memory for two values if you are measuring both channels.
 
-Types:
-
 InstrumentAlazar: Represents a digitizer. Abstract type.
-
-AlazarATS9360: Concrete type.
-AlazarATS9440: Abstract for now; accidentally wrote a method I didn't need
-
-DSPModule: Concrete type representing a DSP module on a particular digitizer.
 
 """
 
@@ -62,8 +55,8 @@ include("Properties.jl")
 include("Functions.jl")
 include("Configure.jl")
 include("Inspect.jl")
-
 include("DSP.jl")
+include("Responses.jl")
 
 # Model-specific type definitions and methods
 include("models/ATS9360.jl")

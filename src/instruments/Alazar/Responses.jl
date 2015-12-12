@@ -1,8 +1,15 @@
-import PainterQB: measure, Response
+export ContinuousStreamResponse
+export TriggeredStreamResponse
+export NPTRecordResponse
+export FFTRecordResponse
+export AlternatingRealImagResponse
+
+export measure
 
 abstract AlazarResponse{T} <: Response{T}
 abstract StreamResponse{T} <: AlazarResponse{T}
 abstract RecordResponse{T} <: AlazarResponse{T}
+abstract FFTResponse{T}    <: AlazarResponse{T}
 
 type ContinuousStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
@@ -13,12 +20,13 @@ type ContinuousStreamResponse{T} <: StreamResponse{T}
     ContinuousStreamResponse(a,b) = begin
         b <= 0 && error("Need at least one sample.")
         r = new(a,b)
-        r.m = mode4response(r)
+        r.m = ContinuousStreamMode(r.samples_per_ch *
+                                   inspect(r.ins, ChannelCount))
         r
     end
 end
-ContinuousStreamResponse(a::AlazarATS9360, samples_per_ch) =
-    ContinuousStreamResponse{SharedArray{Float16,1}}(a,samples_per_ch)
+ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
+    ContinuousStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
 type TriggeredStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
@@ -29,11 +37,12 @@ type TriggeredStreamResponse{T} <: StreamResponse{T}
     TriggeredStreamResponse(a,b) = begin
         b <= 0 && error("Need at least one sample.")
         r = new(a,b)
-        r.m = mode4response(r)
+        r.m = TriggeredStreamMode(r.samples_per_ch *
+                                  inspect(r.ins, ChannelCount))
         r
     end
 end
-TriggeredStreamResponse(a::AlazarATS9360, samples_per_ch) =
+TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
     TriggeredStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
 type NPTRecordResponse{T} <: RecordResponse{T}
@@ -47,14 +56,15 @@ type NPTRecordResponse{T} <: RecordResponse{T}
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
         r = new(a,b,c)
-        r.m = mode4response(r)
+        r.m = NPTRecordMode(r.sam_per_rec_per_ch * inspect(r.ins, ChannelCount),
+                            r.total_recs)
         r
     end
 end
-NPTRecordResponse(a::AlazarATS9360, sam_per_rec_per_ch, total_recs) =
+NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
     NPTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
 
-type FFTRecordResponse{T} <: RecordResponse{T}
+type FFTRecordResponse{T} <: FFTResponse{T}
     ins::InstrumentAlazar
     sam_per_rec::Int
     sam_per_fft::Int
@@ -70,58 +80,129 @@ type FFTRecordResponse{T} <: RecordResponse{T}
         d <= 0 && error("Need at least one record.")
         !(e <: Alazar.AlazarFFTBits) && error("Takes an AlazarFFTBits type.")
         r = new(a,b,c,d,e)
-        r.m = mode4response(r)
+        r.m = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
+                            r.total_recs, r.output_eltype)
         r
     end
 end
 FFTRecordResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) =
     FFTRecordResponse{SharedArray{S,2}}(a,b,c,d,e)
 
-function measure(ch::AlazarResponse)
+type AlternatingRealImagResponse{T} <: FFTResponse{T}
+    ins::InstrumentAlazar
+    sam_per_rec::Int
+    sam_per_fft::Int
+    total_recs::Int
+
+    mRe::AlazarMode
+    mIm::AlazarMode
+
+    AlternatingRealImagResponse(a,b,c,d) = begin
+        b <= 0 && error("Need at least one sample.")
+        c == 0 && error("FFT length (samples) too short.")
+        !ispow2(c) && error("FFT length (samples) not a power of 2.")
+        d <= 0 && error("Need at least one record.")
+        r = new(a,b,c,d)
+        r.mRe = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
+                              1, Alazar.S32Real)
+        r.mIm = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
+                              1, Alazar.S32Imag)
+        r
+    end
+end
+
+function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
+    a = ch.ins
+    mRe = ch.mRe
+    mIm = ch.mIm
+
+    # Calculate and adjust record and buffer sizes.
+    buffersizing(a,mRe)
+    buffersizing(a,mIm)
+    mRe.buf_count = 1
+    mIm.buf_count = 1
+
+    windowing(a,mRe)
+
+    timeout_ms = 5000
+    buf_completed = 0
+    by_transferred = 0
+    transfertime_s = 0
+
+    re_buf = bufferarray(a,mRe)
+    im_buf = bufferarray(a,mIm)
+
+    # Assumes both are 32-bit integers
+    final_buf = Alazar.DMABufferArray{Int32}(
+                    4 * ch.total_recs * ch.sam_per_fft * 2, 1)
+
+    # We are going to alternate between real and imaginary FFTs
+    buf_iter = cycle((re_buf, im_buf))
+    bis = start(buf_iter)
+
+    mode_iter = cycle((mRe, mIm))
+    mis = start(mode_iter)
+
+    j = 1
+    for i = 1:(ch.total_recs*2)
+        println(i," ",j)
+
+        (m, mis) = next(mode_iter, mis)
+        (buf, bis) = next(buf_iter, bis)
+
+        println(buf[1])
+        println(m.buf_size)
+
+        before_async_read(a, m)
+        post_async_buffer(a, buf[1], m.buf_size)
+
+        try
+            # Arm the board system to wait for a trigger event to begin the acquisition
+            startcapture(a)
+            wait_buffer(a, m, buf[1], timeout_ms)
+            for k = 1:m.sam_per_fft
+                final_buf.backing[j] = reinterpret(Int32, buf.backing[k])
+                j+=1
+            end
+
+            buf_completed += 1
+        finally
+            # Gracefully stop the acquisition, even if it failed.
+            # Strictly required when doing DSP, like FFTs.
+            abort(a,m)
+        end
+    end
+
+    postprocess(ch, buf_array)
+
+end
+
+function measure(ch::AlazarResponse; diagnostic::Bool=false)
     a = ch.ins
     m = ch.m
 
     # Calculate and adjust record and buffer sizes.
     buffersizing(a,m)
 
-    # Sets record size or performs FFT setup if needed.
-    # Calls before_async_read with appropriate parameters.
-    prepare(a,m)
+    # Sets record size if needed.
+    # Performs FFT windowing if needed.
+    recordsizing(a,m)
+    windowing(a,m)
+
+    # Includes fft_setup if applicable
+    before_async_read(a,m)
 
     # Buffers/acquisition is not the same as buffer count, in general.
     # Buffer count determines how many buffers are allocated; a greater numbers
     # of buffers/acquisition may result in reuse of the allocated buffers.
     # In applications where we don't want indefinite acquisition time,
     # we choose *not* to reuse buffers.
-    configure(a, BufferCount, inspect_per(a, m, Buffer, Acquisition))
-    println("Buf/acq: $(inspect_per(a,m,Buffer,Acquisition))")
-
-    # Measure and interpret
-    buf_array = measure(a, m, during=processing(ch))
-    postprocess(ch, buf_array)
-end
-
-mode4response(ch::ContinuousStreamResponse) =
-    ContinuousStreamMode(ch.samples_per_ch * inspect(ch.ins, ChannelCount))
-mode4response(ch::TriggeredStreamResponse) =
-    TriggeredStreamMode(ch.samples_per_ch * inspect(ch.ins, ChannelCount))
-mode4response(ch::NPTRecordResponse) =
-    NPTRecordMode(ch.sam_per_rec_per_ch * inspect(ch.ins, ChannelCount),
-                  ch.total_recs)
-mode4response(ch::FFTRecordResponse) =
-    FFTRecordMode(ch.sam_per_rec, ch.sam_per_fft, ch.total_recs, ch.output_eltype)
-
-processing(::StreamResponse) = tofloat!
-processing(::RecordResponse) = tofloat!
-processing(::FFTRecordResponse) = ((x,y,z)->nothing)
-
-function measure(a::AlazarATS9360, m::AlazarMode;
-    during::Function=((x,y,z)->nothing), diagnostic::Bool=false)
+    m.buf_count = buffers_per_acquisition(a,m)
 
     # Initialize some parameters
-    buf_size = inspect(a, BufferSize)
-    buf_count = inspect(a, BufferCount)
-    println(buf_size," ",buf_count)
+    buf_size = m.buf_size
+    buf_count = m.buf_count
+    #println(buf_size," ",buf_count)
     timeout_ms = 5000
     buf_completed = 0
     by_transferred = 0
@@ -136,7 +217,7 @@ function measure(a::AlazarATS9360, m::AlazarMode;
     end
 
     backing = buf_array.backing
-    sam_per_buf = inspect_per(a, m, Sample, Buffer)
+    sam_per_buf = samples_per_buffer_returned(a,m)
 
     try
         diagnostic && begin
@@ -149,7 +230,9 @@ function measure(a::AlazarATS9360, m::AlazarMode;
 
         for dmaptr in buf_array
             wait_buffer(a, m, dmaptr, timeout_ms)
-            during(sam_per_buf, buf_completed, backing)
+            # Take care if this ever does something for FFTRecordResponse since
+            # sam_per_buf is probably not the relevant number
+            processing(ch, sam_per_buf, buf_completed, backing)
             buf_completed += 1
         end
 
@@ -158,7 +241,7 @@ function measure(a::AlazarATS9360, m::AlazarMode;
             transfertime_s = time() - starttime
             println("Capture completed in $transfertime_s s")
 
-            rec_transferred = inspect_per(a, m, Record, Buffer) * buf_count
+            rec_transferred = records_per_buffer(a,m) * buf_count
 
             if (transfertime_s > 0.)
                 buf_per_s = buf_completed / transfertime_s
@@ -180,15 +263,19 @@ function measure(a::AlazarATS9360, m::AlazarMode;
         abort(a,m)
     end
 
-    buf_array
+    postprocess(ch, buf_array)
 end
+
+processing(::StreamResponse,a,b,c) = tofloat!(a,b,c)
+processing(::RecordResponse,a,b,c) = tofloat!(a,b,c)
+processing(::FFTResponse,a,b,c) = nothing
 
 function tofloat!(sam_per_buf::Integer, buf_completed::Integer, backing::SharedArray)
     @sync begin
         samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
         for p in procs(backing)
             @async begin
-                remotecall_wait(p, worker_tofloat!, backing, samplerange)
+                remotecall_wait(p, Main.worker_tofloat!, backing, samplerange)
             end
         end
     end
@@ -211,8 +298,8 @@ function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.
     else
         array = convert(T, sdata(backing))
     end
-    sam_per_rec = inspect_per(ch.ins, ch.m, Sample, Record)
-    rec_per_acq = inspect_per(ch.ins, ch.m, Record, Acquisition)
+    sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
+    rec_per_acq = records_per_acquisition(ch.ins, ch.m)
     array = reshape(array, sam_per_rec, rec_per_acq)
     convert(SharedArray, array)::SharedArray{T,2}
 end

@@ -29,7 +29,10 @@ type AlazarATS9360 <: InstrumentAlazar
     triggerTimeoutTicks::U32
 
     auxIOMode::U32
-    auxParam::U32
+    auxInTriggerSlope::U32
+    auxOutDivider::U32
+    auxOutTTLLevel::U32
+    auxOutTriggerEnable::Bool
 
     acquisitionChannel::U32
     channelCount::U32
@@ -39,9 +42,6 @@ type AlazarATS9360 <: InstrumentAlazar
 
     dspModules::Array{DSPModule,1}
 
-    bufferCount::U32
-    bufferSize::U32
-
     # defaults
     inputcontrol_defaults(a::AlazarATS9360) = begin
         # There are no internal variables in the AlazarATS9360 type because
@@ -50,6 +50,7 @@ type AlazarATS9360 <: InstrumentAlazar
             Alazar.INPUT_RANGE_PM_400_MV, Alazar.IMPEDANCE_50_OHM)
         @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_B, Alazar.DC_COUPLING,
             Alazar.INPUT_RANGE_PM_400_MV, Alazar.IMPEDANCE_50_OHM)
+        nothing
     end
 
     captureclock_defaults(a::AlazarATS9360) = begin
@@ -59,23 +60,27 @@ type AlazarATS9360 <: InstrumentAlazar
         a.decimation = 0
         @eh2 AlazarSetCaptureClock(a.handle,
             a.clockSource, a.sampleRate, a.clockSlope, a.decimation)
+        nothing
     end
 
     trigger_defaults(a::AlazarATS9360) = begin
         set_triggeroperation(a,  Alazar.TRIG_ENGINE_OP_J,
             Alazar.TRIG_CHAN_A,  Alazar.TRIGGER_SLOPE_POSITIVE, 0.0,
             Alazar.TRIG_DISABLE, Alazar.TRIGGER_SLOPE_POSITIVE, 0.0)
+        nothing
     end
 
     externaltrigger_defaults(a::AlazarATS9360) = begin
         a.coupling = Alazar.DC_COUPLING
         a.triggerRange = Alazar.ETR_5V
         @eh2 AlazarSetExternalTrigger(a.handle, a.coupling, a.triggerRange)
+        nothing
     end
 
     dsp_populate(a::AlazarATS9360) = begin
         dspModuleHandles = dsp_getmodulehandles(a)
         a.dspModules = map(x->DSPModule(a,x),dspModuleHandles)
+        nothing
     end
 
     AlazarATS9360() = AlazarATS9360(1,1)
@@ -105,6 +110,10 @@ type AlazarATS9360 <: InstrumentAlazar
         configure(at, TriggerDelaySamples, 0) #U32(0)
         configure(at, TriggerTimeoutTicks, 0) #U32(0)
 
+        at.auxOutTriggerEnable = false
+        at.auxInTriggerSlope = Alazar.TRIGGER_SLOPE_POSITIVE
+        at.auxOutDivider = 4
+        at.auxOutTTLLevel = 0
         configure(at, AuxOutputTrigger)
         # configure(at, AlazarDataPacking, Pack12Bits, BothChannels)
 
@@ -114,23 +123,29 @@ type AlazarATS9360 <: InstrumentAlazar
     end
 end
 
-# How does this change with data packing?
-inspect_per(a::AlazarATS9360, ::Type{Bit}, ::Type{Sample}) = 0x0c
-inspect_per(a::AlazarATS9360, ::Type{Byte}, ::Type{Sample}) = 2
-
 function configure(a::AlazarATS9360, ::Type{SampleRate}, rate::Real)
     actualRate = U32(fld(rate,1e6)*1e6)
     if (rate != actualRate)
         warning("Rate must be in increments of 1 MHz. Setting ",actualRate," Hz")
     end
 
-    r = @eh2 AlazarSetCaptureClock(a.handle,
-        Alazar.EXTERNAL_CLOCK_10MHz_REF, actualRate, a.clockSlope, 1)
+    @eh2 AlazarSetCaptureClock(a.handle,
+         Alazar.EXTERNAL_CLOCK_10MHz_REF, actualRate, a.clockSlope, 1)
 
     a.clockSource = Alazar.EXTERNAL_CLOCK_10MHz_REF
     a.sampleRate = actualRate
     a.decimation = 1
-    r
+    nothing
+end
+
+function configure{T<:Coupling}(a::AlazarATS9360, coupling::Type{T})
+    info("Only DC coupling is available on the ATS9360.")
+    nothing
+end
+
+function configure{T<:AlazarTriggerRange}(a::AlazarATS9360, range::Type{T})
+    info("Only 5V range is available on the ATS9360.")
+    nothing
 end
 
 # The following were obtained using Table 8 as a crude guide, followed
@@ -148,4 +163,7 @@ inspect(a::AlazarATS9360, ::Type{BufferAlignment}) =
 inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) =
     128 * inspect(a, ChannelCount)
 
+# How does this change with data packing?
+bits_per_sample(a::AlazarATS9360) = 0x0c
+bytes_per_sample(a::AlazarATS9360) = 2
 triglevel(a::AlazarATS9360, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))
