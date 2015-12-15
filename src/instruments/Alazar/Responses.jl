@@ -115,7 +115,7 @@ type AlternatingRealImagResponse{T} <: FFTResponse{T}
     sam_per_fft::Int
     total_recs::Int
 
-    mRe::AlazarMode
+    m::AlazarMode
     mIm::AlazarMode
 
     AlternatingRealImagResponse(a,b,c,d) = begin
@@ -124,12 +124,32 @@ type AlternatingRealImagResponse{T} <: FFTResponse{T}
         !ispow2(c) && error("FFT length (samples) not a power of 2.")
         d <= 0 && error("Need at least one record.")
         r = new(a,b,c,d)
-        r.mRe = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
+        r.m = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
                               1, Alazar.S32Real)
         r.mIm = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
                               1, Alazar.S32Imag)
         r
     end
+end
+
+function initmodes(r::StreamResponse)
+    r.m.total_samples = r.samples_per_ch * inspect(r.ins, ChannelCount)
+end
+
+function initmodes(r::FFTResponse)
+    r.m.sam_per_rec = r.sam_per_rec
+    r.m.sam_per_fft = r.sam_per_fft
+    r.m.total_recs = r.total_recs
+    r.m.output_eltype = r.output_eltype
+end
+
+function initmodes(r::NPTRecordResponse)
+    r.m.sam_per_rec = r.sam_per_rec_per_ch * inspect(r.ins, ChannelCount)
+    r.m.total_recs = r.total_recs
+end
+
+function initmodes(r::AlternatingRealImagResponse)
+    error("not yet implemented")
 end
 
 # Triangular dispatch would be nice here (waiting for Julia 0.5)
@@ -143,7 +163,8 @@ function scaling{T<:AbstractArray}(resp::FFTResponse{T},
     dims = T.parameters[2]::Int
     if (dims == 1)
         @assert whichaxis == 1
-        return repeat(collect(0:rate/npts:(rate/2-rate/npts)),outer=[resp.m.total_recs])
+        return repeat(collect(0:rate/npts:(rate/2-rate/npts)),
+                      outer=[resp.m.total_recs])
     elseif (dims == 2)
         @assert 1<=whichaxis<=2
         if (whichaxis == 1)
@@ -157,23 +178,24 @@ end
 
 function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
     a = ch.ins
-    mRe = ch.mRe
+    m = ch.m
     mIm = ch.mIm
 
     # Calculate and adjust record and buffer sizes.
-    buffersizing(a,mRe)
+    initmodes(ch)
+    buffersizing(a,m)
     buffersizing(a,mIm)
-    mRe.buf_count = 1
+    m.buf_count = 1
     mIm.buf_count = 1
 
-    windowing(a,mRe)
+    windowing(a,m)
 
     timeout_ms = 5000
     buf_completed = 0
     by_transferred = 0
     transfertime_s = 0
 
-    re_buf = bufferarray(a,mRe)
+    re_buf = bufferarray(a,m)
     im_buf = bufferarray(a,mIm)
 
     # Assumes both are 32-bit integers
@@ -184,7 +206,7 @@ function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
     buf_iter = cycle((re_buf, im_buf))
     bis = start(buf_iter)
 
-    mode_iter = cycle((mRe, mIm))
+    mode_iter = cycle((m, mIm))
     mis = start(mode_iter)
 
     j = 1
@@ -226,7 +248,10 @@ function measure(ch::AlazarResponse; diagnostic::Bool=false)
     m = ch.m
 
     # Calculate and adjust record and buffer sizes.
+    initmodes(ch)
     buffersizing(a,m)
+    # Do DSP windowing... move re_window, im_window to instrument?
+    # Certainly move the window types to the instrument
 
     # Sets record size if needed.
     # Performs FFT windowing if needed.

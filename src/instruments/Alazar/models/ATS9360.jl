@@ -41,6 +41,8 @@ type AlazarATS9360 <: InstrumentAlazar
     packingB::Clong
 
     dspModules::Array{DSPModule,1}
+    reWindowType::DataType
+    imWindowType::DataType
 
     # defaults
     inputcontrol_defaults(a::AlazarATS9360) = begin
@@ -119,6 +121,7 @@ type AlazarATS9360 <: InstrumentAlazar
 
         configure(at, BothChannels)
         dsp_populate(at)
+        configure(at, WindowOnes, WindowZeroes)
         return at
     end
 end
@@ -140,12 +143,18 @@ end
 
 function configure{T<:Coupling}(a::AlazarATS9360, coupling::Type{T})
     info("Only DC coupling is available on the ATS9360.")
-    nothing
 end
 
 function configure{T<:AlazarTriggerRange}(a::AlazarATS9360, range::Type{T})
     info("Only 5V range is available on the ATS9360.")
+end
+
+function configure{S<:DSPWindow, T<:DSPWindow}(
+        a::AlazarATS9360, re::Type{S}, im::Type{T})
+    a.reWindowType = S
+    a.imWindowType = T
     nothing
+    # AlazarFFTSetWindowFunction is called towards the start of measure()
 end
 
 # The following were obtained using Table 8 as a crude guide, followed

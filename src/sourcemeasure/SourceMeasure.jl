@@ -10,5 +10,6 @@ abstract Response{T}
 include("Averaging.jl")
 include("Property.jl")
 include("Random.jl")
+include("ResponseStim.jl")
 include("Thread.jl")
 include("Time.jl")

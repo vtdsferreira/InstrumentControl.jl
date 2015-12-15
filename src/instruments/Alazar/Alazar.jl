@@ -50,12 +50,12 @@ Base.show(io::IO, ins::InstrumentAlazar) = begin
 end
 
 include("Errors.jl")
-include("Modes.jl")
+include("ModeTypes.jl")
+include("DSPTypes.jl")
 include("Properties.jl")
 include("Functions.jl")
 include("Configure.jl")
 include("Inspect.jl")
-include("DSP.jl")
 include("Responses.jl")
 
 # Model-specific type definitions and methods
