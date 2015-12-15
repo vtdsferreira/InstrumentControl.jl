@@ -1,5 +1,5 @@
-# Painter Group qubits
+# Controlling instruments in Julia
 
-Painter Group implementation of instrument control in [Julia](https://github.com/julialang/Julia). Work in progress, not ready for implementation.
+[Painter group](http://copilot.caltech.edu) implementation of instrument control in [Julia](https://github.com/julialang/Julia). Special attention is being given to instruments suitable for qubit measurements. Work in progress, not ready for implementation.
 
 [Documentation](https://ajkeller34.github.io/Instruments.jl/) is being written as the code is developed.
