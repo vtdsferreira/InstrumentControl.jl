@@ -145,9 +145,11 @@
         
             <li><a href="#what-is-an-instrument">What is an instrument?</a></li>
         
-            <li><a href="#instrument-types">Instrument types</a></li>
+            <li><a href="#how-do-we-configure-instruments">How do we configure instruments?</a></li>
         
-            <li><a href="#instrument-interface">Instrument interface</a></li>
+            <li><a href="#how-do-we-take-measurements">How do we take measurements?</a></li>
+        
+            <li><a href="#measurement-archetypes">Measurement archetypes</a></li>
         
     
     </ul>
@@ -162,10 +164,10 @@ computer that we need to communicate with, and which can source or measure somet
 Every instrument may connect to the computer by different hardware,
 comms protocols, and command dialects.</p>
 <p>All instruments are Julia objects, subtypes of the abstract type <code>Instrument</code>.</p>
-<h2 id="instrument-types">Instrument types</h2>
+<h3 id="instrument-types">Instrument types</h3>
 <p>Many instruments share the same communications protocols. We subtype <code>Instrument</code>
 based on these protocols.</p>
-<h3 id="visa">VISA</h3>
+<h4 id="visa">VISA</h4>
 <p><code>abstract InstrumentVISA &lt;: Instrument</code></p>
 <p>Many instruments are able to be addressed using the
 <a href="http://www.ivifoundation.org/docs/vpp432_2014-06-19.pdf">VISA</a> standard (Virtual
@@ -173,7 +175,7 @@ Instrument Software Architecture), currently maintained by the IVI Foundation.</
 <p>To talk to VISA instruments will require the Julia package <a href="http://www.github.com/ajkeller34/VISA.jl">VISA.jl</a>
 as well as the <a href="https://www.ni.com/visa/">National Instruments VISA libraries</a>.
 Installation instructions are available at each link.</p>
-<h3 id="alazar-digitizers">Alazar digitizers</h3>
+<h4 id="alazar-digitizers">Alazar digitizers</h4>
 <p><code>abstract InstrumentAlazar &lt;: Instrument</code></p>
 <p>Digitizers made by <a href="http://www.alazartech.com">AlazarTech</a> are notably <em>not</em>
 compatible with the VISA standard. The VISA standard was probably not intended
@@ -181,53 +183,117 @@ for PCIe cards with extreme data throughput. All Alazar digitizers are addressab
 supplied by the company, which talks to the card through a shared library (think .dll on
 Windows or .so on Linux).</p>
 <p>The shared library files and API documentation are only available from AlazarTech.</p>
-<h2 id="instrument-interface">Instrument interface</h2>
+<h2 id="how-do-we-configure-instruments">How do we configure instruments?</h2>
 <h3 id="properties">Properties</h3>
 <p>Instrument properties are configured and inspected using two functions,
 <code>configure</code> and <code>inspect</code>. Why not <code>set</code> and <code>get</code>? Ultimately these verbs are
 pretty generic and often have implicit meanings in other programming languages.
 In C, for instance, <code>get</code> often implies that the function will return an address
 in memory rather than a value.</p>
-<p><a href="http://m-w.com/dictionary/configure">"configure"</a>:
-"to arrange or prepare (something) so that it can be used."</p>
-<p><a href="http://m-w.com/dictionary/inspect">"inspect"</a>:
-"to look at (something) carefully in order to learn more about it, to find problems, etc."</p>
+<p>Both <code>configure</code> and <code>inspect</code> have a lot of methods that take as one of their
+arguments an <code>InstrumentProperty</code> subtype:</p>
+<div class="codehilite"><pre>abstract InstrumentProperty
+abstract NumericalProperty &lt;: InstrumentProperty
+</pre></div>
+
+
+<p>One subtypes <code>InstrumentProperty</code> for properties such as <code>ClockSource</code>, the
+logical states of which have no obvious consistent encoding. One should instead
+subtype <code>NumericalProperty</code> for properties where a number suffices to describe
+the property (up to units).</p>
+<p>Properties which may be shared by multiple instruments should be defined in
+<code>src/InstrumentDefs.jl</code>. Examples include <code>Frequency</code>, <code>Power</code>, <code>SampleRate</code>, etc.
+They may be imported in each instrument's module as needed. Properties specific
+to a given instrument may of course be defined in that instrument's module.</p>
+<p>A design choice was for <code>configure</code> and <code>inspect</code> to take types rather than
+objects. Two examples:</p>
+<div class="codehilite"><pre>configure(awg, RisingTrigger) # not RisingTrigger()
+configure(awg, SampleRate, 10e6) # not SampleRate() or SampleRate(10e6)
+</pre></div>
+
+
+<h2 id="how-do-we-take-measurements">How do we take measurements?</h2>
 <h3 id="source-and-measure">Source and measure</h3>
 <p>Two functions are provided to abstract away many kinds of measurements: <code>source</code>
 and <code>measure</code>. In an experiment you source some stimulus and measure a response.
 Therefore <code>source</code> takes as an argument an object matching type signature
-<code>Stimulus</code>, which can have different fields for different types of stimuli.
-<code>measure</code> takes as an argument an object matching type signature <code>Response</code>. The
-idea is to write new subtypes of <code>Stimulus</code> and <code>Response</code> to describe what you
-are doing, as well as new methods for <code>source</code> and <code>measure</code>.</p>
-<h4 id="stimuli">Stimuli</h4>
-<p>Many common stimuli are already provided. For example, a signal generator may
-have <code>FrequencyStimulus</code> objects, with fields <code>siggen::SignalGenerator</code>
-and <code>frequency::AbstractFloat</code>. To source this stimulus (change the frequency),
-a method <code>source(freqstim::FrequencyStimulus)</code> is defined, which would change
-the frequency of the signal sourced by the generator as specified.</p>
-<p>Not all stimuli are associated with a physical instrument. For instance, a
+<code>Stimulus</code>, which can have different fields for different types of stimuli, as
+well as some value. <code>measure</code> takes as an argument an object matching type
+signature <code>Response</code>. The idea is to write new subtypes of <code>Stimulus</code> and <code>Response</code>
+to describe what you are doing, as well as new methods for <code>source</code> and <code>measure</code>.
+This will become clearer below when discussing measurement archetypes.</p>
+<h3 id="stimuli">Stimuli</h3>
+<p><code>abstract Stimulus</code></p>
+<p>All stimuli are objects, subtyped from the abstract <code>Stimulus</code> type.
+Many common stimuli are already provided. In fact, a great deal of functionality
+is provided by the <code>PropertyStimulus</code> type, which allows any <code>NumericalProperty</code>
+to act as a <code>Stimulus</code>. Consider the following example, where we make a
+<code>PropertyStimulus</code> for sweeping the frequency of our E8257D signal generator:</p>
+<div class="codehilite"><pre><span class="n">stim</span> <span class="o">=</span> <span class="n">PropertyStimulus</span><span class="p">(</span><span class="n">siggen</span><span class="p">::</span><span class="n">E8257D</span><span class="p">,</span> <span class="n">Frequency</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">freq</span> <span class="k">in</span> <span class="mf">1e9</span><span class="p">:</span><span class="mf">1e8</span><span class="p">:</span><span class="mf">5e9</span>
+    <span class="n">source</span><span class="p">(</span><span class="n">stim</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+    <span class="c"># measure(something)</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p>Stimuli need not be tied to a particular property. Rather, this is just one
+convenient and easily generalized example.</p>
+<p>Not all stimuli are associated with a physical instrument. For instance, sourcing a
 <code>DelayStimulus</code> will cause the script to block until a specified time after
-creation of the <code>DelayStimulus</code> object before proceeding with a measurement.
+creation of the <code>DelayStimulus</code> object.
 Perhaps in this case the instrument is the computer itself, but in the
 implementation, a <code>DelayStimulus</code> object has no field matching type signature
 <code>Instrument</code>.</p>
 <p>We have seen that a stimulus need not even be associated with an <code>Instrument</code>. It
 stands to reason that in principle they could be associated with several <code>Instrument</code>
-objects. Maybe a stimulus in a particular experiment is to change all gate voltages
-at once. If these are gate voltages are sourced by several physical instruments,
-then for example, perhaps several <code>Instrument</code>s should be a field in a new
-<code>Stimulus</code> object.</p>
-<h4 id="responses">Responses</h4>
+objects. Maybe a stimulus that makes sense for a particular experiment would be
+to change all gate voltages at once. If these gate voltages are sourced by several
+physical instruments, then several <code>Instrument</code>s should be fields in a new
+<code>Stimulus</code> subtype.</p>
+<h3 id="responses">Responses</h3>
+<p><code>abstract Response{T}</code></p>
+<p>Unlike stimuli, all responses are subtypes of an abstract parametric type,
+<code>Response{T}</code>. Although it may seem unduly abstract to have it be both abstract
+and parametric, we use this
+functionality to distinguish between desired return types of a measurement.
+Suppose an instrument provides data in some kind of awkward format, like 12-bit
+unsigned integers. For reasons of convenience we may want the measurement to
+return the data in a machine-native <code>Int64</code> format, or we may want to specify
+a linear or 2D shape for the data, etc.</p>
+<p>An important consideration in writing fast Julia code is to ensure type stability.
+In other words, the type that is returned from a function should depend only on
+the method signature and not depend on some value at run-time. By parameterizing
+<code>Response</code> types with the return type, we can ensure that <code>measure</code> will be
+type stable. If we instead had the desired return type as some field
+in a <code>Response</code> object, then <code>measure</code> would not be type stable.</p>
+<h4 id="alazar-digitizers_1">Alazar digitizers</h4>
+<p>A response type is given for each measurement mode:
+continuous streaming (<code>ContinuousStreamResponse</code>), triggered streaming (
+<code>TriggeredStreamResponse</code>), NPT records (<code>NPTRecordResponse</code>),
+and FPGA-based FFT calculations (<code>FFTHardwareResponse</code>).
+Traditional record mode has not been implemented yet for lack of immediate need.</p>
+<p>Looking at the source code, it would
+seem that there is some redundancy in the types, for instance there is an
+<code>NPTRecordMode</code> and an <code>NPTRecordResponse</code> object. The difference is that the
+former is used internally in the code to denote a particular method of configuring
+the instrument, allocating buffers, etc., whereas the latter specifies what you
+actually want to do: retrieve NPT records from the digitizer, perhaps doing
+some post-processing or processing during acquisition along the way. Perhaps
+different responses would dictate different processing behavior, while the
+instrument is ultimately configured the same way.</p>
+<h4 id="miscellaneous">Miscellaneous</h4>
 <p>Responses need not come from instruments. For test purposes, suppose we want to
 mimic a measurement by generating random numbers. <code>RandomResponse</code> produces a
 random number in the unit interval when it is measured. A <code>TimerResponse</code> will
 measure the time since creation of the <code>TimerResponse</code> object.</p>
-<h4 id="feedback-loops">Feedback loops</h4>
-<p>In principle, software feedback loops could be implemented
+<h3 id="feedback-loops">Feedback loops</h3>
+<p>In principle, asynchronous software feedback loops could be implemented
 with the <a href="http://www.github.com/shashi/Reactive.jl">Reactive.jl</a> package. This
-would probably only be suitable for slowly varying signals, e.g. PID temperature control.</p>
-<h3 id="measurement-archetypes">Measurement archetypes</h3>
+would probably only be suitable for slowly varying signals, e.g. PID temperature
+control. Ultimately benchmarking needs to be done to determine how useful
+this approach would be.</p>
+<h2 id="measurement-archetypes">Measurement archetypes</h2>
 <p>Now that we have abstracted <code>source</code> and <code>measure</code>, we can think about archetypal
 measurement schemes. Often we want to do a 1D sweep:</p>
 <div class="codehilite"><pre><span class="err">#</span> <span class="nx">Just</span> <span class="nx">an</span> <span class="nx">example</span><span class="p">;</span> <span class="nx">not</span> <span class="nx">necessarily</span> <span class="nx">implemented</span> <span class="k">this</span> <span class="nx">way</span><span class="p">...</span>

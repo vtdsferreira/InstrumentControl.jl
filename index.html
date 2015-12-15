@@ -173,7 +173,7 @@ with Julia.</p>
 using PainterQB.AlazarModule
 using PainterQB.AWG5014CModule  # etc.
 
-awg = AWG5014C(tcpip_socket(1.2.3.4),5000)
+awg = AWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
 ats = AlazarATS9360()
 
 # do something with awg and ats
@@ -183,18 +183,23 @@ ats = AlazarATS9360()
 <h2 id="to-do">To do</h2>
 <h4 id="globally">Globally</h4>
 <ul>
-<li>
-<p>Units! A good starting point would be the
+<li>Units! A good starting point would be the
 <a href="https://github.com/Keno/SIUnits.jl">SIUnits.jl</a> package. It currently does
-not support fractional units like V/sqrt(Hz) but support could be added.</p>
-</li>
-<li>
-<p>How to save / load configurations for instruments? Maybe JSON files?</p>
-</li>
+not support fractional units like V/sqrt(Hz) but support could be added.</li>
+<li>How to save / load configurations for instruments? Maybe JSON files?</li>
+<li>How to save / load data?</li>
+<li>Plotting ease-of-use features?</li>
 </ul>
 <h4 id="awg5014c">AWG5014C</h4>
 <ul>
 <li>Waveform methods could be made more Julian</li>
+<li>Sequencer support needed</li>
+</ul>
+<h4 id="alazar">Alazar</h4>
+<ul>
+<li>Some properties seem to be overwritten when switching between measurement
+modes. e.g. when measuring a ContinuousStreamResponse the trigger needs to be
+reconfigured before measuring a TriggeredStreamResponse.</li>
 </ul></div>
             
         </div>
@@ -242,5 +247,5 @@ not support fractional units like V/sqrt(Hz) but support could be added.</p>
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2015-12-01 21:14:19.841000
+Build Date UTC : 2015-12-15 02:10:56.513000
 -->
