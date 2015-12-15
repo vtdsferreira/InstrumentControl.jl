@@ -145,7 +145,9 @@
         
             <li><a href="#code-organization">Code organization</a></li>
         
-            <li><a href="#visa-instruments">VISA Instruments</a></li>
+            <li><a href="#visa-instruments">VISA instruments</a></li>
+        
+            <li><a href="#alazar-instruments">Alazar instruments</a></li>
         
     
     </ul>
@@ -167,14 +169,20 @@ someone else does not want to use our codebase.</li>
 </ul>
 </li>
 <li>All code is kept inside a "main" <code>PainterQB</code> module, defined inside <code>src/PainterQB.jl</code>.<ul>
-<li>Common instrument definitions and functions are defined in <code>src/InstrumentDefs.jl</code>.</li>
-<li><code>InstrumentVISA</code> and associated functions are defined in <code>src/InstrumentVISA.jl</code>.</li>
+<li>Common instrument definitions and functions are defined in <code>src/Definitions.jl</code>.</li>
+<li><code>InstrumentVISA</code> and associated functions are defined in <code>src/VISA.jl</code>.</li>
+<li>Code that should be loaded by Julia workers for parallel processing is
+actually kept outside the module to avoid loading the whole module unnecessarily.
+These are typically functions that are focused on number crunching and don't
+need to know much about the internals of PainterQB.</li>
 </ul>
 </li>
 <li>Each instrument is defined within its own module, a submodule of <code>PainterQB</code>.<ul>
-<li>Each instrument has a corresponding .jl file in <code>src/hardware</code>.</li>
+<li>Each instrument has a corresponding .jl file in <code>src/instruments</code>.</li>
 <li>Instrument model numbers are used for type definitions (e.g. <code>AWG5014C</code>),
-so module names have "Module" appended (e.g. <code>AWG5014CModule</code>).</li>
+so module names have "Module" appended (e.g. <code>AWG5014CModule</code>). We put all
+Alazar digitizers in <code>AlazarModule</code>; the feature set and API is so similar
+for the various models that just one module makes sense.</li>
 <li><code>export</code> statements from an instrument submodule are not currently exported
 from <code>PainterQB</code>. The statement <code>using PainterQB.AWG5014CModule</code>
 may be desired when using the AWG, for instance.</li>
@@ -184,17 +192,18 @@ may be desired when using the AWG, for instance.</li>
 uncomment the <code>importall</code> statements in <code>src/PainterQB.jl</code>.<ul>
 <li>As functions from different instrument modules are imported, any functions
 that are defined in different modules will be printed and warned about. The
-solution is to define the shared function name in <code>src/InstrumentDefs.jl</code>
+solution is to define the shared function name in <code>src/Definitions.jl</code>
 (<code>global</code> and <code>export</code>) such that the submodules can both import the function.</li>
 </ul>
 </li>
 </ul>
-<h2 id="visa-instruments">VISA Instruments</h2>
+<h2 id="visa-instruments">VISA instruments</h2>
 <p>Many commercial instruments support a common communications protocol and command
 syntax (VISA and SCPI respectively). For such instruments, many methods for
 <code>configure</code> and <code>inspect</code> can be generated with metaprogramming, rather than
-typing them out explicitly.</p>
-<p>Technical note: The file <code>src/Metaprogramming.jl</code> is included in each VISA
+typing them out explicitly. The implementation could and should be done
+more elegantly, but it seems to work for now.</p>
+<p>The file <code>src/Metaprogramming.jl</code> is included in each VISA
 instrument's source file, and therefore in each instrument's own module.
 Initially this file was included directly in the PainterQB module, but it seems
 there are subtleties regarding the use of the <code>@eval</code> macro between modules.</p>
@@ -213,7 +222,7 @@ generate the following method in the module where <code>generate_inspect</code> 
 commands, for instance in <code>OUTP#:FILT:FREQ</code>, where the <code>#</code> sign should be
 replaced by an integer. The replacements are done in the order of the arguments.
 Error checking is done on the number of arguments.</p>
-<p>For a given property, <code>inspect</code> will return either an InstrumentProperty object,
+<p>For a given property, <code>inspect</code> will return either an InstrumentProperty subtype,
 a number, a boolean, or a string as appropriate.</p>
 <h4 id="generate_configure">generate_configure</h4>
 <div class="codehilite"><pre>generate_configure{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
@@ -237,25 +246,156 @@ configure(ins::InsType, Property, values..., infixes...)
 <p>This makes it easy to generate new <code>InstrumentProperty</code> subtypes. Typically
 this function is called inside a for loop. Calling this function is equivalent
 to writing the following pseudocode:</p>
-<div class="codehilite"><pre>immutable (subtype){T} &lt;: supertype
-    ins::Instrument
-    code::T
-    logicalname::AbstractString
-
-    (subtype)(a,b) = new(a,b,string(subtype))
+<div class="codehilite"><pre>immutable subtype{T} &lt;: supertype
 end
 
-(subtype){T}(a::Instrument,b::T) = (subtype){T}(a,b)
-
 export subtype
-
-code{T}(inscode::subtype{T}) = inscode.code::T
 </pre></div>
 
 
-<p>Access to the <code>code</code> field is given through a method to allow for a little
-flexibility in case implementation details change.</p>
-<h4 id="generate_handlers">generate_handlers</h4></div>
+<h4 id="generate_handlers">generate_handlers</h4>
+<div class="codehilite"><pre>generate_handlers{T&lt;:Instrument}(insType::Type{T}, responseDict::Dict)
+</pre></div>
+
+
+<p>Each instrument can have a <code>responseDict</code>. For each setting of the instrument,
+for instance the <code>ClockSource</code>, we need to know the correspondence between a
+logical state <code>ExternalClock</code> and how the instrument encodes that logical state
+(e.g. "EXT").
+The <code>responseDict</code> is actually a dictionary of dictionaries. The first level keys
+are like <code>ClockSource</code> and the second level keys are like "EXT", with the value
+being <code>:ExternalClock</code>. Undoubtedly
+this nested dictionary is "nasty" (in the technical parlance) but the dictionary
+is only used for code
+creation and is not used at run-time (if the code works as intended).</p>
+<p>This function makes a lot of other functions. Given some response from an instrument,
+we require a function to map that response back on to the appropiate logical state.</p>
+<p><code>ClockSource(ins::AWG5014C, res::AbstractString)</code>
+returns an <code>InternalClock</code> or <code>ExternalClock</code> type as appropriate,
+based on the logical meaning of the response.</p>
+<p>We also want a function to generate logical states without having to know the way
+they are encoded by the instrument.</p>
+<p><code>code(ins::AWG5014C, ::Type{InternalClock})</code> returns "INT",
+with "INT" encoding how to pass this logical state to the instrument <code>ins</code>.</p>
+<h2 id="alazar-instruments">Alazar instruments</h2>
+<p>In the following discussion, it is important to understand some Alazar terminology.
+Newer Alazar digitizers use direct memory access (DMA) to stream data into
+a computer's RAM. A single <em>acquisition</em> uses one or many <em>buffers</em>, which
+constitute preallocated regions in the computer's physical memory. Each buffer
+contains one or many <em>records</em>. Each <em>record</em> contains many <em>samples</em>,
+which are the voltages measured by the digitizer.</p>
+<p>In streaming mode, there is only one record per buffer, but in other modes there
+can be many records per buffer.</p>
+<h3 id="buffer-allocation">Buffer allocation</h3>
+<h4 id="digitizer-requirements">Digitizer requirements</h4>
+<p>The Alazar digitizers expect buffers in physical memory which are page-aligned.
+The size of each buffer should also be chosen appropriately.</p>
+<p>The behavior of the digitizer is not specified when the buffer is made larger
+than 64 MB. On our computer, it seems like an <code>ApiWaitTimeout</code> error is thrown
+when the buffer is too large (for some unspecified definition of "large" greater
+than 64 MB). The digitizer will then throw <code>ApiInsufficientResources</code> errors
+whenever another acquisition is attempted, until the computer is restarted.
+Just restarting the Julia kernel, forcing a reload of the Alazar DLLs,
+does not appear to be enough to reset the digitizer fully.</p>
+<p>For performance reasons, a buffer should not be made much smaller than 1 MB if
+mulitple buffers are required.
+There is also a minimum record size for each model of digitizer. For the ATS9360,
+if a record has fewer than 256 samples (could be 128 from channel A + 128 from channel B)
+then the acquisition will proceed, but return garbage data. Allocating too small
+of a buffer is therefore still bad, but less fatal than allocating one that is too large.</p>
+<!-- In our code a "sample" may be considered as a pair of values if two channels are
+being measured, which is probably inconsistent with the API's definition. We
+will clean this up eventually. -->
+
+<h4 id="how-to-allocate-appropriate-buffers-in-julia">How to allocate appropriate buffers in Julia</h4>
+<p>In Julia, just allocating a fixed-size array will not necessarily return a
+page-aligned block in memory. One approach would be to allocate our own page-aligned
+memory using <code>valloc</code> and <code>vfree</code> (or their Windows equivalents).</p>
+<div class="codehilite"><pre><span class="kd">function</span> <span class="nx">virtualalloc</span><span class="p">{</span><span class="nx">T</span><span class="o">&lt;:</span><span class="nx">Union</span><span class="p">{</span><span class="nx">UInt8</span><span class="p">,</span><span class="nx">UInt16</span><span class="p">}}(</span><span class="nx">size_bytes</span><span class="o">::</span><span class="nx">Integer</span><span class="p">,</span> <span class="o">::</span><span class="nx">Type</span><span class="p">{</span><span class="nx">T</span><span class="p">})</span>
+    <span class="err">@</span><span class="nx">windows</span><span class="o">?</span> <span class="nx">begin</span>
+        <span class="nx">MEM_COMMIT</span> <span class="o">=</span> <span class="nx">U32</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span>
+        <span class="nx">PAGE_READWRITE</span> <span class="o">=</span> <span class="nx">U32</span><span class="p">(</span><span class="mh">0x4</span><span class="p">)</span>
+        <span class="nx">addr</span> <span class="o">=</span> <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">VirtualAlloc</span><span class="p">,</span> <span class="s2">&quot;Kernel32&quot;</span><span class="p">),</span> <span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">},</span>
+                     <span class="p">(</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">Void</span><span class="p">},</span> <span class="nx">Culonglong</span><span class="p">,</span> <span class="nx">Culong</span><span class="p">,</span> <span class="nx">Culong</span><span class="p">),</span>
+                     <span class="nx">C_NULL</span><span class="p">,</span> <span class="nx">size_bytes</span><span class="p">,</span> <span class="nx">MEM_COMMIT</span><span class="p">,</span> <span class="nx">PAGE_READWRITE</span><span class="p">)</span>
+    <span class="nx">end</span> <span class="o">:</span> <span class="p">(</span><span class="err">@</span><span class="nx">linux</span><span class="o">?</span> <span class="nx">begin</span>
+        <span class="nx">addr</span> <span class="o">=</span> <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">valloc</span><span class="p">,</span> <span class="nx">libc</span><span class="p">),</span> <span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">},</span> <span class="p">(</span><span class="nx">Culonglong</span><span class="p">,),</span> <span class="nx">size_bytes</span><span class="p">)</span>
+    <span class="nx">end</span> <span class="o">:</span> <span class="k">throw</span><span class="p">(</span><span class="nx">SystemError</span><span class="p">()))</span>
+
+    <span class="nx">addr</span> <span class="o">==</span> <span class="nx">C_NULL</span> <span class="o">&amp;&amp;</span> <span class="k">throw</span><span class="p">(</span><span class="nx">OutOfMemoryError</span><span class="p">())</span>
+
+    <span class="nx">addr</span><span class="o">::</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">}</span>
+<span class="nx">end</span>
+
+<span class="kd">function</span> <span class="nx">virtualfree</span><span class="p">{</span><span class="nx">T</span><span class="o">&lt;:</span><span class="nx">Union</span><span class="p">{</span><span class="nx">UInt16</span><span class="p">,</span><span class="nx">UInt8</span><span class="p">}}(</span><span class="nx">addr</span><span class="o">::</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">})</span>
+    <span class="err">@</span><span class="nx">windows</span><span class="o">?</span> <span class="nx">begin</span>
+        <span class="nx">MEM_RELEASE</span> <span class="o">=</span> <span class="mh">0x8000</span>
+        <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">VirtualFree</span><span class="p">,</span> <span class="s2">&quot;Kernel32&quot;</span><span class="p">),</span> <span class="nx">Cint</span><span class="p">,</span> <span class="p">(</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">Void</span><span class="p">},</span> <span class="nx">Culonglong</span><span class="p">,</span> <span class="nx">Culong</span><span class="p">),</span>
+            <span class="nx">addr</span><span class="p">,</span> <span class="nx">Culonglong</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">MEM_RELEASE</span><span class="p">)</span>
+    <span class="nx">end</span> <span class="o">:</span> <span class="p">(</span><span class="err">@</span><span class="nx">linux</span><span class="o">?</span> <span class="nx">begin</span>
+        <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">free</span><span class="p">,</span> <span class="s2">&quot;libc&quot;</span><span class="p">),</span> <span class="nx">Void</span><span class="p">,</span> <span class="p">(</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">Void</span><span class="p">},),</span> <span class="nx">addr</span><span class="p">)</span>
+    <span class="nx">end</span> <span class="o">:</span> <span class="k">throw</span><span class="p">(</span><span class="nx">SystemError</span><span class="p">()))</span>
+    <span class="nx">nothing</span>
+<span class="nx">end</span>
+</pre></div>
+
+
+<p>In case it wasn't obvious, this was my original approach.
+Note that memory allocated in this way will not be visible to multiple processes
+without extra work, and moreover we will need to deallocate the memory ourselves
+at a later time, perhaps using <code>finalizer()</code> if the memory is made to be part of
+a Julia object.</p>
+<p>Fortunately, there is a special kind of array in Julia called the <code>SharedArray</code>.
+It can be viewed and modified from multiple processes, and the memory is page-aligned.
+Hopefully this continues to be the case in future Julia releases.
+We implement a type called the <code>DMABufferArray</code> whose definition is worth
+repeating here:</p>
+<div class="codehilite"><pre>type DMABufferArray{sample_type} &lt;:
+        AbstractArray{Ptr{sample_type},1}
+
+    bytes_buf::Int
+    n_buf::Int
+    backing::SharedArray{sample_type}
+
+    DMABufferArray(bytes_buf, n_buf) = begin
+        n_buf &gt; 1 &amp;&amp; bytes_buf % Base.Mmap.PAGESIZE != 0 &amp;&amp;
+            error(&quot;Bytes per buffer must be a multiple of Base.Mmap.PAGESIZE when &quot;,
+                  &quot;there is more than one buffer.&quot;)
+
+        backing = SharedArray(sample_type,
+                        Int((bytes_buf * n_buf) / sizeof(sample_type)))
+
+        dmabuf = new(bytes_buf,
+                     n_buf,
+                     backing)
+
+        return dmabuf
+    end
+
+end
+
+Base.size(dma::DMABufferArray) = (dma.n_buf,)
+Base.linearindexing(::Type{DMABufferArray}) = Base.LinearFast()
+Base.getindex(dma::DMABufferArray, i::Int) =
+    pointer(dma.backing) + (i-1) * dma.bytes_buf
+Base.length(dma::DMABufferArray) = dma.n_buf
+
+bytespersample{T}(buf_array::DMABufferArray{T}) = sizeof(T)
+sampletype{T}(buf_array::DMABufferArray{T}) = T
+</pre></div>
+
+
+<p>Some comments:</p>
+<ul>
+<li>A single SharedArray is used to back <em>all</em> DMA buffers. Memory is therefore
+contiguous and page-aligned.</li>
+<li>The memory for each DMA buffer is required to be a multiple of the page size
+when there is more than one buffer.</li>
+<li>The memory can be accessed by multiple processes.</li>
+<li>The elements of a <code>DMABufferArray</code> are pointers to the the different
+locations in memory which act as DMA buffers. The array is iterable and indexable
+as usual.</li>
+</ul></div>
             
         </div>
 
