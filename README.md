@@ -1,13 +1,5 @@
 # Painter Group qubits
 
-Painter Group implementation of Instrument control with Julia. Work in progress, not ready for implementation.
+Painter Group implementation of instrument control in [Julia](https://github.com/julialang/Julia). Work in progress, not ready for implementation.
 
-## Documentation
-
-Julia code for VISA forked from the [Instruments.jl package](http://instrumentsjl.readthedocs.org/). It is now available in its [own module](https://github.com/ajkeller34/VISA.jl) which is required to run this code.
-
-Other documentation forthcoming.
-
-## Quick Start
-
-Forthcoming.
+[Documentation](https://ajkeller34.github.io/Instruments.jl/) is being written as the code is developed.
