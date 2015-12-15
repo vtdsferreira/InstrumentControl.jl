@@ -1,10 +1,12 @@
 export ContinuousStreamResponse
 export TriggeredStreamResponse
 export NPTRecordResponse
-export FFTRecordResponse
+export FFTHardwareResponse
+export FFTSoftwareResponse
 export AlternatingRealImagResponse
 
 export measure
+import PainterQB.scaling
 
 abstract AlazarResponse{T} <: Response{T}
 abstract StreamResponse{T} <: AlazarResponse{T}
@@ -64,7 +66,7 @@ end
 NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
     NPTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
 
-type FFTRecordResponse{T} <: FFTResponse{T}
+type FFTHardwareResponse{T} <: FFTResponse{T}
     ins::InstrumentAlazar
     sam_per_rec::Int
     sam_per_fft::Int
@@ -73,7 +75,7 @@ type FFTRecordResponse{T} <: FFTResponse{T}
 
     m::AlazarMode
 
-    FFTRecordResponse(a,b,c,d,e) = begin
+    FFTHardwareResponse(a,b,c,d,e) = begin
         b <= 0 && error("Need at least one sample.")
         c == 0 && error("FFT length (samples) too short.")
         !ispow2(c) && error("FFT length (samples) not a power of 2.")
@@ -85,8 +87,27 @@ type FFTRecordResponse{T} <: FFTResponse{T}
         r
     end
 end
-FFTRecordResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) =
-    FFTRecordResponse{SharedArray{S,2}}(a,b,c,d,e)
+FFTHardwareResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) =
+    FFTHardwareResponse{SharedArray{S,2}}(a,b,c,d,e)
+
+type FFTSoftwareResponse{T} <: FFTResponse{T}
+    ins::Instrument
+    sam_per_rec::Int
+    sam_per_fft::Int
+    total_recs::Int
+
+    m::AlazarMode
+
+    FFTSoftwareResponse(a,b,c,d) = begin
+        b <= 0 && error("Need at least one sample.")
+        c == 0 && error("FFT length (samples) too short.")
+        !ispow2(c) && error("FFT length (samples) not a power of 2.")
+        d <= 0 && error("Need at least one record.")
+        r = new(a,b,c,d,e)
+        r.m = NPTRecordMode(r.sam_per_rec, r.total_recs)
+        r
+    end
+end
 
 type AlternatingRealImagResponse{T} <: FFTResponse{T}
     ins::InstrumentAlazar
@@ -109,6 +130,29 @@ type AlternatingRealImagResponse{T} <: FFTResponse{T}
                               1, Alazar.S32Imag)
         r
     end
+end
+
+# Triangular dispatch would be nice here (waiting for Julia 0.5)
+# scaling{T, S<:AbstractArray{T,2}}(resp::FFTRecordResponse{S}, ...
+
+function scaling{T<:AbstractArray}(resp::FFTResponse{T},
+        whichaxis::Integer=1)
+
+    rate = inspect(resp.ins, SampleRate)
+    npts = resp.m.sam_per_fft # single-sided
+    dims = T.parameters[2]::Int
+    if (dims == 1)
+        @assert whichaxis == 1
+        return repeat(collect(0:rate/npts:(rate/2-rate/npts)),outer=[resp.m.total_recs])
+    elseif (dims == 2)
+        @assert 1<=whichaxis<=2
+        if (whichaxis == 1)
+            return collect(0:rate/npts:(rate/2-rate/npts))
+        else
+            return collect(1:resp.m.total_recs)
+        end
+    end
+
 end
 
 function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
@@ -160,8 +204,8 @@ function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
             # Arm the board system to wait for a trigger event to begin the acquisition
             startcapture(a)
             wait_buffer(a, m, buf[1], timeout_ms)
-            for k = 1:m.sam_per_fft
-                final_buf.backing[j] = reinterpret(Int32, buf.backing[k])
+            for k = 1:div(m.sam_per_fft,2)
+                final_buf.backing[j] = convert(Int32, buf.backing[k])
                 j+=1
             end
 
@@ -173,7 +217,7 @@ function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
         end
     end
 
-    postprocess(ch, buf_array)
+    postprocess(ch, final_buf)
 
 end
 
@@ -304,7 +348,7 @@ function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.
     convert(SharedArray, array)::SharedArray{T,2}
 end
 
-function postprocess{T}(ch::FFTRecordResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
+function postprocess{T}(ch::FFTResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
     backing = buf_array.backing
     if sizeof(T) == sizeof(eltype(backing))
         array = reinterpret(T, sdata(backing))  # now it has els of type T

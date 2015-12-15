@@ -1,6 +1,8 @@
 export Stimulus, Response
 
-export source, measure
+export source, measure, scaling
+
+global scaling
 
 abstract Stimulus
 abstract Response{T}

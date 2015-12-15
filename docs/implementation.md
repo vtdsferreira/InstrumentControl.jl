@@ -13,14 +13,14 @@ package is unregistered and must be retrieved from the repository with
     (e.g. VISA and Alazar calls). This way, at least some code can be reused if
     someone else does not want to use our codebase.
 - All code is kept inside a "main" `PainterQB` module, defined inside `src/PainterQB.jl`.
-    - Common instrument definitions and functions are defined in `src/InstrumentDefs.jl`.
-    - `InstrumentVISA` and associated functions are defined in `src/InstrumentVISA.jl`.
+    - Common instrument definitions and functions are defined in `src/Definitions.jl`.
+    - `InstrumentVISA` and associated functions are defined in `src/VISA.jl`.
     - Code that should be loaded by Julia workers for parallel processing is
-    actually kept outside the module to avoid loading the whole thing unnecessarily.
+    actually kept outside the module to avoid loading the whole module unnecessarily.
     These are typically functions that are focused on number crunching and don't
     need to know much about the internals of PainterQB.
 - Each instrument is defined within its own module, a submodule of `PainterQB`.
-    - Each instrument has a corresponding .jl file in `src/hardware`.
+    - Each instrument has a corresponding .jl file in `src/instruments`.
     - Instrument model numbers are used for type definitions (e.g. `AWG5014C`),
     so module names have "Module" appended (e.g. `AWG5014CModule`). We put all
     Alazar digitizers in `AlazarModule`; the feature set and API is so similar
@@ -32,7 +32,7 @@ package is unregistered and must be retrieved from the repository with
 uncomment the `importall` statements in `src/PainterQB.jl`.
     - As functions from different instrument modules are imported, any functions
     that are defined in different modules will be printed and warned about. The
-    solution is to define the shared function name in `src/InstrumentDefs.jl`
+    solution is to define the shared function name in `src/Definitions.jl`
     (`global` and `export`) such that the submodules can both import the function.
 
 ## VISA instruments
@@ -68,7 +68,7 @@ commands, for instance in `OUTP#:FILT:FREQ`, where the `#` sign should be
 replaced by an integer. The replacements are done in the order of the arguments.
 Error checking is done on the number of arguments.
 
-For a given property, `inspect` will return either an InstrumentProperty object,
+For a given property, `inspect` will return either an InstrumentProperty subtype,
 a number, a boolean, or a string as appropriate.
 
 #### generate_configure
@@ -98,23 +98,11 @@ this function is called inside a for loop. Calling this function is equivalent
 to writing the following pseudocode:
 
 ```
-immutable (subtype){T} <: supertype
-    ins::Instrument
-    code::T
-    logicalname::AbstractString
-
-    (subtype)(a,b) = new(a,b,string(subtype))
+immutable subtype{T} <: supertype
 end
 
-(subtype){T}(a::Instrument,b::T) = (subtype){T}(a,b)
-
 export subtype
-
-code{T}(inscode::subtype{T}) = inscode.code::T
 ```
-
-Access to the `code` field is given through a method to allow for a little
-flexibility in case implementation details change.
 
 #### generate_handlers
 
@@ -122,23 +110,28 @@ flexibility in case implementation details change.
 generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)
 ```
 
-Each instrument can have a `responseDict`. For each property of the instrument,
+Each instrument can have a `responseDict`. For each setting of the instrument,
 for instance the `ClockSource`, we need to know the correspondence between a
 logical state `ExternalClock` and how the instrument encodes that logical state
-(e.g. "EXT"). The responseDictionary is a dictionary of dictionaries. The first
-level keys are like `ClockSource` and the second level keys are like "EXT".
+(e.g. "EXT").
+The `responseDict` is actually a dictionary of dictionaries. The first level keys
+are like `ClockSource` and the second level keys are like "EXT", with the value
+being `:ExternalClock`. Undoubtedly
+this nested dictionary is "nasty" (in the technical parlance) but the dictionary
+is only used for code
+creation and is not used at run-time (if the code works as intended).
 
 This function makes a lot of other functions. Given some response from an instrument,
-we require a function to map that response back on to the appropriate logical state.
+we require a function to map that response back on to the appropiate logical state.
 
-Example: `ClockSource(ins::AWG5014C,res::AbstractString)` returns an
-`InternalClock(ins,"INT")` or `ExternalClock(ins,"EXT")` object as appropriate,
+`ClockSource(ins::AWG5014C, res::AbstractString)`
+returns an `InternalClock` or `ExternalClock` type as appropriate,
 based on the logical meaning of the response.
 
 We also want a function to generate logical states without having to know the way
 they are encoded by the instrument.
 
-`InternalClock(ins::AWG5014C)` returns an `InternalClock(ins,"INT")` object,
+`code(ins::AWG5014C, ::Type{InternalClock})` returns "INT",
 with "INT" encoding how to pass this logical state to the instrument `ins`.
 
 ## Alazar instruments
@@ -168,7 +161,8 @@ whenever another acquisition is attempted, until the computer is restarted.
 Just restarting the Julia kernel, forcing a reload of the Alazar DLLs,
 does not appear to be enough to reset the digitizer fully.
 
-For performance reasons, a buffer should not be made much smaller than 1 MB.
+For performance reasons, a buffer should not be made much smaller than 1 MB if
+mulitple buffers are required.
 There is also a minimum record size for each model of digitizer. For the ATS9360,
 if a record has fewer than 256 samples (could be 128 from channel A + 128 from channel B)
 then the acquisition will proceed, but return garbage data. Allocating too small
@@ -213,6 +207,7 @@ function virtualfree{T<:Union{UInt16,UInt8}}(addr::Ptr{T})
 end
 ```
 
+In case it wasn't obvious, this was my original approach.
 Note that memory allocated in this way will not be visible to multiple processes
 without extra work, and moreover we will need to deallocate the memory ourselves
 at a later time, perhaps using `finalizer()` if the memory is made to be part of
@@ -225,27 +220,24 @@ We implement a type called the `DMABufferArray` whose definition is worth
 repeating here:
 
 ```
-type DMABufferArray{cSampleType <: Union{UInt16,UInt8}} <:
-        AbstractArray{Ptr{cSampleType},1}
+type DMABufferArray{sample_type} <:
+        AbstractArray{Ptr{sample_type},1}
 
-    bytes_per_sample::Int
     bytes_buf::Int
     n_buf::Int
-    buffer::SharedArray{cSampleType}
+    backing::SharedArray{sample_type}
 
-    DMABufferArray(bytes_per_sample, bytes_buf, n_buf) = begin
-
+    DMABufferArray(bytes_buf, n_buf) = begin
         n_buf > 1 && bytes_buf % Base.Mmap.PAGESIZE != 0 &&
-            error("Bytes per buffer must be a multiple of Base.Mmap.PAGESIZE when",
+            error("Bytes per buffer must be a multiple of Base.Mmap.PAGESIZE when ",
                   "there is more than one buffer.")
 
-        buffer = SharedArray(cSampleType,
-                             Int(fld(bytes_buf * n_buf, bytes_per_sample)))
+        backing = SharedArray(sample_type,
+                        Int((bytes_buf * n_buf) / sizeof(sample_type)))
 
-        dmabuf = new(bytes_per_sample,
-                     bytes_buf,
+        dmabuf = new(bytes_buf,
                      n_buf,
-                     buffer)
+                     backing)
 
         return dmabuf
     end
@@ -254,13 +246,12 @@ end
 
 Base.size(dma::DMABufferArray) = (dma.n_buf,)
 Base.linearindexing(::Type{DMABufferArray}) = Base.LinearFast()
-Base.getindex(dma::DMABufferArray, i::Int) = pointer(dma.buffer) + (i-1) * dma.bytes_buf
+Base.getindex(dma::DMABufferArray, i::Int) =
+    pointer(dma.backing) + (i-1) * dma.bytes_buf
 Base.length(dma::DMABufferArray) = dma.n_buf
 
-DMABufferArray(bytes_per_sample, bytes_buf, n_buf) =
-    DMABufferArray{csampletype(bytes_per_sample)}(bytes_per_sample, bytes_buf, n_buf)
-
-csampletype(bytes_per_sample::Integer) = bytes_per_sample > 1 ? UInt16 : UInt8
+bytespersample{T}(buf_array::DMABufferArray{T}) = sizeof(T)
+sampletype{T}(buf_array::DMABufferArray{T}) = T
 ```
 
 Some comments:

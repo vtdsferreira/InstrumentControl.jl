@@ -71,9 +71,9 @@ subtypesArray = [
     (:TriggerOnJAndNotK,         AlazarTriggerEngine),
     (:TriggerOnNotJAndK,         AlazarTriggerEngine),
 
-    (:ExtTrigger5V,              AlazarTriggerRange),
-    (:ExtTriggerTTL,             AlazarTriggerRange),
-    (:ExtTrigger2V5,             AlazarTriggerRange),
+    (:ExternalTrigger5V,         AlazarTriggerRange),
+    (:ExternalTriggerTTL,        AlazarTriggerRange),
+    (:ExternalTrigger2V5,        AlazarTriggerRange),
 
     (:ChannelATrigger,           TriggerSource),
     (:ChannelBTrigger,           TriggerSource),
@@ -161,7 +161,7 @@ responses = Dict(
 
     :AlazarTriggerRange => Dict(Alazar.ETR_5V   => :ExternalTrigger5V,
                                 Alazar.ETR_2V5  => :ExternalTrigger2V5,
-                                Alazar.ETR_TTL  => :ExternalTriggerTTL)
+                                Alazar.ETR_TTL  => :ExternalTriggerTTL),
 )
 
 generate_handlers(InstrumentAlazar, responses)

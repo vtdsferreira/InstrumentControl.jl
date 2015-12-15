@@ -8,8 +8,8 @@ auxmode(m::U32, b::Bool) = begin
     end
 end
 
-function configure{S<:AuxOutputTrigger}(a::InstrumentAlazar, aux::Type{S})
-    val = aux(a) |> code
+function configure(a::InstrumentAlazar, aux::Type{AuxOutputTrigger})
+    val = code(a,aux)
     val = auxmode(val, a.auxOutTriggerEnable)
 
     @eh2 AlazarConfigureAuxIO(a.handle, val, U32(0))
@@ -17,18 +17,18 @@ function configure{S<:AuxOutputTrigger}(a::InstrumentAlazar, aux::Type{S})
     nothing
 end
 
-function configure{S<:AuxDigitalInput}(a::InstrumentAlazar, aux::Type{S})
-    val = aux(a) |> code
+function configure(a::InstrumentAlazar, aux::Type{AuxDigitalInput})
+    val = code(a,aux)
 
     @eh2 AlazarConfigureAuxIO(a.handle, val, U32(0))
     a.auxIOMode = val
     nothing
 end
 
-function configure{S<:AuxInputTriggerEnable, T<:TriggerSlope}(
-        a::InstrumentAlazar, aux::Type{S}, trigSlope::Type{T})
-    val = aux(a) |> code
-    val2 = trigSlope(a) |> code
+function configure{T<:TriggerSlope}(a::InstrumentAlazar,
+        aux::Type{AuxInputTriggerEnable}, trigSlope::Type{T})
+    val = code(a,aux)
+    val2 = code(a,trigSlope)
 
     @eh2 AlazarConfigureAuxIO(a.handle, val, val2)
     a.auxIOMode = val
@@ -36,9 +36,9 @@ function configure{S<:AuxInputTriggerEnable, T<:TriggerSlope}(
     nothing
 end
 
-function configure{T<:AuxOutputPacer}(
-        a::InstrumentAlazar, aux::Type{T}, divider::Integer)
-    val = aux(a) |> code
+function configure(a::InstrumentAlazar,
+        aux::Type{AuxOutputPacer}, divider::Integer)
+    val = code(a,aux)
     val = auxmode(val, a.auxOutTriggerEnable)
 
     @assert divider > 2 "Divider needs to be > 2."
@@ -48,9 +48,9 @@ function configure{T<:AuxOutputPacer}(
     nothing
 end
 
-function configure{T<:AuxDigitalOutput}(
-        a::InstrumentAlazar, aux::Type{T}, level::Integer)
-    val = aux(a) |> code
+function configure(a::InstrumentAlazar,
+        aux::Type{AuxDigitalOutput}, level::Integer)
+    val = code(a,aux)
     val = auxmode(val, a.auxOutTriggerEnable)
     @eh2 AlazarConfigureAuxIO(a.handle, val, U32(level))
     a.auxIOMode = val
@@ -90,13 +90,13 @@ end
 # Some logic for the following is a bit specialized to the ATS9360
 function configure{T<:AlazarChannel}(a::InstrumentAlazar, ch::Type{T})
     ch == AlazarChannel && error("You must choose a channel.")
-    a.acquisitionChannel = U32((ch)(a) |> code)
+    a.acquisitionChannel = U32(code(a,ch))
     a.channelCount = 1
     nothing
 end
 
-function configure{T<:BothChannels}(a::InstrumentAlazar, ch::Type{T})
-    a.acquisitionChannel = U32((ch)(a) |> code)
+function configure(a::InstrumentAlazar, ch::Type{BothChannels})
+    a.acquisitionChannel = U32(code(a,ch))
     a.channelCount = 2
     nothing
 end
@@ -106,7 +106,7 @@ end
 function configure{T<:SampleRate}(a::InstrumentAlazar, rate::Type{T})
     rate == SampleRate && error("Choose a sample rate.")
 
-    val = rate(a) |> code
+    val = code(a,rate)
 
     @eh2 AlazarSetCaptureClock(a.handle,
                                Alazar.INTERNAL_CLOCK, val, a.clockSlope, 0)
@@ -120,7 +120,7 @@ end
 function configure{T<:ClockSlope}(a::InstrumentAlazar, slope::Type{T})
     slope == ClockSlope && error("Choose a clock slope.")
 
-    val = slope(a) |> code
+    val = code(a,slope)
 
     @eh2 AlazarSetCaptureClock(a.handle,
                                a.clockSource,
@@ -139,7 +139,7 @@ function configure{S<:AlazarDataPacking}(
 
     chcode = Alazar.CHANNEL_A
 
-    pk = code((pack)(a))
+    pk = code(a,pack)
 
     @eh2 AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, pk)
     a.packingA = pk
@@ -152,7 +152,7 @@ function configure{S<:AlazarDataPacking}(
 
     chcode = Alazar.CHANNEL_B
 
-    pk = code((pack)(a))
+    pk = code(a,pack)
 
     @eh2 AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, pk)
     a.packingB = pk
@@ -182,7 +182,7 @@ end
 # not supported by ATS310, 330, 850.
 function configure{T<:AlazarTimestampReset}(a::InstrumentAlazar, t::Type{T})
     (t == AlazarTimestampReset) && error("Choose TimestampReset[Once|Always]")
-    option = code(t(a))
+    option = code(a,t)
     @eh2 AlazarResetTimeStamp(a.handle, option)
     nothing
 end
@@ -190,7 +190,7 @@ end
 ## Trigger engine ###########
 
 function configure{T<:AlazarTriggerEngine}(a::InstrumentAlazar, engine::Type{T})
-    eng = code(engine(a))
+    eng = code(a,engine)
     set_triggeroperation(a, eng,
         a.channelJ, a.slopeJ, a.levelJ,
         a.channelK, a.slopeK, a.levelK)
@@ -200,8 +200,8 @@ end
 function configure{S<:TriggerSlope,T<:TriggerSlope}(
     a::InstrumentAlazar, slopeJ::Type{S}, slopeK::Type{T})
 
-    sJ = code(slopeJ(a))
-    sK = code(slopeK(a))
+    sJ = code(a,slopeJ)
+    sK = code(a,slopeK)
     set_triggeroperation(a, a.engine,
         a.channelJ, sJ, a.levelJ,
         a.channelK, sK, a.levelK)
@@ -211,8 +211,8 @@ end
 function configure{S<:TriggerSource,T<:TriggerSource}(a::InstrumentAlazar,
         sourceJ::Type{S}, sourceK::Type{T})
 
-    sJ = code(sourceJ(a))
-    sK = code(sourceK(a))
+    sJ = code(a,sourceJ)
+    sK = code(a,sourceK)
     set_triggeroperation(a, a.engine,
         sJ, a.slopeJ, a.levelJ,
         sK, a.slopeK, a.levelK)
@@ -227,13 +227,13 @@ function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
 end
 
 function configure{T<:Coupling}(a::InstrumentAlazar, coupling::Type{T})
-    coup = code(coupling(a))
+    coup = code(a,coupling)
     @eh2 AlazarSetExternalTrigger(a.handle, coup, a.triggerRange)
     nothing
 end
 
 function configure{T<:AlazarTriggerRange}(a::InstrumentAlazar, range::Type{T})
-    rang = code(range(a))
+    rang = code(a,range)
     @eh2 AlazarSetExternalTrigger(a.handle, a.coupling, rang)
     nothing
 end

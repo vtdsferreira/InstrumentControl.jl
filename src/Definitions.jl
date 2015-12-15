@@ -94,17 +94,11 @@ abstract Output                <: NumericalProperty
 abstract Power                 <: NumericalProperty
 abstract TriggerLevel          <: NumericalProperty
 
-Base.show{T<:InstrumentProperty}(io::IO, code::T) =
-    print(io, "$(code.logicalname) represents as $(code.code)")
-
 immutable InstrumentException <: Exception
     ins::Instrument
     val::Int64
     humanReadable::UTF8String
 end
-
-# Base.showerror(io::IO, e::InstrumentException) =
-#     print(io, "$(e.ins): $(e.humanReadable) (error code $(e.val))")
 
 # The subtypesArray is used to generate concrete types of the abstract subtypes
 # of InstrumentProperty (see just above for some examples). The keys are strings containing

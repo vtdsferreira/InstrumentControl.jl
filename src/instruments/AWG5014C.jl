@@ -107,15 +107,15 @@ abstract WaveformType      <: InstrumentProperty
 
 subtypesArray = [
 
-    (:NotNormalized,        Normalization),
-    (:FullScale,            Normalization),
-    (:PreservingOffset,     Normalization),
+    (:NotNormalized,                  Normalization),
+    (:NormalizedFullScale,            Normalization),
+    (:NormalizedPreservingOffset,     Normalization),
 
-    (:HardwareSequencer,    SequencerType),
-    (:SoftwareSequencer,    SequencerType),
+    (:HardwareSequencer,              SequencerType),
+    (:SoftwareSequencer,              SequencerType),
 
-    (:IntWaveform,          WaveformType),
-    (:RealWaveform,         WaveformType),
+    (:IntWaveform,                    WaveformType),
+    (:RealWaveform,                   WaveformType),
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -394,11 +394,11 @@ end
 
 function newwaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
     wvtype == WaveformType ? error("Specify IntWaveform or RealWaveform.") : nothing
-    write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*code((wvtype)(ins)))
+    write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*code(ins,wvtype))
 end
 
 function normalizewaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
-    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(norm(ins)))
+    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(ins,norm))
 end
 
 function resamplewaveform(ins::AWG5014C, name::ASCIIString, points::Integer)

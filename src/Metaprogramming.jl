@@ -10,11 +10,24 @@
 # Nothing is exported as the user should never use these, and we don't want
 # instruments to see this if it is used from our PainterQB module.
 """
-Takes an Instrument type, a VISA command, an InstrumentProperty type, and
-possibly an argument.
+```
+generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+```
 
-Supported:
-    inspect(Instrument, Property, infixes...)
+This command takes an `Instrument` subtype `instype`, a VISA command, an
+`InstrumentProperty` subtype `proptype`, and possibly an argument. It will
+generate the following method in the module where `generate_inspect` is defined:
+
+`inspect(ins::instype, ::Type{proptype}, infixes::Int...)`
+
+The `infixes` variable argument allows for numbers to be inserted within the
+commands, for instance in `OUTP#:FILT:FREQ`, where the `#` sign should be
+replaced by an integer. The replacements are done in the order of the arguments.
+Error checking is done on the number of arguments.
+
+For a given property, `inspect` will return either an InstrumentProperty subtype,
+a number, a boolean, or a string as appropriate.
 """
 function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T}, ::Type{NoArgs})
@@ -63,12 +76,19 @@ function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
 end
 
 """
-Takes an Instrument type, a VISA command, an InstrumentProperty type, and possibly
-arguments (which the command will take.)
+```
+generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+```
 
-Supported:
-    configure(Instrument, PropertySubtype)
-    configure(Instrument, Property, values..., infixes...)
+This command takes an `Instrument` subtype `InsType`, a VISA command, an
+`InstrumentProperty` type, and possibly an argument. It will generate one of the
+following methods in the module where `generate_inspect` is defined:
+
+```
+configure(ins::InsType, PropertySubtype)
+configure(ins::InsType, Property, values..., infixes...)
+```
 """
 function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T})
@@ -89,12 +109,12 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
         end
 
         try
-            cd = code((x)(ins))
+            cd = code(ins,x)
         catch
             error("This subtype not be supported for this instrument.")
         end
 
-        write(ins, string(cmd," ",code((x)(ins))))
+        write(ins, string(cmd," ",code(ins,x)))
     end
 
     nothing
@@ -157,64 +177,57 @@ function generate_properties{S<:InstrumentProperty}(
     subtype::Symbol, supertype::Type{S})
 
     name = string(subtype)
-    @eval immutable ($subtype){T} <: $supertype
-        ins::Instrument
-        code::T
-        logicalname::AbstractString
-
-        ($subtype)(a,b) = new(a,b,$name)
-    end
-    @eval ($subtype){T}(a::Instrument,b::T) = ($subtype){T}(a,b)
+    @eval immutable ($subtype) <: $supertype end
     @eval export $subtype
-    @eval code{T}(inscode::($subtype){T}) = begin
-        inscode.code::T
-    end
 end
 
 """
 ### generate_handlers
 
-`generate_handlers(insType::DataType, responseDict::Dict)`
+`generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)`
 
 Each instrument can have a `responseDict`. For each setting of the instrument,
 for instance the `ClockSource`, we need to know the correspondence between a
-logical state `ExternalClock` and how the instrument encodes that logical state, "EXT".
-The responseDictionary is actually a dictionary of dictionaries. The first level keys
-are like `ClockSource` and the second level keys are like "EXT".
+logical state `ExternalClock` and how the instrument encodes that logical state
+(e.g. "EXT").
+The `responseDict` is actually a dictionary of dictionaries. The first level keys
+are like `ClockSource` and the second level keys are like "EXT", with the value
+being `:ExternalClock`. Undoubtedly
+this nested dictionary is "nasty" (in the technical parlance) but the dictionary
+is only used for code
+creation and is not used at run-time (if the code works as intended).
 
 This function makes a lot of other functions. Given some response from an instrument,
 we require a function to map that response back on to the appropiate logical state.
 
-`ClockSource(ins::AWG5014C,res::AbstractString)`
-returns an `InternalClock(ins,"INT")` or `ExternalClock(ins,"EXT")` object as appropriate,
+`ClockSource(ins::AWG5014C, res::AbstractString)`
+returns an `InternalClock` or `ExternalClock` type as appropriate,
 based on the logical meaning of the response.
 
 We also want a function to generate logical states without having to know the way
 they are encoded by the instrument.
 
-`InternalClock(ins::AWG5014C)` returns an `InternalClock(ins,"INT")` object,
+`code(ins::AWG5014C, ::Type{InternalClock})` returns "INT",
 with "INT" encoding how to pass this logical state to the instrument `ins`.
 """
 function generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)
 
     for (supertypeSymb in keys(responseDict))
 
-        # e.g. InternalClock(ins::AWG5014C) = InternalClock(ins,"INT")
+        # e.g. code(ins::AWG5014C, InternalClock) = "INT"
         d = responseDict[supertypeSymb]
         for response in keys(d)
             fnSymb = d[response]
-            @eval ($fnSymb)(ins::$insType) = ($fnSymb)(ins,$response)
+            @eval (code)(ins::$insType, ::Type{$fnSymb}) = $response
         end
 
-        # e.g. InstrumentReference(ins::AWG5014C, "INT") =
-        #          InstrumentInternal(AWG5014C,"INT")
+        # e.g. ClockSource(ins::AWG5014C, "INT") = InternalClock
         @eval ($supertypeSymb)(ins::$insType, res::AbstractString) =
             (typeof(parse(res)) <: Number ?
-            Expr(:call, ($d)[parse(res)],  ins, res) :
-            Expr(:call, ($d)[res],         ins, res)) |> eval
+            ($d)[parse(res)] : ($d)[res]) |> eval
 
         @eval ($supertypeSymb)(ins::$insType, res::Number) =
-            Expr(:call, ($d)[res], ins, res) |> eval
+            ($d)[res] |> eval
     end
 
     nothing

@@ -20,13 +20,13 @@ function inspect{T<:AlazarChannel}(a::InstrumentAlazar,
     arr = Array{Clong}(1)
     arr[1] = 0
 
-    r = @eh2 AlazarGetParameter(a.handle, code(ch(a)), Alazar.PACK_MODE, arr)
+    r = @eh2 AlazarGetParameter(a.handle, code(a,ch), Alazar.PACK_MODE, arr)
     AlazarDataPacking(a,arr[1])
 end
 
 function inspect(a::InstrumentAlazar, ::Type{SampleRate})
     a.sampleRate > 0x80 ? float(a.sampleRate) :
-        float(samplerate(typeof(SampleRate(a,a.sampleRate))))
+        float(samplerate(SampleRate(a,a.sampleRate)))
 end
 
 function inspect(a::InstrumentAlazar, ::Type{SampleMemoryPerChannel})
