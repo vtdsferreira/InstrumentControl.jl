@@ -1,7 +1,7 @@
 site_name: PainterQB.jl
 site_description: PainterQB.jl for qubit measurement
 
-repo_url: https://github.com/ajkeller34/Instruments.jl/
+repo_url: https://github.com/ajkeller34/PainterQB.jl/
 
 pages:
 - Home: 'index.md'
