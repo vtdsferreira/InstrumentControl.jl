@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+	<title>PainterQB - PainterQB.jl</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">PainterQB.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Overview <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../design/">Design</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../implementation/">Implementation</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../api/">Index</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">PainterQB</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../E8257D/">E8257D</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../E5071C/">E5071C</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../AWG5014C/">AWG5014C</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../AlazarTech/">AlazarTech</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Miscellaneous <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../releases/">Release notes</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../LICENSE/">License</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../api/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../E8257D/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/ajkeller34/PainterQB.jl/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#painterqb">PainterQB</a></li>
+        
+            <li><a href="#methods-exported">Methods [Exported]</a></li>
+        
+            <li><a href="#types-exported">Types [Exported]</a></li>
+        
+            <li><a href="#methods-internal">Methods [Internal]</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="painterqb">PainterQB</h1>
+<h2 id="methods-exported">Methods [Exported]</h2>
+<hr />
+<p><a id="method__ask.1" class="lexicon_definition"></a></p>
+<h4 id="askinspainterqbinstrumentvisa-msgasciistring">ask(ins::PainterQB.InstrumentVISA,  msg::ASCIIString) <a href="#method__ask.1">¶</a></h4>
+<p>Idiomatic "write and read available" function with optional delay.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L63">PainterQB\src\VISA.jl:63</a></p>
+<hr />
+<p><a id="method__ask.2" class="lexicon_definition"></a></p>
+<h4 id="askinspainterqbinstrumentvisa-msgasciistring-delayreal">ask(ins::PainterQB.InstrumentVISA,  msg::ASCIIString,  delay::Real) <a href="#method__ask.2">¶</a></h4>
+<p>Idiomatic "write and read available" function with optional delay.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L63">PainterQB\src\VISA.jl:63</a></p>
+<hr />
+<p><a id="method__binblockreadavailable.1" class="lexicon_definition"></a></p>
+<h4 id="binblockreadavailableinspainterqbinstrumentvisa">binblockreadavailable(ins::PainterQB.InstrumentVISA) <a href="#method__binblockreadavailable.1">¶</a></h4>
+<p>Read an entire block of bytes with properly formatted IEEE header.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L92">PainterQB\src\VISA.jl:92</a></p>
+<hr />
+<p><a id="method__binblockwrite.1" class="lexicon_definition"></a></p>
+<h4 id="binblockwriteinspainterqbinstrumentvisa-messageunionasciistring-arrayuint8-1-dataarrayuint8-1">binblockwrite(ins::PainterQB.InstrumentVISA,  message::Union{ASCIIString, Array{UInt8, 1}},  data::Array{UInt8, 1}) <a href="#method__binblockwrite.1">¶</a></h4>
+<p>Write an IEEE header block followed by an arbitary sequency of bytes and the terminator.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L87">PainterQB\src\VISA.jl:87</a></p>
+<hr />
+<p><a id="method__findresources.1" class="lexicon_definition"></a></p>
+<h4 id="findresources">findresources() <a href="#method__findresources.1">¶</a></h4>
+<p>Finds VISA resources to which we can connect. Doesn't find ethernet instruments.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L42">PainterQB\src\VISA.jl:42</a></p>
+<hr />
+<p><a id="method__findresources.2" class="lexicon_definition"></a></p>
+<h4 id="findresourcesexprabstractstring">findresources(expr::AbstractString) <a href="#method__findresources.2">¶</a></h4>
+<p>Finds VISA resources to which we can connect. Doesn't find ethernet instruments.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L42">PainterQB\src\VISA.jl:42</a></p>
+<hr />
+<p><a id="method__gpib.1" class="lexicon_definition"></a></p>
+<h4 id="gpibprimary">gpib(primary) <a href="#method__gpib.1">¶</a></h4>
+<p>Returns a viSession for the given GPIB address.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L45">PainterQB\src\VISA.jl:45</a></p>
+<hr />
+<p><a id="method__read.1" class="lexicon_definition"></a></p>
+<h4 id="readinspainterqbinstrumentvisa">read(ins::PainterQB.InstrumentVISA) <a href="#method__read.1">¶</a></h4>
+<p>Read from an instrument. Strips trailing carriage returns and new lines.
+Note that this function will only read so many characters (buffered).</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L73">PainterQB\src\VISA.jl:73</a></p>
+<hr />
+<p><a id="method__readavailable.1" class="lexicon_definition"></a></p>
+<h4 id="readavailableinspainterqbinstrumentvisa">readavailable(ins::PainterQB.InstrumentVISA) <a href="#method__readavailable.1">¶</a></h4>
+<p>Keep reading from an instrument until the instrument says we are done.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L81">PainterQB\src\VISA.jl:81</a></p>
+<hr />
+<p><a id="method__tcpip_instr.1" class="lexicon_definition"></a></p>
+<h4 id="tcpip_instrip">tcpip_instr(ip) <a href="#method__tcpip_instr.1">¶</a></h4>
+<p>Returns a INSTR viSession for the given IPv4 address.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L54">PainterQB\src\VISA.jl:54</a></p>
+<hr />
+<p><a id="method__tcpip_socket.1" class="lexicon_definition"></a></p>
+<h4 id="tcpip_socketip-port">tcpip_socket(ip,  port) <a href="#method__tcpip_socket.1">¶</a></h4>
+<p>Returns a raw socket viSession for the given IPv4 address.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L57">PainterQB\src\VISA.jl:57</a></p>
+<hr />
+<p><a id="method__write.1" class="lexicon_definition"></a></p>
+<h4 id="writeinspainterqbinstrumentvisa-msgasciistring">write(ins::PainterQB.InstrumentVISA,  msg::ASCIIString) <a href="#method__write.1">¶</a></h4>
+<p>Write to an instrument. Appends the instrument's write terminator.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L77">PainterQB\src\VISA.jl:77</a></p>
+<h2 id="types-exported">Types [Exported]</h2>
+<hr />
+<p><a id="type__all.1" class="lexicon_definition"></a></p>
+<h4 id="painterqball">PainterQB.All <a href="#type__all.1">¶</a></h4>
+<p>The All type is meant to be dispatched upon and not instantiated.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Definitions.jl#L229">PainterQB\src\Definitions.jl:229</a></p>
+<hr />
+<p><a id="type__delaystimulus.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbdelaystimulus">PainterQB.DelayStimulus <a href="#type__delaystimulus.1">¶</a></h4>
+<p><code>DelayStimulus</code></p>
+<p>When sourced with a value in seconds, will wait until that many
+seconds have elapsed since the DelayStimulus was initialized.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\sourcemeasure\Time.jl#L9">PainterQB\src\sourcemeasure\Time.jl:9</a></p>
+<hr />
+<p><a id="type__instrumentproperty.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbinstrumentproperty">PainterQB.InstrumentProperty <a href="#type__instrumentproperty.1">¶</a></h4>
+<h3 id="instrumentproperty">InstrumentProperty</h3>
+<p><code>abstract InstrumentProperty &lt;: Any</code></p>
+<p>Abstract supertype representing communications with an instrument.</p>
+<p>Each <em>abstract</em> subtype one level down should represent a logical state of the
+instrument configuration, e.g. <code>TriggerSource</code> may be have concrete
+subtypes <code>ExternalTrigger</code> or <code>InternalTrigger</code>.</p>
+<p>Each <em>concrete</em> subtype two levels down is an immutable type:
+<code>InternalTrigger(ins::AWG5014C, "INT")</code> encodes everything one needs to know
+for how the AWG5014C represents an internal trigger.</p>
+<p>To retrieve what one has to send the AWG from the type signature, we have
+defined a function <code>code</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Definitions.jl#L62">PainterQB\src\Definitions.jl:62</a></p>
+<hr />
+<p><a id="type__instrumentvisa.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbinstrumentvisa">PainterQB.InstrumentVISA <a href="#type__instrumentvisa.1">¶</a></h4>
+<h3 id="instrumentvisa">InstrumentVISA</h3>
+<p><code>abstract InstrumentVISA &lt;: Instrument</code></p>
+<p>Abstract supertype of all Instruments addressable using a VISA library.
+Concrete types are expected to have fields:</p>
+<p><code>vi::ViSession</code>
+<code>writeTerminator::ASCIIString</code></p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\VISA.jl#L37">PainterQB\src\VISA.jl:37</a></p>
+<hr />
+<p><a id="type__timearesponse.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbtimearesponse">PainterQB.TimeAResponse <a href="#type__timearesponse.1">¶</a></h4>
+<p><code>TimeAResponse</code></p>
+<p>When measured, will return how many seconds it takes to measure
+the response field it holds. So meta.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\sourcemeasure\Time.jl#L42">PainterQB\src\sourcemeasure\Time.jl:42</a></p>
+<hr />
+<p><a id="type__timerresponse.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbtimerresponsetabstractfloat">PainterQB.TimerResponse{T&lt;:AbstractFloat} <a href="#type__timerresponse.1">¶</a></h4>
+<p><code>TimerResponse</code></p>
+<p>When measured, will return how many seconds have elapsed since
+the timer was initialized.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\sourcemeasure\Time.jl#L30">PainterQB\src\sourcemeasure\Time.jl:30</a></p>
+<h2 id="methods-internal">Methods [Internal]</h2>
+<hr />
+<p><a id="method__generate_configure.1" class="lexicon_definition"></a></p>
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertyinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentproperty">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty}) <a href="#method__generate_configure.1">¶</a></h4>
+<pre><code>generate_configure{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+</code></pre>
+
+<p>This command takes an <code>Instrument</code> subtype <code>InsType</code>, a VISA command, an
+<code>InstrumentProperty</code> type, and possibly an argument. It will generate one of the
+following methods in the module where <code>generate_inspect</code> is defined:</p>
+<pre><code>configure(ins::InsType, PropertySubtype)
+configure(ins::InsType, Property, values..., infixes...)
+</code></pre>
+
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L93">PainterQB\src\Metaprogramming.jl:93</a></p>
+<hr />
+<p><a id="method__generate_handlers.1" class="lexicon_definition"></a></p>
+<h4 id="generate_handlerstpainterqbinstrumentinstypetypetpainterqbinstrument-responsedictdictk-v">generate_handlers{T&lt;:PainterQB.Instrument}(insType::Type{T&lt;:PainterQB.Instrument},  responseDict::Dict{K, V}) <a href="#method__generate_handlers.1">¶</a></h4>
+<h3 id="generate_handlers">generate_handlers</h3>
+<p><code>generate_handlers{T&lt;:Instrument}(insType::Type{T}, responseDict::Dict)</code></p>
+<p>Each instrument can have a <code>responseDict</code>. For each setting of the instrument,
+for instance the <code>ClockSource</code>, we need to know the correspondence between a
+logical state <code>ExternalClock</code> and how the instrument encodes that logical state
+(e.g. "EXT").
+The <code>responseDict</code> is actually a dictionary of dictionaries. The first level keys
+are like <code>ClockSource</code> and the second level keys are like "EXT", with the value
+being <code>:ExternalClock</code>. Undoubtedly
+this nested dictionary is "nasty" (in the technical parlance) but the dictionary
+is only used for code
+creation and is not used at run-time (if the code works as intended).</p>
+<p>This function makes a lot of other functions. Given some response from an instrument,
+we require a function to map that response back on to the appropiate logical state.</p>
+<p><code>ClockSource(ins::AWG5014C, res::AbstractString)</code>
+returns an <code>InternalClock</code> or <code>ExternalClock</code> type as appropriate,
+based on the logical meaning of the response.</p>
+<p>We also want a function to generate logical states without having to know the way
+they are encoded by the instrument.</p>
+<p><code>code(ins::AWG5014C, ::Type{InternalClock})</code> returns "INT",
+with "INT" encoding how to pass this logical state to the instrument <code>ins</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L213">PainterQB\src\Metaprogramming.jl:213</a></p>
+<hr />
+<p><a id="method__generate_inspect.1" class="lexicon_definition"></a></p>
+<h4 id="generate_inspectspainterqbinstrument-tpainterqbinstrumentpropertyinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentproperty-typepainterqbnoargs">generate_inspect{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty},  ::Type{PainterQB.NoArgs}) <a href="#method__generate_inspect.1">¶</a></h4>
+<pre><code>generate_inspect{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, returntype...)
+</code></pre>
+
+<p>This command takes an <code>Instrument</code> subtype <code>instype</code>, a VISA command, an
+<code>InstrumentProperty</code> subtype <code>proptype</code>, and possibly an argument. It will
+generate the following method in the module where <code>generate_inspect</code> is defined:</p>
+<p><code>inspect(ins::instype, ::Type{proptype}, infixes::Int...)</code></p>
+<p>The <code>infixes</code> variable argument allows for numbers to be inserted within the
+commands, for instance in <code>OUTP#:FILT:FREQ</code>, where the <code>#</code> sign should be
+replaced by an integer. The replacements are done in the order of the arguments.
+Error checking is done on the number of arguments.</p>
+<p>For a given property, <code>inspect</code> will return either an InstrumentProperty subtype,
+a number, a boolean, or a string as appropriate.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L32">PainterQB\src\Metaprogramming.jl:32</a></p>
+<hr />
+<p><a id="method__generate_properties.1" class="lexicon_definition"></a></p>
+<h4 id="generate_propertiesspainterqbinstrumentpropertysubtypesymbol-supertypetypespainterqbinstrumentproperty">generate_properties{S&lt;:PainterQB.InstrumentProperty}(subtype::Symbol,  supertype::Type{S&lt;:PainterQB.InstrumentProperty}) <a href="#method__generate_properties.1">¶</a></h4>
+<p>Makes parametric subtypes and gives constructors. Also defines a code method.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L176">PainterQB\src\Metaprogramming.jl:176</a></p></div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

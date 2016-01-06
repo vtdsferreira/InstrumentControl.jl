@@ -81,7 +81,52 @@
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../api/api/">Index</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../api/PainterQB/">PainterQB</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../api/E8257D/">E8257D</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../api/E5071C/">E5071C</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../api/AWG5014C/">AWG5014C</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../api/AlazarTech/">AlazarTech</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Miscellaneous <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
@@ -116,14 +161,14 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../releases/">
+                        <a rel="prev" href="../api/api/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
                 
                 
                     <li>
-                        <a href="https://github.com/ajkeller34/Instruments.jl/">
+                        <a href="https://github.com/ajkeller34/PainterQB.jl/">
                             
                                 <i class="fa fa-github"></i>
                             
@@ -146,6 +191,8 @@
             <li><a href="#code-organization">Code organization</a></li>
         
             <li><a href="#visa-instruments">VISA instruments</a></li>
+        
+            <li><a href="#responses">Responses</a></li>
         
             <li><a href="#alazar-instruments">Alazar instruments</a></li>
         
@@ -209,10 +256,9 @@ Initially this file was included directly in the PainterQB module, but it seems
 there are subtleties regarding the use of the <code>@eval</code> macro between modules.</p>
 <h3 id="metaprogramming">Metaprogramming</h3>
 <h4 id="generate_inspect">generate_inspect</h4>
-<div class="codehilite"><pre>generate_inspect{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
+<pre><code>generate_inspect{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T}, returntype...)
-</pre></div>
-
+</code></pre>
 
 <p>This command takes an <code>Instrument</code> subtype <code>instype</code>, a VISA command, an
 <code>InstrumentProperty</code> subtype <code>proptype</code>, and possibly an argument. It will
@@ -225,38 +271,33 @@ Error checking is done on the number of arguments.</p>
 <p>For a given property, <code>inspect</code> will return either an InstrumentProperty subtype,
 a number, a boolean, or a string as appropriate.</p>
 <h4 id="generate_configure">generate_configure</h4>
-<div class="codehilite"><pre>generate_configure{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
+<pre><code>generate_configure{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T}, returntype...)
-</pre></div>
-
+</code></pre>
 
 <p>This command takes an <code>Instrument</code> subtype <code>InsType</code>, a VISA command, an
 <code>InstrumentProperty</code> type, and possibly an argument. It will generate one of the
 following methods in the module where <code>generate_inspect</code> is defined:</p>
-<div class="codehilite"><pre>configure(ins::InsType, PropertySubtype)
+<pre><code>configure(ins::InsType, PropertySubtype)
 configure(ins::InsType, Property, values..., infixes...)
-</pre></div>
-
+</code></pre>
 
 <h4 id="generate_properties">generate_properties</h4>
-<div class="codehilite"><pre>generate_properties{S&lt;:InstrumentProperty}(subtype::Symbol, supertype::Type{S})
-</pre></div>
-
+<pre><code>generate_properties{S&lt;:InstrumentProperty}(subtype::Symbol, supertype::Type{S})
+</code></pre>
 
 <p>This makes it easy to generate new <code>InstrumentProperty</code> subtypes. Typically
 this function is called inside a for loop. Calling this function is equivalent
 to writing the following pseudocode:</p>
-<div class="codehilite"><pre>immutable subtype{T} &lt;: supertype
+<pre><code>immutable subtype{T} &lt;: supertype
 end
 
 export subtype
-</pre></div>
-
+</code></pre>
 
 <h4 id="generate_handlers">generate_handlers</h4>
-<div class="codehilite"><pre>generate_handlers{T&lt;:Instrument}(insType::Type{T}, responseDict::Dict)
-</pre></div>
-
+<pre><code>generate_handlers{T&lt;:Instrument}(insType::Type{T}, responseDict::Dict)
+</code></pre>
 
 <p>Each instrument can have a <code>responseDict</code>. For each setting of the instrument,
 for instance the <code>ClockSource</code>, we need to know the correspondence between a
@@ -277,6 +318,36 @@ based on the logical meaning of the response.</p>
 they are encoded by the instrument.</p>
 <p><code>code(ins::AWG5014C, ::Type{InternalClock})</code> returns "INT",
 with "INT" encoding how to pass this logical state to the instrument <code>ins</code>.</p>
+<h2 id="responses">Responses</h2>
+<p>Unlike stimuli, all responses are subtypes of an abstract parametric type,
+<code>Response{T}</code>. Although it may seem unduly abstract to have it be both abstract
+and parametric, we use this
+functionality to distinguish between desired return types of a measurement.
+Suppose an instrument provides data in some kind of awkward format, like 12-bit
+unsigned integers. For reasons of convenience we may want the measurement to
+return the data in a machine-native <code>Int64</code> format, or we may want to specify
+a linear or 2D shape for the data, etc.</p>
+<p>An important consideration in writing fast Julia code is to ensure type stability.
+In other words, the type that is returned from a function should depend only on
+the method signature and not depend on some value at run-time. By parameterizing
+<code>Response</code> types with the return type, we can ensure that <code>measure</code> will be
+type stable. If we instead had the desired return type as some field
+in a <code>Response</code> object, then <code>measure</code> would not be type stable.</p>
+<h4 id="alazar-digitizers">Alazar digitizers</h4>
+<p>A response type is given for each measurement mode:
+continuous streaming (<code>ContinuousStreamResponse</code>), triggered streaming (
+<code>TriggeredStreamResponse</code>), NPT records (<code>NPTRecordResponse</code>),
+and FPGA-based FFT calculations (<code>FFTHardwareResponse</code>).
+Traditional record mode has not been implemented yet for lack of immediate need.</p>
+<p>Looking at the source code, it would
+seem that there is some redundancy in the types, for instance there is an
+<code>NPTRecordMode</code> and an <code>NPTRecordResponse</code> object. The difference is that the
+former is used internally in the code to denote a particular method of configuring
+the instrument, allocating buffers, etc., whereas the latter specifies what you
+actually want to do: retrieve NPT records from the digitizer, perhaps doing
+some post-processing or processing during acquisition along the way. Perhaps
+different responses would dictate different processing behavior, while the
+instrument is ultimately configured the same way.</p>
 <h2 id="alazar-instruments">Alazar instruments</h2>
 <p>In the following discussion, it is important to understand some Alazar terminology.
 Newer Alazar digitizers use direct memory access (DMA) to stream data into
@@ -311,34 +382,33 @@ will clean this up eventually. -->
 <p>In Julia, just allocating a fixed-size array will not necessarily return a
 page-aligned block in memory. One approach would be to allocate our own page-aligned
 memory using <code>valloc</code> and <code>vfree</code> (or their Windows equivalents).</p>
-<div class="codehilite"><pre><span class="kd">function</span> <span class="nx">virtualalloc</span><span class="p">{</span><span class="nx">T</span><span class="o">&lt;:</span><span class="nx">Union</span><span class="p">{</span><span class="nx">UInt8</span><span class="p">,</span><span class="nx">UInt16</span><span class="p">}}(</span><span class="nx">size_bytes</span><span class="o">::</span><span class="nx">Integer</span><span class="p">,</span> <span class="o">::</span><span class="nx">Type</span><span class="p">{</span><span class="nx">T</span><span class="p">})</span>
-    <span class="err">@</span><span class="nx">windows</span><span class="o">?</span> <span class="nx">begin</span>
-        <span class="nx">MEM_COMMIT</span> <span class="o">=</span> <span class="nx">U32</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span>
-        <span class="nx">PAGE_READWRITE</span> <span class="o">=</span> <span class="nx">U32</span><span class="p">(</span><span class="mh">0x4</span><span class="p">)</span>
-        <span class="nx">addr</span> <span class="o">=</span> <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">VirtualAlloc</span><span class="p">,</span> <span class="s2">&quot;Kernel32&quot;</span><span class="p">),</span> <span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">},</span>
-                     <span class="p">(</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">Void</span><span class="p">},</span> <span class="nx">Culonglong</span><span class="p">,</span> <span class="nx">Culong</span><span class="p">,</span> <span class="nx">Culong</span><span class="p">),</span>
-                     <span class="nx">C_NULL</span><span class="p">,</span> <span class="nx">size_bytes</span><span class="p">,</span> <span class="nx">MEM_COMMIT</span><span class="p">,</span> <span class="nx">PAGE_READWRITE</span><span class="p">)</span>
-    <span class="nx">end</span> <span class="o">:</span> <span class="p">(</span><span class="err">@</span><span class="nx">linux</span><span class="o">?</span> <span class="nx">begin</span>
-        <span class="nx">addr</span> <span class="o">=</span> <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">valloc</span><span class="p">,</span> <span class="nx">libc</span><span class="p">),</span> <span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">},</span> <span class="p">(</span><span class="nx">Culonglong</span><span class="p">,),</span> <span class="nx">size_bytes</span><span class="p">)</span>
-    <span class="nx">end</span> <span class="o">:</span> <span class="k">throw</span><span class="p">(</span><span class="nx">SystemError</span><span class="p">()))</span>
+<pre><code>function virtualalloc{T&lt;:Union{UInt8,UInt16}}(size_bytes::Integer, ::Type{T})
+    @windows? begin
+        MEM_COMMIT = U32(0x1000)
+        PAGE_READWRITE = U32(0x4)
+        addr = ccall((:VirtualAlloc, &quot;Kernel32&quot;), Ptr{T},
+                     (Ptr{Void}, Culonglong, Culong, Culong),
+                     C_NULL, size_bytes, MEM_COMMIT, PAGE_READWRITE)
+    end : (@linux? begin
+        addr = ccall((:valloc, libc), Ptr{T}, (Culonglong,), size_bytes)
+    end : throw(SystemError()))
 
-    <span class="nx">addr</span> <span class="o">==</span> <span class="nx">C_NULL</span> <span class="o">&amp;&amp;</span> <span class="k">throw</span><span class="p">(</span><span class="nx">OutOfMemoryError</span><span class="p">())</span>
+    addr == C_NULL &amp;&amp; throw(OutOfMemoryError())
 
-    <span class="nx">addr</span><span class="o">::</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">}</span>
-<span class="nx">end</span>
+    addr::Ptr{T}
+end
 
-<span class="kd">function</span> <span class="nx">virtualfree</span><span class="p">{</span><span class="nx">T</span><span class="o">&lt;:</span><span class="nx">Union</span><span class="p">{</span><span class="nx">UInt16</span><span class="p">,</span><span class="nx">UInt8</span><span class="p">}}(</span><span class="nx">addr</span><span class="o">::</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">T</span><span class="p">})</span>
-    <span class="err">@</span><span class="nx">windows</span><span class="o">?</span> <span class="nx">begin</span>
-        <span class="nx">MEM_RELEASE</span> <span class="o">=</span> <span class="mh">0x8000</span>
-        <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">VirtualFree</span><span class="p">,</span> <span class="s2">&quot;Kernel32&quot;</span><span class="p">),</span> <span class="nx">Cint</span><span class="p">,</span> <span class="p">(</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">Void</span><span class="p">},</span> <span class="nx">Culonglong</span><span class="p">,</span> <span class="nx">Culong</span><span class="p">),</span>
-            <span class="nx">addr</span><span class="p">,</span> <span class="nx">Culonglong</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">MEM_RELEASE</span><span class="p">)</span>
-    <span class="nx">end</span> <span class="o">:</span> <span class="p">(</span><span class="err">@</span><span class="nx">linux</span><span class="o">?</span> <span class="nx">begin</span>
-        <span class="nx">ccall</span><span class="p">((</span><span class="o">:</span><span class="nx">free</span><span class="p">,</span> <span class="s2">&quot;libc&quot;</span><span class="p">),</span> <span class="nx">Void</span><span class="p">,</span> <span class="p">(</span><span class="nx">Ptr</span><span class="p">{</span><span class="nx">Void</span><span class="p">},),</span> <span class="nx">addr</span><span class="p">)</span>
-    <span class="nx">end</span> <span class="o">:</span> <span class="k">throw</span><span class="p">(</span><span class="nx">SystemError</span><span class="p">()))</span>
-    <span class="nx">nothing</span>
-<span class="nx">end</span>
-</pre></div>
-
+function virtualfree{T&lt;:Union{UInt16,UInt8}}(addr::Ptr{T})
+    @windows? begin
+        MEM_RELEASE = 0x8000
+        ccall((:VirtualFree, &quot;Kernel32&quot;), Cint, (Ptr{Void}, Culonglong, Culong),
+            addr, Culonglong(0), MEM_RELEASE)
+    end : (@linux? begin
+        ccall((:free, &quot;libc&quot;), Void, (Ptr{Void},), addr)
+    end : throw(SystemError()))
+    nothing
+end
+</code></pre>
 
 <p>In case it wasn't obvious, this was my original approach.
 Note that memory allocated in this way will not be visible to multiple processes
@@ -350,7 +420,7 @@ It can be viewed and modified from multiple processes, and the memory is page-al
 Hopefully this continues to be the case in future Julia releases.
 We implement a type called the <code>DMABufferArray</code> whose definition is worth
 repeating here:</p>
-<div class="codehilite"><pre>type DMABufferArray{sample_type} &lt;:
+<pre><code>type DMABufferArray{sample_type} &lt;:
         AbstractArray{Ptr{sample_type},1}
 
     bytes_buf::Int
@@ -382,8 +452,7 @@ Base.length(dma::DMABufferArray) = dma.n_buf
 
 bytespersample{T}(buf_array::DMABufferArray{T}) = sizeof(T)
 sampletype{T}(buf_array::DMABufferArray{T}) = T
-</pre></div>
-
+</code></pre>
 
 <p>Some comments:</p>
 <ul>
