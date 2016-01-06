@@ -15,7 +15,7 @@ Installation
  (may need to contact AlazarTech)
 + Install [VISA.jl](http://www.github.com/ajkeller34/VISA.jl)
 + Install [Alazar.jl](http://www.github.com/ajkeller34/Alazar.jl)
-+ Install this code and `include` it in a Julia environment
++ Install [PainterQB.jl](http://www.github.com/ajkeller34/PainterQB.jl)
 
 Quick start
 -----------

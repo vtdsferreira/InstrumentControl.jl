@@ -9,7 +9,7 @@ macro checked_lib(libname, path)
 end
 
 # Load dependencies
-@checked_lib libvisa "/Library/Frameworks/VISA.framework/VISA"
+@checked_lib libvisa "C:\\WINDOWS\\SYSTEM32\\visa64.DLL"
 
 # Load-hooks
 

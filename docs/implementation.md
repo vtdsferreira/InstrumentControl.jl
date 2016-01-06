@@ -134,6 +134,41 @@ they are encoded by the instrument.
 `code(ins::AWG5014C, ::Type{InternalClock})` returns "INT",
 with "INT" encoding how to pass this logical state to the instrument `ins`.
 
+## Responses
+Unlike stimuli, all responses are subtypes of an abstract parametric type,
+`Response{T}`. Although it may seem unduly abstract to have it be both abstract
+and parametric, we use this
+functionality to distinguish between desired return types of a measurement.
+Suppose an instrument provides data in some kind of awkward format, like 12-bit
+unsigned integers. For reasons of convenience we may want the measurement to
+return the data in a machine-native `Int64` format, or we may want to specify
+a linear or 2D shape for the data, etc.
+
+An important consideration in writing fast Julia code is to ensure type stability.
+In other words, the type that is returned from a function should depend only on
+the method signature and not depend on some value at run-time. By parameterizing
+`Response` types with the return type, we can ensure that `measure` will be
+type stable. If we instead had the desired return type as some field
+in a `Response` object, then `measure` would not be type stable.
+
+#### Alazar digitizers
+
+A response type is given for each measurement mode:
+continuous streaming (`ContinuousStreamResponse`), triggered streaming (
+`TriggeredStreamResponse`), NPT records (`NPTRecordResponse`),
+and FPGA-based FFT calculations (`FFTHardwareResponse`).
+Traditional record mode has not been implemented yet for lack of immediate need.
+
+Looking at the source code, it would
+seem that there is some redundancy in the types, for instance there is an
+`NPTRecordMode` and an `NPTRecordResponse` object. The difference is that the
+former is used internally in the code to denote a particular method of configuring
+the instrument, allocating buffers, etc., whereas the latter specifies what you
+actually want to do: retrieve NPT records from the digitizer, perhaps doing
+some post-processing or processing during acquisition along the way. Perhaps
+different responses would dictate different processing behavior, while the
+instrument is ultimately configured the same way.
+
 ## Alazar instruments
 
 In the following discussion, it is important to understand some Alazar terminology.

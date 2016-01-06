@@ -8,8 +8,13 @@ pages:
 - Overview:
     - 'Design': 'design.md'
     - 'Implementation': 'implementation.md'
-- About:
+- API:
+    - 'Index': 'api/api.md'
+    - 'PainterQB': 'api/PainterQB.md'
+    - 'E8257D': 'api/E8257D.md'
+    - 'E5071C': 'api/E5071C.md'
+    - 'AWG5014C': 'api/AWG5014C.md'
+    - 'AlazarTech': 'api/AlazarTech.md'
+- Miscellaneous:
     - 'Release notes': 'releases.md'
     - 'License': 'LICENSE.md'
-
-markdown_extensions: [codehilite]
