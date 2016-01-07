@@ -1,5 +1,8 @@
+export configure
+
 ## Auxiliary IO
 
+"Masks an AUX IO mode parameter to specify AUX IO software trigger enable."
 auxmode(m::U32, b::Bool) = begin
     if b
         m | Alazar.AUX_OUT_TRIGGER_ENABLE
@@ -8,6 +11,7 @@ auxmode(m::U32, b::Bool) = begin
     end
 end
 
+"Configure a digitizer's AUX IO to output a trigger signal synced to the sample clock."
 function configure(a::InstrumentAlazar, aux::Type{AuxOutputTrigger})
     val = code(a,aux)
     val = auxmode(val, a.auxOutTriggerEnable)
@@ -17,6 +21,7 @@ function configure(a::InstrumentAlazar, aux::Type{AuxOutputTrigger})
     nothing
 end
 
+"Configure a digitizer's AUX IO to act as a digital input."
 function configure(a::InstrumentAlazar, aux::Type{AuxDigitalInput})
     val = code(a,aux)
 
@@ -25,6 +30,10 @@ function configure(a::InstrumentAlazar, aux::Type{AuxDigitalInput})
     nothing
 end
 
+"""
+Configure a digitizer's AUX IO port to use the edge of a pulse as an AutoDMA
+trigger signal.
+"""
 function configure{T<:TriggerSlope}(a::InstrumentAlazar,
         aux::Type{AuxInputTriggerEnable}, trigSlope::Type{T})
     val = code(a,aux)
@@ -36,6 +45,7 @@ function configure{T<:TriggerSlope}(a::InstrumentAlazar,
     nothing
 end
 
+"Configure a digitizer's AUX IO port to output the sample clock, divided by an integer."
 function configure(a::InstrumentAlazar,
         aux::Type{AuxOutputPacer}, divider::Integer)
     val = code(a,aux)
@@ -48,6 +58,7 @@ function configure(a::InstrumentAlazar,
     nothing
 end
 
+"Configure a digitizer's AUX IO port to act as a general purpose digital output."
 function configure(a::InstrumentAlazar,
         aux::Type{AuxDigitalOutput}, level::Integer)
     val = code(a,aux)
@@ -58,8 +69,17 @@ function configure(a::InstrumentAlazar,
     nothing
 end
 
+"""
+If an AUX IO output mode has been configured, then this will configure
+software trigger enable. From the Alazar API:
+
+When this flag is set, the board will wait for software to call
+`AlazarForceTriggerEnable` to generate a trigger enable event; then wait for
+sufficient trigger events to capture the records in an AutoDMA buffer; then wait
+for the next trigger enable event and repeat.
+"""
 function configure(a::InstrumentAlazar,
-                    ::Type{AuxSoftwareTriggerEnabled}, b::Bool)
+                    ::Type{AuxSoftwareTriggerEnable}, b::Bool)
     m = auxmode(a.auxIOMode,b)
     a.auxOutTriggerEnable = b
 
@@ -80,6 +100,7 @@ end
 
 ## Buffers ##########
 
+"Wrapper for C function `AlazarSetRecordCount`. See the Alazar API."
 function configure(a::InstrumentAlazar, ::Type{RecordCount}, count)
     @eh2 AlazarSetRecordCount(a.handle, count)
     nothing
@@ -88,6 +109,8 @@ end
 ## Channels ##########
 
 # Some logic for the following is a bit specialized to the ATS9360
+
+"Configures the acquisition channel."
 function configure{T<:AlazarChannel}(a::InstrumentAlazar, ch::Type{T})
     ch == AlazarChannel && error("You must choose a channel.")
     a.acquisitionChannel = U32(code(a,ch))
@@ -95,6 +118,7 @@ function configure{T<:AlazarChannel}(a::InstrumentAlazar, ch::Type{T})
     nothing
 end
 
+"Configures acquisition from both channels, simultaneously."
 function configure(a::InstrumentAlazar, ch::Type{BothChannels})
     a.acquisitionChannel = U32(code(a,ch))
     a.channelCount = 2
@@ -103,6 +127,7 @@ end
 
 ## Clocks ############
 
+"Configures one of the preset sample rates derived from the internal clock."
 function configure{T<:SampleRate}(a::InstrumentAlazar, rate::Type{T})
     rate == SampleRate && error("Choose a sample rate.")
 
@@ -117,6 +142,7 @@ function configure{T<:SampleRate}(a::InstrumentAlazar, rate::Type{T})
     nothing
 end
 
+"Configures whether the clock ticks on a rising or falling slope."
 function configure{T<:ClockSlope}(a::InstrumentAlazar, slope::Type{T})
     slope == ClockSlope && error("Choose a clock slope.")
 
@@ -133,6 +159,7 @@ end
 
 ## Data packing #########
 
+"Configures the data packing mode for channel A."
 function configure{S<:AlazarDataPacking}(
         a::InstrumentAlazar, ::Type{AlazarDataPacking},
         pack::Type{S}, ch::Type{ChannelA})
@@ -146,6 +173,7 @@ function configure{S<:AlazarDataPacking}(
     nothing
 end
 
+"Configures the data packing mode for channel B."
 function configure{S<:AlazarDataPacking}(
         a::InstrumentAlazar, ::Type{AlazarDataPacking},
         pack::Type{S}, ch::Type{ChannelB})
@@ -159,6 +187,7 @@ function configure{S<:AlazarDataPacking}(
     nothing
 end
 
+"Configures the data packing mode for both channels."
 function configure{S<:AlazarDataPacking}(
         a::InstrumentAlazar, ::Type{AlazarDataPacking},
         pack::Type{S}, ch::Type{BothChannels})
@@ -169,17 +198,26 @@ end
 
 ## Miscellaneous ######
 
+"Configures the LED on the digitizer card chassis."
 function configure(a::InstrumentAlazar, ::Type{LED}, ledState::Bool)
     @eh2 AlazarSetLED(a.handle, ledState)
     nothing
 end
 
+"Configures the sleep state of the digitizer card."
 function configure(a::InstrumentAlazar, ::Type{Sleep}, sleepState)
     @eh2 AlazarSleepDevice(a.handle, sleepState)
     nothing
 end
 
 # not supported by ATS310, 330, 850.
+"""
+Configures timestamp reset. From the Alazar API, the choices are
+`TimestampResetOnce`
+(Reset the timestamp counter to zero on the next call to `AlazarStartCapture`,
+but not thereafter.) or `TimestampResetAlways` (Reset the timestamp counter to
+zero on each call to AlazarStartCapture. This is the default operation.)
+"""
 function configure{T<:AlazarTimestampReset}(a::InstrumentAlazar, t::Type{T})
     (t == AlazarTimestampReset) && error("Choose TimestampReset[Once|Always]")
     option = code(a,t)
@@ -189,6 +227,7 @@ end
 
 ## Trigger engine ###########
 
+"Configures the trigger engines, e.g. TriggerOnJ, TriggerOnJAndNotK, etc."
 function configure{T<:AlazarTriggerEngine}(a::InstrumentAlazar, engine::Type{T})
     eng = code(a,engine)
     set_triggeroperation(a, eng,
@@ -197,6 +236,7 @@ function configure{T<:AlazarTriggerEngine}(a::InstrumentAlazar, engine::Type{T})
     nothing
 end
 
+"Configures whether to trigger on a rising or falling slope, for engine J and K."
 function configure{S<:TriggerSlope,T<:TriggerSlope}(
     a::InstrumentAlazar, slopeJ::Type{S}, slopeK::Type{T})
 
@@ -208,6 +248,9 @@ function configure{S<:TriggerSlope,T<:TriggerSlope}(
     nothing
 end
 
+"""
+Configure the trigger source for trigger engine J and K.
+"""
 function configure{S<:TriggerSource,T<:TriggerSource}(a::InstrumentAlazar,
         sourceJ::Type{S}, sourceK::Type{T})
 
@@ -219,6 +262,10 @@ function configure{S<:TriggerSource,T<:TriggerSource}(a::InstrumentAlazar,
     nothing
 end
 
+"""
+Configure the trigger level for trigger engine J and K. This should be an
+unsigned 8 bit integer (0--255) corresponding to the full range of the digitizer.
+"""
 function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
     set_triggeroperation(a.handle, a.engine,
         a.channelJ, a.slopeJ, levelJ,
@@ -226,30 +273,43 @@ function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
     nothing
 end
 
+"Configure the external trigger coupling."
 function configure{T<:Coupling}(a::InstrumentAlazar, coupling::Type{T})
     coup = code(a,coupling)
     @eh2 AlazarSetExternalTrigger(a.handle, coup, a.triggerRange)
     nothing
 end
 
+"Configure the external trigger range."
 function configure{T<:AlazarTriggerRange}(a::InstrumentAlazar, range::Type{T})
     rang = code(a,range)
     @eh2 AlazarSetExternalTrigger(a.handle, a.coupling, rang)
     nothing
 end
 
+"""
+Configure how many samples to wait after receiving a trigger event before capturing
+a record.
+"""
 function configure(a::InstrumentAlazar, ::Type{TriggerDelaySamples}, delay_samples)
     @eh2 AlazarSetTriggerDelay(a.handle, delay_samples)
     a.triggerDelaySamples = delay_samples
     nothing
 end
 
+"""
+Wrapper for C function `AlazarSetTriggerTimeOut`.
+"""
 function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutTicks}, ticks)
     @eh2 AlazarSetTriggerTimeOut(a.handle, ticks)
     a.triggerTimeoutTicks = ticks
     nothing
 end
 
+"""
+Wrapper for C function `AlazarSetTriggerTimeOut`, except we take seconds here
+instead of ticks (units of 10 us).
+"""
 function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutS}, timeout_s)
     configure(a, TriggerTimeoutTicks, ceil(timeout_s * 1.e5))
 end

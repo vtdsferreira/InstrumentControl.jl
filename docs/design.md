@@ -110,7 +110,8 @@ In Objective C, for instance, `get` implies that the function will return an add
 in memory rather than a value.
 
 Both `configure` and `inspect` have a lot of methods that take as one of their
-arguments an `InstrumentProperty` subtype. One subtypes `InstrumentProperty` for properties such as `ClockSource`, the
+arguments an `InstrumentProperty` subtype. One subtypes `InstrumentProperty` for
+properties such as `ClockSource`, the
 logical states of which have no obvious consistent encoding. One should instead
 subtype `NumericalProperty` for properties where a number suffices to describe
 the property (up to units).

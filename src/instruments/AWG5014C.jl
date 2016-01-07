@@ -22,6 +22,9 @@ export AnalogOutputDelay
 export ChannelOutput
 export DCOutput
 export DCOutputLevel
+export EventImpedance
+export EventSlope
+export EventTiming
 export ExtInputAddsToOutput
 export ExtOscDividerRate
 export MarkerDelay
@@ -38,6 +41,7 @@ export SequencerInfiniteLoop
 export SequencerLength
 export SequencerLoopCount
 export SequencerPosition
+export TriggerMode
 export TriggerTimer
 export WaitingForTrigger
 export WaveformName
@@ -101,21 +105,48 @@ exceptions    = Dict(
 
 InstrumentException(ins::AWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
+"Event input impedance may be 50 Ohm or 1 kOhm."
+abstract EventImpedance    <: InstrumentProperty
+
+"Event may fire on a rising or falling slope."
+abstract EventSlope        <: InstrumentProperty
+
+"Events may occur synchronously or asynchronously."
+abstract EventTiming       <: InstrumentProperty
+
 abstract Normalization     <: InstrumentProperty
 abstract SequencerType     <: InstrumentProperty
+
+"Trigger engine may be triggered, continuously firing, gated, or sequenced."
+abstract TriggerMode       <: InstrumentProperty
+
 abstract WaveformType      <: InstrumentProperty
 
 subtypesArray = [
 
-    (:NotNormalized,                  Normalization),
-    (:NormalizedFullScale,            Normalization),
-    (:NormalizedPreservingOffset,     Normalization),
+    (:Event50Ohms,                  EventImpedance),
+    (:Event1kOhms,                  EventImpedance),
 
-    (:HardwareSequencer,              SequencerType),
-    (:SoftwareSequencer,              SequencerType),
+    (:RisingEvent,                  EventSlope),
+    (:FallingEvent,                 EventSlope),
 
-    (:IntWaveform,                    WaveformType),
-    (:RealWaveform,                   WaveformType),
+    (:EventAsynchronous,            EventTiming),
+    (:EventSynchronous,             EventTiming),
+
+    (:NotNormalized,                Normalization),
+    (:NormalizedFullScale,          Normalization),
+    (:NormalizedPreservingOffset,   Normalization),
+
+    (:HardwareSequencer,            SequencerType),
+    (:SoftwareSequencer,            SequencerType),
+
+    (:Triggered,                    TriggerMode),
+    (:Continuous,                   TriggerMode),
+    (:Gated,                        TriggerMode),
+    (:Sequence,                     TriggerMode),
+
+    (:IntWaveform,                  WaveformType),
+    (:RealWaveform,                 WaveformType),
 
 ]::Array{Tuple{Symbol,DataType},1}
 
@@ -133,6 +164,11 @@ responses = Dict(
 
     :SequencerType    => Dict("HARD"  => :HardwareSequencer,
                               "SOFT"  => :SoftwareSequencer),
+
+    :TriggerMode      => Dict("TRIG"  => :Triggered,
+                              "CONT"  => :Continuous,
+                              "GAT"   => :Gated,
+                              "SEQ"   => :Sequence),
 
     :WaveformType     => Dict("INT"   => :IntWaveform,
                               "REAL"  => :RealWaveform),
@@ -156,11 +192,6 @@ responses = Dict(
 
     :OscillatorSource => Dict("INT"   => :InternalOscillator,
                               "EXT"   => :ExternalOscillator),
-
-    :Trigger          => Dict("TRIG"  => :Triggered,
-                              "CONT"  => :Continuous,
-                              "GAT"   => :Gated,
-                              "SEQ"   => :Sequence),
 
     :TriggerImpedance => Dict(  50.0  => :Trigger50Ohms,
                               1000.0  => :Trigger1kOhms),
@@ -204,18 +235,18 @@ abstract VoltageOffset            <: InstrumentProperty
 
 
 commands = [
-    ("AWGC:CLOC:SOUR",      ClockSource), #reference clock source
+    ("AWGC:CLOC:SOUR",      ClockSource),    #reference clock source
     ("EVEN:IMP",            EventImpedance),
     ("EVEN:POL",            EventSlope),
     ("EVEN:JTIM",           EventTiming),
     ("SOUR:ROSC:SOUR",      OscillatorSource),
-    ("AWGC:RMOD",           Trigger), # run mode
-    ("TRIG:IMP",            TriggerImpedance), # event impedance
+    ("AWGC:RMOD",           TriggerMode),
+    ("TRIG:IMP",            TriggerImpedance),
     ("TRIG:POL",            TriggerSlope),
     ("TRIG:SOUR",           TriggerSource),
 
     ("SOUR#:DELAY",         AnalogOutputDelay,         AbstractFloat),
-    ("AWGC:CONF:CNUM?",     ChannelCount,              Int),
+    # ("AWGC:CONF:CNUM?",     ChannelCount,              Int),
     ("OUTP#:STAT",          ChannelOutput,             Bool),
     ("AWGC:DC:STAT",        DCOutput,                  Bool),
     ("AWGC:DC#:VOLT:OFFS",  DCOutputLevel,             AbstractFloat),
@@ -359,7 +390,7 @@ function inspect(ins::AWG5014C, ::Type{SampleRate})
     parse(ask(ins,"SOUR:FREQ?"))
 end
 
-"Current sequencer type"
+"Returns current sequencer type."
 function inspect(ins::AWG5014C, ::Type{SequencerType})
     SequencerType(ins,ask(ins,"AWGC:SEQ:TYPE?"))
 end

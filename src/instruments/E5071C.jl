@@ -70,7 +70,27 @@ type E5071C <: InstrumentVISA
     E5071C() = new()
 end
 
+"Signals may propagate on coax or waveguide media."
+abstract ElectricalMedium <: InstrumentProperty
+
+subtypesArray = [
+
+    (:Coaxial,                  ElectricalMedium),
+    (:Waveguide,                ElectricalMedium),
+
+]::Array{Tuple{Symbol,DataType},1}
+
+# Create all the concrete types we need using the generate_properties function.
+for ((subtypeSymb,supertype) in subtypesArray)
+    generate_properties(subtypeSymb, supertype)
+end
+
 responseDictionary = Dict(
+    :ElectricalMedium       => Dict("COAX" => :Coaxial,
+                                    "WAV"  => :Waveguide),
+
+    ################
+
     :DataRepresentation     => Dict("MLOG" => :LogMagnitude,
                                     "PHAS" => :Phase,
                                     "GDEL" => :GroupDelay,
@@ -88,9 +108,6 @@ responseDictionary = Dict(
                                     "IMAG" => :ImaginaryPart,
                                     "UPH"  => :ExpandedPhase,
                                     "PPH"  => :PositivePhase),
-
-    :Medium                 => Dict("COAX" => :Coaxial,
-                                    "WAV"  => :Waveguide),
 
     :Search                 => Dict("MAX"  => :Max,
                                     "MIN"  => :Min,
@@ -119,47 +136,45 @@ responseDictionary = Dict(
                                     "EXT"  => :ExternalTrigger,
                                     "MAN"  => :ManualTrigger,
                                     "BUS"  => :BusTrigger)
-
 )
 
 generate_handlers(E5071C, responseDictionary)
 
 abstract Autoscale            <: InstrumentProperty
 abstract Averaging            <: InstrumentProperty
-abstract AveragingFactor      <: NumericalProperty
+abstract AveragingFactor      <: InstrumentProperty{Int}
 abstract AveragingTrigger     <: InstrumentProperty
 abstract ClearAveraging       <: InstrumentProperty
 abstract DataTrace            <: InstrumentProperty
-abstract ElectricalDelay      <: NumericalProperty
-abstract ElectricalMedium     <: InstrumentProperty
-abstract ExtTriggerDelay      <: NumericalProperty
+abstract ElectricalDelay      <: InstrumentProperty{Float64}
+abstract ExtTriggerDelay      <: InstrumentProperty{Float64}
 abstract ExtTriggerLowLatency <: InstrumentProperty
-abstract FrequencyCenter      <: NumericalProperty
-abstract FrequencySpan        <: NumericalProperty
+abstract FrequencyCenter      <: InstrumentProperty{Float64}
+abstract FrequencySpan        <: InstrumentProperty{Float64}
 abstract GraphLayout          <: InstrumentProperty
-abstract IFBandwidth          <: NumericalProperty
+abstract IFBandwidth          <: InstrumentProperty{Float64}
 abstract Marker               <: InstrumentProperty
 abstract MarkerSearch         <: InstrumentProperty
-abstract MarkerX              <: NumericalProperty
+abstract MarkerX              <: InstrumentProperty{Float64}
 abstract MarkerY              <: InstrumentProperty
 abstract NumPoints            <: InstrumentProperty
 abstract NumTraces            <: InstrumentProperty
-abstract PhaseOffset          <: NumericalProperty
+abstract PhaseOffset          <: InstrumentProperty{Float64}
 abstract PointTrigger         <: InstrumentProperty
 abstract PowerCoupled         <: InstrumentProperty
-abstract PowerLevel           <: NumericalProperty
-abstract PowerPortLevel       <: NumericalProperty
+abstract PowerLevel           <: InstrumentProperty{Float64}
+abstract PowerPortLevel       <: InstrumentProperty{Float64}
 abstract PowerSlope           <: InstrumentProperty
-abstract PowerSlopeLevel      <: NumericalProperty
-abstract PowerSweepFrequency  <: NumericalProperty
+abstract PowerSlopeLevel      <: InstrumentProperty{Float64}
+abstract PowerSweepFrequency  <: InstrumentProperty{Float64}
 abstract Smoothing            <: InstrumentProperty
-abstract SmoothingAperture    <: NumericalProperty
+abstract SmoothingAperture    <: InstrumentProperty{Float64}
 abstract TraceMaximized       <: InstrumentProperty
 abstract TriggerOutput        <: InstrumentProperty
-abstract WaveguideCutoff      <: NumericalProperty
+abstract WaveguideCutoff      <: InstrumentProperty{Float64}
 abstract YDivisions           <: InstrumentProperty
-abstract YScalePerDivision    <: NumericalProperty
-abstract YReferenceLevel      <: NumericalProperty
+abstract YScalePerDivision    <: InstrumentProperty{Float64}
+abstract YReferenceLevel      <: InstrumentProperty{Float64}
 abstract YReferencePosition   <: InstrumentProperty
 abstract WindowLayout         <: InstrumentProperty
 abstract SetActiveMarker      <: InstrumentProperty
@@ -169,6 +184,7 @@ abstract SetActiveChannel     <: InstrumentProperty
 commands = [
 
     (":CALC#:TRAC#:FORM",           DataRepresentation),
+    (":CALC#:TRAC#:CORR:EDEL:MED",  ElectricalMedium),
     (":TRIG:OUTP:POL",              TriggerOutputPolarity),
     (":TRIG:OUTP:POS",              TriggerOutputTiming),
     (":TRIG:SEQ:EXT:SLOP",          TriggerSlope),
@@ -182,7 +198,6 @@ commands = [
     (":SENS#:AVER:CLE",             ClearAveraging,        NoArgs),
     (":DISP:WIND#:TRAC#:STAT",      DataTrace,             Bool),
     (":CALC#:TRAC#:CORR:EDEL:TIME", ElectricalDelay,       AbstractFloat),
-    (":CALC#:TRAC#:CORR:EDEL:MED",  ElectricalMedium,      Medium),
     (":TRIG:EXT:DEL",               ExtTriggerDelay,       AbstractFloat),
     (":TRIG:EXT:LLAT",              ExtTriggerLowLatency,  Bool),
     (":SENS#:FREQ:CENT",            FrequencyCenter,       AbstractFloat),
@@ -220,6 +235,11 @@ commands = [
     (":CALC#:PAR#:SEL",             SetActiveTrace,        NoArgs),
     (":DISP:WIND#:ACT",             SetActiveChannel,      NoArgs),
 ]
+
+for args in commands
+    generate_inspect(E5071C,args...)
+    args[1][end] != '?' && generate_configure(E5071C,args...)
+end
 
 function frequencydata(ins::E5071C, channel::Integer, trace::Integer)
     data = ask(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))

@@ -1,8 +1,10 @@
-"Create descriptive exceptions."
 InstrumentException(ins::InstrumentAlazar, r) =
     InstrumentException(ins, r, alazar_exception(r))
 
-"Takes an Alazar API call and brackets it with some checking."
+"""
+Takes an Alazar API call and brackets it with some error checking.
+Throws an InstrumentException if there is an error.
+"""
 macro eh2(expr)
     quote
         r = $(esc(expr))

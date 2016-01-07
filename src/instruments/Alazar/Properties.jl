@@ -8,10 +8,11 @@ export AlazarTimestampReset
 export AlazarTriggerEngine
 export AlazarTriggerRange
 
-export AuxSoftwareTriggerEnabled
+export AuxSoftwareTriggerEnable
 export BitsPerSample
 export BytesPerSample
 export BufferAlignment
+export ChannelCount
 export LED
 export MaxBufferBytes
 export MinFFTSamples
@@ -25,7 +26,10 @@ export TriggerDelaySamples
 export TriggerTimeoutS
 export TriggerTimeoutTicks
 
-abstract AlazarProperty <: InstrumentProperty
+export Rate1GSps
+
+"An InstrumentProperty specific to AlazarTech digitizers."
+abstract AlazarProperty{T}    <: InstrumentProperty{T}
 
 abstract AlazarAux            <: AlazarProperty
 abstract AlazarChannel        <: AlazarProperty
@@ -75,6 +79,31 @@ subtypesArray = [
     (:ExternalTriggerTTL,        AlazarTriggerRange),
     (:ExternalTrigger2V5,        AlazarTriggerRange),
 
+    (:Rate1kSps,                 SampleRate),
+    (:Rate2kSps,                 SampleRate),
+    (:Rate5kSps,                 SampleRate),
+    (:Rate10kSps,                SampleRate),
+    (:Rate20kSps,                SampleRate),
+    (:Rate50kSps,                SampleRate),
+    (:Rate100kSps,               SampleRate),
+    (:Rate200kSps,               SampleRate),
+    (:Rate500kSps,               SampleRate),
+    (:Rate1MSps,                 SampleRate),
+    (:Rate2MSps,                 SampleRate),
+    (:Rate5MSps,                 SampleRate),
+    (:Rate10MSps,                SampleRate),
+    (:Rate20MSps,                SampleRate),
+    (:Rate50MSps,                SampleRate),
+    (:Rate100MSps,               SampleRate),
+    (:Rate200MSps,               SampleRate),
+    (:Rate500MSps,               SampleRate),
+    (:Rate800MSps,               SampleRate),
+    (:Rate1000MSps,              SampleRate),
+    (:Rate1200MSps,              SampleRate),
+    (:Rate1500MSps,              SampleRate),
+    (:Rate1800MSps,              SampleRate),
+    (:RateUser,                  SampleRate),
+
     (:ChannelATrigger,           TriggerSource),
     (:ChannelBTrigger,           TriggerSource),
     (:DisableTrigger,            TriggerSource)
@@ -85,6 +114,9 @@ subtypesArray = [
 for ((subtypeSymb,supertype) in subtypesArray)
     generate_properties(subtypeSymb, supertype)
 end
+
+"Type alias for `Rate1000MSps`."
+typealias Rate1GSps Rate1000MSps
 
 responses = Dict(
     :Coupling       => Dict(Alazar.AC_COUPLING              => :AC,
@@ -168,10 +200,11 @@ generate_handlers(InstrumentAlazar, responses)
 
 Rate1GSps{T<:InstrumentAlazar}(insType::Type{T}) = Rate1000MSps(insType)
 
-abstract AuxSoftwareTriggerEnabled <: AlazarProperty
+abstract AuxSoftwareTriggerEnable  <: AlazarProperty
 abstract BitsPerSample             <: AlazarProperty
 abstract BytesPerSample            <: AlazarProperty
 abstract BufferAlignment           <: AlazarProperty
+abstract ChannelCount              <: AlazarProperty
 abstract LED                       <: AlazarProperty
 abstract MinSamplesPerRecord       <: AlazarProperty
 abstract MaxBufferBytes            <: AlazarProperty

@@ -1,16 +1,14 @@
 # Instrument properties
-export InstrumentProperty, NumericalProperty
+export InstrumentProperty
 export NoArgs
 
 # Properties common to many instruments and representable by codes
-export Coupling, DataRepresentation, Lock, Network, TriggerOutputTiming
-export ClockSlope, ClockSource, EventImpedance, EventSlope, EventTiming
-export OscillatorSource, Trigger, TriggerImpedance, TriggerSlope, TriggerSource
+export Coupling, DataRepresentation, TriggerOutputTiming
+export ClockSlope, ClockSource
+export OscillatorSource, TriggerImpedance, TriggerSlope, TriggerSource
 export TriggerOutputPolarity, SampleRate, Search, SParameter
-export Medium
 
 # Properties common to many instruments and representable by bits types
-export ChannelCount
 export Frequency
 export FrequencyStart
 export FrequencyStop
@@ -22,7 +20,6 @@ export TriggerLevel
 export InstrumentException
 
 # Miscellaneous stuff
-export Rate1GSps
 export All
 
 # Functions shared by multiple instruments
@@ -40,60 +37,84 @@ export options
 
 export Instrument
 
+"""
+Abstract supertype representing an instrument.
+"""
 abstract Instrument
 
 """
-### InstrumentProperty
-`abstract InstrumentProperty <: Any`
-
-Abstract supertype representing communications with an instrument.
+Abstract parametric supertype representing communications with an instrument.
 
 Each *abstract* subtype one level down should represent a logical state of the
 instrument configuration, e.g. `TriggerSource` may be have concrete
 subtypes `ExternalTrigger` or `InternalTrigger`.
 
-Each *concrete* subtype two levels down is an immutable type:
-`InternalTrigger(ins::AWG5014C, "INT")` encodes everything one needs to know
-for how the AWG5014C represents an internal trigger.
-
 To retrieve what one has to send the AWG from the type signature, we have
 defined a function `code`.
 """
-abstract InstrumentProperty
-abstract NumericalProperty <: InstrumentProperty
+abstract InstrumentProperty{T}
 
+"Used internally to indicate that a property takes no argument."
 abstract NoArgs
 
+"Clock may tick on a rising or falling slope."
 abstract ClockSlope            <: InstrumentProperty
+
+"Clock source can be internal or external."
 abstract ClockSource           <: InstrumentProperty
+
+"Signals may be AC or DC coupled."
 abstract Coupling              <: InstrumentProperty
+
 abstract DataRepresentation    <: InstrumentProperty
-abstract EventImpedance        <: InstrumentProperty
-abstract EventSlope            <: InstrumentProperty
-abstract EventTiming           <: InstrumentProperty
-abstract Lock                  <: InstrumentProperty
-abstract Medium                <: InstrumentProperty
-abstract Network               <: InstrumentProperty
+
+"Oscillator source can be internal or external."
 abstract OscillatorSource      <: InstrumentProperty
-abstract SampleRate            <: InstrumentProperty
+
+"The sample rate for digitizing, synthesizing, etc."
+abstract SampleRate            <: InstrumentProperty{Float64}
+
 abstract Search                <: InstrumentProperty
+
+"Scattering parameter, e.g. S11, S12, etc."
 abstract SParameter            <: InstrumentProperty
+
 abstract State                 <: InstrumentProperty
 abstract TriggerOutputTiming   <: InstrumentProperty
 abstract TriggerOutputPolarity <: InstrumentProperty
-abstract Trigger               <: InstrumentProperty
+
+"Trigger input impedance may be 50 Ohm or 1 kOhm."
 abstract TriggerImpedance      <: InstrumentProperty
+
+"Trigger engine can fire on a rising or falling slope."
 abstract TriggerSlope          <: InstrumentProperty
+
+"Trigger may be sourced from: internal, external, bus, etc."
 abstract TriggerSource         <: InstrumentProperty
 
-abstract ChannelCount          <: NumericalProperty
-abstract Frequency             <: NumericalProperty
-abstract FrequencyStart        <: NumericalProperty
-abstract FrequencyStop         <: NumericalProperty
-abstract Output                <: NumericalProperty
-abstract Power                 <: NumericalProperty
-abstract TriggerLevel          <: NumericalProperty
+"Fixed frequency of a sourced signal."
+abstract Frequency             <: InstrumentProperty{Float64}
 
+"Start frequency of a fixed range."
+abstract FrequencyStart        <: InstrumentProperty{Float64}
+
+"Stop frequency of a fixed range."
+abstract FrequencyStop         <: InstrumentProperty{Float64}
+
+"Boolean output state of an instrument."
+abstract Output                <: InstrumentProperty{Bool}
+
+"Output power level."
+abstract Power                 <: InstrumentProperty{Float64}
+
+"Trigger level."
+abstract TriggerLevel          <: InstrumentProperty{Float64}
+
+"""
+Exception to be thrown by an instrument. Fields include the instrument in error
+`ins::Instrument`, the error code `val::Int64`, and a `humanReadable` Unicode
+string.
+"""
 immutable InstrumentException <: Exception
     ins::Instrument
     val::Int64
@@ -131,51 +152,8 @@ subtypesArray = [
     (:ExpandedPhase,            DataRepresentation),
     (:PositivePhase,            DataRepresentation),
 
-    (:Event50Ohms,              EventImpedance),
-    (:Event1kOhms,              EventImpedance),
-
-    (:RisingEvent,              EventSlope),
-    (:FallingEvent,             EventSlope),
-
-    (:EventAsynchronous,        EventTiming),
-    (:EventSynchronous,         EventTiming),
-
-    (:Local,                    Lock),
-    (:Remote,                   Lock),
-
-    (:Coaxial,                  Medium),
-    (:Waveguide,                Medium),
-
-    (:DHCP,                     Network),
-    (:ManualNetwork,            Network),
-
     (:InternalOscillator,       OscillatorSource),
     (:ExternalOscillator,       OscillatorSource),
-
-    (:Rate1kSps,                SampleRate),
-    (:Rate2kSps,                SampleRate),
-    (:Rate5kSps,                SampleRate),
-    (:Rate10kSps,               SampleRate),
-    (:Rate20kSps,               SampleRate),
-    (:Rate50kSps,               SampleRate),
-    (:Rate100kSps,              SampleRate),
-    (:Rate200kSps,              SampleRate),
-    (:Rate500kSps,              SampleRate),
-    (:Rate1MSps,                SampleRate),
-    (:Rate2MSps,                SampleRate),
-    (:Rate5MSps,                SampleRate),
-    (:Rate10MSps,               SampleRate),
-    (:Rate20MSps,               SampleRate),
-    (:Rate50MSps,               SampleRate),
-    (:Rate100MSps,              SampleRate),
-    (:Rate200MSps,              SampleRate),
-    (:Rate500MSps,              SampleRate),
-    (:Rate800MSps,              SampleRate),
-    (:Rate1000MSps,             SampleRate),
-    (:Rate1200MSps,             SampleRate),
-    (:Rate1500MSps,             SampleRate),
-    (:Rate1800MSps,             SampleRate),
-    (:RateUser,                 SampleRate),
 
     (:Max,                      Search),
     (:Min,                      Search),
@@ -190,11 +168,6 @@ subtypesArray = [
     (:S12,                      SParameter),
     (:S21,                      SParameter),
     (:S22,                      SParameter),
-
-    (:Triggered,                Trigger),
-    (:Continuous,               Trigger),
-    (:Gated,                    Trigger),
-    (:Sequence,                 Trigger),
 
     (:Trigger50Ohms,            TriggerImpedance),
     (:Trigger1kOhms,            TriggerImpedance),
@@ -223,11 +196,10 @@ end
 # Note that it is tempting to do this as a macro, but you are not allowed to
 # export from a local scope, so there are some headaches with for loops, etc.
 
-typealias Rate1GSps Rate1000MSps
-
 "The All type is meant to be dispatched upon and not instantiated."
 immutable All
 end
 
+"Allow inspecting mulitple properties at once."
 inspect(ins::Instrument, args::Tuple{Vararg{DataType}}) =
     map((x)->inspect(ins,x),(args...))

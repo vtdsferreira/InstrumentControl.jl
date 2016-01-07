@@ -36,6 +36,13 @@ function abort(a::InstrumentAlazar, m::FFTRecordMode)
     nothing
 end
 
+"""
+Aborts an acquisition. Must be called in the case of a DSP acquisition; somehow
+less fatal otherwise. Should be automatically taken care of in a well-written
+`measure` method, but can be called manually by the paranoid.
+"""
+abort
+
 adma(::ContinuousStreamMode)   = Alazar.ADMA_CONTINUOUS_MODE |
                                  Alazar.ADMA_FIFO_ONLY_STREAMING |
                                  Alazar.ADMA_EXTERNAL_STARTCAPTURE
@@ -55,6 +62,10 @@ adma(::TraditionalRecordMode)  = Alazar.ADMA_TRADITIONAL_MODE |
 adma(::FFTRecordMode)          = Alazar.ADMA_NPT |
                                  Alazar.ADMA_DSP |
                                  Alazar.ADMA_EXTERNAL_STARTCAPTURE
+
+"Returns the asynchronous DMA flags for a given `AlazarMode`. These are
+passed as the final parameter to the C function `AlazarBeforeAsyncRead`."
+adma
 
 function before_async_read(a::InstrumentAlazar, m::AlazarMode)
 
@@ -96,6 +107,16 @@ function before_async_read(a::InstrumentAlazar, m::FFTRecordMode)
     nothing
 end
 
+"""
+Performs setup for asynchronous acquisitions. Should be called after
+`buffersizing` has been called.
+"""
+before_async_read
+
+"""
+Returns the number of bits per sample. Queries the digitizer directly via
+the C function `AlazarGetChannelInfo`.
+"""
 function bits_per_sample(a::InstrumentAlazar)
     memorysize_samples = Array{U32}(1)
     memorysize_samples[1] = U32(0)
@@ -108,12 +129,18 @@ function bits_per_sample(a::InstrumentAlazar)
     return bitspersample[1]
 end
 
+"""
+Return a handle to an Alazar digitizer given a system ID and board ID.
+For single digitizer systems, pass 1 for both to get a handle for the digitizer.
+"""
 function boardhandle(sysid::Integer,boardid::Integer)
     r = AlazarGetBoardBySystemID(sysid,boardid)
     r == C_NULL && error("Not found: system ID $sysid, board ID $boardid")
     r
 end
 
+"Returns the kind of digitizer; corresponds to a constant in AlazarConstants.jl
+in the Alazar.jl package."
 boardkind(handle::U32) = AlazarGetBoardKind(handle)
 
 function bufferarray(a::InstrumentAlazar, m::AlazarMode)
@@ -128,6 +155,13 @@ end
 function bufferarray(a::InstrumentAlazar, m::FFTRecordMode)
     return Alazar.DMABufferArray{m.output_eltype}(m.buf_size, m.buf_count)
 end
+
+"""
+Given and `InstrumentAlazar` and `AlazarMode`, returns a `DMABufferArray`
+with the correct number of buffers and buffer sizes. `buffersizing` should have
+been called before this function.
+"""
+bufferarray
 
 function buffersizing(a::InstrumentAlazar, m::RecordMode)
 
@@ -343,13 +377,28 @@ function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
 
 end
 
+"""
+Given an `InstrumentAlazar` and an `AlazarMode`, this will tweak parameters
+in the `AlazarMode` object to comply with record alignment and buffer granularity
+requirements imposed by either the AlazarTech digitizer itself, or the implementation
+of measurement code. Should be called toward the very beginning of a `measure`
+method.
+"""
+buffersizing
+
+
 buffers_per_acquisition(a::InstrumentAlazar, m::StreamMode) =
     Int(cld(m.total_samples, samples_per_buffer_returned(a,m)))
 buffers_per_acquisition(a::InstrumentAlazar, m::RecordMode) =
     Int(cld(m.total_recs, records_per_buffer(a,m)))
 
+"Returns whether or not the `InstrumentAlazar` is busy (Bool)."
 busy(a::InstrumentAlazar) = AlazarBusy(a.handle) > 0 ? true : false
 
+"""
+Returns the number of bytes per sample. Calls `bitspersample` and does ceiling
+division by 8.
+"""
 bytes_per_sample(a::InstrumentAlazar) = Int(cld(bitspersample(a),8))
 
 dsp(::Type{WindowNone})           = Alazar.DSP_WINDOW_NONE
@@ -359,6 +408,11 @@ dsp(::Type{WindowBlackman})       = Alazar.DSP_WINDOW_BLACKMAN
 dsp(::Type{WindowBlackmanHarris}) = Alazar.DSP_WINDOW_BLACKMAN_HARRIS
 dsp(::Type{WindowBartlett})       = Alazar.DSP_WINDOW_BARTLETT
 
+"""
+Given a DSPWindow type, this returns the constant needed to use the AlazarDSP
+API to generate a particular window function.
+"""
+dsp
 
 function dsp_generatewindowfunction{S<:AlazarWindow,T<:Union{Re,Im}}(
         ::Type{S}, ::Type{T}, m::FFTRecordMode)
@@ -384,7 +438,14 @@ function dsp_generatewindowfunction{T<:Union{Re,Im}}(
     nothing
 end
 
+"""
+Given a `DSPWindow`, `Re` or `Im` type, and `FFTRecordMode`, this will prepare
+a window function to be set later by calling `windowing`.
+"""
+dsp_generatewindowfunction
+
 # The InstrumentAlazar is only used for throwing exceptions
+"Returns a DSPModuleInfo object that describes a DSPModule."
 function dsp_getinfo(dspModule::DSPModule)
 
     dspModuleId = Array(U32,1)
@@ -408,6 +469,7 @@ function dsp_getinfo(dspModule::DSPModule)
     DSPModuleInfo(dspModuleId[1], versionMajor[1], versionMinor[1], maxLength[1])
 end
 
+"Returns an Array of `dsp_module_handle`."
 function dsp_getmodulehandles(a::InstrumentAlazar)
     numModules = dsp_num_modules(a)
     if numModules == 0
@@ -424,10 +486,12 @@ function dsp_getmodulehandles(a::InstrumentAlazar)
     modules
 end
 
+"Returns an array of `DSPModule`."
 function dsp_modules(a::InstrumentAlazar)
     a.dspModules
 end
 
+"Returns the number of `DSPModule`."
 function dsp_num_modules(a::InstrumentAlazar)
     numModules = Array{U32}(1)
     numModules[1] = U32(0)
@@ -438,6 +502,11 @@ function dsp_num_modules(a::InstrumentAlazar)
     numModules[1]
 end
 
+"""
+Performs `AlazarFFTSetup`, which should be called before `AlazarBeforeAsyncRead`.
+In our code, this method is called by `before_async_read` and does not need to
+be called.
+"""
 function fft_setup(a::InstrumentAlazar, m::FFTRecordMode)
 
     recordLength_samples = m.sam_per_rec
@@ -460,6 +529,10 @@ function fft_setup(a::InstrumentAlazar, m::FFTRecordMode)
     nothing
 end
 
+"""
+A wrapper for the C function `AlazarFFTSetWindowFunction`, but taking a
+`DSPModule` instead of a `dsp_module_handle`. Includes error handling.
+"""
 function fft_setwindowfunction(dspModule::DSPModule, samplesPerRecord, reArray, imArray)
     r = AlazarFFTSetWindowFunction(dspModule.handle, samplesPerRecord, reArray, imArray)
     if r != alazar_no_error
@@ -480,16 +553,25 @@ end
 #     end
 # end
 
+"Force a software trigger."
 function forcetrigger(a::InstrumentAlazar)
     @eh2 AlazarForceTrigger(a.handle)
     nothing
 end
 
+"""
+Force a software "trigger enable." This involves the AUX I/O connector (see
+Alazar API).
+"""
 function forcetriggerenable(a::InstrumentAlazar)
     @eh2 AlazarForceTriggerEnable(a.handle)
     nothing
 end
 
+"""
+Controls coupling, input range, and impedance for applicable digitizer cards.
+Does nothing for ATS9360 cards since there is only one choice of arguments.
+"""
 function inputcontrol(a::InstrumentAlazar, channel, coupling, inputRange, impedance)
     @eh2 AlazarInputControl(a.handle, channel, coupling, inputRange, impedance)
     nothing
@@ -505,6 +587,10 @@ outputformat(::Type{Alazar.S32Imag})   = Alazar.FFT_OUTPUT_FORMAT_IMAG_S32
 outputformat(::Type{Alazar.FloatAmp2}) = Alazar.FFT_OUTPUT_FORMAT_FLOAT_AMP2
 outputformat(::Type{Alazar.FloatLog})  = Alazar.FFT_OUTPUT_FORMAT_FLOAT_LOG
 
+"""
+Post an asynchronous buffer to the digitizer for use in an acquisition.
+Buffer address must meet alignment requirements.
+"""
 function post_async_buffer(a::InstrumentAlazar, buffer, bufferLength)
     @eh2 AlazarPostAsyncBuffer(a.handle, buffer, bufferLength)
     nothing
@@ -512,6 +598,11 @@ end
 
 pretriggersamples(m::TraditionalRecordMode) = m.pre_sam_per_rec
 pretriggersamples(m::AlazarMode) = 0
+"Returns the number of pretrigger samples for an `AlazarMode` (usually 0)."
+pretriggersamples
+
+"Given an `AlazarMode`, returns the number of pre-trigger samples."
+pretriggersamples
 
 function recordsizing(a::InstrumentAlazar, m::RecordMode)
     @eh2 AlazarSetRecordSize(a.handle,
@@ -527,55 +618,128 @@ end
 
 recordsizing(a::InstrumentAlazar, m::FFTRecordMode) = nothing
 recordsizing(a::InstrumentAlazar, m::StreamMode) = nothing
+"""
+Calls C function `AlazarSetRecordSize` if necessary, given an `InstrumentAlazar`
+and `AlazarMode`.
+"""
+recordsizing
 
 rec_acq_param(m::StreamMode)    = inf_records
 rec_acq_param(m::RecordMode)    = m.total_recs
 rec_acq_param(m::FFTRecordMode) = inf_records
+"""
+Returns the value to pass as the recordsPerAcquisition parameter in the C
+function `AlazarBeforeAsyncRead`, given an `AlazarMode` object.
+"""
+rec_acq_param
 
 records_per_acquisition(a::InstrumentAlazar, m::StreamMode) =
     buffers_per_acquisition(a,m)
 records_per_acquisition(a::InstrumentAlazar, m::RecordMode) =
     records_per_buffer(a,m) * buffers_per_acquisition(a,m)
+"""
+Given an `InstrumentAlazar` and `AlazarMode`, return the records per acquisition.
+For `StreamMode` this will return the number of buffers per acquisition.
+`buffer_sizing` should be called first to ensure the `AlazarMode` object
+contains values that meet size and alignment requirements.
+"""
+records_per_acquisition
 
 records_per_buffer(a::InstrumentAlazar, m::StreamMode) = 1
 records_per_buffer(a::InstrumentAlazar, m::RecordMode) =
     Int(fld(m.buf_size, samples_per_record_returned(a,m) * bytes_per_sample(a)))
 records_per_buffer(a::InstrumentAlazar, m::FFTRecordMode) =
     Int(m.buf_size / m.by_rec)
+"""
+Given an `InstrumentAlazar` and `AlazarMode`, return the records per buffer.
+For `StreamMode` this will return 1.
+`buffer_sizing` should be called first to ensure the `AlazarMode` object
+contains values that meet size and alignment requirements.
+"""
+records_per_buffer
 
 samples_per_buffer_measured(a::InstrumentAlazar, m::AlazarMode) =
     samples_per_record_measured(a,m) * records_per_buffer(a,m)
+"""
+Given an `InstrumentAlazar` and `AlazarMode`, return the samples per buffer
+measured by the digitizer.
+`buffer_sizing` should be called first to ensure the `AlazarMode` object
+contains values that meet size and alignment requirements.
+"""
+samples_per_buffer_measured
+
 samples_per_buffer_returned(a::InstrumentAlazar, m::AlazarMode) =
     samples_per_record_returned(a,m) * records_per_buffer(a,m)
+"""
+Given an `InstrumentAlazar` and `AlazarMode`, return the samples per buffer
+returned by the digitizer.
+`buffer_sizing` should be called first to ensure the `AlazarMode` object
+contains values that meet size and alignment requirements.
+"""
+samples_per_buffer_returned
 
 samples_per_record_measured(a::InstrumentAlazar, m::StreamMode) =
     Int(m.buf_size / bytes_per_sample(a))
-samples_per_record_returned(a::InstrumentAlazar, m::StreamMode) =
-    Int(m.buf_size / bytes_per_sample(a))
-
-samples_per_record_measured(a::InstrumentAlazar, m::NPTRecordMode) =
+samples_per_record_measured(a::InstrumentAlazar, m::RecordMode) =
     m.sam_per_rec
-samples_per_record_returned(a::InstrumentAlazar, m::NPTRecordMode) =
-    m.sam_per_rec
-
 samples_per_record_measured(a::InstrumentAlazar, m::TraditionalRecordMode) =
     m.pre_sam_per_rec + m.post_sam_per_rec
+"""
+Given an `InstrumentAlazar` and `AlazarMode`, return the samples per record
+measured by the digitizer.
+`buffer_sizing` should be called first to ensure the `AlazarMode` object
+contains values that meet size and alignment requirements.
+"""
+samples_per_record_measured
+
+samples_per_record_returned(a::InstrumentAlazar, m::StreamMode) =
+    Int(m.buf_size / bytes_per_sample(a))
+samples_per_record_returned(a::InstrumentAlazar, m::NPTRecordMode) =
+    m.sam_per_rec
 samples_per_record_returned(a::InstrumentAlazar, m::TraditionalRecordMode) =
     m.pre_sam_per_rec + m.post_sam_per_rec
-
 samples_per_record_returned(a::InstrumentAlazar, m::FFTRecordMode) =
     Int(m.sam_per_fft / 2)
+"""
+Given an `InstrumentAlazar` and `AlazarMode`, return the samples per record
+returned by the digitizer.
+`buffer_sizing` should be called first to ensure the `AlazarMode` object
+contains values that meet size and alignment requirements.
+"""
+samples_per_record_returned
 
+"Julia wrapper for C function AlazarSetParameter, with error checking."
 function set_parameter(a::InstrumentAlazar, channelId, parameterId, value)
     @eh2 AlazarSetParameter(a.handle, channelId, parameterId, value)
     nothing
 end
 
+"Julia wrapper for C function AlazarSetParameterUL, with error checking."
 function set_parameter_ul(a::InstrumentAlazar, channelId, parameterId, value)
     @eh2 AlazarSetParameterUL(a.handle, channelId, parameterId, value)
     nothing
 end
 
+"""
+Configure the trigger operation. Usually not called directly.
+Args should be, in the following order:
+
+a::InstrumentAlazar
+
+engine:  one of the trigger engine operation IDs in the Alazar API.
+
+source1: one of `TRIG_CHAN_A`, `TRIG_CHAN_B`, or `TRIG_DISABLE`
+
+slope1:  `TRIGGER_SLOPE_POSITIVE` or `TRIGGER_SLOPE_NEGATIVE`
+
+level1:  an 8-bit unsigned integer
+
+source2: one of `TRIG_CHAN_A`, `TRIG_CHAN_B`, or `TRIG_DISABLE`
+
+slope2:  `TRIGGER_SLOPE_POSITIVE` or `TRIGGER_SLOPE_NEGATIVE`
+
+level2:  an 8-bit unsigned integer
+"""
 function set_triggeroperation(a::InstrumentAlazar, args...)
     if length(args) != 7
         error("Need 7 arguments beside the instrument: engine, source1, ",
@@ -590,20 +754,25 @@ function set_triggeroperation(a::InstrumentAlazar, args...)
     nothing
 end
 
+"Set the window for the real part of the FFT. Must be followed by calling `windowing`."
 function setwindow(window, ::Type{Re}, m::FFTRecordMode)
     m.re_window = window
     nothing
 end
 
+"Set the window for the imag part of the FFT. Must be followed by calling `windowing`."
 function setwindow(window, ::Type{Im}, m::FFTRecordMode)
     m.im_window = window
     nothing
 end
+
+"Should be called after `before_async_read` has been called and buffers are posted."
 function startcapture(a::InstrumentAlazar)
     @eh2 AlazarStartCapture(a.handle)
     nothing
 end
 
+"Reports whether or not the digitizer has been triggered."
 triggered(a::InstrumentAlazar) = AlazarTriggered(a.handle) > 0 ? true : false
 
 function wait_buffer(a::InstrumentAlazar, m::AlazarMode, buffer, timeout_ms)
@@ -615,6 +784,9 @@ function wait_buffer(a::InstrumentAlazar, m::FFTRecordMode, buffer, timeout_ms)
     @eh2 AlazarDSPGetBuffer(a.handle, buffer, timeout_ms)
     nothing
 end
+
+"Waits for a buffer to be processed (or a timeout to elapse)."
+wait_buffer
 
 windowing(a::InstrumentAlazar, m::AlazarMode) = nothing
 
@@ -629,3 +801,6 @@ function windowing(a::InstrumentAlazar, m::FFTRecordMode)
                           m.re_window,
                           m.im_window)
 end
+
+"Set up DSP windowing if necessary, given an `InstrumentAlazar` and `AlazarMode`."
+windowing

@@ -1,20 +1,18 @@
-"""
-Julia interface to the AlazarTech SDK.
-
-Adapted from the C and Python APIs by Andrew Keller (andrew.keller.09@gmail.com)
-
-Please see the ATS-SDK Guide for detailed specification of any functions
-from the Alazar API.
-
-In our implementation a "sample" refers to a value from a single channel.
-You need to allocate memory for two values if you are measuring both channels.
-
-InstrumentAlazar: Represents a digitizer. Abstract type.
-
-"""
+# Julia interface to the AlazarTech SDK.
+#
+# Adapted from the C and Python APIs by Andrew Keller (andrew.keller.09@gmail.com)
+#
+# Please see the ATS-SDK Guide for detailed specification of any functions
+# from the Alazar API.
+#
+# In our implementation a "sample" refers to a value from a single channel.
+# You need to allocate memory for two values if you are measuring both channels.
+#
+# InstrumentAlazar: Represents a digitizer. Abstract type.
 
 module AlazarModule
 
+"Flag indicating whether the AlazarTech shared library has been opened."
 lib_opened = false
 
 using Alazar
@@ -24,23 +22,13 @@ importall PainterQB
 export InstrumentAlazar
 
 export inf_records
+
+"Alazar API representation of an infinite number of records."
 const inf_records = U32(0x7FFFFFFF)
 
 """
-The InstrumentAlazar types represent an AlazarTech device on the local
-system. It can be used to control configuration parameters, to
+An AlazarTech device. It can be used to control configuration parameters, to
 start acquisitions and to retrieve the acquired data.
-
-Args:
-
-  systemId (int): The board system identifier of the target
-  board. Defaults to 1, which is suitable when there is only one
-  board in the system.
-
-  boardId (int): The target's board identifier in it's
-  system. Defaults to 1, which is suitable when there is only one
-  board in the system.
-
 """
 abstract InstrumentAlazar <: Instrument
 

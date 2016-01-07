@@ -62,9 +62,6 @@ end
 
 responses = Dict(
 
-    :Network              => Dict("DHCP" => :DHCP,
-                                  "MAN"  => :ManualNetwork),
-
     :OscillatorSource     => Dict("INT"  => :InternalOscillator,
                                   "EXT"  => :ExternalOscillator),
 
@@ -76,29 +73,29 @@ responses = Dict(
 
 generate_handlers(E8257D, responses)
 
-abstract ALCBandwidth            <: NumericalProperty
+abstract ALCBandwidth            <: InstrumentProperty{Float64}
 abstract ALCBandwidthAuto        <: InstrumentProperty
 abstract ALC                     <: InstrumentProperty
-abstract ALCLevel                <: NumericalProperty
+abstract ALCLevel                <: InstrumentProperty{Float64}
 abstract AttenuatorAuto          <: InstrumentProperty
 abstract FlatnessCorrection      <: InstrumentProperty
-abstract FrequencyMultiplier     <: NumericalProperty
-abstract FrequencyStep           <: NumericalProperty
-abstract FrequencyOffsetLevel    <: NumericalProperty
+abstract FrequencyMultiplier     <: InstrumentProperty{Int}
+abstract FrequencyStep           <: InstrumentProperty{Float64}
+abstract FrequencyOffsetLevel    <: InstrumentProperty{Float64}
 abstract FrequencyOffset         <: InstrumentProperty
-abstract FrequencyReferenceLevel <: NumericalProperty
+abstract FrequencyReferenceLevel <: InstrumentProperty{Float64}
 abstract FrequencyReference      <: InstrumentProperty
 abstract OutputBlanking          <: InstrumentProperty
 abstract OutputBlankingAuto      <: InstrumentProperty
 abstract OutputSettled           <: InstrumentProperty
-abstract PowerLimit              <: NumericalProperty
+abstract PowerLimit              <: InstrumentProperty{Float64}
 abstract PowerLimitAdjustable    <: InstrumentProperty
-abstract PowerStart              <: NumericalProperty
-abstract PowerStop               <: NumericalProperty
-abstract PowerStep               <: NumericalProperty
-abstract PowerOffsetLevel        <: NumericalProperty
+abstract PowerStart              <: InstrumentProperty{Float64}
+abstract PowerStop               <: InstrumentProperty{Float64}
+abstract PowerStep               <: InstrumentProperty{Float64}
+abstract PowerOffsetLevel        <: InstrumentProperty{Float64}
 abstract PowerReference          <: InstrumentProperty
-abstract PowerReferenceLevel     <: NumericalProperty
+abstract PowerReferenceLevel     <: InstrumentProperty{Float64}
 abstract PowerSearchProtection   <: InstrumentProperty
 abstract PowerOptimizeSNR        <: InstrumentProperty
 abstract SetFrequencyReference   <: InstrumentProperty

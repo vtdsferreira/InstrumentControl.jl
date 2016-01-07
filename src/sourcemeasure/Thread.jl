@@ -1,5 +1,7 @@
 export ThreadStimulus
 
+"Changes the number of Julia worker threads. An Expr object is used to
+initialize new threads."
 type ThreadStimulus <: Stimulus
     nworkers::Int
     initialization::Expr
@@ -26,6 +28,7 @@ end
 show(io::IO, ch::ThreadStimulus) = print(io,
     "Will init workers with: ", ch.initialization)
 
+"Adds or removes threads to reach the desired number of worker threads."
 function source(ch::ThreadStimulus, nw::Int)
     ch.nworkers = nw
 

@@ -3,6 +3,7 @@ import VISA
 import Base: read, write, readavailable, reset
 
 ## Get the resource manager
+"The default resource manager."
 const  resourcemanager = VISA.viOpenDefaultRM()
 export resourcemanager
 
@@ -25,35 +26,44 @@ export trigger, aborttrigger
 export quoted, unquoted
 
 """
-### InstrumentVISA
-`abstract InstrumentVISA <: Instrument`
-
 Abstract supertype of all Instruments addressable using a VISA library.
 Concrete types are expected to have fields:
 
 `vi::ViSession`
+
 `writeTerminator::ASCIIString`
 """
 abstract InstrumentVISA <: Instrument
 
 ## Finding and obtaining resources
 
-"Finds VISA resources to which we can connect. Doesn't find ethernet instruments."
+"Finds VISA resources to which we can connect. Doesn't seem to find ethernet instruments."
 findresources(expr::AbstractString="?*::INSTR") = VISA.viFindRsrc(resourcemanager, expr)
 
-"Returns a viSession for the given GPIB address."
+"""
+Returns a `viSession` for the given GPIB primary address using board 0.
+See VISA spec for details on what a `viSession` is.
+"""
 gpib(primary) = VISA.viOpen(resourcemanager, "GPIB::"*primary*"::0::INSTR")
 
+"""
+Returns a `viSession` for the given GPIB board and primary address.
+See VISA spec for details on what a `viSession` is.
+"""
 gpib(board, primary) = VISA.viOpen(
     resourcemanager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
 
+"""
+Returns a `viSession` for the given GPIB board, primary, and secondary address.
+See VISA spec for details on what a `viSession` is.
+"""
 gpib(board, primary, secondary) = VISA.viOpen(resourcemanager,
     "GPIB"*(board == 0 ? "" : board)*"::"+primary+"::"+secondary+"::INSTR")
 
-"Returns a INSTR viSession for the given IPv4 address."
+"Returns a INSTR `viSession` for the given IPv4 address string."
 tcpip_instr(ip) = VISA.viOpen(resourcemanager, "TCPIP::"*ip*"::INSTR")
 
-"Returns a raw socket viSession for the given IPv4 address."
+"Returns a raw socket `viSession` for the given IPv4 address string."
 tcpip_socket(ip,port) = VISA.viOpen(resourcemanager,
     "TCPIP0::"*ip*"::"*string(port)*"::SOCKET")
 
@@ -93,15 +103,28 @@ binblockreadavailable(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.vi)
 
 ## Common VISA commands
 
+"Test with the *TST? command."
 test(ins::InstrumentVISA)            = write(ins, "*TST?")
+
+"Reset with the *RST command."
 reset(ins::InstrumentVISA)           = write(ins, "*RST")
+
+"Ask the *IDN? command."
 identify(ins::InstrumentVISA)        = ask(ins, "*IDN?")
+
+"Clear registers with *CLS."
 clearregisters(ins::InstrumentVISA)  = write(ins, "*CLS")
 
+"Bus trigger with *TRG."
 trigger(ins::InstrumentVISA)         = write(ins, "*TRG")
+
+"Abort triggering with ABOR."
 aborttrigger(ins::InstrumentVISA)   = write(ins, "ABOR")
 
 ## Convenient functions for parsing and sending strings.
 
+"Surround a string in quotation marks."
 quoted(str::ASCIIString) = "\""*str*"\""
+
+"Strip a string of enclosing quotation marks."
 unquoted(str::ASCIIString) = strip(str,"\"")

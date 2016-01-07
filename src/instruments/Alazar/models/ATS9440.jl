@@ -1,3 +1,4 @@
+"Abstract type; not implemented."
 abstract AlazarATS9440 <: InstrumentAlazar
 
 function configure{S<:AlazarLSB, T<:AlazarLSB}(a::AlazarATS9440,

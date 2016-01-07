@@ -1,7 +1,7 @@
 export AlazarATS9360
 
 """
-ATS9360 is a concrete subtype of InstrumentAlazar.
+Concrete InstrumentAlazar subtype.
 """
 type AlazarATS9360 <: InstrumentAlazar
 
