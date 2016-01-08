@@ -8,11 +8,21 @@ export AlternatingRealImagResponse
 export measure
 import PainterQB.scaling
 
+"Abstract `Response` from an Alazar digitizer instrument."
 abstract AlazarResponse{T} <: Response{T}
+
+"Abstract time-domain streaming `Response` from an Alazar digitizer instrument."
 abstract StreamResponse{T} <: AlazarResponse{T}
+
+"Abstract time-domain record `Response` from an Alazar digitizer instrument."
 abstract RecordResponse{T} <: AlazarResponse{T}
+
+"Abstract FFT `Response` from an Alazar digitizer instrument."
 abstract FFTResponse{T}    <: AlazarResponse{T}
 
+"""
+Response type implementing the "continuous streaming mode" of the Alazar API.
+"""
 type ContinuousStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
@@ -30,6 +40,9 @@ end
 ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
     ContinuousStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
+"""
+Response type implementing the "triggered streaming mode" of the Alazar API.
+"""
 type TriggeredStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
@@ -47,6 +60,9 @@ end
 TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
     TriggeredStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
+"""
+Response type implementing the "NPT record mode" of the Alazar API.
+"""
 type NPTRecordResponse{T} <: RecordResponse{T}
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
@@ -66,6 +82,9 @@ end
 NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
     NPTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
 
+"""
+Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
+"""
 type FFTHardwareResponse{T} <: FFTResponse{T}
     ins::InstrumentAlazar
     sam_per_rec::Int
@@ -90,6 +109,11 @@ end
 FFTHardwareResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) =
     FFTHardwareResponse{SharedArray{S,2}}(a,b,c,d,e)
 
+"""
+Response type for measuring with NPT record mode, then using Julia's FFTW to
+return the FFT. Slower than doing it with the FPGA, but ultimately necessary if
+we want to use both channels as inputs to the FFT.
+"""
 type FFTSoftwareResponse{T} <: FFTResponse{T}
     ins::Instrument
     sam_per_rec::Int
@@ -152,9 +176,16 @@ function initmodes(r::AlternatingRealImagResponse)
     error("not yet implemented")
 end
 
+"""
+Should be called at the beginning of a measure method to initialize the
+AlazarMode objects.
+"""
+initmodes
+
 # Triangular dispatch would be nice here (waiting for Julia 0.5)
 # scaling{T, S<:AbstractArray{T,2}}(resp::FFTRecordResponse{S}, ...
 
+"Returns the axis scaling for an FFT response."
 function scaling{T<:AbstractArray}(resp::FFTResponse{T},
         whichaxis::Integer=1)
 
@@ -243,6 +274,8 @@ function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
 
 end
 
+"Largely generic method for measuring `AlazarResponse`. Can be considered a
+prototype for more complicated user-defined methods."
 function measure(ch::AlazarResponse; diagnostic::Bool=false)
     a = ch.ins
     m = ch.m
@@ -339,6 +372,15 @@ processing(::StreamResponse,a,b,c) = tofloat!(a,b,c)
 processing(::RecordResponse,a,b,c) = tofloat!(a,b,c)
 processing(::FFTResponse,a,b,c) = nothing
 
+"""
+Specifies what to do with the buffers during measurement based on the response type.
+"""
+processing
+
+"""
+Arrange multithreaded conversion of the Alazar 12-bit integer format to 16-bit
+floating point format.
+"""
 function tofloat!(sam_per_buf::Integer, buf_completed::Integer, backing::SharedArray)
     @sync begin
         samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
@@ -386,3 +428,9 @@ function postprocess{T}(ch::FFTResponse{SharedArray{T,2}}, buf_array::Alazar.DMA
     array = reshape(array, sam_per_rec, rec_per_acq)
     convert(SharedArray, array)::SharedArray{T,2}
 end
+
+"""
+Arrange for reinterpretation or conversion of the data stored in the
+DMABuffers (backed by SharedArrays) to the desired return type. 
+"""
+postprocess

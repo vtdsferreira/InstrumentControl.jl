@@ -139,19 +139,27 @@
 
 ## Globals [Exported]
 
-[resourcemanager](PainterQB.md#global__resourcemanager.1)  The default resource manager.
+[resourcemanager](PainterQB.md#global__resourcemanager.1)  The default VISA resource manager.
 
 ---
 
 ## Methods [Internal]
 
-[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](PainterQB.md#method__generate_configure.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](PainterQB.md#method__generate_configure.1)  This method generates the following method in the module where
 
-[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](PainterQB.md#method__generate_handlers.1)  ### generate_handlers
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](PainterQB.md#method__generate_configure.2)  This method generates the following method in the module where
 
-[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](PainterQB.md#method__generate_inspect.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](PainterQB.md#method__generate_configure.3)  This method generates the following method in the module where
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](PainterQB.md#method__generate_properties.1)  Makes parametric subtypes and gives constructors. Also defines a code method.
+[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](PainterQB.md#method__generate_handlers.1)  Each instrument can have a `responseDict`. For each setting of the instrument,
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](PainterQB.md#method__generate_inspect.1)  This method does/returns nothing.
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](PainterQB.md#method__generate_inspect.2)  This method will
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](PainterQB.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](PainterQB.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
 
 ## MODULE: PainterQB.E5071CModule
 
@@ -165,51 +173,161 @@
 
 ## Methods [Internal]
 
-[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](E5071C.md#method__generate_configure.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](E5071C.md#method__generate_configure.1)  This method generates the following method in the module where
 
-[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](E5071C.md#method__generate_handlers.1)  ### generate_handlers
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](E5071C.md#method__generate_configure.2)  This method generates the following method in the module where
 
-[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](E5071C.md#method__generate_inspect.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](E5071C.md#method__generate_configure.3)  This method generates the following method in the module where
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E5071C.md#method__generate_properties.1)  Makes parametric subtypes and gives constructors. Also defines a code method.
+[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](E5071C.md#method__generate_handlers.1)  Each instrument can have a `responseDict`. For each setting of the instrument,
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](E5071C.md#method__generate_inspect.1)  This method does/returns nothing.
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](E5071C.md#method__generate_inspect.2)  This method will
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E5071C.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](E5071C.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
 
 ## MODULE: PainterQB.E8257DModule
 
 ---
 
+## Functions [Exported]
+
+[PainterQB.E8257DModule.cumulativeattenuatorswitches](E8257D.md#function__cumulativeattenuatorswitches.1)  Returns the number of attenuator switching events over the instrument lifetime.
+
+[PainterQB.E8257DModule.cumulativeontime](E8257D.md#function__cumulativeontime.1)  Returns the cumulative on-time over the instrument lifetime.
+
+[PainterQB.E8257DModule.cumulativepowerons](E8257D.md#function__cumulativepowerons.1)  Returns the number of power on events over the instrument lifetime.
+
+[PainterQB.E8257DModule.revision](E8257D.md#function__revision.1)  Reports the revision of the E8257D.
+
+[PainterQB.options](E8257D.md#function__options.1)  Reports the options available for the given E8257D.
+
+---
+
+## Types [Exported]
+
+[PainterQB.E8257DModule.ALC](E8257D.md#type__alc.1)  Boolean state of the ALC.
+
+[PainterQB.E8257DModule.ALCBandwidth](E8257D.md#type__alcbandwidth.1)  ALC bandwidth.
+
+[PainterQB.E8257DModule.ALCBandwidthAuto](E8257D.md#type__alcbandwidthauto.1)  Boolean state for automatic selection of the ALC bandwidth.
+
+[PainterQB.E8257DModule.ALCLevel](E8257D.md#type__alclevel.1)  Level of the ALC when the attenuator hold is active.
+
+[PainterQB.E8257DModule.AttenuatorAuto](E8257D.md#type__attenuatorauto.1)  Boolean state for automatic operation of the attenuator.
+
+[PainterQB.E8257DModule.E8257D](E8257D.md#type__e8257d.1)  Concrete type representing an E8257D.
+
+[PainterQB.E8257DModule.FlatnessCorrection](E8257D.md#type__flatnesscorrection.1)  Boolean state for flatness correction.
+
+[PainterQB.E8257DModule.FrequencyReference](E8257D.md#type__frequencyreference.1)  Boolean state of the frequency reference level.
+
+[PainterQB.E8257DModule.FrequencyReferenceLevel](E8257D.md#type__frequencyreferencelevel.1)  Reference level for configuring/inspecting frequency.
+
+[PainterQB.E8257DModule.FrequencyStep](E8257D.md#type__frequencystep.1)  Step size for a frequency sweep.
+
+[PainterQB.E8257DModule.OutputBlanking](E8257D.md#type__outputblanking.1)  Boolean state for the output blanking.
+
+[PainterQB.E8257DModule.OutputBlankingAuto](E8257D.md#type__outputblankingauto.1)  Boolean state for automatic blanking of the output.
+
+[PainterQB.E8257DModule.OutputSettled](E8257D.md#type__outputsettled.1)  Has the output settled?
+
+[PainterQB.E8257DModule.PowerLimit](E8257D.md#type__powerlimit.1)  RF output power limit.
+
+[PainterQB.E8257DModule.PowerLimitAdjustable](E8257D.md#type__powerlimitadjustable.1)  Boolean for whether or not the RF output power limit can be adjusted.
+
+[PainterQB.E8257DModule.PowerReference](E8257D.md#type__powerreference.1)  Boolean state of the power reference level.
+
+[PainterQB.E8257DModule.PowerReferenceLevel](E8257D.md#type__powerreferencelevel.1)  Reference level for configuring/inspecting power.
+
+[PainterQB.E8257DModule.PowerStart](E8257D.md#type__powerstart.1)  Start power in a sweep.
+
+[PainterQB.E8257DModule.PowerStep](E8257D.md#type__powerstep.1)  Step size for a power sweep.
+
+[PainterQB.E8257DModule.PowerStop](E8257D.md#type__powerstop.1)  Stop power in a sweep.
+
+---
+
 ## Methods [Internal]
 
-[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](E8257D.md#method__generate_configure.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](E8257D.md#method__generate_configure.1)  This method generates the following method in the module where
 
-[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](E8257D.md#method__generate_handlers.1)  ### generate_handlers
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](E8257D.md#method__generate_configure.2)  This method generates the following method in the module where
 
-[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](E8257D.md#method__generate_inspect.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](E8257D.md#method__generate_configure.3)  This method generates the following method in the module where
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E8257D.md#method__generate_properties.1)  Makes parametric subtypes and gives constructors. Also defines a code method.
+[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](E8257D.md#method__generate_handlers.1)  Each instrument can have a `responseDict`. For each setting of the instrument,
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](E8257D.md#method__generate_inspect.1)  This method does/returns nothing.
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](E8257D.md#method__generate_inspect.2)  This method will
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E8257D.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](E8257D.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
 
 ## MODULE: PainterQB.AWG5014CModule
 
 ---
 
-## Methods [Exported]
+## Functions [Exported]
 
-[pullfrom_awg(ins::PainterQB.AWG5014CModule.AWG5014C,  name::ASCIIString)](AWG5014C.md#method__pullfrom_awg.1)  Pull data from the AWG, performing checks and generating errors as appropriate.
+[PainterQB.AWG5014CModule.applicationstate](AWG5014C.md#function__applicationstate.1)  Is an application running?
 
-[pushto_awg{T<:PainterQB.AWG5014CModule.WaveformType}(ins::PainterQB.AWG5014CModule.AWG5014C,  name::ASCIIString,  awgData::PainterQB.AWG5014CModule.AWG5014CData,  wvType::Type{T<:PainterQB.AWG5014CModule.WaveformType})](AWG5014C.md#method__pushto_awg.1)  Push data to the AWG, performing checks and generating errors as appropriate.
+[PainterQB.AWG5014CModule.clearwaveforms](AWG5014C.md#function__clearwaveforms.1)  Clear waveforms from all channels.
 
-[pushto_awg{T<:PainterQB.AWG5014CModule.WaveformType}(ins::PainterQB.AWG5014CModule.AWG5014C,  name::ASCIIString,  awgData::PainterQB.AWG5014CModule.AWG5014CData,  wvType::Type{T<:PainterQB.AWG5014CModule.WaveformType},  resampleOk::Bool)](AWG5014C.md#method__pushto_awg.2)  Push data to the AWG, performing checks and generating errors as appropriate.
+[PainterQB.AWG5014CModule.deletewaveform](AWG5014C.md#function__deletewaveform.1)  Delete a waveform by name.
 
-[runapplication(ins::PainterQB.AWG5014CModule.AWG5014C,  app::ASCIIString)](AWG5014C.md#method__runapplication.1)  Run an application, e.g. SerialXpress
+[PainterQB.AWG5014CModule.load_awg_settings](AWG5014C.md#function__load_awg_settings.1)  Load an AWG settings file.
 
-[validate(awgData::PainterQB.AWG5014CModule.AWG5014CData,  wvType::Type{PainterQB.AWG5014CModule.WaveformType})](AWG5014C.md#method__validate.1)  Validates data to be pushed to the AWG to check for internal consistency and appropriate range.
+[PainterQB.AWG5014CModule.newwaveform](AWG5014C.md#function__newwaveform.1)  Create a new waveform by name, number of points, and waveform type.
 
-[waveformname(ins::PainterQB.AWG5014CModule.AWG5014C,  num::Integer)](AWG5014C.md#method__waveformname.1)  Uses Julia style indexing (begins at 1) to retrieve the name of a waveform.
+[PainterQB.AWG5014CModule.normalizewaveform](AWG5014C.md#function__normalizewaveform.1)  Normalize a waveform.
 
-[waveformtype(ins::PainterQB.AWG5014CModule.AWG5014C,  name::ASCIIString)](AWG5014C.md#method__waveformtype.1)  Returns the type of the waveform. The AWG hardware ultimately uses an `IntWaveform` but `RealWaveform` is more convenient.
+[PainterQB.AWG5014CModule.pullfrom_awg](AWG5014C.md#function__pullfrom_awg.1)  Pull data from the AWG, performing checks and generating errors as appropriate.
+
+[PainterQB.AWG5014CModule.pushto_awg](AWG5014C.md#function__pushto_awg.1)  Push waveform data to the AWG, performing checks and generating errors as appropriate.
+
+[PainterQB.AWG5014CModule.resamplewaveform](AWG5014C.md#function__resamplewaveform.1)  Resample a waveform.
+
+[PainterQB.AWG5014CModule.runapplication](AWG5014C.md#function__runapplication.1)  Run an application, e.g. SerialXpress
+
+[PainterQB.AWG5014CModule.save_awg_settings](AWG5014C.md#function__save_awg_settings.1)  Save an AWG settings file.
+
+[PainterQB.AWG5014CModule.validate](AWG5014C.md#function__validate.1)  Validates data to be pushed to the AWG to check for internal consistency
+
+[PainterQB.AWG5014CModule.waveformexists](AWG5014C.md#function__waveformexists.1)  Does a waveform identified by `name` exist?
+
+[PainterQB.AWG5014CModule.waveformispredefined](AWG5014C.md#function__waveformispredefined.1)  Returns whether or not a waveform is predefined (comes with instrument).
+
+[PainterQB.AWG5014CModule.waveformlength](AWG5014C.md#function__waveformlength.1)  Returns the length of a waveform.
+
+[PainterQB.AWG5014CModule.waveformname](AWG5014C.md#function__waveformname.1)  Uses Julia style indexing (begins at 1) to retrieve the name of a waveform
+
+[PainterQB.AWG5014CModule.waveformtimestamp](AWG5014C.md#function__waveformtimestamp.1)  Return the timestamp for when a waveform was last updated.
+
+[PainterQB.AWG5014CModule.waveformtype](AWG5014C.md#function__waveformtype.1)  Returns the type of the waveform. The AWG hardware
 
 ---
 
 ## Types [Exported]
+
+[PainterQB.AWG5014CModule.AWG5014C](AWG5014C.md#type__awg5014c.1)  Concrete type representing an AWG5014C.
+
+[PainterQB.AWG5014CModule.AWG5014CData](AWG5014C.md#type__awg5014cdata.1)  Type for storing waveform data (including markers) in Float32 format.
+
+[PainterQB.AWG5014CModule.Amplitude](AWG5014C.md#type__amplitude.1)  Amplitude for a given channel.
+
+[PainterQB.AWG5014CModule.AnalogOutputDelay](AWG5014C.md#type__analogoutputdelay.1)  Analog output delay for a given channel.
+
+[PainterQB.AWG5014CModule.ChannelOutput](AWG5014C.md#type__channeloutput.1)  Boolean state of the output for a given channel.
+
+[PainterQB.AWG5014CModule.DCOutput](AWG5014C.md#type__dcoutput.1)  Boolean state of the DC output for a given channel (bottom-right of AWG).
+
+[PainterQB.AWG5014CModule.DCOutputLevel](AWG5014C.md#type__dcoutputlevel.1)  DC output level for a given channel.
 
 [PainterQB.AWG5014CModule.EventImpedance](AWG5014C.md#type__eventimpedance.1)  Event input impedance may be 50 Ohm or 1 kOhm.
 
@@ -217,7 +335,53 @@
 
 [PainterQB.AWG5014CModule.EventTiming](AWG5014C.md#type__eventtiming.1)  Events may occur synchronously or asynchronously.
 
+[PainterQB.AWG5014CModule.ExtInputAddsToOutput](AWG5014C.md#type__extinputaddstooutput.1)  Add the signal from an external input to the given channel output.
+
+[PainterQB.AWG5014CModule.ExtOscDividerRate](AWG5014C.md#type__extoscdividerrate.1)  Divider rate of the external oscillator; must be a power of 2 (1 ok).
+
+[PainterQB.AWG5014CModule.MarkerDelay](AWG5014C.md#type__markerdelay.1)  Marker delay for a given channel and marker. Marker can be 1 or 2.
+
+[PainterQB.AWG5014CModule.OutputFilterFrequency](AWG5014C.md#type__outputfilterfrequency.1)  Low-pass filter frequency for the output. INF = 9.9e37
+
+[PainterQB.AWG5014CModule.RefOscFrequency](AWG5014C.md#type__refoscfrequency.1)  Reference oscillator frequency.
+
+[PainterQB.AWG5014CModule.RefOscMultiplier](AWG5014C.md#type__refoscmultiplier.1)  Reference oscillator multiplier.
+
+[PainterQB.AWG5014CModule.RepRate](AWG5014C.md#type__reprate.1)  Repetition rate (frequency of waveform). Changing this will change the
+
+[PainterQB.AWG5014CModule.RepRateHeld](AWG5014C.md#type__reprateheld.1)  Boolean hold state of the repetition rate. If held, the repetition rate will
+
+[PainterQB.AWG5014CModule.SCPIVersion](AWG5014C.md#type__scpiversion.1)  The SCPI version of the AWG.
+
+[PainterQB.AWG5014CModule.SequencerEventJumpTarget](AWG5014C.md#type__sequencereventjumptarget.1)  Target index for the sequencer event jump operation.
+
+[PainterQB.AWG5014CModule.SequencerGOTOState](AWG5014C.md#type__sequencergotostate.1)  Boolean GOTO state of the sequencer.
+
+[PainterQB.AWG5014CModule.SequencerGOTOTarget](AWG5014C.md#type__sequencergototarget.1)  Target index for the GOTO command of the sequencer.
+
+[PainterQB.AWG5014CModule.SequencerInfiniteLoop](AWG5014C.md#type__sequencerinfiniteloop.1)  Boolean state of infinite loop on a sequencer element.
+
+[PainterQB.AWG5014CModule.SequencerLength](AWG5014C.md#type__sequencerlength.1)  Length of the sequence. Can be destructive to existing sequences.
+
+[PainterQB.AWG5014CModule.SequencerLoopCount](AWG5014C.md#type__sequencerloopcount.1)  Loop count of the sequencer, from 1 to 65536. Ignored if infinite loop.
+
+[PainterQB.AWG5014CModule.SequencerPosition](AWG5014C.md#type__sequencerposition.1)  Current sequencer position.
+
+[PainterQB.AWG5014CModule.SequencerType](AWG5014C.md#type__sequencertype.1)  Sequencer may be hardware or software.
+
 [PainterQB.AWG5014CModule.TriggerMode](AWG5014C.md#type__triggermode.1)  Trigger engine may be triggered, continuously firing, gated, or sequenced.
+
+[PainterQB.AWG5014CModule.TriggerTimer](AWG5014C.md#type__triggertimer.1)  Internal trigger rate.
+
+[PainterQB.AWG5014CModule.VoltageOffset](AWG5014C.md#type__voltageoffset.1)  Offset voltage for a given channel.
+
+[PainterQB.AWG5014CModule.WaitingForTrigger](AWG5014C.md#type__waitingfortrigger.1)  When inspected, will report if the instrument is waiting for a trigger.
+
+[PainterQB.AWG5014CModule.WaveformName](AWG5014C.md#type__waveformname.1)  Name of a waveform loaded into a given channel.
+
+[PainterQB.AWG5014CModule.WaveformType](AWG5014C.md#type__waveformtype.1)  Waveform type may be integer or real.
+
+[PainterQB.AWG5014CModule.WavelistLength](AWG5014C.md#type__wavelistlength.1)  The number of waveforms stored in the AWG.
 
 ---
 
@@ -227,29 +391,75 @@
 
 ---
 
+## Functions [Internal]
+
+[PainterQB.AWG5014CModule.nbytes](AWG5014C.md#function__nbytes.1)  Returns the number of bytes per sample for a a given waveform type.
+
+[PainterQB.AWG5014CModule.pulllowlevel](AWG5014C.md#function__pulllowlevel.1)  Takes care of the dirty work in pulling data from the AWG.
+
+[PainterQB.AWG5014CModule.pushlowlevel](AWG5014C.md#function__pushlowlevel.1)  Takes care of the dirty work in pushing the data to the AWG.
+
+---
+
 ## Methods [Internal]
 
-[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Phase},  phase::Real,  ch::Integer)](AWG5014C.md#method__configure.1)  Set the output phase in degrees for a given channel.
+[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.Amplitude},  ampl::Real,  ch::Integer)](AWG5014C.md#method__configure.1)  Configure Vpp for a given channel, between 0.05 V and 2 V.
 
-[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.SampleRate},  rate::Real)](AWG5014C.md#method__configure.2)  Set the sample rate in Hz between 10 MHz and 10 GHz. Output rate = sample rate / number of points.
+[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.WaveformName},  name::ASCIIString,  ch::Integer)](AWG5014C.md#method__configure.2)  Configure the waveform by name for a given channel.
 
-[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](AWG5014C.md#method__generate_configure.1)  ```
+[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Output},  on::Bool)](AWG5014C.md#method__configure.3)  Configure the global analog output state of the AWG.
 
-[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](AWG5014C.md#method__generate_handlers.1)  ### generate_handlers
+[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Phase},  phase::Real,  ch::Integer)](AWG5014C.md#method__configure.4)  Set the output phase in degrees for a given channel.
 
-[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](AWG5014C.md#method__generate_inspect.1)  ```
+[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.SampleRate},  rate::Real)](AWG5014C.md#method__configure.5)  Configure the sample rate in Hz between 10 MHz and 10 GHz.
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AWG5014C.md#method__generate_properties.1)  Makes parametric subtypes and gives constructors. Also defines a code method.
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](AWG5014C.md#method__generate_configure.1)  This method generates the following method in the module where
 
-[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.SequencerType})](AWG5014C.md#method__inspect.1)  Returns current sequencer type.
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](AWG5014C.md#method__generate_configure.2)  This method generates the following method in the module where
 
-[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Phase},  ch::Integer)](AWG5014C.md#method__inspect.2)  Get the output phase in degrees for a given channel.
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](AWG5014C.md#method__generate_configure.3)  This method generates the following method in the module where
 
-[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.SampleRate})](AWG5014C.md#method__inspect.3)  Get the sample rate in Hz. Output rate = sample rate / number of points.
+[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](AWG5014C.md#method__generate_handlers.1)  Each instrument can have a `responseDict`. For each setting of the instrument,
 
-[pulllowlevel{T<:PainterQB.AWG5014CModule.RealWaveform}(ins::PainterQB.AWG5014CModule.AWG5014C,  name::ASCIIString,  ::Type{T<:PainterQB.AWG5014CModule.RealWaveform})](AWG5014C.md#method__pulllowlevel.1)  Takes care of the dirty work in pulling data from the AWG.
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](AWG5014C.md#method__generate_inspect.1)  This method does/returns nothing.
 
-[pushlowlevel{T<:PainterQB.AWG5014CModule.RealWaveform}(ins::PainterQB.AWG5014CModule.AWG5014C,  name::ASCIIString,  awgData::PainterQB.AWG5014CModule.AWG5014CData,  wvType::Type{T<:PainterQB.AWG5014CModule.RealWaveform})](AWG5014C.md#method__pushlowlevel.1)  Takes care of the dirty work in pushing the data to the AWG.
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](AWG5014C.md#method__generate_inspect.2)  This method will
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AWG5014C.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](AWG5014C.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.Amplitude},  ch::Integer)](AWG5014C.md#method__inspect.1)  Inspect Vpp for a given channel.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.SequencerType})](AWG5014C.md#method__inspect.2)  Returns current sequencer type.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.WaitingForTrigger})](AWG5014C.md#method__inspect.3)  Inspect whether or not the instrument is waiting for a trigger.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.WaveformName},  ch::Integer)](AWG5014C.md#method__inspect.4)  Inspect the waveform name for a given channel.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Output})](AWG5014C.md#method__inspect.5)  Inspect the global analog output state of the AWG.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Phase},  ch::Integer)](AWG5014C.md#method__inspect.6)  Get the output phase in degrees for a given channel.
+
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.SampleRate})](AWG5014C.md#method__inspect.7)  Get the sample rate in Hz. Output rate = sample rate / number of points.
+
+---
+
+## Globals [Internal]
+
+[byteLimit](AWG5014C.md#global__bytelimit.1)  Maximum number of bytes that may be sent using the SCPI command WLIS:WAV:DATA.
+
+[exceptions](AWG5014C.md#global__exceptions.1)  Exception dictionary mapping signed integers to error strings.
+
+[maximumValue](AWG5014C.md#global__maximumvalue.1)  Constant used for synthesizing/interpreting waveforms of integer type.
+
+[minimumValue](AWG5014C.md#global__minimumvalue.1)  Constant used for synthesizing/interpreting waveforms of integer type.
+
+[noError](AWG5014C.md#global__noerror.1)  Internal AWG code meaning no errors.
+
+[offsetPlusPPOver2](AWG5014C.md#global__offsetplusppover2.1)  Constant used for synthesizing/interpreting waveforms of integer type.
+
+[offsetValue](AWG5014C.md#global__offsetvalue.1)  Constant used for synthesizing/interpreting waveforms of integer type.
 
 ## MODULE: PainterQB.AlazarModule
 
@@ -279,57 +489,65 @@
 
 [busy(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__busy.1)  Returns whether or not the `InstrumentAlazar` is busy (Bool).
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AuxSoftwareTriggerEnable},  b::Bool)](AlazarTech.md#method__configure.1)  If an AUX IO output mode has been configured, then this will configure
+[configure(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.SampleRate},  rate::Real)](AlazarTech.md#method__configure.1)  Configure the sample rate to any multiple of 1 MHz (within 300 MHz and 1.8 GHz)
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.LED},  ledState::Bool)](AlazarTech.md#method__configure.2)  Configures the LED on the digitizer card chassis.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AuxSoftwareTriggerEnable},  b::Bool)](AlazarTech.md#method__configure.2)  If an AUX IO output mode has been configured, then this will configure
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.RecordCount},  count)](AlazarTech.md#method__configure.3)  Wrapper for C function `AlazarSetRecordCount`. See the Alazar API.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.LED},  ledState::Bool)](AlazarTech.md#method__configure.3)  Configures the LED on the digitizer card chassis.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.Sleep},  sleepState)](AlazarTech.md#method__configure.4)  Configures the sleep state of the digitizer card.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.RecordCount},  count)](AlazarTech.md#method__configure.4)  Wrapper for C function `AlazarSetRecordCount`. See the Alazar API.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.TriggerDelaySamples},  delay_samples)](AlazarTech.md#method__configure.5)  Configure how many samples to wait after receiving a trigger event before capturing
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.Sleep},  sleepState)](AlazarTech.md#method__configure.5)  Configures the sleep state of the digitizer card.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.TriggerTimeoutS},  timeout_s)](AlazarTech.md#method__configure.6)  Wrapper for C function `AlazarSetTriggerTimeOut`, except we take seconds here
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.TriggerDelaySamples},  delay_samples)](AlazarTech.md#method__configure.6)  Configure how many samples to wait after receiving a trigger event before capturing
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.TriggerTimeoutTicks},  ticks)](AlazarTech.md#method__configure.7)  Wrapper for C function `AlazarSetTriggerTimeOut`.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.TriggerTimeoutS},  timeout_s)](AlazarTech.md#method__configure.7)  Wrapper for C function `AlazarSetTriggerTimeOut`, except we take seconds here
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.TriggerLevel},  levelJ,  levelK)](AlazarTech.md#method__configure.8)  Configure the trigger level for trigger engine J and K. This should be an
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.TriggerTimeoutTicks},  ticks)](AlazarTech.md#method__configure.8)  Wrapper for C function `AlazarSetTriggerTimeOut`.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxDigitalInput})](AlazarTech.md#method__configure.9)  Configure a digitizer's AUX IO to act as a digital input.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.TriggerLevel},  levelJ,  levelK)](AlazarTech.md#method__configure.9)  Configure the trigger level for trigger engine J and K. This should be an
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxDigitalOutput},  level::Integer)](AlazarTech.md#method__configure.10)  Configure a digitizer's AUX IO port to act as a general purpose digital output.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxDigitalInput})](AlazarTech.md#method__configure.10)  Configure a digitizer's AUX IO to act as a digital input.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxOutputPacer},  divider::Integer)](AlazarTech.md#method__configure.11)  Configure a digitizer's AUX IO port to output the sample clock, divided by an integer.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxDigitalOutput},  level::Integer)](AlazarTech.md#method__configure.11)  Configure a digitizer's AUX IO port to act as a general purpose digital output.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxOutputTrigger})](AlazarTech.md#method__configure.12)  Configure a digitizer's AUX IO to output a trigger signal synced to the sample clock.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxOutputPacer},  divider::Integer)](AlazarTech.md#method__configure.12)  Configure a digitizer's AUX IO port to output the sample clock, divided by an integer.
 
-[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ch::Type{PainterQB.AlazarModule.BothChannels})](AlazarTech.md#method__configure.13)  Configures acquisition from both channels, simultaneously.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxOutputTrigger})](AlazarTech.md#method__configure.13)  Configure a digitizer's AUX IO to output a trigger signal synced to the sample clock.
 
-[configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.BothChannels})](AlazarTech.md#method__configure.14)  Configures the data packing mode for both channels.
+[configure(a::PainterQB.AlazarModule.InstrumentAlazar,  ch::Type{PainterQB.AlazarModule.BothChannels})](AlazarTech.md#method__configure.14)  Configures acquisition from both channels, simultaneously.
 
-[configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.ChannelA})](AlazarTech.md#method__configure.15)  Configures the data packing mode for channel A.
+[configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.BothChannels})](AlazarTech.md#method__configure.15)  Configures the data packing mode for both channels.
 
-[configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.ChannelB})](AlazarTech.md#method__configure.16)  Configures the data packing mode for channel B.
+[configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.ChannelA})](AlazarTech.md#method__configure.16)  Configures the data packing mode for channel A.
 
-[configure{S<:PainterQB.TriggerSlope, T<:PainterQB.TriggerSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  slopeJ::Type{S<:PainterQB.TriggerSlope},  slopeK::Type{T<:PainterQB.TriggerSlope})](AlazarTech.md#method__configure.17)  Configures whether to trigger on a rising or falling slope, for engine J and K.
+[configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.ChannelB})](AlazarTech.md#method__configure.17)  Configures the data packing mode for channel B.
 
-[configure{S<:PainterQB.TriggerSource, T<:PainterQB.TriggerSource}(a::PainterQB.AlazarModule.InstrumentAlazar,  sourceJ::Type{S<:PainterQB.TriggerSource},  sourceK::Type{T<:PainterQB.TriggerSource})](AlazarTech.md#method__configure.18)  Configure the trigger source for trigger engine J and K.
+[configure{S<:PainterQB.AlazarModule.DSPWindow, T<:PainterQB.AlazarModule.DSPWindow}(a::PainterQB.AlazarModule.AlazarATS9360,  re::Type{S<:PainterQB.AlazarModule.DSPWindow},  im::Type{T<:PainterQB.AlazarModule.DSPWindow})](AlazarTech.md#method__configure.18)  Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
 
-[configure{T<:PainterQB.AlazarModule.AlazarChannel}(a::PainterQB.AlazarModule.InstrumentAlazar,  ch::Type{T<:PainterQB.AlazarModule.AlazarChannel})](AlazarTech.md#method__configure.19)  Configures the acquisition channel.
+[configure{S<:PainterQB.TriggerSlope, T<:PainterQB.TriggerSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  slopeJ::Type{S<:PainterQB.TriggerSlope},  slopeK::Type{T<:PainterQB.TriggerSlope})](AlazarTech.md#method__configure.19)  Configures whether to trigger on a rising or falling slope, for engine J and K.
 
-[configure{T<:PainterQB.AlazarModule.AlazarTimestampReset}(a::PainterQB.AlazarModule.InstrumentAlazar,  t::Type{T<:PainterQB.AlazarModule.AlazarTimestampReset})](AlazarTech.md#method__configure.20)  Configures timestamp reset. From the Alazar API, the choices are
+[configure{S<:PainterQB.TriggerSource, T<:PainterQB.TriggerSource}(a::PainterQB.AlazarModule.InstrumentAlazar,  sourceJ::Type{S<:PainterQB.TriggerSource},  sourceK::Type{T<:PainterQB.TriggerSource})](AlazarTech.md#method__configure.20)  Configure the trigger source for trigger engine J and K.
 
-[configure{T<:PainterQB.AlazarModule.AlazarTriggerEngine}(a::PainterQB.AlazarModule.InstrumentAlazar,  engine::Type{T<:PainterQB.AlazarModule.AlazarTriggerEngine})](AlazarTech.md#method__configure.21)  Configures the trigger engines, e.g. TriggerOnJ, TriggerOnJAndNotK, etc.
+[configure{T<:PainterQB.AlazarModule.AlazarChannel}(a::PainterQB.AlazarModule.InstrumentAlazar,  ch::Type{T<:PainterQB.AlazarModule.AlazarChannel})](AlazarTech.md#method__configure.21)  Configures the acquisition channel.
 
-[configure{T<:PainterQB.AlazarModule.AlazarTriggerRange}(a::PainterQB.AlazarModule.InstrumentAlazar,  range::Type{T<:PainterQB.AlazarModule.AlazarTriggerRange})](AlazarTech.md#method__configure.22)  Configure the external trigger range.
+[configure{T<:PainterQB.AlazarModule.AlazarTimestampReset}(a::PainterQB.AlazarModule.InstrumentAlazar,  t::Type{T<:PainterQB.AlazarModule.AlazarTimestampReset})](AlazarTech.md#method__configure.22)  Configures timestamp reset. From the Alazar API, the choices are
 
-[configure{T<:PainterQB.ClockSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  slope::Type{T<:PainterQB.ClockSlope})](AlazarTech.md#method__configure.23)  Configures whether the clock ticks on a rising or falling slope.
+[configure{T<:PainterQB.AlazarModule.AlazarTriggerEngine}(a::PainterQB.AlazarModule.InstrumentAlazar,  engine::Type{T<:PainterQB.AlazarModule.AlazarTriggerEngine})](AlazarTech.md#method__configure.23)  Configures the trigger engines, e.g. TriggerOnJ, TriggerOnJAndNotK, etc.
 
-[configure{T<:PainterQB.Coupling}(a::PainterQB.AlazarModule.InstrumentAlazar,  coupling::Type{T<:PainterQB.Coupling})](AlazarTech.md#method__configure.24)  Configure the external trigger coupling.
+[configure{T<:PainterQB.AlazarModule.AlazarTriggerRange}(a::PainterQB.AlazarModule.AlazarATS9360,  range::Type{T<:PainterQB.AlazarModule.AlazarTriggerRange})](AlazarTech.md#method__configure.24)  Does nothing but display info telling you that this parameter cannot be changed
 
-[configure{T<:PainterQB.SampleRate}(a::PainterQB.AlazarModule.InstrumentAlazar,  rate::Type{T<:PainterQB.SampleRate})](AlazarTech.md#method__configure.25)  Configures one of the preset sample rates derived from the internal clock.
+[configure{T<:PainterQB.AlazarModule.AlazarTriggerRange}(a::PainterQB.AlazarModule.InstrumentAlazar,  range::Type{T<:PainterQB.AlazarModule.AlazarTriggerRange})](AlazarTech.md#method__configure.25)  Configure the external trigger range.
 
-[configure{T<:PainterQB.TriggerSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxInputTriggerEnable},  trigSlope::Type{T<:PainterQB.TriggerSlope})](AlazarTech.md#method__configure.26)  Configure a digitizer's AUX IO port to use the edge of a pulse as an AutoDMA
+[configure{T<:PainterQB.ClockSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  slope::Type{T<:PainterQB.ClockSlope})](AlazarTech.md#method__configure.26)  Configures whether the clock ticks on a rising or falling slope.
+
+[configure{T<:PainterQB.Coupling}(a::PainterQB.AlazarModule.AlazarATS9360,  coupling::Type{T<:PainterQB.Coupling})](AlazarTech.md#method__configure.27)  Does nothing but display info telling you that this parameter cannot be changed
+
+[configure{T<:PainterQB.Coupling}(a::PainterQB.AlazarModule.InstrumentAlazar,  coupling::Type{T<:PainterQB.Coupling})](AlazarTech.md#method__configure.28)  Configure the external trigger coupling.
+
+[configure{T<:PainterQB.SampleRate}(a::PainterQB.AlazarModule.InstrumentAlazar,  rate::Type{T<:PainterQB.SampleRate})](AlazarTech.md#method__configure.29)  Configures one of the preset sample rates derived from the internal clock.
+
+[configure{T<:PainterQB.TriggerSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  aux::Type{PainterQB.AlazarModule.AuxInputTriggerEnable},  trigSlope::Type{T<:PainterQB.TriggerSlope})](AlazarTech.md#method__configure.30)  Configure a digitizer's AUX IO port to use the edge of a pulse as an AutoDMA
 
 [dsp_getinfo(dspModule::PainterQB.AlazarModule.DSPModule)](AlazarTech.md#method__dsp_getinfo.1)  Returns a DSPModuleInfo object that describes a DSPModule.
 
@@ -349,6 +567,32 @@
 
 [inputcontrol(a::PainterQB.AlazarModule.InstrumentAlazar,  channel,  coupling,  inputRange,  impedance)](AlazarTech.md#method__inputcontrol.1)  Controls coupling, input range, and impedance for applicable digitizer cards.
 
+[inspect(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.AlazarModule.BufferAlignment})](AlazarTech.md#method__inspect.1)  Returns the buffer alignment requirement (samples / record / channel).
+
+[inspect(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.AlazarModule.MaxBufferBytes})](AlazarTech.md#method__inspect.2)  Maximum number of bytes for a given DMA buffer.
+
+[inspect(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.AlazarModule.MaxFFTSamples})](AlazarTech.md#method__inspect.3)  Maximum number of samples in an FPGA-based FFT. Can be obtained from `dsp_getinfo`
+
+[inspect(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.AlazarModule.MinFFTSamples})](AlazarTech.md#method__inspect.4)  Minimum number of samples in an FPGA-based FFT. Set by the minimum record size.
+
+[inspect(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.AlazarModule.MinSamplesPerRecord})](AlazarTech.md#method__inspect.5)  Minimum samples per record. Observed behavior deviates from Table 8 of the
+
+[inspect(a::PainterQB.AlazarModule.AlazarATS9360,  ::Type{PainterQB.AlazarModule.PretriggerAlignment})](AlazarTech.md#method__inspect.6)  Returns the pretrigger alignment requirement (samples / record / channel).
+
+[inspect(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarAux})](AlazarTech.md#method__inspect.7)  Inspect the AUX IO mode.
+
+[inspect(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarChannel})](AlazarTech.md#method__inspect.8)  Returns which channel(s) will be acquired.
+
+[inspect(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.ChannelCount})](AlazarTech.md#method__inspect.9)  Returns the number of channels to acquire.
+
+[inspect(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.SampleMemoryPerChannel})](AlazarTech.md#method__inspect.10)  Returns the memory per channel in units of samples.
+
+[inspect(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.SampleRate})](AlazarTech.md#method__inspect.11)  Inspect the sample rate. As currently programmed, does not distinguish
+
+[inspect{T<:PainterQB.AlazarModule.AlazarChannel}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{T<:PainterQB.AlazarModule.AlazarChannel})](AlazarTech.md#method__inspect.12)  Inspect the data packing mode for a given channel.
+
+[measure(ch::PainterQB.AlazarModule.AlazarResponse{T})](AlazarTech.md#method__measure.1)  Largely generic method for measuring `AlazarResponse`. Can be considered a
+
 [post_async_buffer(a::PainterQB.AlazarModule.InstrumentAlazar,  buffer,  bufferLength)](AlazarTech.md#method__post_async_buffer.1)  Post an asynchronous buffer to the digitizer for use in an acquisition.
 
 [set_parameter(a::PainterQB.AlazarModule.InstrumentAlazar,  channelId,  parameterId,  value)](AlazarTech.md#method__set_parameter.1)  Julia wrapper for C function AlazarSetParameter, with error checking.
@@ -365,9 +609,11 @@
 
 ## Types [Exported]
 
-[PainterQB.AlazarModule.AlazarATS9360](AlazarTech.md#type__alazarats9360.1)  Concrete InstrumentAlazar subtype.
+[PainterQB.AlazarModule.AlazarATS9360](AlazarTech.md#type__alazarats9360.1)  Concrete InstrumentAlazar subtype representing an ATS9360 digitizer.
 
 [PainterQB.AlazarModule.AlazarWindow](AlazarTech.md#type__alazarwindow.1)  Abstract type representing a windowing function for DSP, built into the
+
+[PainterQB.AlazarModule.ContinuousStreamResponse{T}](AlazarTech.md#type__continuousstreamresponse.1)  Response type implementing the "continuous streaming mode" of the Alazar API.
 
 [PainterQB.AlazarModule.DSPModule](AlazarTech.md#type__dspmodule.1)  Represents a DSP module of an AlazarTech digitizer.
 
@@ -375,7 +621,15 @@
 
 [PainterQB.AlazarModule.DSPWindow](AlazarTech.md#type__dspwindow.1)  Abstract type representing a windowing function for DSP.
 
-[PainterQB.AlazarModule.InstrumentAlazar](AlazarTech.md#type__instrumentalazar.1)  An AlazarTech device. It can be used to control configuration parameters, to
+[PainterQB.AlazarModule.FFTHardwareResponse{T}](AlazarTech.md#type__ffthardwareresponse.1)  Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
+
+[PainterQB.AlazarModule.FFTSoftwareResponse{T}](AlazarTech.md#type__fftsoftwareresponse.1)  Response type for measuring with NPT record mode, then using Julia's FFTW to
+
+[PainterQB.AlazarModule.InstrumentAlazar](AlazarTech.md#type__instrumentalazar.1)  Abstract type representing an AlazarTech digitizer.
+
+[PainterQB.AlazarModule.NPTRecordResponse{T}](AlazarTech.md#type__nptrecordresponse.1)  Response type implementing the "NPT record mode" of the Alazar API.
+
+[PainterQB.AlazarModule.TriggeredStreamResponse{T}](AlazarTech.md#type__triggeredstreamresponse.1)  Response type implementing the "triggered streaming mode" of the Alazar API.
 
 [PainterQB.AlazarModule.WindowBartlett](AlazarTech.md#type__windowbartlett.1)  Bartlett window.
 
@@ -411,7 +665,13 @@
 
 [PainterQB.AlazarModule.dsp](AlazarTech.md#function__dsp.1)  Given a DSPWindow type, this returns the constant needed to use the AlazarDSP
 
+[PainterQB.AlazarModule.initmodes](AlazarTech.md#function__initmodes.1)  Should be called at the beginning of a measure method to initialize the
+
+[PainterQB.AlazarModule.postprocess](AlazarTech.md#function__postprocess.1)  Arrange for reinterpretation or conversion of the data stored in the
+
 [PainterQB.AlazarModule.pretriggersamples](AlazarTech.md#function__pretriggersamples.1)  Given an `AlazarMode`, returns the number of pre-trigger samples.
+
+[PainterQB.AlazarModule.processing](AlazarTech.md#function__processing.1)  Specifies what to do with the buffers during measurement based on the response type.
 
 [PainterQB.AlazarModule.rec_acq_param](AlazarTech.md#function__rec_acq_param.1)  Returns the value to pass as the recordsPerAcquisition parameter in the C
 
@@ -433,31 +693,59 @@
 
 [auxmode(m::UInt32,  b::Bool)](AlazarTech.md#method__auxmode.1)  Masks an AUX IO mode parameter to specify AUX IO software trigger enable.
 
-[bits_per_sample(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__bits_per_sample.1)  Returns the number of bits per sample. Queries the digitizer directly via
+[bits_per_sample(a::PainterQB.AlazarModule.AlazarATS9360)](AlazarTech.md#method__bits_per_sample.1)  Hard coded to return 0x0c. May need to change if we want to play with data packing.
+
+[bits_per_sample(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__bits_per_sample.2)  Returns the number of bits per sample. Queries the digitizer directly via
 
 [boardhandle(sysid::Integer,  boardid::Integer)](AlazarTech.md#method__boardhandle.1)  Return a handle to an Alazar digitizer given a system ID and board ID.
 
 [boardkind(handle::UInt32)](AlazarTech.md#method__boardkind.1)  Returns the kind of digitizer; corresponds to a constant in AlazarConstants.jl
 
-[bytes_per_sample(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__bytes_per_sample.1)  Returns the number of bytes per sample. Calls `bitspersample` and does ceiling
+[bytes_per_sample(a::PainterQB.AlazarModule.AlazarATS9360)](AlazarTech.md#method__bytes_per_sample.1)  Hard coded to return 2. May need to change if we want to play with data packing.
 
-[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](AlazarTech.md#method__generate_configure.1)  ```
+[bytes_per_sample(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__bytes_per_sample.2)  Returns the number of bytes per sample. Calls `bitspersample` and does ceiling
 
-[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](AlazarTech.md#method__generate_handlers.1)  ### generate_handlers
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](AlazarTech.md#method__generate_configure.1)  This method generates the following method in the module where
 
-[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](AlazarTech.md#method__generate_inspect.1)  ```
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](AlazarTech.md#method__generate_configure.2)  This method generates the following method in the module where
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AlazarTech.md#method__generate_properties.1)  Makes parametric subtypes and gives constructors. Also defines a code method.
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](AlazarTech.md#method__generate_configure.3)  This method generates the following method in the module where
+
+[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](AlazarTech.md#method__generate_handlers.1)  Each instrument can have a `responseDict`. For each setting of the instrument,
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](AlazarTech.md#method__generate_inspect.1)  This method does/returns nothing.
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](AlazarTech.md#method__generate_inspect.2)  This method will
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AlazarTech.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](AlazarTech.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
+
+[scaling{T<:AbstractArray{T, N}}(resp::PainterQB.AlazarModule.FFTResponse{T<:AbstractArray{T, N}})](AlazarTech.md#method__scaling.1)  Returns the axis scaling for an FFT response.
+
+[scaling{T<:AbstractArray{T, N}}(resp::PainterQB.AlazarModule.FFTResponse{T<:AbstractArray{T, N}},  whichaxis::Integer)](AlazarTech.md#method__scaling.2)  Returns the axis scaling for an FFT response.
 
 [setwindow(window,  ::Type{PainterQB.AlazarModule.Im},  m::PainterQB.AlazarModule.FFTRecordMode)](AlazarTech.md#method__setwindow.1)  Set the window for the imag part of the FFT. Must be followed by calling `windowing`.
 
 [setwindow(window,  ::Type{PainterQB.AlazarModule.Re},  m::PainterQB.AlazarModule.FFTRecordMode)](AlazarTech.md#method__setwindow.2)  Set the window for the real part of the FFT. Must be followed by calling `windowing`.
+
+[tofloat!(sam_per_buf::Integer,  buf_completed::Integer,  backing::SharedArray{T, N})](AlazarTech.md#method__tofloat.1)  Arrange multithreaded conversion of the Alazar 12-bit integer format to 16-bit
+
+[triglevel(a::PainterQB.AlazarModule.AlazarATS9360,  x)](AlazarTech.md#method__triglevel.1)  Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 
 ---
 
 ## Types [Internal]
 
 [PainterQB.AlazarModule.AlazarATS9440](AlazarTech.md#type__alazarats9440.1)  Abstract type; not implemented.
+
+[PainterQB.AlazarModule.AlazarResponse{T}](AlazarTech.md#type__alazarresponse.1)  Abstract `Response` from an Alazar digitizer instrument.
+
+[PainterQB.AlazarModule.FFTResponse{T}](AlazarTech.md#type__fftresponse.1)  Abstract FFT `Response` from an Alazar digitizer instrument.
+
+[PainterQB.AlazarModule.RecordResponse{T}](AlazarTech.md#type__recordresponse.1)  Abstract time-domain record `Response` from an Alazar digitizer instrument.
+
+[PainterQB.AlazarModule.StreamResponse{T}](AlazarTech.md#type__streamresponse.1)  Abstract time-domain streaming `Response` from an Alazar digitizer instrument.
 
 ---
 

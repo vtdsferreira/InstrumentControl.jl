@@ -1,4 +1,4 @@
-using Lexicon, PainterQB
+using PainterQB, Lexicon
 
 cd(dirname(@__FILE__))
 

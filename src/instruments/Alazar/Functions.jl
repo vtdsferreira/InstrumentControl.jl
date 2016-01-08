@@ -732,13 +732,13 @@ source1: one of `TRIG_CHAN_A`, `TRIG_CHAN_B`, or `TRIG_DISABLE`
 
 slope1:  `TRIGGER_SLOPE_POSITIVE` or `TRIGGER_SLOPE_NEGATIVE`
 
-level1:  an 8-bit unsigned integer
+level1:  a voltage (V).
 
 source2: one of `TRIG_CHAN_A`, `TRIG_CHAN_B`, or `TRIG_DISABLE`
 
 slope2:  `TRIGGER_SLOPE_POSITIVE` or `TRIGGER_SLOPE_NEGATIVE`
 
-level2:  an 8-bit unsigned integer
+level2:  a voltage (V).
 """
 function set_triggeroperation(a::InstrumentAlazar, args...)
     if length(args) != 7

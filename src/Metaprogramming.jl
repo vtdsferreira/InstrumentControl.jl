@@ -9,14 +9,15 @@
 #
 # Nothing is exported as the user should never use these, and we don't want
 # instruments to see this if it is used from our PainterQB module.
-"""
-```
-generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-```
 
-This command takes an `Instrument` subtype `instype`, a VISA command, an
-`InstrumentProperty` subtype `proptype`, and possibly an argument. It will
+"This method does/returns nothing."
+function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
+        command::ASCIIString, proptype::Type{T}, ::Type{NoArgs})
+    nothing     # don't generate inspect methods for NoArgs
+end
+
+"""
+This method will
 generate the following method in the module where `generate_inspect` is defined:
 
 `inspect(ins::instype, ::Type{proptype}, infixes::Int...)`
@@ -29,11 +30,6 @@ Error checking is done on the number of arguments.
 For a given property, `inspect` will return either an InstrumentProperty subtype,
 a number, a boolean, or a string as appropriate.
 """
-function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, ::Type{NoArgs})
-    nothing     # don't generate inspect methods for NoArgs
-end
-
 function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T}, returntype...)
 
@@ -76,18 +72,11 @@ function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
 end
 
 """
-```
-generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-```
-
-This command takes an `Instrument` subtype `InsType`, a VISA command, an
-`InstrumentProperty` type, and possibly an argument. It will generate one of the
-following methods in the module where `generate_inspect` is defined:
+This method generates the following method in the module where
+`generate_configure` is defined:
 
 ```
-configure(ins::InsType, PropertySubtype)
-configure(ins::InsType, Property, values..., infixes...)
+configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
 ```
 """
 function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
@@ -120,6 +109,16 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
     nothing
 end
 
+"""
+This method generates the following method in the module where
+`generate_configure` is defined:
+
+```
+configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
+```
+
+This particular method will be deprecated soon.
+"""
 function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T}, ::Type{NoArgs})
 
@@ -141,6 +140,14 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
     nothing
 end
 
+"""
+This method generates the following method in the module where
+`generate_configure` is defined:
+
+```
+configure(ins::InsType, Property, values..., infixes...)
+```
+"""
 function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
         command::ASCIIString, proptype::Type{T}, returntype...)
 
@@ -172,24 +179,22 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
     nothing
 end
 
-"Makes parametric subtypes and gives constructors. Also defines a code method."
+"Creates and exports immutable singleton subtypes."
 function generate_properties{S<:InstrumentProperty}(
     subtype::Symbol, supertype::Type{S})
 
     name = string(subtype)
-    @eval immutable ($subtype) <: $supertype end
+    @eval type ($subtype) <: $supertype end
     @eval export $subtype
+
 end
 
 """
-### generate_handlers
-
-`generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)`
-
 Each instrument can have a `responseDict`. For each setting of the instrument,
 for instance the `ClockSource`, we need to know the correspondence between a
 logical state `ExternalClock` and how the instrument encodes that logical state
 (e.g. "EXT").
+
 The `responseDict` is actually a dictionary of dictionaries. The first level keys
 are like `ClockSource` and the second level keys are like "EXT", with the value
 being `:ExternalClock`. Undoubtedly
@@ -197,7 +202,7 @@ this nested dictionary is "nasty" (in the technical parlance) but the dictionary
 is only used for code
 creation and is not used at run-time (if the code works as intended).
 
-This function makes a lot of other functions. Given some response from an instrument,
+This method makes a lot of other functions. Given some response from an instrument,
 we require a function to map that response back on to the appropiate logical state.
 
 `ClockSource(ins::AWG5014C, res::AbstractString)`

@@ -200,6 +200,10 @@ end
 immutable All
 end
 
+"Splat tuples into new inspect commands."
+inspect(ins::Instrument, args::Tuple{Vararg}) =
+    map((x)->inspect(ins,x...),(args...))
+
 "Allow inspecting mulitple properties at once."
 inspect(ins::Instrument, args::Tuple{Vararg{DataType}}) =
     map((x)->inspect(ins,x),(args...))

@@ -3,7 +3,7 @@ import VISA
 import Base: read, write, readavailable, reset
 
 ## Get the resource manager
-"The default resource manager."
+"The default VISA resource manager."
 const  resourcemanager = VISA.viOpenDefaultRM()
 export resourcemanager
 

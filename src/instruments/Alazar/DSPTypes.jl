@@ -20,7 +20,7 @@ abstract DSPWindow
 
 """
 Abstract type representing a windowing function for DSP, built into the
-AlazarDSP API.
+AlazarDSP API. Subtype of `DSPWindow`.
 """
 abstract AlazarWindow         <: DSPWindow
 

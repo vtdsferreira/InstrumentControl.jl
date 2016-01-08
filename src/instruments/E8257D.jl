@@ -16,12 +16,12 @@ export ALC
 export ALCLevel
 export AttenuatorAuto
 export FlatnessCorrection
-export FrequencyMultiplier
+#export FrequencyMultiplier
 export FrequencyStart
 export FrequencyStop
 export FrequencyStep
-export FrequencyOffsetLevel
-export FrequencyOffset
+#export FrequencyOffsetLevel
+#export FrequencyOffset
 export FrequencyReferenceLevel
 export FrequencyReference
 export OutputBlanking
@@ -32,7 +32,7 @@ export PowerLimitAdjustable
 export PowerStart
 export PowerStop
 export PowerStep
-export PowerOffsetLevel
+#export PowerOffsetLevel
 export PowerReference
 export PowerReferenceLevel
 export PowerSearchProtection
@@ -40,10 +40,10 @@ export PowerOptimizeSNR
 export SetFrequencyReference
 export SetPhaseReference
 
-export flatnesscorrectionfile_load, flatnesscorrectionfile_save
 export boards, cumulativeattenuatorswitches, cumulativepowerons, cumulativeontime
-export options, options_verbose, revision
+export options, revision
 
+"Concrete type representing an E8257D."
 type E8257D <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
@@ -73,31 +73,73 @@ responses = Dict(
 
 generate_handlers(E8257D, responses)
 
+"ALC bandwidth."
 abstract ALCBandwidth            <: InstrumentProperty{Float64}
+
+"Boolean state for automatic selection of the ALC bandwidth."
 abstract ALCBandwidthAuto        <: InstrumentProperty
+
+"Boolean state of the ALC."
 abstract ALC                     <: InstrumentProperty
+
+"Level of the ALC when the attenuator hold is active."
 abstract ALCLevel                <: InstrumentProperty{Float64}
+
+"Boolean state for automatic operation of the attenuator."
 abstract AttenuatorAuto          <: InstrumentProperty
+
+"Boolean state for flatness correction."
 abstract FlatnessCorrection      <: InstrumentProperty
-abstract FrequencyMultiplier     <: InstrumentProperty{Int}
+
+
+# abstract FrequencyMultiplier     <: InstrumentProperty{Int}
+"Step size for a frequency sweep."
 abstract FrequencyStep           <: InstrumentProperty{Float64}
-abstract FrequencyOffsetLevel    <: InstrumentProperty{Float64}
-abstract FrequencyOffset         <: InstrumentProperty
-abstract FrequencyReferenceLevel <: InstrumentProperty{Float64}
+
+#abstract FrequencyOffsetLevel    <: InstrumentProperty{Float64}
+#abstract FrequencyOffset         <: InstrumentProperty
+
+"Boolean state of the frequency reference level."
 abstract FrequencyReference      <: InstrumentProperty
+
+"Reference level for configuring/inspecting frequency."
+abstract FrequencyReferenceLevel <: InstrumentProperty{Float64}
+
+"Boolean state for the output blanking."
 abstract OutputBlanking          <: InstrumentProperty
+
+"Boolean state for automatic blanking of the output."
 abstract OutputBlankingAuto      <: InstrumentProperty
+
+"Has the output settled?"
 abstract OutputSettled           <: InstrumentProperty
+
+"RF output power limit."
 abstract PowerLimit              <: InstrumentProperty{Float64}
+
+"Boolean for whether or not the RF output power limit can be adjusted."
 abstract PowerLimitAdjustable    <: InstrumentProperty
+
+"Start power in a sweep."
 abstract PowerStart              <: InstrumentProperty{Float64}
+
+"Stop power in a sweep."
 abstract PowerStop               <: InstrumentProperty{Float64}
+
+"Step size for a power sweep."
 abstract PowerStep               <: InstrumentProperty{Float64}
-abstract PowerOffsetLevel        <: InstrumentProperty{Float64}
+
+#abstract PowerOffsetLevel        <: InstrumentProperty{Float64}
+
+"Boolean state of the power reference level."
 abstract PowerReference          <: InstrumentProperty
+
+"Reference level for configuring/inspecting power."
 abstract PowerReferenceLevel     <: InstrumentProperty{Float64}
+
 abstract PowerSearchProtection   <: InstrumentProperty
 abstract PowerOptimizeSNR        <: InstrumentProperty
+
 abstract SetFrequencyReference   <: InstrumentProperty
 abstract SetPhaseReference       <: InstrumentProperty
 
@@ -113,12 +155,12 @@ commands = [
     ("SOURce:POWer:ATTenuation:AUTO",       AttenuatorAuto,          Bool),
     ("SOURce:CORRection:STATe",             FlatnessCorrection,      Bool),
     ("SOURce:FREQuency:FIXed",              Frequency,               AbstractFloat),
-    ("SOURce:FREQuency:MULTiplier",         FrequencyMultiplier,     Int),
+#    ("SOURce:FREQuency:MULTiplier",         FrequencyMultiplier,     Int),
     ("SOURce:FREQuency:STARt",              FrequencyStart,          AbstractFloat),
     ("SOURce:FREQuency:STOP",               FrequencyStop,           AbstractFloat),
     ("SOURce:FREQuency:STEP",               FrequencyStep,           AbstractFloat),
-    ("SOURce:FREQuency:OFFSet",             FrequencyOffsetLevel,    AbstractFloat),
-    ("SOURce:POWer:REFerence:STATe",        FrequencyOffset,         Bool),
+#    ("SOURce:FREQuency:OFFSet",             FrequencyOffsetLevel,    AbstractFloat),
+#    ("SOURce:POWer:REFerence:STATe",        FrequencyOffset,         Bool),
     ("SOURce:FREQuency:REFerence",          FrequencyReferenceLevel, AbstractFloat),
     ("SOURce:FREQuency:REFerence:STATe",    FrequencyReference,      Bool),
     (":OUTPut",                             Output,                  Bool),
@@ -132,7 +174,7 @@ commands = [
     ("SOURce:POWer:STARt",                  PowerStart,              AbstractFloat),
     ("SOURce:POWer:STOP",                   PowerStop,               AbstractFloat),
     ("SOURce:POWer:LEVel:STEP",             PowerStep,               AbstractFloat),
-    ("SOURce:POWer:LEVel:OFFSet",           PowerOffsetLevel,        AbstractFloat),
+#    ("SOURce:POWer:LEVel:OFFSet",           PowerOffsetLevel,        AbstractFloat),
     ("SOURce:POWer:REFerence:STATe",        PowerReference,          Bool),
     ("SOURce:POWer:REFerence",              PowerReferenceLevel,     AbstractFloat),
     ("SOURce:POWer:PROTection:STATe",       PowerSearchProtection,   Bool),
@@ -147,18 +189,38 @@ for args in commands
     args[1][end] != '?' && generate_configure(E8257D,args...)
 end
 
-flatnesscorrectionfile_load(ins::E8257D, file::ASCIIString) =
-    write(ins, "SOURce:CORRection:FLATness:LOAD \""*file*"\"")
+boards(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:BOARds?")
 
-flatnesscorrectionfile_save(ins::E8257D, file::ASCIIString) =
-    write(ins, "SOURce:CORRection:FLATness:STORe \""*file*"\"")
+cumulativeattenuatorswitches(ins::E8257D) =
+    ask(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
 
-boards(ins::E8257D)                       = ask(ins,"DIAGnostic:INFOrmation:BOARds?")
-cumulativeattenuatorswitches(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:CCOunt:ATTenuator?")
-cumulativepowerons(ins::E8257D)           = ask(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
-cumulativeontime(ins::E8257D)             = ask(ins,"DIAGnostic:INFOrmation:OTIMe?")
-options(ins::E8257D)                      = ask(ins,"DIAGnostic:INFOrmation:OPTions?")
-options_verbose(ins::E8257D)              = ask(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
-revision(ins::E8257D)                     = ask(ins,"DIAGnostic:INFOrmation:REVision?")
+"Returns the number of attenuator switching events over the instrument lifetime."
+cumulativeattenuatorswitches
+
+cumulativepowerons(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:CCOunt:PON?")
+
+"Returns the number of power on events over the instrument lifetime."
+cumulativepowerons
+
+cumulativeontime(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:OTIMe?")
+
+"Returns the cumulative on-time over the instrument lifetime."
+cumulativeontime
+
+function options(ins::E8257D; verbose=false)
+    if verbose
+        ask(ins,"DIAGnostic:INFOrmation:OPTions:DETail?")
+    else
+        ask(ins,"DIAGnostic:INFOrmation:OPTions?")
+    end
+end
+
+"Reports the options available for the given E8257D."
+options
+
+revision(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:REVision?")
+
+"Reports the revision of the E8257D."
+revision
 
 end

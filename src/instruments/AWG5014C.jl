@@ -44,7 +44,7 @@ export SequencerPosition
 export TriggerMode
 export TriggerTimer
 export WaitingForTrigger
-export WaveformName
+export Waveform
 export WavelistLength
 export VoltageOffset
 
@@ -53,7 +53,7 @@ export load_awg_settings, save_awg_settings
 export clearwaveforms, deletewaveform, newwaveform
 export normalizewaveform, resamplewaveform
 export waveformexists, waveformispredefined
-export waveformlength, waveformname, waveformtimestamp, waveformtype
+export waveform, waveformlength, waveformtimestamp, waveformtype
 export pullfrom_awg, pushto_awg
 
 export @allch
@@ -63,14 +63,35 @@ export @allch
 const allWaveforms      = ASCIIString("ALL")
 
 # Maximum number of bytes that may be sent using WLIS:WAV:DATA
+"Maximum number of bytes that may be sent using the SCPI command WLIS:WAV:DATA."
 const byteLimit         = 65e7
 
 # IntWaveform values.
+"""
+Constant used for synthesizing/interpreting waveforms of integer type.
+This represents the minimum value.
+"""
 const minimumValue      = 0x0000
+
+"""
+Constant used for synthesizing/interpreting waveforms of integer type.
+This represents zero for a waveform.
+"""
 const offsetValue       = 0x1fff
+
+"""
+Constant used for synthesizing/interpreting waveforms of integer type.
+This represents zero plus Vpp/2.
+"""
 const offsetPlusPPOver2 = 0x3ffe
+
+"""
+Constant used for synthesizing/interpreting waveforms of integer type.
+This represents the maximum value (register size?).
+"""
 const maximumValue      = 0x3fff
 
+"Concrete type representing an AWG5014C."
 type AWG5014C <: InstrumentVISA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
@@ -89,13 +110,17 @@ type AWG5014C <: InstrumentVISA
     AWG5014C() = new()
 end
 
+"Type for storing waveform data (including markers) in Float32 format."
 type AWG5014CData
     data::Array{Float32,1}
     marker1::Array{Bool,1}
     marker2::Array{Bool,1}
 end
 
+"Internal AWG code meaning no errors."
 const noError = 0
+
+"Exception dictionary mapping signed integers to error strings."
 exceptions    = Dict(
          0   => "No error.",
         -222 => "Out of range.",
@@ -115,11 +140,14 @@ abstract EventSlope        <: InstrumentProperty
 abstract EventTiming       <: InstrumentProperty
 
 abstract Normalization     <: InstrumentProperty
+
+"Sequencer may be hardware or software."
 abstract SequencerType     <: InstrumentProperty
 
 "Trigger engine may be triggered, continuously firing, gated, or sequenced."
 abstract TriggerMode       <: InstrumentProperty
 
+"Waveform type may be integer or real."
 abstract WaveformType      <: InstrumentProperty
 
 subtypesArray = [
@@ -154,7 +182,6 @@ subtypesArray = [
 for ((subtypeSymb,supertype) in subtypesArray)
     generate_properties(subtypeSymb, supertype)
 end
-
 
 responses = Dict(
 
@@ -206,33 +233,129 @@ responses = Dict(
 
 generate_handlers(AWG5014C,responses)
 
-abstract Amplitude                <: InstrumentProperty
-abstract AnalogOutputDelay        <: InstrumentProperty
-abstract ChannelOutput            <: InstrumentProperty
-abstract DCOutput                 <: InstrumentProperty
-abstract DCOutputLevel            <: InstrumentProperty
-abstract ExtInputAddsToOutput     <: InstrumentProperty
-abstract ExtOscDividerRate        <: InstrumentProperty
-abstract MarkerDelay              <: InstrumentProperty
-abstract OutputFilterFrequency    <: InstrumentProperty
-abstract RefOscFrequency          <: InstrumentProperty
-abstract RefOscMultiplier         <: InstrumentProperty
-abstract RepRate                  <: InstrumentProperty
-abstract RepRateHeld              <: InstrumentProperty
-abstract SCPIVersion              <: InstrumentProperty
-abstract SequencerEventJumpTarget <: InstrumentProperty
-abstract SequencerGOTOTarget      <: InstrumentProperty
-abstract SequencerGOTOState       <: InstrumentProperty
-abstract SequencerInfiniteLoop    <: InstrumentProperty
-abstract SequencerLength          <: InstrumentProperty
-abstract SequencerLoopCount       <: InstrumentProperty
-abstract SequencerPosition        <: InstrumentProperty
-abstract TriggerTimer             <: InstrumentProperty
-abstract WaitingForTrigger        <: InstrumentProperty
-abstract WaveformName             <: InstrumentProperty
-abstract WavelistLength           <: InstrumentProperty
-abstract VoltageOffset            <: InstrumentProperty
+"""
+Amplitude for a given channel.
+"""
+abstract Amplitude                <: InstrumentProperty{Float64}
 
+"""
+Analog output delay for a given channel.
+The effect of this command can be seen only in non-sequence mode.
+"""
+abstract AnalogOutputDelay        <: InstrumentProperty{Float64}
+
+"""
+Boolean state of the output for a given channel.
+"""
+abstract ChannelOutput            <: InstrumentProperty
+
+"""
+Boolean state of the DC output for a given channel (bottom-right of AWG).
+"""
+abstract DCOutput                 <: InstrumentProperty
+
+"""
+DC output level for a given channel.
+"""
+abstract DCOutputLevel            <: InstrumentProperty{Float64}
+
+"""
+Add the signal from an external input to the given channel output.
+"""
+abstract ExtInputAddsToOutput     <: InstrumentProperty
+
+"""
+Divider rate of the external oscillator; must be a power of 2 (1 ok).
+"""
+abstract ExtOscDividerRate        <: InstrumentProperty{Int}
+
+"""
+Marker delay for a given channel and marker. Marker can be 1 or 2.
+"""
+abstract MarkerDelay              <: InstrumentProperty{Float64}
+
+"""
+Low-pass filter frequency for the output. INF = 9.9e37
+"""
+abstract OutputFilterFrequency    <: InstrumentProperty{Float64}
+
+"""
+Reference oscillator frequency.
+
+Valid values are 10 MHz, 20 MHz and 100 MHz. Used when:
+
+- Clock Source is Internal
+- Reference Input is External
+- External Reference Type is Fixed.
+"""
+abstract RefOscFrequency          <: InstrumentProperty{Float64}
+
+"""
+Reference oscillator multiplier.
+
+Used when:
+- Clock Source is Internal
+- Reference Source is External
+- External Reference Type is Variable.
+"""
+abstract RefOscMultiplier         <: InstrumentProperty{Int}
+
+"""
+Repetition rate (frequency of waveform). Changing this will change the
+sampling rate.
+"""
+abstract RepRate                  <: InstrumentProperty{Float64}
+
+"""
+Boolean hold state of the repetition rate. If held, the repetition rate will
+not change when the size of the waveform changes.
+"""
+abstract RepRateHeld              <: InstrumentProperty
+
+"The SCPI version of the AWG."
+abstract SCPIVersion              <: InstrumentProperty
+
+"""
+Target index for the sequencer event jump operation.
+Note that this will take effect only when
+SEQuence:ELEMent[n]:JTARget:TYPE is set to INDex.
+"""
+abstract SequencerEventJumpTarget <: InstrumentProperty{Int}
+
+"""
+Target index for the GOTO command of the sequencer.
+"""
+abstract SequencerGOTOTarget      <: InstrumentProperty{Int}
+
+"Boolean GOTO state of the sequencer."
+abstract SequencerGOTOState       <: InstrumentProperty
+
+"Boolean state of infinite loop on a sequencer element."
+abstract SequencerInfiniteLoop    <: InstrumentProperty
+
+"Length of the sequence. Can be destructive to existing sequences."
+abstract SequencerLength          <: InstrumentProperty{Int}
+
+"Loop count of the sequencer, from 1 to 65536. Ignored if infinite loop."
+abstract SequencerLoopCount       <: InstrumentProperty{Int}
+
+"Current sequencer position."
+abstract SequencerPosition        <: InstrumentProperty{Int}
+
+"Internal trigger rate."
+abstract TriggerTimer             <: InstrumentProperty{Float64}
+
+"When inspected, will report if the instrument is waiting for a trigger."
+abstract WaitingForTrigger        <: InstrumentProperty
+
+"Name of a waveform loaded into a given channel."
+abstract Waveform                 <: InstrumentProperty
+
+"The number of waveforms stored in the AWG."
+abstract WavelistLength           <: InstrumentProperty{Int}
+
+"Offset voltage for a given channel."
+abstract VoltageOffset            <: InstrumentProperty{Float64}
 
 commands = [
     ("AWGC:CLOC:SOUR",      ClockSource),    #reference clock source
@@ -278,14 +401,17 @@ for args in commands
     args[1][end] != '?' && generate_configure(AWG5014C,args...)
 end
 
+"Configure the global analog output state of the AWG."
 function configure(ins::AWG5014C, ::Type{Output}, on::Bool)
     on ? write(ins, "AWGC:RUN") : write(ins, "AWGC:STOP")
 end
 
+"Inspect the global analog output state of the AWG."
 function inspect(ins::AWG5014C, ::Type{Output})
     parse(ask(ins,"AWGC:RSTATE?")) > 0 ? true : false
 end
 
+"Inspect whether or not the instrument is waiting for a trigger."
 function inspect(ins::AWG5014C, ::Type{WaitingForTrigger})
     parse(ask(ins,"AWGC:RSTATE?")) == 1 ? true : false
 end
@@ -315,7 +441,7 @@ end
 Macro for performing an operation on every channel,
 provided the channel is the last argument of the function to be called.
 
-Example: `@allch setWaveform(awg,"*Sine10")`
+Example: `@allch configure(awg,Waveform,"*Sine10")`
 """
 macro allch(x::Expr)
     myargs = []
@@ -355,31 +481,36 @@ end
 #     setPhaseDegrees(ins, phase*180./π, ch)
 # end
 
-# Set the waveform by name for a given channel.
-function configure(ins::AWG5014C, ::Type{WaveformName}, name::ASCIIString, ch::Integer)
+"Configure the waveform by name for a given channel."
+function configure(ins::AWG5014C, ::Type{Waveform}, name::ASCIIString, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":WAV ",quoted(name)))
 end
 
-function inspect(ins::AWG5014C, ::Type{WaveformName}, ch::Integer)
+"Inspect the waveform name for a given channel."
+function inspect(ins::AWG5014C, ::Type{Waveform}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     unquoted(ask(ins,string("SOUR",ch,":WAV?")))
 end
 
 # Set Vpp for a given channel between 0.05 V and 2 V.
+"Configure Vpp for a given channel, between 0.05 V and 2 V."
 function configure(ins::AWG5014C, ::Type{Amplitude}, ampl::Real, ch::Integer)
     @assert (0.05 <= ampl <= 2) "Amplitude out of range."
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":VOLT ",ampl))
 end
 
-# Vpp for a given channel.
+"Inspect Vpp for a given channel."
 function inspect(ins::AWG5014C, ::Type{Amplitude}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(ask(ins,string("SOUR",ch,":VOLT?")))
 end
 
-"Set the sample rate in Hz between 10 MHz and 10 GHz. Output rate = sample rate / number of points."
+"""
+Configure the sample rate in Hz between 10 MHz and 10 GHz.
+Output rate = sample rate / number of points.
+"""
 function configure(ins::AWG5014C, ::Type{SampleRate}, rate::Real)
     @assert (10e6 <= rate <= 10e9) "Sample rate out of range."
     write(ins,string("SOUR:FREQ ",rate))
@@ -395,22 +526,33 @@ function inspect(ins::AWG5014C, ::Type{SequencerType})
     SequencerType(ins,ask(ins,"AWGC:SEQ:TYPE?"))
 end
 
-"Run an application, e.g. SerialXpress"
 function runapplication(ins::AWG5014C, app::ASCIIString)
     write(ins,"AWGC:APPL:RUN \""+app+"\"")
 end
 
+"Run an application, e.g. SerialXpress"
+runapplication
+
 function applicationstate(ins::AWG5014C, app::ASCIIString)
-    ask(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? StopState(ins) : RunState(ins)
+    ask(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? false : true
 end
+
+"Is an application running?"
+applicationstate
 
 function load_awg_settings(ins::AWG5014C,filePath::ASCIIString)
     write(ins,string("AWGC:SRES \"",filePath,"\""))
 end
 
+"Load an AWG settings file."
+load_awg_settings
+
 function save_awg_settings(ins::AWG5014C,filePath::ASCIIString)
     write(ins,string("AWGC:SSAV \"",filePath,"\""))
 end
+
+"Save an AWG settings file."
+save_awg_settings
 
 function clearwaveforms(ins::AWG5014C)
     write(ins,"SOUR1:FUNC:USER \"\"")
@@ -419,26 +561,41 @@ function clearwaveforms(ins::AWG5014C)
     write(ins,"SOUR4:FUNC:USER \"\"")
 end
 
+"Clear waveforms from all channels."
+clearwaveforms
+
 function deletewaveform(ins::AWG5014C, name::ASCIIString)
     write(ins, "WLIS:WAV:DEL "*quoted(name))
 end
+
+"Delete a waveform by name."
+deletewaveform
 
 function newwaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
     wvtype == WaveformType ? error("Specify IntWaveform or RealWaveform.") : nothing
     write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*code(ins,wvtype))
 end
 
+"Create a new waveform by name, number of points, and waveform type."
+newwaveform
+
 function normalizewaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
     write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(ins,norm))
 end
+
+"Normalize a waveform."
+normalizewaveform
 
 function resamplewaveform(ins::AWG5014C, name::ASCIIString, points::Integer)
     write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
 end
 
+"Resample a waveform."
+resamplewaveform
+
 function waveformexists(ins::AWG5014C, name::ASCIIString)
-    for (i = 1:wavelistlength(ins))
-        if (name == waveformname(ins,i))
+    for (i = 1:inspect(ins,WavelistLength))
+        if (name == waveform(ins,i))
             return true
         end
     end
@@ -446,30 +603,52 @@ function waveformexists(ins::AWG5014C, name::ASCIIString)
     return false
 end
 
+"Does a waveform identified by `name` exist?"
+waveformexists
+
 function waveformispredefined(ins::AWG5014C, name::ASCIIString)
     Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
 end
+
+"Returns whether or not a waveform is predefined (comes with instrument)."
+waveformispredefined
 
 function waveformlength(ins::AWG5014C, name::ASCIIString)
     parse(ask(ins, "WLIST:WAV:LENG? "*quoted(name)))
 end
 
-"Uses Julia style indexing (begins at 1) to retrieve the name of a waveform."
-function waveformname(ins::AWG5014C, num::Integer)
+"Returns the length of a waveform."
+waveformlength
+
+function waveform(ins::AWG5014C, num::Integer)
     strip(ask(ins, "WLIST:NAME? "*string(num-1)),'"')
 end
+
+"""
+Uses Julia style indexing (begins at 1) to retrieve the name of a waveform
+from the waveform list.
+"""
+waveform
 
 function waveformtimestamp(ins::AWG5014C, name::ASCIIString)
     unquoted(ask(ins,"WLIS:WAV:TST? "*quoted(name)))
 end
 
-"Returns the type of the waveform. The AWG hardware ultimately uses an `IntWaveform` but `RealWaveform` is more convenient."
+"Return the timestamp for when a waveform was last updated."
+waveformtimestamp
+
 function waveformtype(ins::AWG5014C, name::ASCIIString)
     WaveformType(ins, ask(ins,"WLIS:WAV:TYPE? "*quoted(name)))
 end
 
-"Push data to the AWG, performing checks and generating errors as appropriate."
-function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
+"""
+Returns the type of the waveform. The AWG hardware
+ultimately uses an `IntWaveform` but `RealWaveform` is more convenient.
+"""
+waveformtype
+
+function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString,
+        awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
 
     # First validate the awgData
     validate(awgData, wvType)
@@ -504,8 +683,11 @@ function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, awgData::
 
 end
 
-"Takes care of the dirty work in pushing the data to the AWG."
-function pushlowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
+"Push waveform data to the AWG, performing checks and generating errors as appropriate."
+pushto_awg
+
+function pushlowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString,
+        awgData::AWG5014CData, wvType::Type{T})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         # AWG wants little endian data
@@ -516,7 +698,8 @@ function pushlowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, awgData
     binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
-function pushlowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData::AWG5014CData, wvType::Type{T})
+function pushlowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString,
+        awgData::AWG5014CData, wvType::Type{T})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         value = (awgData.data)[i]
@@ -529,7 +712,9 @@ function pushlowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, awgData:
     binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
-"Validates data to be pushed to the AWG to check for internal consistency and appropriate range."
+"Takes care of the dirty work in pushing the data to the AWG."
+pushlowlevel
+
 function validate(awgData::AWG5014CData, wvType::Type{WaveformType})
     # Length checks
     if (length(awgData.data) != length(awgData.marker1) != length(awgData.marker2))
@@ -551,10 +736,16 @@ function validate(awgData::AWG5014CData, wvType::Type{WaveformType})
     end
 end
 
-nbytes(::RealWaveform)      = 5
-nbytes(wvType::IntWaveform) = 2
+"Validates data to be pushed to the AWG to check for internal consistency
+and appropriate range."
+validate
 
-"Pull data from the AWG, performing checks and generating errors as appropriate."
+nbytes(::RealWaveform) = 5
+nbytes(::IntWaveform)  = 2
+
+"Returns the number of bytes per sample for a a given waveform type."
+nbytes
+
 function pullfrom_awg(ins::AWG5014C, name::ASCIIString)
 
     if (!waveformexists(ins,name))
@@ -566,7 +757,9 @@ function pullfrom_awg(ins::AWG5014C, name::ASCIIString)
 
 end
 
-"Takes care of the dirty work in pulling data from the AWG."
+"Pull data from the AWG, performing checks and generating errors as appropriate."
+pullfrom_awg
+
 function pulllowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
 
     len = waveformlength(ins, name)
@@ -629,5 +822,8 @@ function pulllowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T
 
     AWG5014CData(amp,marker1,marker2)
 end
+
+"Takes care of the dirty work in pulling data from the AWG."
+pulllowlevel
 
 end

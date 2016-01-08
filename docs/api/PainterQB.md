@@ -10,7 +10,7 @@
 Abort triggering with ABOR.
 
 *source:*
-[PainterQB\src\VISA.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L122)
+[PainterQB\src\VISA.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L122)
 
 ---
 
@@ -19,7 +19,7 @@ Abort triggering with ABOR.
 Idiomatic "write and read available" function with optional delay.
 
 *source:*
-[PainterQB\src\VISA.jl:73](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L73)
+[PainterQB\src\VISA.jl:73](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L73)
 
 ---
 
@@ -28,7 +28,7 @@ Idiomatic "write and read available" function with optional delay.
 Idiomatic "write and read available" function with optional delay.
 
 *source:*
-[PainterQB\src\VISA.jl:73](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L73)
+[PainterQB\src\VISA.jl:73](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L73)
 
 ---
 
@@ -37,7 +37,7 @@ Idiomatic "write and read available" function with optional delay.
 Read an entire block of bytes with properly formatted IEEE header.
 
 *source:*
-[PainterQB\src\VISA.jl:102](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L102)
+[PainterQB\src\VISA.jl:102](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L102)
 
 ---
 
@@ -47,7 +47,7 @@ Write an IEEE header block followed by an arbitary sequency of bytes and the ter
 
 
 *source:*
-[PainterQB\src\VISA.jl:97](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L97)
+[PainterQB\src\VISA.jl:97](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L97)
 
 ---
 
@@ -56,7 +56,7 @@ Write an IEEE header block followed by an arbitary sequency of bytes and the ter
 Clear registers with *CLS.
 
 *source:*
-[PainterQB\src\VISA.jl:116](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L116)
+[PainterQB\src\VISA.jl:116](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L116)
 
 ---
 
@@ -65,7 +65,7 @@ Clear registers with *CLS.
 Finds VISA resources to which we can connect. Doesn't seem to find ethernet instruments.
 
 *source:*
-[PainterQB\src\VISA.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L41)
+[PainterQB\src\VISA.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L41)
 
 ---
 
@@ -74,7 +74,7 @@ Finds VISA resources to which we can connect. Doesn't seem to find ethernet inst
 Finds VISA resources to which we can connect. Doesn't seem to find ethernet instruments.
 
 *source:*
-[PainterQB\src\VISA.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L41)
+[PainterQB\src\VISA.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L41)
 
 ---
 
@@ -85,7 +85,7 @@ See VISA spec for details on what a `viSession` is.
 
 
 *source:*
-[PainterQB\src\VISA.jl:53](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L53)
+[PainterQB\src\VISA.jl:53](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L53)
 
 ---
 
@@ -96,7 +96,7 @@ See VISA spec for details on what a `viSession` is.
 
 
 *source:*
-[PainterQB\src\VISA.jl:60](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L60)
+[PainterQB\src\VISA.jl:60](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L60)
 
 ---
 
@@ -107,7 +107,7 @@ See VISA spec for details on what a `viSession` is.
 
 
 *source:*
-[PainterQB\src\VISA.jl:47](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L47)
+[PainterQB\src\VISA.jl:47](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L47)
 
 ---
 
@@ -116,7 +116,7 @@ See VISA spec for details on what a `viSession` is.
 Ask the *IDN? command.
 
 *source:*
-[PainterQB\src\VISA.jl:113](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L113)
+[PainterQB\src\VISA.jl:113](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L113)
 
 ---
 
@@ -125,7 +125,7 @@ Ask the *IDN? command.
 Allow inspecting mulitple properties at once.
 
 *source:*
-[PainterQB\src\Definitions.jl:204](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L204)
+[PainterQB\src\Definitions.jl:204](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L204)
 
 ---
 
@@ -134,7 +134,7 @@ Allow inspecting mulitple properties at once.
 Returns a random number in the unit interval.
 
 *source:*
-[PainterQB\src\sourcemeasure\Random.jl:8](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Random.jl#L8)
+[PainterQB\src\sourcemeasure\Random.jl:8](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Random.jl#L8)
 
 ---
 
@@ -143,7 +143,7 @@ Returns a random number in the unit interval.
 Returns how many seconds it takes to measure the response field `ch` holds.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:46](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L46)
+[PainterQB\src\sourcemeasure\Time.jl:46](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L46)
 
 ---
 
@@ -152,7 +152,7 @@ Returns how many seconds it takes to measure the response field `ch` holds.
 Measures the response held by `ch` `n_avg` times, and returns the average.
 
 *source:*
-[PainterQB\src\sourcemeasure\Averaging.jl:11](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Averaging.jl#L11)
+[PainterQB\src\sourcemeasure\Averaging.jl:11](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Averaging.jl#L11)
 
 ---
 
@@ -161,7 +161,7 @@ Measures the response held by `ch` `n_avg` times, and returns the average.
 Returns how many seconds have elapsed since the timer was initialized or reset.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:38](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L38)
+[PainterQB\src\sourcemeasure\Time.jl:38](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L38)
 
 ---
 
@@ -170,7 +170,7 @@ Returns how many seconds have elapsed since the timer was initialized or reset.
 Surround a string in quotation marks.
 
 *source:*
-[PainterQB\src\VISA.jl:127](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L127)
+[PainterQB\src\VISA.jl:127](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L127)
 
 ---
 
@@ -181,7 +181,7 @@ Note that this function will only read so many characters (buffered).
 
 
 *source:*
-[PainterQB\src\VISA.jl:83](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L83)
+[PainterQB\src\VISA.jl:83](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L83)
 
 ---
 
@@ -190,7 +190,7 @@ Note that this function will only read so many characters (buffered).
 Keep reading from an instrument until the instrument says we are done.
 
 *source:*
-[PainterQB\src\VISA.jl:91](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L91)
+[PainterQB\src\VISA.jl:91](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L91)
 
 ---
 
@@ -199,7 +199,7 @@ Keep reading from an instrument until the instrument says we are done.
 Reset the DelayStimulus reference time to now.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:11](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L11)
+[PainterQB\src\sourcemeasure\Time.jl:11](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L11)
 
 ---
 
@@ -208,7 +208,7 @@ Reset the DelayStimulus reference time to now.
 Reset the TimerResponse reference time to now.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L33)
+[PainterQB\src\sourcemeasure\Time.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L33)
 
 ---
 
@@ -217,7 +217,7 @@ Reset the TimerResponse reference time to now.
 Reset with the *RST command.
 
 *source:*
-[PainterQB\src\VISA.jl:110](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L110)
+[PainterQB\src\VISA.jl:110](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L110)
 
 ---
 
@@ -226,7 +226,7 @@ Reset with the *RST command.
 Wait until `val` seconds have elapsed since `ch` was initialized or reset.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:16](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L16)
+[PainterQB\src\sourcemeasure\Time.jl:16](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L16)
 
 ---
 
@@ -235,7 +235,7 @@ Wait until `val` seconds have elapsed since `ch` was initialized or reset.
 Sourcing a PropertyStimulus configures an InstrumentProperty.
 
 *source:*
-[PainterQB\src\sourcemeasure\Property.jl:30](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Property.jl#L30)
+[PainterQB\src\sourcemeasure\Property.jl:30](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Property.jl#L30)
 
 ---
 
@@ -244,7 +244,7 @@ Sourcing a PropertyStimulus configures an InstrumentProperty.
 Adds or removes threads to reach the desired number of worker threads.
 
 *source:*
-[PainterQB\src\sourcemeasure\Thread.jl:32](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Thread.jl#L32)
+[PainterQB\src\sourcemeasure\Thread.jl:32](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Thread.jl#L32)
 
 ---
 
@@ -253,7 +253,7 @@ Adds or removes threads to reach the desired number of worker threads.
 Sets the field named `:name` in the `Response` held by `ch` to `val`.
 
 *source:*
-[PainterQB\src\sourcemeasure\ResponseStim.jl:22](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\ResponseStim.jl#L22)
+[PainterQB\src\sourcemeasure\ResponseStim.jl:22](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\ResponseStim.jl#L22)
 
 ---
 
@@ -262,7 +262,7 @@ Sets the field named `:name` in the `Response` held by `ch` to `val`.
 Returns a INSTR `viSession` for the given IPv4 address string.
 
 *source:*
-[PainterQB\src\VISA.jl:64](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L64)
+[PainterQB\src\VISA.jl:64](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L64)
 
 ---
 
@@ -271,7 +271,7 @@ Returns a INSTR `viSession` for the given IPv4 address string.
 Returns a raw socket `viSession` for the given IPv4 address string.
 
 *source:*
-[PainterQB\src\VISA.jl:67](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L67)
+[PainterQB\src\VISA.jl:67](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L67)
 
 ---
 
@@ -280,7 +280,7 @@ Returns a raw socket `viSession` for the given IPv4 address string.
 Test with the *TST? command.
 
 *source:*
-[PainterQB\src\VISA.jl:107](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L107)
+[PainterQB\src\VISA.jl:107](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L107)
 
 ---
 
@@ -289,7 +289,7 @@ Test with the *TST? command.
 Bus trigger with *TRG.
 
 *source:*
-[PainterQB\src\VISA.jl:119](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L119)
+[PainterQB\src\VISA.jl:119](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L119)
 
 ---
 
@@ -298,7 +298,7 @@ Bus trigger with *TRG.
 Strip a string of enclosing quotation marks.
 
 *source:*
-[PainterQB\src\VISA.jl:130](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L130)
+[PainterQB\src\VISA.jl:130](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L130)
 
 ---
 
@@ -307,7 +307,7 @@ Strip a string of enclosing quotation marks.
 Write to an instrument. Appends the instrument's write terminator.
 
 *source:*
-[PainterQB\src\VISA.jl:87](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L87)
+[PainterQB\src\VISA.jl:87](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L87)
 
 ## Types [Exported]
 
@@ -318,7 +318,7 @@ Write to an instrument. Appends the instrument's write terminator.
 The All type is meant to be dispatched upon and not instantiated.
 
 *source:*
-[PainterQB\src\Definitions.jl:200](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L200)
+[PainterQB\src\Definitions.jl:200](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L200)
 
 ---
 
@@ -327,7 +327,7 @@ The All type is meant to be dispatched upon and not instantiated.
 Response that averages other responses. Not clear if this is a good idea yet.
 
 *source:*
-[PainterQB\src\sourcemeasure\Averaging.jl:4](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Averaging.jl#L4)
+[PainterQB\src\sourcemeasure\Averaging.jl:4](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Averaging.jl#L4)
 
 ---
 
@@ -336,7 +336,7 @@ Response that averages other responses. Not clear if this is a good idea yet.
 Clock may tick on a rising or falling slope.
 
 *source:*
-[PainterQB\src\Definitions.jl:61](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L61)
+[PainterQB\src\Definitions.jl:61](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L61)
 
 ---
 
@@ -345,7 +345,7 @@ Clock may tick on a rising or falling slope.
 Clock source can be internal or external.
 
 *source:*
-[PainterQB\src\Definitions.jl:64](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L64)
+[PainterQB\src\Definitions.jl:64](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L64)
 
 ---
 
@@ -354,7 +354,7 @@ Clock source can be internal or external.
 Signals may be AC or DC coupled.
 
 *source:*
-[PainterQB\src\Definitions.jl:67](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L67)
+[PainterQB\src\Definitions.jl:67](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L67)
 
 ---
 
@@ -363,7 +363,7 @@ Signals may be AC or DC coupled.
 A stimulus for delaying until time has passed since a reference time t0.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:5](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L5)
+[PainterQB\src\sourcemeasure\Time.jl:5](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L5)
 
 ---
 
@@ -372,7 +372,7 @@ A stimulus for delaying until time has passed since a reference time t0.
 Fixed frequency of a sourced signal.
 
 *source:*
-[PainterQB\src\Definitions.jl:96](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L96)
+[PainterQB\src\Definitions.jl:96](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L96)
 
 ---
 
@@ -381,7 +381,7 @@ Fixed frequency of a sourced signal.
 Start frequency of a fixed range.
 
 *source:*
-[PainterQB\src\Definitions.jl:99](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L99)
+[PainterQB\src\Definitions.jl:99](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L99)
 
 ---
 
@@ -390,7 +390,7 @@ Start frequency of a fixed range.
 Stop frequency of a fixed range.
 
 *source:*
-[PainterQB\src\Definitions.jl:102](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L102)
+[PainterQB\src\Definitions.jl:102](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L102)
 
 ---
 
@@ -400,7 +400,7 @@ Abstract supertype representing an instrument.
 
 
 *source:*
-[PainterQB\src\Definitions.jl:43](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L43)
+[PainterQB\src\Definitions.jl:43](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L43)
 
 ---
 
@@ -412,7 +412,7 @@ string.
 
 
 *source:*
-[PainterQB\src\Definitions.jl:118](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L118)
+[PainterQB\src\Definitions.jl:118](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L118)
 
 ---
 
@@ -429,7 +429,7 @@ defined a function `code`.
 
 
 *source:*
-[PainterQB\src\Definitions.jl:55](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L55)
+[PainterQB\src\Definitions.jl:55](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L55)
 
 ---
 
@@ -444,7 +444,7 @@ Concrete types are expected to have fields:
 
 
 *source:*
-[PainterQB\src\VISA.jl:36](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L36)
+[PainterQB\src\VISA.jl:36](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L36)
 
 ---
 
@@ -453,7 +453,7 @@ Concrete types are expected to have fields:
 Used internally to indicate that a property takes no argument.
 
 *source:*
-[PainterQB\src\Definitions.jl:58](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L58)
+[PainterQB\src\Definitions.jl:58](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L58)
 
 ---
 
@@ -462,7 +462,7 @@ Used internally to indicate that a property takes no argument.
 Oscillator source can be internal or external.
 
 *source:*
-[PainterQB\src\Definitions.jl:72](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L72)
+[PainterQB\src\Definitions.jl:72](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L72)
 
 ---
 
@@ -471,7 +471,7 @@ Oscillator source can be internal or external.
 Boolean output state of an instrument.
 
 *source:*
-[PainterQB\src\Definitions.jl:105](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L105)
+[PainterQB\src\Definitions.jl:105](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L105)
 
 ---
 
@@ -480,7 +480,7 @@ Boolean output state of an instrument.
 Output power level.
 
 *source:*
-[PainterQB\src\Definitions.jl:108](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L108)
+[PainterQB\src\Definitions.jl:108](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L108)
 
 ---
 
@@ -493,7 +493,7 @@ the associated property and value. Additional parameters to be passed to
 
 
 *source:*
-[PainterQB\src\sourcemeasure\Property.jl:9](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Property.jl#L9)
+[PainterQB\src\sourcemeasure\Property.jl:9](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Property.jl#L9)
 
 ---
 
@@ -503,7 +503,7 @@ Random number response suitable for testing the measurement code without having
 a physical instrument.
 
 *source:*
-[PainterQB\src\sourcemeasure\Random.jl:5](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Random.jl#L5)
+[PainterQB\src\sourcemeasure\Random.jl:5](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Random.jl#L5)
 
 ---
 
@@ -516,7 +516,7 @@ how that `Response` is measured. For instance, this may be useful to change
 
 
 *source:*
-[PainterQB\src\sourcemeasure\ResponseStim.jl:9](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\ResponseStim.jl#L9)
+[PainterQB\src\sourcemeasure\ResponseStim.jl:9](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\ResponseStim.jl#L9)
 
 ---
 
@@ -525,7 +525,7 @@ how that `Response` is measured. For instance, this may be useful to change
 Scattering parameter, e.g. S11, S12, etc.
 
 *source:*
-[PainterQB\src\Definitions.jl:80](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L80)
+[PainterQB\src\Definitions.jl:80](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L80)
 
 ---
 
@@ -534,7 +534,7 @@ Scattering parameter, e.g. S11, S12, etc.
 The sample rate for digitizing, synthesizing, etc.
 
 *source:*
-[PainterQB\src\Definitions.jl:75](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L75)
+[PainterQB\src\Definitions.jl:75](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L75)
 
 ---
 
@@ -544,7 +544,7 @@ Changes the number of Julia worker threads. An Expr object is used to
 initialize new threads.
 
 *source:*
-[PainterQB\src\sourcemeasure\Thread.jl:5](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Thread.jl#L5)
+[PainterQB\src\sourcemeasure\Thread.jl:5](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Thread.jl#L5)
 
 ---
 
@@ -553,7 +553,7 @@ initialize new threads.
 A response for timing other responses.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L41)
+[PainterQB\src\sourcemeasure\Time.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L41)
 
 ---
 
@@ -562,7 +562,7 @@ A response for timing other responses.
 A response for measuring how much time has passed since a reference time t0.
 
 *source:*
-[PainterQB\src\sourcemeasure\Time.jl:27](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\sourcemeasure\Time.jl#L27)
+[PainterQB\src\sourcemeasure\Time.jl:27](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\sourcemeasure\Time.jl#L27)
 
 ---
 
@@ -571,7 +571,7 @@ A response for measuring how much time has passed since a reference time t0.
 Trigger input impedance may be 50 Ohm or 1 kOhm.
 
 *source:*
-[PainterQB\src\Definitions.jl:87](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L87)
+[PainterQB\src\Definitions.jl:87](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L87)
 
 ---
 
@@ -580,7 +580,7 @@ Trigger input impedance may be 50 Ohm or 1 kOhm.
 Trigger level.
 
 *source:*
-[PainterQB\src\Definitions.jl:111](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L111)
+[PainterQB\src\Definitions.jl:111](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L111)
 
 ---
 
@@ -589,7 +589,7 @@ Trigger level.
 Trigger engine can fire on a rising or falling slope.
 
 *source:*
-[PainterQB\src\Definitions.jl:90](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L90)
+[PainterQB\src\Definitions.jl:90](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L90)
 
 ---
 
@@ -598,7 +598,7 @@ Trigger engine can fire on a rising or falling slope.
 Trigger may be sourced from: internal, external, bus, etc.
 
 *source:*
-[PainterQB\src\Definitions.jl:93](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Definitions.jl#L93)
+[PainterQB\src\Definitions.jl:93](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Definitions.jl#L93)
 
 ## Globals [Exported]
 
@@ -606,10 +606,10 @@ Trigger may be sourced from: internal, external, bus, etc.
 
 <a id="global__resourcemanager.1" class="lexicon_definition"></a>
 #### resourcemanager [¶](#global__resourcemanager.1)
-The default resource manager.
+The default VISA resource manager.
 
 *source:*
-[PainterQB\src\VISA.jl:7](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\VISA.jl#L7)
+[PainterQB\src\VISA.jl:7](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\VISA.jl#L7)
 
 
 ## Methods [Internal]
@@ -618,36 +618,58 @@ The default resource manager.
 
 <a id="method__generate_configure.1" class="lexicon_definition"></a>
 #### generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}}) [¶](#method__generate_configure.1)
-```
-generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-```
-
-This command takes an `Instrument` subtype `InsType`, a VISA command, an
-`InstrumentProperty` type, and possibly an argument. It will generate one of the
-following methods in the module where `generate_inspect` is defined:
+This method generates the following method in the module where
+`generate_configure` is defined:
 
 ```
-configure(ins::InsType, PropertySubtype)
+configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
+```
+
+
+*source:*
+[PainterQB\src\Metaprogramming.jl:82](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L82)
+
+---
+
+<a id="method__generate_configure.2" class="lexicon_definition"></a>
+#### generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs}) [¶](#method__generate_configure.2)
+This method generates the following method in the module where
+`generate_configure` is defined:
+
+```
+configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
+```
+
+This particular method will be deprecated soon.
+
+
+*source:*
+[PainterQB\src\Metaprogramming.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L122)
+
+---
+
+<a id="method__generate_configure.3" class="lexicon_definition"></a>
+#### generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...) [¶](#method__generate_configure.3)
+This method generates the following method in the module where
+`generate_configure` is defined:
+
+```
 configure(ins::InsType, Property, values..., infixes...)
 ```
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:93](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Metaprogramming.jl#L93)
+[PainterQB\src\Metaprogramming.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L151)
 
 ---
 
 <a id="method__generate_handlers.1" class="lexicon_definition"></a>
 #### generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V}) [¶](#method__generate_handlers.1)
-### generate_handlers
-
-`generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)`
-
 Each instrument can have a `responseDict`. For each setting of the instrument,
 for instance the `ClockSource`, we need to know the correspondence between a
 logical state `ExternalClock` and how the instrument encodes that logical state
 (e.g. "EXT").
+
 The `responseDict` is actually a dictionary of dictionaries. The first level keys
 are like `ClockSource` and the second level keys are like "EXT", with the value
 being `:ExternalClock`. Undoubtedly
@@ -655,7 +677,7 @@ this nested dictionary is "nasty" (in the technical parlance) but the dictionary
 is only used for code
 creation and is not used at run-time (if the code works as intended).
 
-This function makes a lot of other functions. Given some response from an instrument,
+This method makes a lot of other functions. Given some response from an instrument,
 we require a function to map that response back on to the appropiate logical state.
 
 `ClockSource(ins::AWG5014C, res::AbstractString)`
@@ -670,19 +692,22 @@ with "INT" encoding how to pass this logical state to the instrument `ins`.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:213](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Metaprogramming.jl#L213)
+[PainterQB\src\Metaprogramming.jl:221](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L221)
 
 ---
 
 <a id="method__generate_inspect.1" class="lexicon_definition"></a>
 #### generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs}) [¶](#method__generate_inspect.1)
-```
-generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-```
+This method does/returns nothing.
 
-This command takes an `Instrument` subtype `instype`, a VISA command, an
-`InstrumentProperty` subtype `proptype`, and possibly an argument. It will
+*source:*
+[PainterQB\src\Metaprogramming.jl:14](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L14)
+
+---
+
+<a id="method__generate_inspect.2" class="lexicon_definition"></a>
+#### generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...) [¶](#method__generate_inspect.2)
+This method will
 generate the following method in the module where `generate_inspect` is defined:
 
 `inspect(ins::instype, ::Type{proptype}, infixes::Int...)`
@@ -697,14 +722,23 @@ a number, a boolean, or a string as appropriate.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:32](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Metaprogramming.jl#L32)
+[PainterQB\src\Metaprogramming.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L33)
 
 ---
 
 <a id="method__generate_properties.1" class="lexicon_definition"></a>
 #### generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}}) [¶](#method__generate_properties.1)
-Makes parametric subtypes and gives constructors. Also defines a code method.
+Creates and exports immutable singleton subtypes.
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:176](https://github.com/ajkeller34/PainterQB.jl/tree/37bbc1037abc44019997b8f29b8ee739e88cfe04/src\Metaprogramming.jl#L176)
+[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L183)
+
+---
+
+<a id="method__generate_properties.2" class="lexicon_definition"></a>
+#### generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring) [¶](#method__generate_properties.2)
+Creates and exports immutable singleton subtypes.
+
+*source:*
+[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L183)
 

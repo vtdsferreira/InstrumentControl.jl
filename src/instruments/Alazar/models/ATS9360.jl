@@ -1,7 +1,19 @@
 export AlazarATS9360
 
 """
-Concrete InstrumentAlazar subtype.
+Concrete InstrumentAlazar subtype representing an ATS9360 digitizer.
+
+Defaults are selected as:
+
+- DC coupling (all). Cannot be changed for the ATS9360.
+- Input range +/- 0.4V for channel A, B. Cannot be changed for the ATS9360.
+- External trigger range: 5 V. Cannot be changed for the ATS9360 (?)
+- All impedances 50 Ohm. Cannot be changed for the ATS9360.
+- Internal clock, 1 GSps, rising edge.
+- Trigger on J; engine J fires when channel A crosses zero from below.
+- Trigger delay 0 samples; no trigger timeout
+- Acquire with both channels
+- AUX IO outputs a trigger signal synced to the sample clock.
 """
 type AlazarATS9360 <: InstrumentAlazar
 
@@ -126,6 +138,10 @@ type AlazarATS9360 <: InstrumentAlazar
     end
 end
 
+"""
+Configure the sample rate to any multiple of 1 MHz (within 300 MHz and 1.8 GHz)
+using the external clock.
+"""
 function configure(a::AlazarATS9360, ::Type{SampleRate}, rate::Real)
     actualRate = U32(fld(rate,1e6)*1e6)
     if (rate != actualRate)
@@ -141,20 +157,31 @@ function configure(a::AlazarATS9360, ::Type{SampleRate}, rate::Real)
     nothing
 end
 
+"""
+Does nothing but display info telling you that this parameter cannot be changed
+from DC coupling on the ATS9360.
+"""
 function configure{T<:Coupling}(a::AlazarATS9360, coupling::Type{T})
     info("Only DC coupling is available on the ATS9360.")
 end
 
+"""
+Does nothing but display info telling you that this parameter cannot be changed
+from 5V range on the ATS9360.
+"""
 function configure{T<:AlazarTriggerRange}(a::AlazarATS9360, range::Type{T})
     info("Only 5V range is available on the ATS9360.")
 end
 
+"""
+Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
+the start of `measure` rather than here.
+"""
 function configure{S<:DSPWindow, T<:DSPWindow}(
         a::AlazarATS9360, re::Type{S}, im::Type{T})
     a.reWindowType = S
     a.imWindowType = T
     nothing
-    # AlazarFFTSetWindowFunction is called towards the start of measure()
 end
 
 # The following were obtained using Table 8 as a crude guide, followed
@@ -162,17 +189,56 @@ end
 #
 # Romain Deterre at AlazarTech claims Table 8 is samples / record / channel,
 # but that does not explain the observed behavior with MinSamplesPerRecord.
+"""
+Minimum samples per record. Observed behavior deviates from Table 8 of the
+Alazar API.
+"""
 inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) =
     Int(512 / inspect(a, ChannelCount))
+
+"""
+Maximum number of bytes for a given DMA buffer.
+"""
 inspect(a::AlazarATS9360, ::Type{MaxBufferBytes}) = 64*1024*1024  # 64 MB
+
+"""
+Minimum number of samples in an FPGA-based FFT. Set by the minimum record size.
+"""
 inspect(a::AlazarATS9360, ::Type{MinFFTSamples}) = 128
+
+"""
+Maximum number of samples in an FPGA-based FFT. Can be obtained from `dsp_getinfo`
+but we have hardcoded since it should not change for this model of digitizer.
+"""
 inspect(a::AlazarATS9360, ::Type{MaxFFTSamples}) = 4096
+
+"""
+Returns the buffer alignment requirement (samples / record / channel).
+Note that buffers must also be page-aligned.
+From Table 8 of the Alazar API.
+"""
 inspect(a::AlazarATS9360, ::Type{BufferAlignment}) =
     128 * inspect(a, ChannelCount)
+
+"""
+Returns the pretrigger alignment requirement (samples / record / channel).
+From Table 8 of the Alazar API.
+"""
 inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) =
     128 * inspect(a, ChannelCount)
 
 # How does this change with data packing?
+"""
+Hard coded to return 0x0c. May need to change if we want to play with data packing.
+"""
 bits_per_sample(a::AlazarATS9360) = 0x0c
+
+"""
+Hard coded to return 2. May need to change if we want to play with data packing.
+"""
 bytes_per_sample(a::AlazarATS9360) = 2
+
+"""
+Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
+"""
 triglevel(a::AlazarATS9360, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))

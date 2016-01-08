@@ -14,12 +14,12 @@ various stimuli (perhaps we measure current as a function of applied bias).
 We should be able to write just one sweep function to do this:
 
 ```julia
-# Just an example; only slightly simplified...
-function sweep(stimulus::Stimulus, response::Response, iterator)
-    for values in iterator
-        source(stimulus,value)
-        measure(response)
-    end
+function sweep(ch0::Stimulus, ch1::Response, x_itr, tstep)
+	map(x_itr) do x
+    	source(ch0, x)
+		sleep(tstep)
+		measure(ch1)
+	end
 end
 ```
 

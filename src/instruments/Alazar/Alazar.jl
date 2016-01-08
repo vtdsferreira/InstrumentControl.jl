@@ -27,8 +27,7 @@ export inf_records
 const inf_records = U32(0x7FFFFFFF)
 
 """
-An AlazarTech device. It can be used to control configuration parameters, to
-start acquisitions and to retrieve the acquired data.
+Abstract type representing an AlazarTech digitizer.
 """
 abstract InstrumentAlazar <: Instrument
 
