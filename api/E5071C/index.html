@@ -188,6 +188,8 @@
     
         <li class="main active"><a href="#painterqbe5071cmodule">PainterQB.E5071CModule</a></li>
         
+            <li><a href="#types-exported">Types [Exported]</a></li>
+        
             <li><a href="#methods-internal">Methods [Internal]</a></li>
         
     
@@ -196,39 +198,59 @@
                 <div class="col-md-9" role="main">
 
 <h1 id="painterqbe5071cmodule">PainterQB.E5071CModule</h1>
+<h2 id="types-exported">Types [Exported]</h2>
+<hr />
+<p><a id="type__electricalmedium.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbe5071cmoduleelectricalmedium">PainterQB.E5071CModule.ElectricalMedium <a href="#type__electricalmedium.1">¶</a></h4>
+<p>Signals may propagate on coax or waveguide media.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\E5071C.jl#L74">PainterQB\src\instruments\E5071C.jl:74</a></p>
 <h2 id="methods-internal">Methods [Internal]</h2>
 <hr />
 <p><a id="method__generate_configure.1" class="lexicon_definition"></a></p>
-<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertyinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentproperty">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty}) <a href="#method__generate_configure.1">¶</a></h4>
-<pre><code>generate_configure{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-</code></pre>
-
-<p>This command takes an <code>Instrument</code> subtype <code>InsType</code>, a VISA command, an
-<code>InstrumentProperty</code> type, and possibly an argument. It will generate one of the
-following methods in the module where <code>generate_inspect</code> is defined:</p>
-<pre><code>configure(ins::InsType, PropertySubtype)
-configure(ins::InsType, Property, values..., infixes...)
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}}) <a href="#method__generate_configure.1">¶</a></h4>
+<p>This method generates the following method in the module where
+<code>generate_configure</code> is defined:</p>
+<pre><code>configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
 </code></pre>
 
 <p><em>source:</em>
-<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L93">PainterQB\src\Metaprogramming.jl:93</a></p>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L82">PainterQB\src\Metaprogramming.jl:82</a></p>
+<hr />
+<p><a id="method__generate_configure.2" class="lexicon_definition"></a></p>
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-typepainterqbnoargs">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs}) <a href="#method__generate_configure.2">¶</a></h4>
+<p>This method generates the following method in the module where
+<code>generate_configure</code> is defined:</p>
+<pre><code>configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
+</code></pre>
+
+<p>This particular method will be deprecated soon.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L122">PainterQB\src\Metaprogramming.jl:122</a></p>
+<hr />
+<p><a id="method__generate_configure.3" class="lexicon_definition"></a></p>
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-returntype">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  returntype...) <a href="#method__generate_configure.3">¶</a></h4>
+<p>This method generates the following method in the module where
+<code>generate_configure</code> is defined:</p>
+<pre><code>configure(ins::InsType, Property, values..., infixes...)
+</code></pre>
+
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L151">PainterQB\src\Metaprogramming.jl:151</a></p>
 <hr />
 <p><a id="method__generate_handlers.1" class="lexicon_definition"></a></p>
 <h4 id="generate_handlerstpainterqbinstrumentinstypetypetpainterqbinstrument-responsedictdictk-v">generate_handlers{T&lt;:PainterQB.Instrument}(insType::Type{T&lt;:PainterQB.Instrument},  responseDict::Dict{K, V}) <a href="#method__generate_handlers.1">¶</a></h4>
-<h3 id="generate_handlers">generate_handlers</h3>
-<p><code>generate_handlers{T&lt;:Instrument}(insType::Type{T}, responseDict::Dict)</code></p>
 <p>Each instrument can have a <code>responseDict</code>. For each setting of the instrument,
 for instance the <code>ClockSource</code>, we need to know the correspondence between a
 logical state <code>ExternalClock</code> and how the instrument encodes that logical state
-(e.g. "EXT").
-The <code>responseDict</code> is actually a dictionary of dictionaries. The first level keys
+(e.g. "EXT").</p>
+<p>The <code>responseDict</code> is actually a dictionary of dictionaries. The first level keys
 are like <code>ClockSource</code> and the second level keys are like "EXT", with the value
 being <code>:ExternalClock</code>. Undoubtedly
 this nested dictionary is "nasty" (in the technical parlance) but the dictionary
 is only used for code
 creation and is not used at run-time (if the code works as intended).</p>
-<p>This function makes a lot of other functions. Given some response from an instrument,
+<p>This method makes a lot of other functions. Given some response from an instrument,
 we require a function to map that response back on to the appropiate logical state.</p>
 <p><code>ClockSource(ins::AWG5014C, res::AbstractString)</code>
 returns an <code>InternalClock</code> or <code>ExternalClock</code> type as appropriate,
@@ -238,16 +260,17 @@ they are encoded by the instrument.</p>
 <p><code>code(ins::AWG5014C, ::Type{InternalClock})</code> returns "INT",
 with "INT" encoding how to pass this logical state to the instrument <code>ins</code>.</p>
 <p><em>source:</em>
-<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L213">PainterQB\src\Metaprogramming.jl:213</a></p>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L221">PainterQB\src\Metaprogramming.jl:221</a></p>
 <hr />
 <p><a id="method__generate_inspect.1" class="lexicon_definition"></a></p>
-<h4 id="generate_inspectspainterqbinstrument-tpainterqbinstrumentpropertyinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentproperty-typepainterqbnoargs">generate_inspect{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty},  ::Type{PainterQB.NoArgs}) <a href="#method__generate_inspect.1">¶</a></h4>
-<pre><code>generate_inspect{S&lt;:Instrument,T&lt;:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-</code></pre>
-
-<p>This command takes an <code>Instrument</code> subtype <code>instype</code>, a VISA command, an
-<code>InstrumentProperty</code> subtype <code>proptype</code>, and possibly an argument. It will
+<h4 id="generate_inspectspainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-typepainterqbnoargs">generate_inspect{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs}) <a href="#method__generate_inspect.1">¶</a></h4>
+<p>This method does/returns nothing.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L14">PainterQB\src\Metaprogramming.jl:14</a></p>
+<hr />
+<p><a id="method__generate_inspect.2" class="lexicon_definition"></a></p>
+<h4 id="generate_inspectspainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-returntype">generate_inspect{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  returntype...) <a href="#method__generate_inspect.2">¶</a></h4>
+<p>This method will
 generate the following method in the module where <code>generate_inspect</code> is defined:</p>
 <p><code>inspect(ins::instype, ::Type{proptype}, infixes::Int...)</code></p>
 <p>The <code>infixes</code> variable argument allows for numbers to be inserted within the
@@ -257,13 +280,19 @@ Error checking is done on the number of arguments.</p>
 <p>For a given property, <code>inspect</code> will return either an InstrumentProperty subtype,
 a number, a boolean, or a string as appropriate.</p>
 <p><em>source:</em>
-<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L32">PainterQB\src\Metaprogramming.jl:32</a></p>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L33">PainterQB\src\Metaprogramming.jl:33</a></p>
 <hr />
 <p><a id="method__generate_properties.1" class="lexicon_definition"></a></p>
-<h4 id="generate_propertiesspainterqbinstrumentpropertysubtypesymbol-supertypetypespainterqbinstrumentproperty">generate_properties{S&lt;:PainterQB.InstrumentProperty}(subtype::Symbol,  supertype::Type{S&lt;:PainterQB.InstrumentProperty}) <a href="#method__generate_properties.1">¶</a></h4>
-<p>Makes parametric subtypes and gives constructors. Also defines a code method.</p>
+<h4 id="generate_propertiesspainterqbinstrumentpropertytsubtypesymbol-supertypetypespainterqbinstrumentpropertyt">generate_properties{S&lt;:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S&lt;:PainterQB.InstrumentProperty{T}}) <a href="#method__generate_properties.1">¶</a></h4>
+<p>Creates and exports immutable singleton subtypes.</p>
 <p><em>source:</em>
-<a href="https://github.com/ajkeller34/PainterQB.jl/tree/c95a05838a4e95130c5ed4e923b395c3343d3178/src\Metaprogramming.jl#L176">PainterQB\src\Metaprogramming.jl:176</a></p></div>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L183">PainterQB\src\Metaprogramming.jl:183</a></p>
+<hr />
+<p><a id="method__generate_properties.2" class="lexicon_definition"></a></p>
+<h4 id="generate_propertiesspainterqbinstrumentpropertytsubtypesymbol-supertypetypespainterqbinstrumentpropertyt-docstring">generate_properties{S&lt;:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S&lt;:PainterQB.InstrumentProperty{T}},  docstring) <a href="#method__generate_properties.2">¶</a></h4>
+<p>Creates and exports immutable singleton subtypes.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L183">PainterQB\src\Metaprogramming.jl:183</a></p></div>
             
         </div>
 

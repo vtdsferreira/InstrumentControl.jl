@@ -214,11 +214,11 @@ errors, both of which consume precious time on the part of the experimenters.
 Consider an archetypal measurement scheme wherein we measure a device's response to
 various stimuli (perhaps we measure current as a function of applied bias).
 We should be able to write just one sweep function to do this:</p>
-<pre><code class="julia"># Just an example; only slightly simplified...
-function sweep(stimulus::Stimulus, response::Response, iterator)
-    for values in iterator
-        source(stimulus,value)
-        measure(response)
+<pre><code class="julia">function sweep(ch0::Stimulus, ch1::Response, x_itr, tstep)
+    map(x_itr) do x
+        source(ch0, x)
+        sleep(tstep)
+        measure(ch1)
     end
 end
 </code></pre>
@@ -285,7 +285,8 @@ pretty generic and often have implicit meanings in other programming languages.
 In Objective C, for instance, <code>get</code> implies that the function will return an address
 in memory rather than a value.</p>
 <p>Both <code>configure</code> and <code>inspect</code> have a lot of methods that take as one of their
-arguments an <code>InstrumentProperty</code> subtype. One subtypes <code>InstrumentProperty</code> for properties such as <code>ClockSource</code>, the
+arguments an <code>InstrumentProperty</code> subtype. One subtypes <code>InstrumentProperty</code> for
+properties such as <code>ClockSource</code>, the
 logical states of which have no obvious consistent encoding. One should instead
 subtype <code>NumericalProperty</code> for properties where a number suffices to describe
 the property (up to units).</p>

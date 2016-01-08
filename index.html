@@ -192,8 +192,6 @@
         
             <li><a href="#quick-start">Quick start</a></li>
         
-            <li><a href="#to-do">To do</a></li>
-        
     
     </ul>
 </div></div>
@@ -222,29 +220,7 @@ awg = AWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
 ats = AlazarATS9360()
 
 # do something with awg and ats
-</code></pre>
-
-<h2 id="to-do">To do</h2>
-<h4 id="globally">Globally</h4>
-<ul>
-<li>Units! A good starting point would be the
-<a href="https://github.com/Keno/SIUnits.jl">SIUnits.jl</a> package. It currently does
-not support fractional units like V/sqrt(Hz) but support could be added.</li>
-<li>How to save / load configurations for instruments? Maybe JSON files?</li>
-<li>How to save / load data?</li>
-<li>Plotting ease-of-use features?</li>
-</ul>
-<h4 id="awg5014c">AWG5014C</h4>
-<ul>
-<li>Waveform methods could be made more Julian</li>
-<li>Sequencer support needed</li>
-</ul>
-<h4 id="alazar">Alazar</h4>
-<ul>
-<li>Some properties seem to be overwritten when switching between measurement
-modes. e.g. when measuring a ContinuousStreamResponse the trigger needs to be
-reconfigured before measuring a TriggeredStreamResponse.</li>
-</ul></div>
+</code></pre></div>
             
         </div>
 
@@ -291,5 +267,5 @@ reconfigured before measuring a TriggeredStreamResponse.</li>
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-01-06 02:13:52.385000
+Build Date UTC : 2016-01-08 02:52:31.928000
 -->
