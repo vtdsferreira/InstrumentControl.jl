@@ -40,7 +40,7 @@ using PainterQB.E5071CModule
 using PainterQB.E8257DModule
 
 const PARALLEL_PATH =
-    "C:\\Users\\Discord\\Documents\\Instruments.jl\\src\\ParallelUtils.jl"
+    "C:\\Users\\Discord\\.julia\\v0.4\\PainterQB\\src\\ParallelUtils.jl"
 
 reload_parallel() = eval(Main,:(@everywhere include($PARALLEL_PATH)))
 reload_parallel()

@@ -20,6 +20,17 @@ function worker_tofloat!(a::SharedArray{Alazar12Bit,1}, subrange::UnitRange)
     nothing
 end
 
+function worker_iqfft{T<:Union{Float32,Float64}}(
+        from::SharedArray{Alazar12Bit,1}, subrange::UnitRange,
+        to::SharedArray{T,2})
+
+    for i in localindexes(from, subrange)
+        to[i] = T( 0.8*(ltoh(convert(UInt16,from[i]))/0xFFF0)-0.4 )
+    end
+
+    nothing
+end
+
 localindexes(S::SharedArray, subrange::UnitRange) =
     S.pidx > 0 ? range_1dim(S, subrange, S.pidx) : 1:0
 

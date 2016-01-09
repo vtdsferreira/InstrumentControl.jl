@@ -1,5 +1,4 @@
 export DSPWindow
-export AlazarWindow
 export WindowNone
 export WindowOnes
 export WindowZeroes
@@ -12,41 +11,40 @@ export WindowBartlett
 export DSPModule
 export DSPModuleInfo
 
-abstract Re
-abstract Im
-
-"Abstract type representing a windowing function for DSP."
-abstract DSPWindow
-
 """
-Abstract type representing a windowing function for DSP, built into the
-AlazarDSP API. Subtype of `DSPWindow`.
+Abstract parametric type representing a windowing function for DSP.
+The parameter determines the method of window generation:
+
+- `:alazar`: Use the AlazarDSP to synthesize the window
+- No parameter: Use default software method
+
+In the future, other methods may be added.
 """
-abstract AlazarWindow         <: DSPWindow
+abstract DSPWindow{T}
 
-"Flat window (ones)."
-abstract WindowNone           <: AlazarWindow
+"Flat window (ones). Implemented in AlazarDSP."
+abstract WindowNone{T}           <: DSPWindow{T}
 
-"Hanning window."
-abstract WindowHanning        <: AlazarWindow
+"Hanning window. Implemented in AlazarDSP."
+abstract WindowHanning{T}        <: DSPWindow{T}
 
-"Hamming window."
-abstract WindowHamming        <: AlazarWindow
+"Hamming window. Implemented in AlazarDSP."
+abstract WindowHamming{T}        <: DSPWindow{T}
 
-"Blackman window."
-abstract WindowBlackman       <: AlazarWindow
+"Blackman window. Implemented in AlazarDSP."
+abstract WindowBlackman{T}       <: DSPWindow{T}
 
-"Blackman-Harris window."
-abstract WindowBlackmanHarris <: AlazarWindow
+"Blackman-Harris window. Implemented in AlazarDSP."
+abstract WindowBlackmanHarris{T} <: DSPWindow{T}
 
-"Bartlett window."
-abstract WindowBartlett       <: AlazarWindow
-
-"Type alias for `WindowNone`."
-typealias WindowOnes WindowNone
+"Bartlett window. Implemented in AlazarDSP."
+abstract WindowBartlett{T}       <: DSPWindow{T}
 
 "Flat window (zeroes!)."
-abstract WindowZeroes         <: DSPWindow
+abstract WindowZeroes{T}         <: DSPWindow{T}
+
+"Type alias for `WindowNone`."
+typealias WindowOnes{T} WindowNone{T}
 
 "Represents a DSP module of an AlazarTech digitizer."
 type DSPModule

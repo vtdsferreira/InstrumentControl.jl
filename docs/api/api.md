@@ -33,6 +33,8 @@
 
 [inspect(ins::PainterQB.Instrument,  args::Tuple{Vararg{DataType}})](PainterQB.md#method__inspect.1)  Allow inspecting mulitple properties at once.
 
+[inspect(ins::PainterQB.Instrument,  args::Tuple{Vararg{T}})](PainterQB.md#method__inspect.2)  Splat tuples into new inspect commands.
+
 [measure(ch::PainterQB.RandomResponse)](PainterQB.md#method__measure.1)  Returns a random number in the unit interval.
 
 [measure(ch::PainterQB.TimeAResponse)](PainterQB.md#method__measure.2)  Returns how many seconds it takes to measure the response field `ch` holds.
@@ -159,8 +161,6 @@
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](PainterQB.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](PainterQB.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
-
 ## MODULE: PainterQB.E5071CModule
 
 ---
@@ -186,8 +186,6 @@
 [generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](E5071C.md#method__generate_inspect.2)  This method will
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E5071C.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
-
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](E5071C.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
 
 ## MODULE: PainterQB.E8257DModule
 
@@ -267,8 +265,6 @@
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E8257D.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](E8257D.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
-
 ## MODULE: PainterQB.AWG5014CModule
 
 ---
@@ -299,13 +295,13 @@
 
 [PainterQB.AWG5014CModule.validate](AWG5014C.md#function__validate.1)  Validates data to be pushed to the AWG to check for internal consistency
 
+[PainterQB.AWG5014CModule.waveform](AWG5014C.md#function__waveform.1)  Uses Julia style indexing (begins at 1) to retrieve the name of a waveform
+
 [PainterQB.AWG5014CModule.waveformexists](AWG5014C.md#function__waveformexists.1)  Does a waveform identified by `name` exist?
 
 [PainterQB.AWG5014CModule.waveformispredefined](AWG5014C.md#function__waveformispredefined.1)  Returns whether or not a waveform is predefined (comes with instrument).
 
 [PainterQB.AWG5014CModule.waveformlength](AWG5014C.md#function__waveformlength.1)  Returns the length of a waveform.
-
-[PainterQB.AWG5014CModule.waveformname](AWG5014C.md#function__waveformname.1)  Uses Julia style indexing (begins at 1) to retrieve the name of a waveform
 
 [PainterQB.AWG5014CModule.waveformtimestamp](AWG5014C.md#function__waveformtimestamp.1)  Return the timestamp for when a waveform was last updated.
 
@@ -377,7 +373,7 @@
 
 [PainterQB.AWG5014CModule.WaitingForTrigger](AWG5014C.md#type__waitingfortrigger.1)  When inspected, will report if the instrument is waiting for a trigger.
 
-[PainterQB.AWG5014CModule.WaveformName](AWG5014C.md#type__waveformname.1)  Name of a waveform loaded into a given channel.
+[PainterQB.AWG5014CModule.Waveform](AWG5014C.md#type__waveform.1)  Name of a waveform loaded into a given channel.
 
 [PainterQB.AWG5014CModule.WaveformType](AWG5014C.md#type__waveformtype.1)  Waveform type may be integer or real.
 
@@ -405,7 +401,7 @@
 
 [configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.Amplitude},  ampl::Real,  ch::Integer)](AWG5014C.md#method__configure.1)  Configure Vpp for a given channel, between 0.05 V and 2 V.
 
-[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.WaveformName},  name::ASCIIString,  ch::Integer)](AWG5014C.md#method__configure.2)  Configure the waveform by name for a given channel.
+[configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.Waveform},  name::ASCIIString,  ch::Integer)](AWG5014C.md#method__configure.2)  Configure the waveform by name for a given channel.
 
 [configure(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Output},  on::Bool)](AWG5014C.md#method__configure.3)  Configure the global analog output state of the AWG.
 
@@ -427,15 +423,13 @@
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AWG5014C.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](AWG5014C.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
-
 [inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.Amplitude},  ch::Integer)](AWG5014C.md#method__inspect.1)  Inspect Vpp for a given channel.
 
 [inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.SequencerType})](AWG5014C.md#method__inspect.2)  Returns current sequencer type.
 
 [inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.WaitingForTrigger})](AWG5014C.md#method__inspect.3)  Inspect whether or not the instrument is waiting for a trigger.
 
-[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.WaveformName},  ch::Integer)](AWG5014C.md#method__inspect.4)  Inspect the waveform name for a given channel.
+[inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.AWG5014CModule.Waveform},  ch::Integer)](AWG5014C.md#method__inspect.4)  Inspect the waveform name for a given channel.
 
 [inspect(ins::PainterQB.AWG5014CModule.AWG5014C,  ::Type{PainterQB.Output})](AWG5014C.md#method__inspect.5)  Inspect the global analog output state of the AWG.
 
@@ -475,13 +469,11 @@
 
 [PainterQB.AlazarModule.buffersizing](AlazarTech.md#function__buffersizing.1)  Given an `InstrumentAlazar` and an `AlazarMode`, this will tweak parameters
 
-[PainterQB.AlazarModule.dsp_generatewindowfunction](AlazarTech.md#function__dsp_generatewindowfunction.1)  Given a `DSPWindow`, `Re` or `Im` type, and `FFTRecordMode`, this will prepare
+[PainterQB.AlazarModule.fft_fpga_setup](AlazarTech.md#function__fft_fpga_setup.1)  If necessary, performs `AlazarFFTSetup`, which should be called before
 
 [PainterQB.AlazarModule.recordsizing](AlazarTech.md#function__recordsizing.1)  Calls C function `AlazarSetRecordSize` if necessary, given an `InstrumentAlazar`
 
 [PainterQB.AlazarModule.wait_buffer](AlazarTech.md#function__wait_buffer.1)  Waits for a buffer to be processed (or a timeout to elapse).
-
-[PainterQB.AlazarModule.windowing](AlazarTech.md#function__windowing.1)  Set up DSP windowing if necessary, given an `InstrumentAlazar` and `AlazarMode`.
 
 ---
 
@@ -523,7 +515,7 @@
 
 [configure{S<:PainterQB.AlazarModule.AlazarDataPacking}(a::PainterQB.AlazarModule.InstrumentAlazar,  ::Type{PainterQB.AlazarModule.AlazarDataPacking},  pack::Type{S<:PainterQB.AlazarModule.AlazarDataPacking},  ch::Type{PainterQB.AlazarModule.ChannelB})](AlazarTech.md#method__configure.17)  Configures the data packing mode for channel B.
 
-[configure{S<:PainterQB.AlazarModule.DSPWindow, T<:PainterQB.AlazarModule.DSPWindow}(a::PainterQB.AlazarModule.AlazarATS9360,  re::Type{S<:PainterQB.AlazarModule.DSPWindow},  im::Type{T<:PainterQB.AlazarModule.DSPWindow})](AlazarTech.md#method__configure.18)  Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
+[configure{S<:PainterQB.AlazarModule.DSPWindow{T}, T<:PainterQB.AlazarModule.DSPWindow{T}}(a::PainterQB.AlazarModule.AlazarATS9360,  re::Type{S<:PainterQB.AlazarModule.DSPWindow{T}},  im::Type{T<:PainterQB.AlazarModule.DSPWindow{T}})](AlazarTech.md#method__configure.18)  Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
 
 [configure{S<:PainterQB.TriggerSlope, T<:PainterQB.TriggerSlope}(a::PainterQB.AlazarModule.InstrumentAlazar,  slopeJ::Type{S<:PainterQB.TriggerSlope},  slopeK::Type{T<:PainterQB.TriggerSlope})](AlazarTech.md#method__configure.19)  Configures whether to trigger on a rising or falling slope, for engine J and K.
 
@@ -557,10 +549,6 @@
 
 [dsp_num_modules(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__dsp_num_modules.1)  Returns the number of `DSPModule`.
 
-[fft_setup(a::PainterQB.AlazarModule.InstrumentAlazar,  m::PainterQB.AlazarModule.FFTRecordMode)](AlazarTech.md#method__fft_setup.1)  Performs `AlazarFFTSetup`, which should be called before `AlazarBeforeAsyncRead`.
-
-[fft_setwindowfunction(dspModule::PainterQB.AlazarModule.DSPModule,  samplesPerRecord,  reArray,  imArray)](AlazarTech.md#method__fft_setwindowfunction.1)  A wrapper for the C function `AlazarFFTSetWindowFunction`, but taking a
-
 [forcetrigger(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__forcetrigger.1)  Force a software trigger.
 
 [forcetriggerenable(a::PainterQB.AlazarModule.InstrumentAlazar)](AlazarTech.md#method__forcetriggerenable.1)  Force a software "trigger enable." This involves the AUX I/O connector (see
@@ -593,6 +581,8 @@
 
 [measure(ch::PainterQB.AlazarModule.AlazarResponse{T})](AlazarTech.md#method__measure.1)  Largely generic method for measuring `AlazarResponse`. Can be considered a
 
+[measure(ch::PainterQB.AlazarModule.FFTSoftwareResponse{T})](AlazarTech.md#method__measure.2)  Largely generic method for measuring `AlazarResponse`. Can be considered a
+
 [post_async_buffer(a::PainterQB.AlazarModule.InstrumentAlazar,  buffer,  bufferLength)](AlazarTech.md#method__post_async_buffer.1)  Post an asynchronous buffer to the digitizer for use in an acquisition.
 
 [set_parameter(a::PainterQB.AlazarModule.InstrumentAlazar,  channelId,  parameterId,  value)](AlazarTech.md#method__set_parameter.1)  Julia wrapper for C function AlazarSetParameter, with error checking.
@@ -611,39 +601,27 @@
 
 [PainterQB.AlazarModule.AlazarATS9360](AlazarTech.md#type__alazarats9360.1)  Concrete InstrumentAlazar subtype representing an ATS9360 digitizer.
 
-[PainterQB.AlazarModule.AlazarWindow](AlazarTech.md#type__alazarwindow.1)  Abstract type representing a windowing function for DSP, built into the
-
-[PainterQB.AlazarModule.ContinuousStreamResponse{T}](AlazarTech.md#type__continuousstreamresponse.1)  Response type implementing the "continuous streaming mode" of the Alazar API.
-
 [PainterQB.AlazarModule.DSPModule](AlazarTech.md#type__dspmodule.1)  Represents a DSP module of an AlazarTech digitizer.
 
 [PainterQB.AlazarModule.DSPModuleInfo](AlazarTech.md#type__dspmoduleinfo.1)  Encapsulates DSP module information: type, version, and max record length.
 
-[PainterQB.AlazarModule.DSPWindow](AlazarTech.md#type__dspwindow.1)  Abstract type representing a windowing function for DSP.
-
-[PainterQB.AlazarModule.FFTHardwareResponse{T}](AlazarTech.md#type__ffthardwareresponse.1)  Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
-
-[PainterQB.AlazarModule.FFTSoftwareResponse{T}](AlazarTech.md#type__fftsoftwareresponse.1)  Response type for measuring with NPT record mode, then using Julia's FFTW to
+[PainterQB.AlazarModule.DSPWindow{T}](AlazarTech.md#type__dspwindow.1)  Abstract parametric type representing a windowing function for DSP.
 
 [PainterQB.AlazarModule.InstrumentAlazar](AlazarTech.md#type__instrumentalazar.1)  Abstract type representing an AlazarTech digitizer.
 
-[PainterQB.AlazarModule.NPTRecordResponse{T}](AlazarTech.md#type__nptrecordresponse.1)  Response type implementing the "NPT record mode" of the Alazar API.
+[PainterQB.AlazarModule.WindowBartlett{T}](AlazarTech.md#type__windowbartlett.1)  Bartlett window. Implemented in AlazarDSP.
 
-[PainterQB.AlazarModule.TriggeredStreamResponse{T}](AlazarTech.md#type__triggeredstreamresponse.1)  Response type implementing the "triggered streaming mode" of the Alazar API.
+[PainterQB.AlazarModule.WindowBlackmanHarris{T}](AlazarTech.md#type__windowblackmanharris.1)  Blackman-Harris window. Implemented in AlazarDSP.
 
-[PainterQB.AlazarModule.WindowBartlett](AlazarTech.md#type__windowbartlett.1)  Bartlett window.
+[PainterQB.AlazarModule.WindowBlackman{T}](AlazarTech.md#type__windowblackman.1)  Blackman window. Implemented in AlazarDSP.
 
-[PainterQB.AlazarModule.WindowBlackman](AlazarTech.md#type__windowblackman.1)  Blackman window.
+[PainterQB.AlazarModule.WindowHamming{T}](AlazarTech.md#type__windowhamming.1)  Hamming window. Implemented in AlazarDSP.
 
-[PainterQB.AlazarModule.WindowBlackmanHarris](AlazarTech.md#type__windowblackmanharris.1)  Blackman-Harris window.
+[PainterQB.AlazarModule.WindowHanning{T}](AlazarTech.md#type__windowhanning.1)  Hanning window. Implemented in AlazarDSP.
 
-[PainterQB.AlazarModule.WindowHamming](AlazarTech.md#type__windowhamming.1)  Hamming window.
+[PainterQB.AlazarModule.WindowNone{T}](AlazarTech.md#type__windownone.1)  Flat window (ones). Implemented in AlazarDSP.
 
-[PainterQB.AlazarModule.WindowHanning](AlazarTech.md#type__windowhanning.1)  Hanning window.
-
-[PainterQB.AlazarModule.WindowNone](AlazarTech.md#type__windownone.1)  Flat window (ones).
-
-[PainterQB.AlazarModule.WindowZeroes](AlazarTech.md#type__windowzeroes.1)  Flat window (zeroes!).
+[PainterQB.AlazarModule.WindowZeroes{T}](AlazarTech.md#type__windowzeroes.1)  Flat window (zeroes!).
 
 ---
 
@@ -664,6 +642,8 @@
 [PainterQB.AlazarModule.adma](AlazarTech.md#function__adma.1)  Returns the asynchronous DMA flags for a given `AlazarMode`. These are
 
 [PainterQB.AlazarModule.dsp](AlazarTech.md#function__dsp.1)  Given a DSPWindow type, this returns the constant needed to use the AlazarDSP
+
+[PainterQB.AlazarModule.generatewindowfunction](AlazarTech.md#function__generatewindowfunction.1)  Given a `DSPWindow`, samples per record, and padding samples, this will prepare
 
 [PainterQB.AlazarModule.initmodes](AlazarTech.md#function__initmodes.1)  Should be called at the beginning of a measure method to initialize the
 
@@ -719,15 +699,9 @@
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AlazarTech.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
 
-[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring)](AlazarTech.md#method__generate_properties.2)  Creates and exports immutable singleton subtypes.
-
 [scaling{T<:AbstractArray{T, N}}(resp::PainterQB.AlazarModule.FFTResponse{T<:AbstractArray{T, N}})](AlazarTech.md#method__scaling.1)  Returns the axis scaling for an FFT response.
 
 [scaling{T<:AbstractArray{T, N}}(resp::PainterQB.AlazarModule.FFTResponse{T<:AbstractArray{T, N}},  whichaxis::Integer)](AlazarTech.md#method__scaling.2)  Returns the axis scaling for an FFT response.
-
-[setwindow(window,  ::Type{PainterQB.AlazarModule.Im},  m::PainterQB.AlazarModule.FFTRecordMode)](AlazarTech.md#method__setwindow.1)  Set the window for the imag part of the FFT. Must be followed by calling `windowing`.
-
-[setwindow(window,  ::Type{PainterQB.AlazarModule.Re},  m::PainterQB.AlazarModule.FFTRecordMode)](AlazarTech.md#method__setwindow.2)  Set the window for the real part of the FFT. Must be followed by calling `windowing`.
 
 [tofloat!(sam_per_buf::Integer,  buf_completed::Integer,  backing::SharedArray{T, N})](AlazarTech.md#method__tofloat.1)  Arrange multithreaded conversion of the Alazar 12-bit integer format to 16-bit
 
@@ -738,14 +712,6 @@
 ## Types [Internal]
 
 [PainterQB.AlazarModule.AlazarATS9440](AlazarTech.md#type__alazarats9440.1)  Abstract type; not implemented.
-
-[PainterQB.AlazarModule.AlazarResponse{T}](AlazarTech.md#type__alazarresponse.1)  Abstract `Response` from an Alazar digitizer instrument.
-
-[PainterQB.AlazarModule.FFTResponse{T}](AlazarTech.md#type__fftresponse.1)  Abstract FFT `Response` from an Alazar digitizer instrument.
-
-[PainterQB.AlazarModule.RecordResponse{T}](AlazarTech.md#type__recordresponse.1)  Abstract time-domain record `Response` from an Alazar digitizer instrument.
-
-[PainterQB.AlazarModule.StreamResponse{T}](AlazarTech.md#type__streamresponse.1)  Abstract time-domain streaming `Response` from an Alazar digitizer instrument.
 
 ---
 

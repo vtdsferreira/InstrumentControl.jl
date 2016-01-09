@@ -13,7 +13,7 @@ less fatal otherwise. Should be automatically taken care of in a well-written
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:44](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L44)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:42](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L42)
 
 ---
 
@@ -24,7 +24,7 @@ Performs setup for asynchronous acquisitions. Should be called after
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:114](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L114)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:111](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L111)
 
 ---
 
@@ -36,7 +36,7 @@ been called before this function.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:164](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L164)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:161](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L161)
 
 ---
 
@@ -50,18 +50,18 @@ method.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:387](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L387)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:384](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L384)
 
 ---
 
-<a id="function__dsp_generatewindowfunction.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.dsp_generatewindowfunction [¶](#function__dsp_generatewindowfunction.1)
-Given a `DSPWindow`, `Re` or `Im` type, and `FFTRecordMode`, this will prepare
-a window function to be set later by calling `windowing`.
+<a id="function__fft_fpga_setup.1" class="lexicon_definition"></a>
+#### PainterQB.AlazarModule.fft_fpga_setup [¶](#function__fft_fpga_setup.1)
+If necessary, performs `AlazarFFTSetup`, which should be called before
+`AlazarBeforeAsyncRead`.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:445](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L445)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:548](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L548)
 
 ---
 
@@ -72,7 +72,7 @@ and `AlazarMode`.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:625](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L625)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:631](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L631)
 
 ---
 
@@ -81,16 +81,7 @@ and `AlazarMode`.
 Waits for a buffer to be processed (or a timeout to elapse).
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:789](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L789)
-
----
-
-<a id="function__windowing.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.windowing [¶](#function__windowing.1)
-Set up DSP windowing if necessary, given an `InstrumentAlazar` and `AlazarMode`.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:806](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L806)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:783](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L783)
 
 ## Methods [Exported]
 
@@ -101,7 +92,7 @@ Set up DSP windowing if necessary, given an `InstrumentAlazar` and `AlazarMode`.
 Returns whether or not the `InstrumentAlazar` is busy (Bool).
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:396](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L396)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:393](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L393)
 
 ---
 
@@ -112,7 +103,7 @@ using the external clock.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:145](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L145)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:145](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L145)
 
 ---
 
@@ -128,7 +119,7 @@ for the next trigger enable event and repeat.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:81](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L81)
+[PainterQB\src\instruments\Alazar\Configure.jl:81](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L81)
 
 ---
 
@@ -137,7 +128,7 @@ for the next trigger enable event and repeat.
 Configures the LED on the digitizer card chassis.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:202](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L202)
+[PainterQB\src\instruments\Alazar\Configure.jl:202](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L202)
 
 ---
 
@@ -146,7 +137,7 @@ Configures the LED on the digitizer card chassis.
 Wrapper for C function `AlazarSetRecordCount`. See the Alazar API.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:104](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L104)
+[PainterQB\src\instruments\Alazar\Configure.jl:104](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L104)
 
 ---
 
@@ -155,7 +146,7 @@ Wrapper for C function `AlazarSetRecordCount`. See the Alazar API.
 Configures the sleep state of the digitizer card.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:208](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L208)
+[PainterQB\src\instruments\Alazar\Configure.jl:208](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L208)
 
 ---
 
@@ -166,7 +157,7 @@ a record.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:294](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L294)
+[PainterQB\src\instruments\Alazar\Configure.jl:294](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L294)
 
 ---
 
@@ -177,7 +168,7 @@ instead of ticks (units of 10 us).
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:313](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L313)
+[PainterQB\src\instruments\Alazar\Configure.jl:313](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L313)
 
 ---
 
@@ -187,7 +178,7 @@ Wrapper for C function `AlazarSetTriggerTimeOut`.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:303](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L303)
+[PainterQB\src\instruments\Alazar\Configure.jl:303](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L303)
 
 ---
 
@@ -198,7 +189,7 @@ unsigned 8 bit integer (0--255) corresponding to the full range of the digitizer
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:269](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L269)
+[PainterQB\src\instruments\Alazar\Configure.jl:269](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L269)
 
 ---
 
@@ -207,7 +198,7 @@ unsigned 8 bit integer (0--255) corresponding to the full range of the digitizer
 Configure a digitizer's AUX IO to act as a digital input.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:25](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L25)
+[PainterQB\src\instruments\Alazar\Configure.jl:25](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L25)
 
 ---
 
@@ -216,7 +207,7 @@ Configure a digitizer's AUX IO to act as a digital input.
 Configure a digitizer's AUX IO port to act as a general purpose digital output.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:62](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L62)
+[PainterQB\src\instruments\Alazar\Configure.jl:62](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L62)
 
 ---
 
@@ -225,7 +216,7 @@ Configure a digitizer's AUX IO port to act as a general purpose digital output.
 Configure a digitizer's AUX IO port to output the sample clock, divided by an integer.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:49](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L49)
+[PainterQB\src\instruments\Alazar\Configure.jl:49](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L49)
 
 ---
 
@@ -234,7 +225,7 @@ Configure a digitizer's AUX IO port to output the sample clock, divided by an in
 Configure a digitizer's AUX IO to output a trigger signal synced to the sample clock.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:15](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L15)
+[PainterQB\src\instruments\Alazar\Configure.jl:15](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L15)
 
 ---
 
@@ -243,7 +234,7 @@ Configure a digitizer's AUX IO to output a trigger signal synced to the sample c
 Configures acquisition from both channels, simultaneously.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L122)
+[PainterQB\src\instruments\Alazar\Configure.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L122)
 
 ---
 
@@ -252,7 +243,7 @@ Configures acquisition from both channels, simultaneously.
 Configures the data packing mode for both channels.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:191](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L191)
+[PainterQB\src\instruments\Alazar\Configure.jl:191](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L191)
 
 ---
 
@@ -261,7 +252,7 @@ Configures the data packing mode for both channels.
 Configures the data packing mode for channel A.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:163](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L163)
+[PainterQB\src\instruments\Alazar\Configure.jl:163](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L163)
 
 ---
 
@@ -270,18 +261,18 @@ Configures the data packing mode for channel A.
 Configures the data packing mode for channel B.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:177](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L177)
+[PainterQB\src\instruments\Alazar\Configure.jl:177](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L177)
 
 ---
 
 <a id="method__configure.18" class="lexicon_definition"></a>
-#### configure{S<:PainterQB.AlazarModule.DSPWindow, T<:PainterQB.AlazarModule.DSPWindow}(a::PainterQB.AlazarModule.AlazarATS9360,  re::Type{S<:PainterQB.AlazarModule.DSPWindow},  im::Type{T<:PainterQB.AlazarModule.DSPWindow}) [¶](#method__configure.18)
+#### configure{S<:PainterQB.AlazarModule.DSPWindow{T}, T<:PainterQB.AlazarModule.DSPWindow{T}}(a::PainterQB.AlazarModule.AlazarATS9360,  re::Type{S<:PainterQB.AlazarModule.DSPWindow{T}},  im::Type{T<:PainterQB.AlazarModule.DSPWindow{T}}) [¶](#method__configure.18)
 Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
 the start of `measure` rather than here.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:180](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L180)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:180](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L180)
 
 ---
 
@@ -290,7 +281,7 @@ the start of `measure` rather than here.
 Configures whether to trigger on a rising or falling slope, for engine J and K.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:240](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L240)
+[PainterQB\src\instruments\Alazar\Configure.jl:240](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L240)
 
 ---
 
@@ -300,7 +291,7 @@ Configure the trigger source for trigger engine J and K.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:254](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L254)
+[PainterQB\src\instruments\Alazar\Configure.jl:254](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L254)
 
 ---
 
@@ -309,7 +300,7 @@ Configure the trigger source for trigger engine J and K.
 Configures the acquisition channel.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:114](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L114)
+[PainterQB\src\instruments\Alazar\Configure.jl:114](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L114)
 
 ---
 
@@ -323,7 +314,7 @@ zero on each call to AlazarStartCapture. This is the default operation.)
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:221](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L221)
+[PainterQB\src\instruments\Alazar\Configure.jl:221](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L221)
 
 ---
 
@@ -332,7 +323,7 @@ zero on each call to AlazarStartCapture. This is the default operation.)
 Configures the trigger engines, e.g. TriggerOnJ, TriggerOnJAndNotK, etc.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:231](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L231)
+[PainterQB\src\instruments\Alazar\Configure.jl:231](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L231)
 
 ---
 
@@ -343,7 +334,7 @@ from 5V range on the ATS9360.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:172](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L172)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:172](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L172)
 
 ---
 
@@ -352,7 +343,7 @@ from 5V range on the ATS9360.
 Configure the external trigger range.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:284](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L284)
+[PainterQB\src\instruments\Alazar\Configure.jl:284](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L284)
 
 ---
 
@@ -361,7 +352,7 @@ Configure the external trigger range.
 Configures whether the clock ticks on a rising or falling slope.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:146](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L146)
+[PainterQB\src\instruments\Alazar\Configure.jl:146](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L146)
 
 ---
 
@@ -372,7 +363,7 @@ from DC coupling on the ATS9360.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:164](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L164)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:164](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L164)
 
 ---
 
@@ -381,7 +372,7 @@ from DC coupling on the ATS9360.
 Configure the external trigger coupling.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:277](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L277)
+[PainterQB\src\instruments\Alazar\Configure.jl:277](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L277)
 
 ---
 
@@ -390,7 +381,7 @@ Configure the external trigger coupling.
 Configures one of the preset sample rates derived from the internal clock.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:131](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L131)
+[PainterQB\src\instruments\Alazar\Configure.jl:131](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L131)
 
 ---
 
@@ -401,7 +392,7 @@ trigger signal.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:37](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L37)
+[PainterQB\src\instruments\Alazar\Configure.jl:37](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L37)
 
 ---
 
@@ -410,7 +401,7 @@ trigger signal.
 Returns a DSPModuleInfo object that describes a DSPModule.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:449](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L449)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:443](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L443)
 
 ---
 
@@ -419,7 +410,7 @@ Returns a DSPModuleInfo object that describes a DSPModule.
 Returns an Array of `dsp_module_handle`.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:473](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L473)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:467](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L467)
 
 ---
 
@@ -428,7 +419,7 @@ Returns an Array of `dsp_module_handle`.
 Returns an array of `DSPModule`.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:490](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L490)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:484](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L484)
 
 ---
 
@@ -437,30 +428,7 @@ Returns an array of `DSPModule`.
 Returns the number of `DSPModule`.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:495](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L495)
-
----
-
-<a id="method__fft_setup.1" class="lexicon_definition"></a>
-#### fft_setup(a::PainterQB.AlazarModule.InstrumentAlazar,  m::PainterQB.AlazarModule.FFTRecordMode) [¶](#method__fft_setup.1)
-Performs `AlazarFFTSetup`, which should be called before `AlazarBeforeAsyncRead`.
-In our code, this method is called by `before_async_read` and does not need to
-be called.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:510](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L510)
-
----
-
-<a id="method__fft_setwindowfunction.1" class="lexicon_definition"></a>
-#### fft_setwindowfunction(dspModule::PainterQB.AlazarModule.DSPModule,  samplesPerRecord,  reArray,  imArray) [¶](#method__fft_setwindowfunction.1)
-A wrapper for the C function `AlazarFFTSetWindowFunction`, but taking a
-`DSPModule` instead of a `dsp_module_handle`. Includes error handling.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:536](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L536)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:489](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L489)
 
 ---
 
@@ -469,7 +437,7 @@ A wrapper for the C function `AlazarFFTSetWindowFunction`, but taking a
 Force a software trigger.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:557](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L557)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:563](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L563)
 
 ---
 
@@ -480,7 +448,7 @@ Alazar API).
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:566](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L566)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:572](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L572)
 
 ---
 
@@ -491,7 +459,7 @@ Does nothing for ATS9360 cards since there is only one choice of arguments.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:575](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L575)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:581](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L581)
 
 ---
 
@@ -503,7 +471,7 @@ From Table 8 of the Alazar API.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:220](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L220)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:220](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L220)
 
 ---
 
@@ -513,7 +481,7 @@ Maximum number of bytes for a given DMA buffer.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:202](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L202)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:202](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L202)
 
 ---
 
@@ -524,7 +492,7 @@ but we have hardcoded since it should not change for this model of digitizer.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:213](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L213)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:213](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L213)
 
 ---
 
@@ -534,7 +502,7 @@ Minimum number of samples in an FPGA-based FFT. Set by the minimum record size.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:207](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L207)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:207](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L207)
 
 ---
 
@@ -545,7 +513,7 @@ Alazar API.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:196](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L196)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:196](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L196)
 
 ---
 
@@ -556,7 +524,7 @@ From Table 8 of the Alazar API.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:227](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L227)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:227](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L227)
 
 ---
 
@@ -565,7 +533,7 @@ From Table 8 of the Alazar API.
 Inspect the AUX IO mode.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Inspect.jl:6](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Inspect.jl#L6)
+[PainterQB\src\instruments\Alazar\Inspect.jl:6](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Inspect.jl#L6)
 
 ---
 
@@ -574,7 +542,7 @@ Inspect the AUX IO mode.
 Returns which channel(s) will be acquired.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Inspect.jl:13](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Inspect.jl#L13)
+[PainterQB\src\instruments\Alazar\Inspect.jl:13](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Inspect.jl#L13)
 
 ---
 
@@ -583,7 +551,7 @@ Returns which channel(s) will be acquired.
 Returns the number of channels to acquire.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Inspect.jl:17](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Inspect.jl#L17)
+[PainterQB\src\instruments\Alazar\Inspect.jl:17](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Inspect.jl#L17)
 
 ---
 
@@ -592,7 +560,7 @@ Returns the number of channels to acquire.
 Returns the memory per channel in units of samples.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Inspect.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Inspect.jl#L41)
+[PainterQB\src\instruments\Alazar\Inspect.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Inspect.jl#L41)
 
 ---
 
@@ -602,7 +570,7 @@ Inspect the sample rate. As currently programmed, does not distinguish
 between the internal preset clock rates and otherwise.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Inspect.jl:35](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Inspect.jl#L35)
+[PainterQB\src\instruments\Alazar\Inspect.jl:35](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Inspect.jl#L35)
 
 ---
 
@@ -611,7 +579,7 @@ between the internal preset clock rates and otherwise.
 Inspect the data packing mode for a given channel.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Inspect.jl:22](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Inspect.jl#L22)
+[PainterQB\src\instruments\Alazar\Inspect.jl:22](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Inspect.jl#L22)
 
 ---
 
@@ -621,7 +589,17 @@ Largely generic method for measuring `AlazarResponse`. Can be considered a
 prototype for more complicated user-defined methods.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:279](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L279)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:97](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L97)
+
+---
+
+<a id="method__measure.2" class="lexicon_definition"></a>
+#### measure(ch::PainterQB.AlazarModule.FFTSoftwareResponse{T}) [¶](#method__measure.2)
+Largely generic method for measuring `AlazarResponse`. Can be considered a
+prototype for more complicated user-defined methods.
+
+*source:*
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:188](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L188)
 
 ---
 
@@ -632,7 +610,7 @@ Buffer address must meet alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:594](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L594)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:600](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L600)
 
 ---
 
@@ -641,7 +619,7 @@ Buffer address must meet alignment requirements.
 Julia wrapper for C function AlazarSetParameter, with error checking.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:712](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L712)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:718](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L718)
 
 ---
 
@@ -650,7 +628,7 @@ Julia wrapper for C function AlazarSetParameter, with error checking.
 Julia wrapper for C function AlazarSetParameterUL, with error checking.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:718](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L718)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:724](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L724)
 
 ---
 
@@ -677,7 +655,7 @@ level2:  a voltage (V).
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:743](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L743)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:749](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L749)
 
 ---
 
@@ -686,7 +664,7 @@ level2:  a voltage (V).
 Should be called after `before_async_read` has been called and buffers are posted.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:770](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L770)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:764](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L764)
 
 ---
 
@@ -695,7 +673,7 @@ Should be called after `before_async_read` has been called and buffers are poste
 Reports whether or not the digitizer has been triggered.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:776](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L776)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:770](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L770)
 
 ## Types [Exported]
 
@@ -719,28 +697,7 @@ Defaults are selected as:
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:18](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L18)
-
----
-
-<a id="type__alazarwindow.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.AlazarWindow [¶](#type__alazarwindow.1)
-Abstract type representing a windowing function for DSP, built into the
-AlazarDSP API. Subtype of `DSPWindow`.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:25](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L25)
-
----
-
-<a id="type__continuousstreamresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.ContinuousStreamResponse{T} [¶](#type__continuousstreamresponse.1)
-Response type implementing the "continuous streaming mode" of the Alazar API.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:26](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L26)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:18](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L18)
 
 ---
 
@@ -749,7 +706,7 @@ Response type implementing the "continuous streaming mode" of the Alazar API.
 Represents a DSP module of an AlazarTech digitizer.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:52](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L52)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:50](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L50)
 
 ---
 
@@ -758,38 +715,23 @@ Represents a DSP module of an AlazarTech digitizer.
 Encapsulates DSP module information: type, version, and max record length.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:58](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L58)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:56](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L56)
 
 ---
 
 <a id="type__dspwindow.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.DSPWindow [¶](#type__dspwindow.1)
-Abstract type representing a windowing function for DSP.
+#### PainterQB.AlazarModule.DSPWindow{T} [¶](#type__dspwindow.1)
+Abstract parametric type representing a windowing function for DSP.
+The parameter determines the method of window generation:
 
-*source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:19](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L19)
+- `:alazar`: Use the AlazarDSP to synthesize the window
+- No parameter: Use default software method
 
----
-
-<a id="type__ffthardwareresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.FFTHardwareResponse{T} [¶](#type__ffthardwareresponse.1)
-Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
+In the future, other methods may be added.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:88](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L88)
-
----
-
-<a id="type__fftsoftwareresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.FFTSoftwareResponse{T} [¶](#type__fftsoftwareresponse.1)
-Response type for measuring with NPT record mode, then using Julia's FFTW to
-return the FFT. Slower than doing it with the FPGA, but ultimately necessary if
-we want to use both channels as inputs to the FFT.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:117](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L117)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:23](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L23)
 
 ---
 
@@ -799,90 +741,70 @@ Abstract type representing an AlazarTech digitizer.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Alazar.jl:31](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Alazar.jl#L31)
-
----
-
-<a id="type__nptrecordresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.NPTRecordResponse{T} [¶](#type__nptrecordresponse.1)
-Response type implementing the "NPT record mode" of the Alazar API.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:66](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L66)
-
----
-
-<a id="type__triggeredstreamresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.TriggeredStreamResponse{T} [¶](#type__triggeredstreamresponse.1)
-Response type implementing the "triggered streaming mode" of the Alazar API.
-
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:46](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L46)
+[PainterQB\src\instruments\Alazar\Alazar.jl:31](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Alazar.jl#L31)
 
 ---
 
 <a id="type__windowbartlett.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowBartlett [¶](#type__windowbartlett.1)
-Bartlett window.
+#### PainterQB.AlazarModule.WindowBartlett{T} [¶](#type__windowbartlett.1)
+Bartlett window. Implemented in AlazarDSP.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:43](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L43)
-
----
-
-<a id="type__windowblackman.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowBlackman [¶](#type__windowblackman.1)
-Blackman window.
-
-*source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:37](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L37)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:41](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L41)
 
 ---
 
 <a id="type__windowblackmanharris.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowBlackmanHarris [¶](#type__windowblackmanharris.1)
-Blackman-Harris window.
+#### PainterQB.AlazarModule.WindowBlackmanHarris{T} [¶](#type__windowblackmanharris.1)
+Blackman-Harris window. Implemented in AlazarDSP.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:40](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L40)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:38](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L38)
+
+---
+
+<a id="type__windowblackman.1" class="lexicon_definition"></a>
+#### PainterQB.AlazarModule.WindowBlackman{T} [¶](#type__windowblackman.1)
+Blackman window. Implemented in AlazarDSP.
+
+*source:*
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:35](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L35)
 
 ---
 
 <a id="type__windowhamming.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowHamming [¶](#type__windowhamming.1)
-Hamming window.
+#### PainterQB.AlazarModule.WindowHamming{T} [¶](#type__windowhamming.1)
+Hamming window. Implemented in AlazarDSP.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:34](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L34)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:32](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L32)
 
 ---
 
 <a id="type__windowhanning.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowHanning [¶](#type__windowhanning.1)
-Hanning window.
+#### PainterQB.AlazarModule.WindowHanning{T} [¶](#type__windowhanning.1)
+Hanning window. Implemented in AlazarDSP.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:31](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L31)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:29](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L29)
 
 ---
 
 <a id="type__windownone.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowNone [¶](#type__windownone.1)
-Flat window (ones).
+#### PainterQB.AlazarModule.WindowNone{T} [¶](#type__windownone.1)
+Flat window (ones). Implemented in AlazarDSP.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:28](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L28)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:26](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L26)
 
 ---
 
 <a id="type__windowzeroes.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.WindowZeroes [¶](#type__windowzeroes.1)
+#### PainterQB.AlazarModule.WindowZeroes{T} [¶](#type__windowzeroes.1)
 Flat window (zeroes!).
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:49](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L49)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:44](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L44)
 
 ## Typealiass [Exported]
 
@@ -893,7 +815,7 @@ Flat window (zeroes!).
 Type alias for `WindowNone`.
 
 *source:*
-[PainterQB\src\instruments\Alazar\DSPTypes.jl:46](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\DSPTypes.jl#L46)
+[PainterQB\src\instruments\Alazar\DSPTypes.jl:47](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\DSPTypes.jl#L47)
 
 ## Globals [Exported]
 
@@ -904,7 +826,7 @@ Type alias for `WindowNone`.
 Alazar API representation of an infinite number of records.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Alazar.jl:27](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Alazar.jl#L27)
+[PainterQB\src\instruments\Alazar\Alazar.jl:27](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Alazar.jl#L27)
 
 
 ## Functions [Internal]
@@ -917,7 +839,7 @@ Returns the asynchronous DMA flags for a given `AlazarMode`. These are
 passed as the final parameter to the C function `AlazarBeforeAsyncRead`.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:68](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L68)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:66](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L66)
 
 ---
 
@@ -928,7 +850,18 @@ API to generate a particular window function.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:415](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L415)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:412](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L412)
+
+---
+
+<a id="function__generatewindowfunction.1" class="lexicon_definition"></a>
+#### PainterQB.AlazarModule.generatewindowfunction [¶](#function__generatewindowfunction.1)
+Given a `DSPWindow`, samples per record, and padding samples, this will prepare
+a window function.
+
+
+*source:*
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:439](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L439)
 
 ---
 
@@ -939,18 +872,18 @@ AlazarMode objects.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L183)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:26](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L26)
 
 ---
 
 <a id="function__postprocess.1" class="lexicon_definition"></a>
 #### PainterQB.AlazarModule.postprocess [¶](#function__postprocess.1)
 Arrange for reinterpretation or conversion of the data stored in the
-DMABuffers (backed by SharedArrays) to the desired return type. 
+DMABuffers (backed by SharedArrays) to the desired return type.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:436](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L436)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:313](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L313)
 
 ---
 
@@ -959,7 +892,7 @@ DMABuffers (backed by SharedArrays) to the desired return type.
 Given an `AlazarMode`, returns the number of pre-trigger samples.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:605](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L605)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:611](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L611)
 
 ---
 
@@ -969,7 +902,7 @@ Specifies what to do with the buffers during measurement based on the response t
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:378](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L378)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:322](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L322)
 
 ---
 
@@ -980,7 +913,7 @@ function `AlazarBeforeAsyncRead`, given an `AlazarMode` object.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:634](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L634)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:640](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L640)
 
 ---
 
@@ -993,7 +926,7 @@ contains values that meet size and alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:646](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L646)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:652](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L652)
 
 ---
 
@@ -1006,7 +939,7 @@ contains values that meet size and alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:659](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L659)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:665](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L665)
 
 ---
 
@@ -1019,7 +952,7 @@ contains values that meet size and alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:669](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L669)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:675](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L675)
 
 ---
 
@@ -1032,7 +965,7 @@ contains values that meet size and alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:679](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L679)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:685](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L685)
 
 ---
 
@@ -1045,7 +978,7 @@ contains values that meet size and alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:693](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L693)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:699](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L699)
 
 ---
 
@@ -1058,7 +991,7 @@ contains values that meet size and alignment requirements.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:709](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L709)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:715](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L715)
 
 ## Methods [Internal]
 
@@ -1069,7 +1002,7 @@ contains values that meet size and alignment requirements.
 Masks an AUX IO mode parameter to specify AUX IO software trigger enable.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Configure.jl:6](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Configure.jl#L6)
+[PainterQB\src\instruments\Alazar\Configure.jl:6](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Configure.jl#L6)
 
 ---
 
@@ -1079,7 +1012,7 @@ Hard coded to return 0x0c. May need to change if we want to play with data packi
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:234](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L234)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:234](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L234)
 
 ---
 
@@ -1090,7 +1023,7 @@ the C function `AlazarGetChannelInfo`.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:120](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L120)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:117](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L117)
 
 ---
 
@@ -1101,7 +1034,7 @@ For single digitizer systems, pass 1 for both to get a handle for the digitizer.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:136](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L136)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:133](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L133)
 
 ---
 
@@ -1111,7 +1044,7 @@ Returns the kind of digitizer; corresponds to a constant in AlazarConstants.jl
 in the Alazar.jl package.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:144](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L144)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:141](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L141)
 
 ---
 
@@ -1121,7 +1054,7 @@ Hard coded to return 2. May need to change if we want to play with data packing.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:239](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L239)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:239](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L239)
 
 ---
 
@@ -1132,7 +1065,7 @@ division by 8.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:402](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L402)
+[PainterQB\src\instruments\Alazar\CoreFunctions.jl:399](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\CoreFunctions.jl#L399)
 
 ---
 
@@ -1147,7 +1080,7 @@ configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:82](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L82)
+[PainterQB\src\Metaprogramming.jl:82](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L82)
 
 ---
 
@@ -1164,7 +1097,7 @@ This particular method will be deprecated soon.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L122)
+[PainterQB\src\Metaprogramming.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L122)
 
 ---
 
@@ -1179,7 +1112,7 @@ configure(ins::InsType, Property, values..., infixes...)
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L151)
+[PainterQB\src\Metaprogramming.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L151)
 
 ---
 
@@ -1212,7 +1145,7 @@ with "INT" encoding how to pass this logical state to the instrument `ins`.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:221](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L221)
+[PainterQB\src\Metaprogramming.jl:218](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L218)
 
 ---
 
@@ -1221,7 +1154,7 @@ with "INT" encoding how to pass this logical state to the instrument `ins`.
 This method does/returns nothing.
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:14](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L14)
+[PainterQB\src\Metaprogramming.jl:14](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L14)
 
 ---
 
@@ -1242,7 +1175,7 @@ a number, a boolean, or a string as appropriate.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L33)
+[PainterQB\src\Metaprogramming.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L33)
 
 ---
 
@@ -1251,16 +1184,7 @@ a number, a boolean, or a string as appropriate.
 Creates and exports immutable singleton subtypes.
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L183)
-
----
-
-<a id="method__generate_properties.2" class="lexicon_definition"></a>
-#### generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}},  docstring) [¶](#method__generate_properties.2)
-Creates and exports immutable singleton subtypes.
-
-*source:*
-[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\Metaprogramming.jl#L183)
+[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\Metaprogramming.jl#L183)
 
 ---
 
@@ -1269,7 +1193,7 @@ Creates and exports immutable singleton subtypes.
 Returns the axis scaling for an FFT response.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:189](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L189)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:328](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L328)
 
 ---
 
@@ -1278,25 +1202,7 @@ Returns the axis scaling for an FFT response.
 Returns the axis scaling for an FFT response.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:189](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L189)
-
----
-
-<a id="method__setwindow.1" class="lexicon_definition"></a>
-#### setwindow(window,  ::Type{PainterQB.AlazarModule.Im},  m::PainterQB.AlazarModule.FFTRecordMode) [¶](#method__setwindow.1)
-Set the window for the imag part of the FFT. Must be followed by calling `windowing`.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:764](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L764)
-
----
-
-<a id="method__setwindow.2" class="lexicon_definition"></a>
-#### setwindow(window,  ::Type{PainterQB.AlazarModule.Re},  m::PainterQB.AlazarModule.FFTRecordMode) [¶](#method__setwindow.2)
-Set the window for the real part of the FFT. Must be followed by calling `windowing`.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Functions.jl:758](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Functions.jl#L758)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:328](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L328)
 
 ---
 
@@ -1307,7 +1213,7 @@ floating point format.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:384](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L384)
+[PainterQB\src\instruments\Alazar\ResponseFunctions.jl:353](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\ResponseFunctions.jl#L353)
 
 ---
 
@@ -1317,7 +1223,7 @@ Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9360.jl:244](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9360.jl#L244)
+[PainterQB\src\instruments\Alazar\models\ATS9360.jl:244](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9360.jl#L244)
 
 ## Types [Internal]
 
@@ -1328,43 +1234,7 @@ Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 Abstract type; not implemented.
 
 *source:*
-[PainterQB\src\instruments\Alazar\models\ATS9440.jl:2](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\models\ATS9440.jl#L2)
-
----
-
-<a id="type__alazarresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.AlazarResponse{T} [¶](#type__alazarresponse.1)
-Abstract `Response` from an Alazar digitizer instrument.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:12](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L12)
-
----
-
-<a id="type__fftresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.FFTResponse{T} [¶](#type__fftresponse.1)
-Abstract FFT `Response` from an Alazar digitizer instrument.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:21](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L21)
-
----
-
-<a id="type__recordresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.RecordResponse{T} [¶](#type__recordresponse.1)
-Abstract time-domain record `Response` from an Alazar digitizer instrument.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:18](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L18)
-
----
-
-<a id="type__streamresponse.1" class="lexicon_definition"></a>
-#### PainterQB.AlazarModule.StreamResponse{T} [¶](#type__streamresponse.1)
-Abstract time-domain streaming `Response` from an Alazar digitizer instrument.
-
-*source:*
-[PainterQB\src\instruments\Alazar\Responses.jl:15](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Responses.jl#L15)
+[PainterQB\src\instruments\Alazar\models\ATS9440.jl:2](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\models\ATS9440.jl#L2)
 
 ## Macros [Internal]
 
@@ -1377,7 +1247,7 @@ Throws an InstrumentException if there is an error.
 
 
 *source:*
-[PainterQB\src\instruments\Alazar\Errors.jl:8](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Errors.jl#L8)
+[PainterQB\src\instruments\Alazar\Errors.jl:8](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Errors.jl#L8)
 
 ## Globals [Internal]
 
@@ -1388,5 +1258,5 @@ Throws an InstrumentException if there is an error.
 Flag indicating whether the AlazarTech shared library has been opened.
 
 *source:*
-[PainterQB\src\instruments\Alazar\Alazar.jl:16](https://github.com/ajkeller34/PainterQB.jl/tree/180ac247894f4bc6fc3d116db9044f49f6fdd84c/src\instruments\Alazar\Alazar.jl#L16)
+[PainterQB\src\instruments\Alazar\Alazar.jl:16](https://github.com/ajkeller34/PainterQB.jl/tree/ef9c7ad31e165a00f094ce68457d9a1b8eac9276/src\instruments\Alazar\Alazar.jl#L16)
 

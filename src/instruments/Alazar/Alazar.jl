@@ -40,10 +40,11 @@ include("Errors.jl")
 include("ModeTypes.jl")
 include("DSPTypes.jl")
 include("Properties.jl")
-include("Functions.jl")
+include("CoreFunctions.jl")
 include("Configure.jl")
 include("Inspect.jl")
-include("Responses.jl")
+include("ResponseTypes.jl")
+include("ResponseFunctions.jl")
 
 # Model-specific type definitions and methods
 include("models/ATS9360.jl")

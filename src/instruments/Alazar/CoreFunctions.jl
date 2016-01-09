@@ -1,13 +1,11 @@
 export abort
 export before_async_read
 export busy
-export dsp_generatewindowfunction
 export dsp_getinfo
 export dsp_getmodulehandles
 export dsp_modules
 export dsp_num_modules
-export fft_setup
-export fft_setwindowfunction
+export fft_fpga_setup
 export forcetrigger
 export forcetriggerenable
 export inputcontrol
@@ -76,7 +74,7 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
     println("Pretrigger samples: $(pretriggersamples(m))")
     println("Samples per record: $(samples_per_record_measured(a,m))")
     println("Records per buffer: $(records_per_buffer(a,m))")
-    sleep(1)
+    sleep(0.1)
     @eh2 AlazarBeforeAsyncRead(a.handle,
                                a.acquisitionChannel,
                                pretrig,
@@ -90,13 +88,12 @@ end
 function before_async_read(a::InstrumentAlazar, m::FFTRecordMode)
 
     # retrigger(a)
-    fft_setup(a,m)
-
     pretrig = -pretriggersamples(m)
+
     println("Pretrigger samples: $(pretriggersamples(m))")
     println("  Bytes per record: $(m.by_rec)")
     println("Records per buffer: $(Int(m.buf_size / m.by_rec))")
-    sleep(1)
+    sleep(0.1)
     @eh2 AlazarBeforeAsyncRead(a.handle,
                                Alazar.CHANNEL_A,
                                pretrig,
@@ -414,35 +411,31 @@ API to generate a particular window function.
 """
 dsp
 
-function dsp_generatewindowfunction{S<:AlazarWindow,T<:Union{Re,Im}}(
-        ::Type{S}, ::Type{T}, m::FFTRecordMode)
+function generatewindowfunction{S<:DSPWindow}(
+    ::Type{S}, sam_per_rec, padding)
 
-    window = Array(Cfloat, m.sam_per_fft)
-    r = AlazarDSPGenerateWindowFunction(dsp(S), window,
-        m.sam_per_rec, m.sam_per_fft - m.sam_per_rec)
+    window = Array(Cfloat, sam_per_rec + padding)
+    r = AlazarDSPGenerateWindowFunction(dsp(S), window, sam_per_rec, padding)
     if r != alazar_no_error
         error(except(r))
     end
 
-    setwindow(window, T, m)
-    nothing
+    window
 end
 
-function dsp_generatewindowfunction{T<:Union{Re,Im}}(
-        ::Type{WindowZeroes}, ::Type{T}, m::FFTRecordMode)
+function generatewindowfunction(::Type{WindowZeroes}, sam_per_rec, padding)
 
-    window = Array(Cfloat, m.sam_per_fft)
+    window = Array(Float64, sam_per_rec + padding)
     window[:] = 0.0
 
-    setwindow(window, T, m)
-    nothing
+    window
 end
 
 """
-Given a `DSPWindow`, `Re` or `Im` type, and `FFTRecordMode`, this will prepare
-a window function to be set later by calling `windowing`.
+Given a `DSPWindow`, samples per record, and padding samples, this will prepare
+a window function.
 """
-dsp_generatewindowfunction
+generatewindowfunction
 
 # The InstrumentAlazar is only used for throwing exceptions
 "Returns a DSPModuleInfo object that describes a DSPModule."
@@ -502,12 +495,30 @@ function dsp_num_modules(a::InstrumentAlazar)
     numModules[1]
 end
 
-"""
-Performs `AlazarFFTSetup`, which should be called before `AlazarBeforeAsyncRead`.
-In our code, this method is called by `before_async_read` and does not need to
-be called.
-"""
-function fft_setup(a::InstrumentAlazar, m::FFTRecordMode)
+function fft_fpga_setup(a::InstrumentAlazar, m::AlazarMode)
+    nothing
+end
+
+function fft_fpga_setup(a::InstrumentAlazar, m::FFTRecordMode)
+
+    dspmodule = dsp_modules(a)[1]
+
+    re_window = generatewindowfunction(a.reWindowType,
+                                       m.sam_per_rec,
+                                       m.sam_per_fft - m.sam_per_rec)
+    im_window = generatewindowfunction(a.imWindowType,
+                                       m.sam_per_rec,
+                                       m.sam_per_fft - m.sam_per_rec)
+
+    m.re_window = convert(Array{Cfloat,1},re_window)
+    m.im_window = convert(Array{Cfloat,1},im_window)
+
+    r = AlazarFFTSetWindowFunction(dspmodule.handle,
+        m.sam_per_fft, m.re_window, m.im_window)
+
+    if r != alazar_no_error
+        throw(InstrumentException(dspModule.ins,r))
+    end
 
     recordLength_samples = m.sam_per_rec
     fftLength_samples = m.sam_per_fft
@@ -530,16 +541,10 @@ function fft_setup(a::InstrumentAlazar, m::FFTRecordMode)
 end
 
 """
-A wrapper for the C function `AlazarFFTSetWindowFunction`, but taking a
-`DSPModule` instead of a `dsp_module_handle`. Includes error handling.
+If necessary, performs `AlazarFFTSetup`, which should be called before
+`AlazarBeforeAsyncRead`.
 """
-function fft_setwindowfunction(dspModule::DSPModule, samplesPerRecord, reArray, imArray)
-    r = AlazarFFTSetWindowFunction(dspModule.handle, samplesPerRecord, reArray, imArray)
-    if r != alazar_no_error
-        throw(InstrumentException(dspModule.ins,r))
-    end
-    nothing
-end
+fft_fpga_setup
 
 # Undocumented in API. Let's hide this one for now...
 # export fft_verificationmode
@@ -754,18 +759,6 @@ function set_triggeroperation(a::InstrumentAlazar, args...)
     nothing
 end
 
-"Set the window for the real part of the FFT. Must be followed by calling `windowing`."
-function setwindow(window, ::Type{Re}, m::FFTRecordMode)
-    m.re_window = window
-    nothing
-end
-
-"Set the window for the imag part of the FFT. Must be followed by calling `windowing`."
-function setwindow(window, ::Type{Im}, m::FFTRecordMode)
-    m.im_window = window
-    nothing
-end
-
 "Should be called after `before_async_read` has been called and buffers are posted."
 function startcapture(a::InstrumentAlazar)
     @eh2 AlazarStartCapture(a.handle)
@@ -787,20 +780,3 @@ end
 
 "Waits for a buffer to be processed (or a timeout to elapse)."
 wait_buffer
-
-windowing(a::InstrumentAlazar, m::AlazarMode) = nothing
-
-function windowing(a::InstrumentAlazar, m::FFTRecordMode)
-    dspmodule = dsp_modules(a)[1]
-
-    dsp_generatewindowfunction(a.reWindowType, Re, m)
-    dsp_generatewindowfunction(a.imWindowType, Im, m)
-
-    fft_setwindowfunction(dspmodule,
-                          m.sam_per_fft,
-                          m.re_window,
-                          m.im_window)
-end
-
-"Set up DSP windowing if necessary, given an `InstrumentAlazar` and `AlazarMode`."
-windowing
