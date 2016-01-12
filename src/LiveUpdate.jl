@@ -3,16 +3,16 @@ import WebSockets
 using JSON
 
 "Condition indicating the start of a live update."
-const live_new_meas = Condition()
+const LIVE_NEW_MEAS = Condition()
 
 "Condition indicating more data for a live update."
-const live_data = Condition()
+const LIVE_DATA = Condition()
 
 """
 Condition indicating the end of a live update.
 Definition in the source code resembles a meditation on the human condition...
 """
-const live_die = Condition()
+const LIVE_DIE = Condition()
 
 export ScatterMeasurement
 type ScatterMeasurement
