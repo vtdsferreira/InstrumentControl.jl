@@ -12,53 +12,67 @@ function plottype{T<:Real}(dep::Response{T},
 end
 
 """
-Measures a response as a function of an arbitrary number of stimuli.
+This method is slightly more convenient than the other sweep method
+but not type stable. The return type depends on the number of arguments.
+If for some reason this were executed in a tight loop it might be good to
+annotate the return type in the calling function. For most purposes there should
+be minimal performance penalty.
+"""
+function sweep{T}(dep::Response{T},
+    indep::Tuple{Stimulus,AbstractArray}...; tstep=0)
 
+    sweep(dep, (indep...), tstep=tstep)
+end
+
+"""
+Measures a response as a function of an arbitrary number of stimuli.
 Implementation: N `for` loops are built around a simple body programmatically,
 given N stimuli. The stimuli are sourced at the start of each for loop.
 The body just measures the response with an optional time delay.
-
-Not type stable (return type depends on number of arguments). If for some
-reason this were executed in a tight loop it might be good to annotate
-the return type in the calling function. For most purposes there should be
-minimal performance penalty.
 """
-function sweep{T}(dep::Response{T},
-    indep::Tuple{Stimulus, AbstractArray}...; tstep=0)
-
-    # Notify the live graph task
-    notify(live_new_meas, ScatterMeasurement("x","y"))
+@generated function sweep{T<:Real,N}(dep::Response{T},
+    indep::NTuple{N,Tuple{Stimulus, AbstractArray}}; tstep=0)
 
     # Create loop symbols for arbitrary nested loops
-    localvars = [gensym() for i in 1:length(indep)]
+    vals = [gensym() for i in 1:N]
+    inds = [gensym() for i in 1:N]
 
-    # Preallocate output memory. We want an array in column-major order.
-    array = Array{T}([length(a) for (i,a) in indep]...)
+    # Begin expression.
+    # Preallocate output memory. We want a multidim. array in column-major order.
+    expr = quote
+        notify(LIVE_NEW_MEAS, (dep, indep...) )
+        array = Array{T}([length(a) for (stim, a) in indep]...)
+    end
 
-    # Describe looping over an independent variable...
-    loops = [(expr)->begin
-        f = Expr(:for, Expr(:(=), localvars[i], indep[i][2]))
-        g = Expr(:block)
-        push!(g.args, Expr(:call, :source, indep[i][1], localvars[i]))
-        push!(g.args, expr)
-        push!(f.args, g)
-        f
-    end for i in 1:length(indep)]
+    # Make some for loop expressions.
+    loops = [quote
+                for ($(inds[i]), $(vals[i])) in enumerate(indep[$i][2])
+                    source(indep[$i][1], $(vals[i]))
+                end
+             end for i in 1:N]
 
-    # Body of the nested for loop
-    body = Expr(:block)
-    push!(body.args, Expr(:call, :sleep, tstep))
-    assign = Expr(:(=))
-    push!(assign.args, Expr(:ref, array, localvars...))
-    push!(assign.args, Expr(:call, :measure, dep))
-    push!(body.args, assign)
+    # Make the body of the inner for loop.
+    body = quote
+        sleep(tstep)
+        array[$(inds...)] = measure(dep)
+    end
 
-    # Function chaining. |> is the chaining operator.
-    # Nest the for loops around the body.
-    uate = reduce(|>, [body; loops])
+    # Construct our expression
+    for i in collect(1:length(loops))
+        if (i == 1)
+            # Stick the body in the first for loop
+            push!(loops[i].args[2].args[2].args, body)
+        else
+            # Stick the first for loop in the second, etc.
+            push!(loops[i].args[2].args[2].args, loops[i-1])
+        end
+    end
 
-    # Run our for loop
-    eval(uate)
+    # Put the nested for loops into our expression.
+    push!(expr.args, loops[end])
 
-    array
+    # Return the array at the end
+    push!(expr.args, :array)
+
+    @show expr
 end

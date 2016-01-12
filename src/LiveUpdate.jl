@@ -62,6 +62,7 @@ function wsProducer(newMeas::Condition, moreData::Condition)
         loop = true
 
         # Wait for a new measurement to start
+
         produce(wait(newMeas))
 
         while loop
