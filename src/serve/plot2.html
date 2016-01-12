@@ -1,28 +1,16 @@
-<!DOCTYPE html>
+<html>
 
 <meta charset="utf-8" />
 
 <head>
   <title>Real-time x-y trace</title>
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:600,400,300" rel="stylesheet" type="text/css">
-  <link href="./plot.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:600,400,300" rel="stylesheet" type="text/css" />
+  <link href="./plot.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 
 <body>
-  <!--
-      Include these javascript files.
-      d3: v3 is recommended
-      jQuery: plotly.js ships with v1.8 but supports v1.7 through v1.10
-      the weird typedarray.js code is a polyfill, primarily for IE9, that does not
-      natively support typed numeric arrays
-  -->
-  <script type="text/javascript" src="dependencies/d3.v3.min.js"></script>
-  <script type="text/javascript" src="dependencies/jquery-latest.js"></script>
-  <script>if(typeof window.Int16Array !== 'function')document.write("<scri"+"pt src='dependencies/typedarray.js'></scr"+"ipt>");</script>
-  <script type="text/javascript" src="plotly.min.js"></script>
-
   <script language="javascript" type="text/javascript">
-
     var axisTemplate = {
       // range: [0, 1.6],
       showgrid: false,
@@ -71,7 +59,7 @@
       // }
     };
 
-    var wsUri = "ws://localhost:8080";
+    var wsUri = "ws://localhost:8081";
     var output;
 
     xArray=[];
@@ -221,6 +209,7 @@
 
   <h2>Real-time x-y trace</h2>
 
-  <div id="output"></div>
+  <div id="output" />
 
 </body>
+</html>

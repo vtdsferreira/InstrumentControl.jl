@@ -29,6 +29,7 @@ importall .AlazarModule
 # Utility functions
 include("Reflection.jl")
 include("Sweep.jl")
+include("LiveUpdate.jl")
 # include("Trace3.jl")
 
 end

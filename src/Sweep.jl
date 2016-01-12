@@ -2,15 +2,6 @@
 
 export sweep
 
-function plottype{T<:Real}(dep::Response{T},
-    indep::Tuple{Stimulus, AbstractArray}...)
-
-    nstim = length(indep)
-    plottype = (nstim > 1 ? HeatmapMeasurement : ScatterMeasurement)
-
-
-end
-
 """
 This method is slightly more convenient than the other sweep method
 but not type stable. The return type depends on the number of arguments.
@@ -21,7 +12,7 @@ be minimal performance penalty.
 function sweep{T}(dep::Response{T},
     indep::Tuple{Stimulus,AbstractArray}...; tstep=0)
 
-    sweep(dep, (indep...), tstep=tstep)
+    sweep(dep, (indep...,), tstep=tstep)
 end
 
 """
@@ -40,7 +31,7 @@ The body just measures the response with an optional time delay.
     # Begin expression.
     # Preallocate output memory. We want a multidim. array in column-major order.
     expr = quote
-        notify(LIVE_NEW_MEAS, (dep, indep...) )
+        notify(LIVE_NEW_MEAS, (dep, (indep...)) )
         array = Array{T}([length(a) for (stim, a) in indep]...)
     end
 
@@ -54,7 +45,9 @@ The body just measures the response with an optional time delay.
     # Make the body of the inner for loop.
     body = quote
         sleep(tstep)
-        array[$(inds...)] = measure(dep)
+        data = measure(dep)
+        array[$(inds...)] = data
+        notify(LIVE_DATA, (data, ($(inds...),), ($(vals...),)) )
     end
 
     # Construct our expression
@@ -69,10 +62,11 @@ The body just measures the response with an optional time delay.
     end
 
     # Put the nested for loops into our expression.
-    push!(expr.args, loops[end])
-
+    # Signal end of plot
     # Return the array at the end
+    push!(expr.args, loops[end])
+    push!(expr.args, :(notify(LIVE_DATA, EndOfPlot())))
     push!(expr.args, :array)
 
-    @show expr
+    expr
 end
