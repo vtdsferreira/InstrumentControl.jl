@@ -11,6 +11,7 @@ include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
 export ZNB20
 
 export AutoSweepTime
+export Bandwidth
 export DisplayUpdate
 export SweepTime
 export Window
@@ -50,16 +51,22 @@ responseDictionary = Dict(
     :TriggerSlope   => Dict("POS"  => :RisingTrigger,
                             "NEG"  => :FallingTrigger),
 
-    :TriggerSource  => Dict("INT"  => :InternalTrigger,
+    :TriggerSource  => Dict("IMM"  => :InternalTrigger,
                             "EXT"  => :ExternalTrigger,
                             "MAN"  => :ManualTrigger,
-                            "MULT" => :MultipleTrigger)
+                            "MULT" => :MultipleTrigger),
+
+    :OscillatorSource => Dict("INT" => :InternalOscillator,
+                              "EXT" => :ExternalOscillator)
 )
 
 generate_handlers(ZNB20, responseDictionary)
 
 "Configure or inspect. Does the instrument choose the minimum sweep time?"
 abstract AutoSweepTime <: InstrumentProperty
+
+"Configure or inspect. Measurement / resolution bandwidth. May be rounded."
+abstract Bandwidth     <: InstrumentProperty{Float64}
 
 "Configure or inspect. Display updates during measurement."
 abstract DisplayUpdate <: InstrumentProperty
@@ -83,6 +90,17 @@ function configure(ins::ZNB20, ::Type{AutoSweepTime}, b::Bool, ch::Int=1)
 end
 
 """
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+Set the measurement bandwidth between 1 Hz and 1 MHz
+(option ZNBT-K17 up to 10 MHz).
+Channel `ch` defaults to 1.
+"""
+function configure(ins::ZNB20, ::Type{Bandwidth}, bw::Float64, ch::Int=1)
+    write(ins, "SENSe"*string(ch)*":BWIDth:RESolution "*string(bw))
+end
+
+"""
 [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
 
 Switches display update on / off.
@@ -101,6 +119,15 @@ function configure(ins::ZNB20, ::Type{NumPoints}, n::Int, ch::Int=1)
 end
 
 """
+[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
+
+Select oscillator source: `InternalOscillator`, `ExternalOscillator`
+"""
+function configure{T<:OscillatorSource}(ins::ZNB20, ::Type{T})
+    write(ins, "SENSe1:ROSCillator:SOURce "*code(ins,T))
+end
+
+"""
 [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
@@ -108,6 +135,26 @@ Channel `ch` defaults to 1.
 """
 function configure(ins::ZNB20, ::Type{SweepTime}, time::Real, ch::Int=1)
     write(ins, "SENSe"*string(ch)*":SWEep:TIME "*string(time))
+end
+
+"""
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+Configure the trigger slope: `RisingTrigger`, `FallingTrigger`.
+Channel `ch` defaults to 1.
+"""
+function configure{T<:TriggerSlope}(ins::ZNB20, ::Type{T}, ch::Int=1)
+    write(ins, "TRIGger"*string(ch)*":SLOPe "*code(ins, T))
+end
+
+"""
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/9c62999c5a1642f2.htm)
+
+Configure the trigger source: `InternalTrigger`, `ExternalTrigger`, `ManualTrigger`,
+`MultipleTrigger`. Channel `ch` defaults to 1.
+"""
+function configure{T<:TriggerSource}(ins::ZNB20, ::Type{T}, ch::Int=1)
+    write(ins, "TRIGger"*string(ch)*":SOURce "*code(ins, T))
 end
 
 """
@@ -130,6 +177,16 @@ function inspect(ins::ZNB20, ::Type{AutoSweepTime}, ch::Int=1)
 end
 
 """
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+Inspect the measurement bandwidth.
+Channel `ch` defaults to 1.
+"""
+function inspect(ins::ZNB20, ::Type{Bandwidth}, ch::Int=1)
+    parse(write(ins, "SENSe"*string(ch)*":BWIDth:RESolution?"))
+end
+
+"""
 [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
 
 Is the display updating?
@@ -148,6 +205,15 @@ function inspect(ins::ZNB20, ::Type{NumPoints}, ch::Int=1)
 end
 
 """
+[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
+
+Inspect oscillator source: `InternalOscillator`.
+"""
+function inspect(ins::ZNB20, ::Type{OscillatorSource})
+    OscillatorSource(ins,ask(ins, "SENSe1:ROSCillator:SOURce?"))
+end
+
+"""
 [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
@@ -155,6 +221,24 @@ Channel `ch` defaults to 1.
 """
 function inspect(ins::ZNB20, ::Type{SweepTime}, ch::Int=1)
     parse(ask(ins, "SENSe"*string(ch)*":SWEep:TIME?"))
+end
+
+"""
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+Inspect the trigger slope. Channel `ch` defaults to 1.
+"""
+function inspect(ins::ZNB20, ::Type{TriggerSlope}, ch::Int=1)
+    TriggerSlope(ins, write(ins, "TRIGger"*string(ch)*":SLOPe?"))
+end
+
+"""
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/ZNB_ZNBT_WebHelp_en.htm)
+
+Inspect the trigger source. Channel `ch` defaults to 1.
+"""
+function inspect(ins::ZNB20, ::Type{TriggerSource}, ch::Int=1)
+    TriggerSource(ins, ask(ins, "TRIGger"*string(ch)*":SOURce?"))
 end
 
 """
