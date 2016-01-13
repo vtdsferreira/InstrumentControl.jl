@@ -13,6 +13,7 @@ pages:
     - 'PainterQB': 'api/PainterQB.md'
     - 'E8257D': 'api/E8257D.md'
     - 'E5071C': 'api/E5071C.md'
+    - 'ZNB20': 'api/ZNB20.md'
     - 'AWG5014C': 'api/AWG5014C.md'
     - 'AlazarTech': 'api/AlazarTech.md'
 - Miscellaneous:

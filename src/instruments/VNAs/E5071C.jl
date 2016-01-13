@@ -6,7 +6,7 @@ import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-include("../Metaprogramming.jl")
+include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
 
 export E5071C
 
@@ -28,7 +28,6 @@ export Marker
 export MarkerSearch
 export MarkerX
 export MarkerY
-export NumPoints
 export NumTraces
 export PhaseOffset
 export PointTrigger
@@ -157,7 +156,6 @@ abstract Marker               <: InstrumentProperty
 abstract MarkerSearch         <: InstrumentProperty
 abstract MarkerX              <: InstrumentProperty{Float64}
 abstract MarkerY              <: InstrumentProperty
-abstract NumPoints            <: InstrumentProperty
 abstract NumTraces            <: InstrumentProperty
 abstract PhaseOffset          <: InstrumentProperty{Float64}
 abstract PointTrigger         <: InstrumentProperty

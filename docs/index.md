@@ -30,3 +30,22 @@ ats = AlazarATS9360()
 
 # do something with awg and ats
 ```
+
+Building this documentation
+---------------------------
+In a fresh instance of Julia:
+```
+include(joinpath(Pkg.dir("PainterQB"),"docs/build.jl"))
+```
+
+To process with mkdocs, run the following in the PainterQB pkg. directory:
+```
+mkdocs build --clean
+```
+
+To serve locally or publish to GitHub, run either of the following in the PainterQB pkg. directory:
+
+```
+mkdocs serve
+mkdocs gh-deploy --clean
+```

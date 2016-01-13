@@ -3,15 +3,25 @@ export InstrumentProperty
 export NoArgs
 
 # Properties common to many instruments and representable by codes
-export Coupling, DataRepresentation, TriggerOutputTiming
-export ClockSlope, ClockSource
-export OscillatorSource, TriggerImpedance, TriggerSlope, TriggerSource
-export TriggerOutputPolarity, SampleRate, Search, SParameter
+export Coupling
+export DataRepresentation
+export ClockSlope
+export ClockSource
+export OscillatorSource
+export TriggerImpedance
+export TriggerOutputTiming
+export TriggerOutputPolarity
+export TriggerSlope
+export TriggerSource
+export SampleRate
+export Search
+export SParameter
 
 # Properties common to many instruments and representable by bits types
 export Frequency
 export FrequencyStart
 export FrequencyStop
+export NumPoints
 export Output
 export Power
 export TriggerLevel
@@ -101,6 +111,9 @@ abstract FrequencyStart        <: InstrumentProperty{Float64}
 "Stop frequency of a fixed range."
 abstract FrequencyStop         <: InstrumentProperty{Float64}
 
+"Number of points per sweep."
+abstract NumPoints            <: InstrumentProperty
+
 "Boolean output state of an instrument."
 abstract Output                <: InstrumentProperty{Bool}
 
@@ -185,6 +198,7 @@ subtypesArray = [
     (:ExternalTrigger,          TriggerSource),
     (:ManualTrigger,            TriggerSource),
     (:BusTrigger,               TriggerSource),
+    (:MultipleTrigger,          TriggerSource),
 
 ]::Array{Tuple{Symbol,DataType},1}
 

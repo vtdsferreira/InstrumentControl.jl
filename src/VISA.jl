@@ -1,6 +1,6 @@
 ## Imports
 import VISA
-import Base: read, write, readavailable, reset
+import Base: read, write, readavailable, reset, wait
 
 ## Get the resource manager
 "The default VISA resource manager."
@@ -20,7 +20,7 @@ export binblockwrite, binblockreadavailable
 
 ## Common VISA commands
 export test, reset, identify, clearregisters
-export trigger, aborttrigger
+export trigger, aborttrigger, wait
 
 ## Convenience
 export quoted, unquoted
@@ -119,7 +119,10 @@ clearregisters(ins::InstrumentVISA)  = write(ins, "*CLS")
 trigger(ins::InstrumentVISA)         = write(ins, "*TRG")
 
 "Abort triggering with ABOR."
-aborttrigger(ins::InstrumentVISA)   = write(ins, "ABOR")
+aborttrigger(ins::InstrumentVISA)    = write(ins, "ABOR")
+
+"Wait for completion of a sweep."
+wait(ins::InstrumentVISA)            = write(ins, "*WAI")
 
 ## Convenient functions for parsing and sending strings.
 
@@ -127,4 +130,4 @@ aborttrigger(ins::InstrumentVISA)   = write(ins, "ABOR")
 quoted(str::ASCIIString) = "\""*str*"\""
 
 "Strip a string of enclosing quotation marks."
-unquoted(str::ASCIIString) = strip(str,"\"")
+unquoted(str::ASCIIString) = strip(str,['"','\''])

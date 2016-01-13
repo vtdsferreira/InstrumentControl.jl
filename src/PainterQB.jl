@@ -13,7 +13,8 @@ include("VISA.jl")
 include("sourcemeasure/SourceMeasure.jl")
 
 # Various instruments
-include("instruments/E5071C.jl")
+include("instruments/VNAs/E5071C.jl")
+include("instruments/VNAs/ZNB20.jl")
 include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
 include("instruments/Alazar/Alazar.jl")
@@ -22,6 +23,7 @@ include("instruments/Alazar/Alazar.jl")
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 #
 importall .E5071CModule
+importall .ZNB20Module
 importall .E8257DModule
 importall .AWG5014CModule
 importall .AlazarModule
@@ -39,6 +41,7 @@ using PainterQB.AWG5014CModule
 using PainterQB.AlazarModule
 using PainterQB.E5071CModule
 using PainterQB.E8257DModule
+using PainterQB.ZNB20Module
 
 const PARALLEL_PATH = joinpath(Pkg.dir("PainterQB"), "src", "ParallelUtils.jl")
 

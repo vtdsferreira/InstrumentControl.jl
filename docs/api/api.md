@@ -57,11 +57,17 @@
 
 [source(ch::PainterQB.DelayStimulus,  val::Real)](PainterQB.md#method__source.1)  Wait until `val` seconds have elapsed since `ch` was initialized or reset.
 
-[source(ch::PainterQB.PropertyStimulus{T<:PainterQB.InstrumentProperty{Number}},  val::Real)](PainterQB.md#method__source.2)  Sourcing a PropertyStimulus configures an InstrumentProperty.
+[source(ch::PainterQB.DummyStimulus)](PainterQB.md#method__source.2)  Returns a random number in the unit interval.
 
-[source(ch::PainterQB.ThreadStimulus,  nw::Int64)](PainterQB.md#method__source.3)  Adds or removes threads to reach the desired number of worker threads.
+[source(ch::PainterQB.PropertyStimulus{T<:PainterQB.InstrumentProperty{Number}},  val::Real)](PainterQB.md#method__source.3)  Sourcing a PropertyStimulus configures an InstrumentProperty.
 
-[source{T}(ch::PainterQB.ResponseStimulus{T},  val)](PainterQB.md#method__source.4)  Sets the field named `:name` in the `Response` held by `ch` to `val`.
+[source(ch::PainterQB.ThreadStimulus,  nw::Int64)](PainterQB.md#method__source.4)  Adds or removes threads to reach the desired number of worker threads.
+
+[source{T}(ch::PainterQB.ResponseStimulus{T},  val)](PainterQB.md#method__source.5)  Sets the field named `:name` in the `Response` held by `ch` to `val`.
+
+[sweep{T<:Real, N}(dep::PainterQB.Response{T<:Real},  indep::NTuple{N, Tuple{PainterQB.Stimulus, AbstractArray{T, N}}})](PainterQB.md#method__sweep.1)  Measures a response as a function of an arbitrary number of stimuli.
+
+[sweep{T}(dep::PainterQB.Response{T},  indep::Tuple{PainterQB.Stimulus, AbstractArray{T, N}}...)](PainterQB.md#method__sweep.2)  This method is slightly more convenient than the other sweep method
 
 [tcpip_instr(ip)](PainterQB.md#method__tcpip_instr.1)  Returns a INSTR `viSession` for the given IPv4 address string.
 
@@ -72,6 +78,8 @@
 [trigger(ins::PainterQB.InstrumentVISA)](PainterQB.md#method__trigger.1)  Bus trigger with *TRG.
 
 [unquoted(str::ASCIIString)](PainterQB.md#method__unquoted.1)  Strip a string of enclosing quotation marks.
+
+[wait(ins::PainterQB.InstrumentVISA)](PainterQB.md#method__wait.1)  Wait for completion of a sweep.
 
 [write(ins::PainterQB.InstrumentVISA,  msg::ASCIIString)](PainterQB.md#method__write.1)  Write to an instrument. Appends the instrument's write terminator.
 
@@ -91,6 +99,8 @@
 
 [PainterQB.DelayStimulus](PainterQB.md#type__delaystimulus.1)  A stimulus for delaying until time has passed since a reference time t0.
 
+[PainterQB.DummyStimulus](PainterQB.md#type__dummystimulus.1)  Random number response suitable for testing the measurement code without having
+
 [PainterQB.Frequency](PainterQB.md#type__frequency.1)  Fixed frequency of a sourced signal.
 
 [PainterQB.FrequencyStart](PainterQB.md#type__frequencystart.1)  Start frequency of a fixed range.
@@ -106,6 +116,8 @@
 [PainterQB.InstrumentVISA](PainterQB.md#type__instrumentvisa.1)  Abstract supertype of all Instruments addressable using a VISA library.
 
 [PainterQB.NoArgs](PainterQB.md#type__noargs.1)  Used internally to indicate that a property takes no argument.
+
+[PainterQB.NumPoints](PainterQB.md#type__numpoints.1)  Number of points per sweep.
 
 [PainterQB.OscillatorSource](PainterQB.md#type__oscillatorsource.1)  Oscillator source can be internal or external.
 
@@ -161,6 +173,16 @@
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](PainterQB.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
 
+---
+
+## Globals [Internal]
+
+[LIVE_DATA](PainterQB.md#global__live_data.1)  Condition indicating more data for a live update.
+
+[LIVE_DIE](PainterQB.md#global__live_die.1)  Condition indicating the end of a live update.
+
+[LIVE_NEW_MEAS](PainterQB.md#global__live_new_meas.1)  Condition indicating the start of a live update.
+
 ## MODULE: PainterQB.E5071CModule
 
 ---
@@ -186,6 +208,106 @@
 [generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](E5071C.md#method__generate_inspect.2)  This method will
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](E5071C.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+## MODULE: PainterQB.ZNB20Module
+
+---
+
+## Methods [Exported]
+
+[cd(ins::PainterQB.ZNB20Module.ZNB20,  dir::AbstractString)](ZNB20.md#method__cd.1)  [MMEMory:CDIRectory](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87010.htm)
+
+[cp(ins::PainterQB.ZNB20Module.ZNB20,  src::AbstractString,  dest::AbstractString)](ZNB20.md#method__cp.1)  [MMEMory:COPY](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87048.htm)
+
+[hidetrace(ins::PainterQB.ZNB20Module.ZNB20,  win::Int64,  wtrace::Int64)](ZNB20.md#method__hidetrace.1)  [DISPLAY:WINDOW#:TRACE#:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/35e75331f5ce4fce.htm)
+
+[lstrace(ins::PainterQB.ZNB20Module.ZNB20,  ch::Int64)](ZNB20.md#method__lstrace.1)  [CALCULATE#:PARAMETER:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/2ce049f1af684d21.htm)
+
+[mkdir(ins::PainterQB.ZNB20Module.ZNB20,  dir::AbstractString)](ZNB20.md#method__mkdir.1)  [MMEMory:MDIRectory](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e89416.htm)
+
+[mktrace(ins::PainterQB.ZNB20Module.ZNB20,  name::AbstractString,  parameter,  ch::Int64)](ZNB20.md#method__mktrace.1)  [CALCulate#:PARameter:SDEFine](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/e75d49e2a14541c5.htm)
+
+[pwd(ins::PainterQB.ZNB20Module.ZNB20)](ZNB20.md#method__pwd.1)  [MMEMory:CDIRectory?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87010.htm)
+
+[readdir(ins::PainterQB.ZNB20Module.ZNB20)](ZNB20.md#method__readdir.1)  [MMEMory:CATalog?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm)
+
+[readdir(ins::PainterQB.ZNB20Module.ZNB20,  dir::AbstractString)](ZNB20.md#method__readdir.2)  [MMEMory:CATalog?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm)
+
+[rm(ins::PainterQB.ZNB20Module.ZNB20,  file::AbstractString)](ZNB20.md#method__rm.1)  [MMEMory:DELete](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87202.htm)
+
+[rmtrace(ins::PainterQB.ZNB20Module.ZNB20)](ZNB20.md#method__rmtrace.1)  [CALCulate:PARameter:DELete:ALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e69977.htm)
+
+[rmtrace(ins::PainterQB.ZNB20Module.ZNB20,  ch::Int64)](ZNB20.md#method__rmtrace.2)  [CALCulate#:PARameter:DELete:CALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8d937272d97244fb.htm)
+
+[rmtrace(ins::PainterQB.ZNB20Module.ZNB20,  name::AbstractString,  ch::Int64)](ZNB20.md#method__rmtrace.3)  [CALCULATE#:PARAMETER:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/0763f74d0a2d4d61.htm)
+
+[showtrace(ins::PainterQB.ZNB20Module.ZNB20,  name::AbstractString,  win::Int64,  wtrace::Int64)](ZNB20.md#method__showtrace.1)  [DISPLAY:WINDOW#:TRACE#:FEED](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/58dad852e7db48a0.htm)
+
+---
+
+## Types [Exported]
+
+[PainterQB.ZNB20Module.AutoSweepTime](ZNB20.md#type__autosweeptime.1)  Configure or inspect. Does the instrument choose the minimum sweep time?
+
+[PainterQB.ZNB20Module.DisplayUpdate](ZNB20.md#type__displayupdate.1)  Configure or inspect. Display updates during measurement.
+
+[PainterQB.ZNB20Module.SweepTime](ZNB20.md#type__sweeptime.1)  Configure or inspect. Adjust time it takes to complete a sweep (all partial measurements).
+
+[PainterQB.ZNB20Module.Window](ZNB20.md#type__window.1)  `InstrumentProperty`: Window.
+
+---
+
+## Methods [Internal]
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  n::Int64)](ZNB20.md#method__configure.1)  [SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  n::Int64,  ch::Int64)](ZNB20.md#method__configure.2)  [SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool)](ZNB20.md#method__configure.3)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool,  ch::Int64)](ZNB20.md#method__configure.4)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate},  b::Bool)](ZNB20.md#method__configure.5)  [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real)](ZNB20.md#method__configure.6)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real,  ch::Int64)](ZNB20.md#method__configure.7)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  b::Bool,  win::Int64)](ZNB20.md#method__configure.8)  [DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm)
+
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](ZNB20.md#method__generate_configure.1)  This method generates the following method in the module where
+
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](ZNB20.md#method__generate_configure.2)  This method generates the following method in the module where
+
+[generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](ZNB20.md#method__generate_configure.3)  This method generates the following method in the module where
+
+[generate_handlers{T<:PainterQB.Instrument}(insType::Type{T<:PainterQB.Instrument},  responseDict::Dict{K, V})](ZNB20.md#method__generate_handlers.1)  Each instrument can have a `responseDict`. For each setting of the instrument,
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs})](ZNB20.md#method__generate_inspect.1)  This method does/returns nothing.
+
+[generate_inspect{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}},  returntype...)](ZNB20.md#method__generate_inspect.2)  This method will
+
+[generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](ZNB20.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints})](ZNB20.md#method__inspect.1)  [SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  ch::Int64)](ZNB20.md#method__inspect.2)  [SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime})](ZNB20.md#method__inspect.3)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  ch::Int64)](ZNB20.md#method__inspect.4)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate})](ZNB20.md#method__inspect.5)  [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime})](ZNB20.md#method__inspect.6)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  ch::Int64)](ZNB20.md#method__inspect.7)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  win::Int64)](ZNB20.md#method__inspect.8)  Determines if a window exists, by window number. See `lswindow`.
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  wname::AbstractString)](ZNB20.md#method__inspect.9)  Determines if a window exists, by window name. See `lswindow`.
+
+[lswindows(ins::PainterQB.ZNB20Module.ZNB20)](ZNB20.md#method__lswindows.1)  [DISPLAY:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/abdd1db5dc0c48ee.htm)
 
 ## MODULE: PainterQB.E8257DModule
 
@@ -581,7 +703,7 @@
 
 [measure(ch::PainterQB.AlazarModule.AlazarResponse{T})](AlazarTech.md#method__measure.1)  Largely generic method for measuring `AlazarResponse`. Can be considered a
 
-[measure(ch::PainterQB.AlazarModule.FFTSoftwareResponse{T})](AlazarTech.md#method__measure.2)  Largely generic method for measuring `AlazarResponse`. Can be considered a
+[measure(ch::PainterQB.AlazarModule.IQSoftwareResponse{T})](AlazarTech.md#method__measure.2)  Assume two-channel IQ FFT acquisition.
 
 [post_async_buffer(a::PainterQB.AlazarModule.InstrumentAlazar,  buffer,  bufferLength)](AlazarTech.md#method__post_async_buffer.1)  Post an asynchronous buffer to the digitizer for use in an acquisition.
 
@@ -699,11 +821,13 @@
 
 [generate_properties{S<:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S<:PainterQB.InstrumentProperty{T}})](AlazarTech.md#method__generate_properties.1)  Creates and exports immutable singleton subtypes.
 
+[iqfft(sam_per_buf::Int64,  buf_completed::Int64,  rec_per_buf::Int64,  backing::SharedArray{T, N},  fft_array::SharedArray{T, N})](AlazarTech.md#method__iqfft.1)  Convert and copy
+
 [scaling{T<:AbstractArray{T, N}}(resp::PainterQB.AlazarModule.FFTResponse{T<:AbstractArray{T, N}})](AlazarTech.md#method__scaling.1)  Returns the axis scaling for an FFT response.
 
 [scaling{T<:AbstractArray{T, N}}(resp::PainterQB.AlazarModule.FFTResponse{T<:AbstractArray{T, N}},  whichaxis::Integer)](AlazarTech.md#method__scaling.2)  Returns the axis scaling for an FFT response.
 
-[tofloat!(sam_per_buf::Integer,  buf_completed::Integer,  backing::SharedArray{T, N})](AlazarTech.md#method__tofloat.1)  Arrange multithreaded conversion of the Alazar 12-bit integer format to 16-bit
+[tofloat!(sam_per_buf::Int64,  buf_completed::Int64,  backing::SharedArray{T, N})](AlazarTech.md#method__tofloat.1)  Arrange multithreaded conversion of the Alazar 12-bit integer format to 16-bit
 
 [triglevel(a::PainterQB.AlazarModule.AlazarATS9360,  x)](AlazarTech.md#method__triglevel.1)  Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 

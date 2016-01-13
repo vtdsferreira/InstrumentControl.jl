@@ -44,7 +44,7 @@ approach.
   memory between Julia code and Javascript code, somehow. May be worth
   asking for clarification.
   - [Escher.jl](http://escher-jl.org/) looks intriguing but appears to be in
-  early development. Would probably take quite a bit of work to get this working.
+  development. Would probably take quite a bit of work to get this working.
 
 - There are two places where notifications could be emitted for plotting:
 in `measure` or in `sweep`. Some thought should be given to how best to do this.
