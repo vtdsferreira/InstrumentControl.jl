@@ -110,6 +110,12 @@
                         
                             
 <li >
+    <a href="api/ZNB20/">ZNB20</a>
+</li>
+
+                        
+                            
+<li >
     <a href="api/AWG5014C/">AWG5014C</a>
 </li>
 
@@ -192,6 +198,8 @@
         
             <li><a href="#quick-start">Quick start</a></li>
         
+            <li><a href="#building-this-documentation">Building this documentation</a></li>
+        
     
     </ul>
 </div></div>
@@ -220,6 +228,20 @@ awg = AWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
 ats = AlazarATS9360()
 
 # do something with awg and ats
+</code></pre>
+
+<h2 id="building-this-documentation">Building this documentation</h2>
+<p>In a fresh instance of Julia:</p>
+<pre><code>include(joinpath(Pkg.dir(&quot;PainterQB&quot;),&quot;docs/build.jl&quot;))
+</code></pre>
+
+<p>To process with mkdocs, run the following in the PainterQB pkg. directory:</p>
+<pre><code>mkdocs build --clean
+</code></pre>
+
+<p>To serve locally or publish to GitHub, run either of the following in the PainterQB pkg. directory:</p>
+<pre><code>mkdocs serve
+mkdocs gh-deploy --clean
 </code></pre></div>
             
         </div>
@@ -267,5 +289,5 @@ ats = AlazarATS9360()
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-01-08 02:52:31.928000
+Build Date UTC : 2016-01-13 20:45:29.040000
 -->

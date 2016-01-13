@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+	<title>ZNB20 - PainterQB.jl</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">PainterQB.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Overview <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../design/">Design</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../implementation/">Implementation</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../api/">Index</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../PainterQB/">PainterQB</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../E8257D/">E8257D</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../E5071C/">E5071C</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">ZNB20</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../AWG5014C/">AWG5014C</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../AlazarTech/">AlazarTech</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Miscellaneous <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../../releases/">Release notes</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../../LICENSE/">License</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../E5071C/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../AWG5014C/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/ajkeller34/PainterQB.jl/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#painterqbznb20module">PainterQB.ZNB20Module</a></li>
+        
+            <li><a href="#methods-exported">Methods [Exported]</a></li>
+        
+            <li><a href="#types-exported">Types [Exported]</a></li>
+        
+            <li><a href="#methods-internal">Methods [Internal]</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="painterqbznb20module">PainterQB.ZNB20Module</h1>
+<h2 id="methods-exported">Methods [Exported]</h2>
+<hr />
+<p><a id="method__cd.1" class="lexicon_definition"></a></p>
+<h4 id="cdinspainterqbznb20moduleznb20-dirabstractstring">cd(ins::PainterQB.ZNB20Module.ZNB20,  dir::AbstractString) <a href="#method__cd.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87010.htm">MMEMory:CDIRectory</a></p>
+<p>Change directories. Pass "~" for default.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L184">PainterQB\src\instruments\VNAs\ZNB20.jl:184</a></p>
+<hr />
+<p><a id="method__cp.1" class="lexicon_definition"></a></p>
+<h4 id="cpinspainterqbznb20moduleznb20-srcabstractstring-destabstractstring">cp(ins::PainterQB.ZNB20Module.ZNB20,  src::AbstractString,  dest::AbstractString) <a href="#method__cp.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87048.htm">MMEMory:COPY</a></p>
+<p>Copy a file.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L197">PainterQB\src\instruments\VNAs\ZNB20.jl:197</a></p>
+<hr />
+<p><a id="method__hidetrace.1" class="lexicon_definition"></a></p>
+<h4 id="hidetraceinspainterqbznb20moduleznb20-winint64-wtraceint64">hidetrace(ins::PainterQB.ZNB20Module.ZNB20,  win::Int64,  wtrace::Int64) <a href="#method__hidetrace.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/35e75331f5ce4fce.htm">DISPLAY:WINDOW#:TRACE#:DELETE</a></p>
+<p>Releases the assignment of window trace <code>wtrace</code> to window <code>win</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L206">PainterQB\src\instruments\VNAs\ZNB20.jl:206</a></p>
+<hr />
+<p><a id="method__lstrace.1" class="lexicon_definition"></a></p>
+<h4 id="lstraceinspainterqbznb20moduleznb20-chint64">lstrace(ins::PainterQB.ZNB20Module.ZNB20,  ch::Int64) <a href="#method__lstrace.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/2ce049f1af684d21.htm">CALCULATE#:PARAMETER:CATALOG?</a></p>
+<p>Report the traces assigned to a given channel.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L215">PainterQB\src\instruments\VNAs\ZNB20.jl:215</a></p>
+<hr />
+<p><a id="method__mkdir.1" class="lexicon_definition"></a></p>
+<h4 id="mkdirinspainterqbznb20moduleznb20-dirabstractstring">mkdir(ins::PainterQB.ZNB20Module.ZNB20,  dir::AbstractString) <a href="#method__mkdir.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e89416.htm">MMEMory:MDIRectory</a></p>
+<p>Make a directory.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L240">PainterQB\src\instruments\VNAs\ZNB20.jl:240</a></p>
+<hr />
+<p><a id="method__mktrace.1" class="lexicon_definition"></a></p>
+<h4 id="mktraceinspainterqbznb20moduleznb20-nameabstractstring-parameter-chint64">mktrace(ins::PainterQB.ZNB20Module.ZNB20,  name::AbstractString,  parameter,  ch::Int64) <a href="#method__mktrace.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/e75d49e2a14541c5.htm">CALCulate#:PARameter:SDEFine</a></p>
+<p>Create a new trace with <code>name</code> and measurement <code>parameter</code> on channel <code>ch</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L249">PainterQB\src\instruments\VNAs\ZNB20.jl:249</a></p>
+<hr />
+<p><a id="method__pwd.1" class="lexicon_definition"></a></p>
+<h4 id="pwdinspainterqbznb20moduleznb20">pwd(ins::PainterQB.ZNB20Module.ZNB20) <a href="#method__pwd.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87010.htm">MMEMory:CDIRectory?</a></p>
+<p>Print the working directory.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L260">PainterQB\src\instruments\VNAs\ZNB20.jl:260</a></p>
+<hr />
+<p><a id="method__readdir.1" class="lexicon_definition"></a></p>
+<h4 id="readdirinspainterqbznb20moduleznb20">readdir(ins::PainterQB.ZNB20Module.ZNB20) <a href="#method__readdir.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm">MMEMory:CATalog?</a></p>
+<p>Read the directory contents.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L269">PainterQB\src\instruments\VNAs\ZNB20.jl:269</a></p>
+<hr />
+<p><a id="method__readdir.2" class="lexicon_definition"></a></p>
+<h4 id="readdirinspainterqbznb20moduleznb20-dirabstractstring">readdir(ins::PainterQB.ZNB20Module.ZNB20,  dir::AbstractString) <a href="#method__readdir.2">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm">MMEMory:CATalog?</a></p>
+<p>Read the directory contents.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L269">PainterQB\src\instruments\VNAs\ZNB20.jl:269</a></p>
+<hr />
+<p><a id="method__rm.1" class="lexicon_definition"></a></p>
+<h4 id="rminspainterqbznb20moduleznb20-fileabstractstring">rm(ins::PainterQB.ZNB20Module.ZNB20,  file::AbstractString) <a href="#method__rm.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87202.htm">MMEMory:DELete</a></p>
+<p>Remove a file.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L282">PainterQB\src\instruments\VNAs\ZNB20.jl:282</a></p>
+<hr />
+<p><a id="method__rmtrace.1" class="lexicon_definition"></a></p>
+<h4 id="rmtraceinspainterqbznb20moduleznb20">rmtrace(ins::PainterQB.ZNB20Module.ZNB20) <a href="#method__rmtrace.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e69977.htm">CALCulate:PARameter:DELete:ALL</a></p>
+<p>Deletes all traces in all channels.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L310">PainterQB\src\instruments\VNAs\ZNB20.jl:310</a></p>
+<hr />
+<p><a id="method__rmtrace.2" class="lexicon_definition"></a></p>
+<h4 id="rmtraceinspainterqbznb20moduleznb20-chint64">rmtrace(ins::PainterQB.ZNB20Module.ZNB20,  ch::Int64) <a href="#method__rmtrace.2">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8d937272d97244fb.htm">CALCulate#:PARameter:DELete:CALL</a></p>
+<p>Deletes all traces in the given channel.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L301">PainterQB\src\instruments\VNAs\ZNB20.jl:301</a></p>
+<hr />
+<p><a id="method__rmtrace.3" class="lexicon_definition"></a></p>
+<h4 id="rmtraceinspainterqbznb20moduleznb20-nameabstractstring-chint64">rmtrace(ins::PainterQB.ZNB20Module.ZNB20,  name::AbstractString,  ch::Int64) <a href="#method__rmtrace.3">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/0763f74d0a2d4d61.htm">CALCULATE#:PARAMETER:DELETE</a></p>
+<p>Remove trace with name <code>name</code> from channel <code>ch</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L292">PainterQB\src\instruments\VNAs\ZNB20.jl:292</a></p>
+<hr />
+<p><a id="method__showtrace.1" class="lexicon_definition"></a></p>
+<h4 id="showtraceinspainterqbznb20moduleznb20-nameabstractstring-winint64-wtraceint64">showtrace(ins::PainterQB.ZNB20Module.ZNB20,  name::AbstractString,  win::Int64,  wtrace::Int64) <a href="#method__showtrace.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/58dad852e7db48a0.htm">DISPLAY:WINDOW#:TRACE#:FEED</a></p>
+<p>Show a trace named <code>name</code> in window <code>win::Int</code> as
+window trace number <code>wtrace::Int</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L321">PainterQB\src\instruments\VNAs\ZNB20.jl:321</a></p>
+<h2 id="types-exported">Types [Exported]</h2>
+<hr />
+<p><a id="type__autosweeptime.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbznb20moduleautosweeptime">PainterQB.ZNB20Module.AutoSweepTime <a href="#type__autosweeptime.1">¶</a></h4>
+<p>Configure or inspect. Does the instrument choose the minimum sweep time?</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L62">PainterQB\src\instruments\VNAs\ZNB20.jl:62</a></p>
+<hr />
+<p><a id="type__displayupdate.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbznb20moduledisplayupdate">PainterQB.ZNB20Module.DisplayUpdate <a href="#type__displayupdate.1">¶</a></h4>
+<p>Configure or inspect. Display updates during measurement.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L65">PainterQB\src\instruments\VNAs\ZNB20.jl:65</a></p>
+<hr />
+<p><a id="type__sweeptime.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbznb20modulesweeptime">PainterQB.ZNB20Module.SweepTime <a href="#type__sweeptime.1">¶</a></h4>
+<p>Configure or inspect. Adjust time it takes to complete a sweep (all partial measurements).</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L68">PainterQB\src\instruments\VNAs\ZNB20.jl:68</a></p>
+<hr />
+<p><a id="type__window.1" class="lexicon_definition"></a></p>
+<h4 id="painterqbznb20modulewindow">PainterQB.ZNB20Module.Window <a href="#type__window.1">¶</a></h4>
+<p><code>InstrumentProperty</code>: Window.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L71">PainterQB\src\instruments\VNAs\ZNB20.jl:71</a></p>
+<h2 id="methods-internal">Methods [Internal]</h2>
+<hr />
+<p><a id="method__configure.1" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbnumpoints-nint64">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  n::Int64) <a href="#method__configure.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm">SENSE#:SWEEP:POINTS</a></p>
+<p>Define measurement points per sweep. Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L100">PainterQB\src\instruments\VNAs\ZNB20.jl:100</a></p>
+<hr />
+<p><a id="method__configure.2" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbnumpoints-nint64-chint64">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  n::Int64,  ch::Int64) <a href="#method__configure.2">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm">SENSE#:SWEEP:POINTS</a></p>
+<p>Define measurement points per sweep. Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L100">PainterQB\src\instruments\VNAs\ZNB20.jl:100</a></p>
+<hr />
+<p><a id="method__configure.3" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbznb20moduleautosweeptime-bbool">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool) <a href="#method__configure.3">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm">SENSE#:SWEEP:TIME:AUTO</a></p>
+<p>Determines whether or not the instrument chooses the minimum sweep time,
+including all partial measurements. Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L83">PainterQB\src\instruments\VNAs\ZNB20.jl:83</a></p>
+<hr />
+<p><a id="method__configure.4" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbznb20moduleautosweeptime-bbool-chint64">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool,  ch::Int64) <a href="#method__configure.4">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm">SENSE#:SWEEP:TIME:AUTO</a></p>
+<p>Determines whether or not the instrument chooses the minimum sweep time,
+including all partial measurements. Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L83">PainterQB\src\instruments\VNAs\ZNB20.jl:83</a></p>
+<hr />
+<p><a id="method__configure.5" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbznb20moduledisplayupdate-bbool">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate},  b::Bool) <a href="#method__configure.5">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm">SYSTEM:DISPLAY:UPDATE</a></p>
+<p>Switches display update on / off.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L91">PainterQB\src\instruments\VNAs\ZNB20.jl:91</a></p>
+<hr />
+<p><a id="method__configure.6" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbznb20modulesweeptime-timereal">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real) <a href="#method__configure.6">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm">SENSE#:SWEEP:TIME</a></p>
+<p>Define the time to complete a sweep, including all partial measurements.
+Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L111">PainterQB\src\instruments\VNAs\ZNB20.jl:111</a></p>
+<hr />
+<p><a id="method__configure.7" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbznb20modulesweeptime-timereal-chint64">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real,  ch::Int64) <a href="#method__configure.7">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm">SENSE#:SWEEP:TIME</a></p>
+<p>Define the time to complete a sweep, including all partial measurements.
+Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L111">PainterQB\src\instruments\VNAs\ZNB20.jl:111</a></p>
+<hr />
+<p><a id="method__configure.8" class="lexicon_definition"></a></p>
+<h4 id="configureinspainterqbznb20moduleznb20-typepainterqbznb20modulewindow-bbool-winint64">configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  b::Bool,  win::Int64) <a href="#method__configure.8">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm">DISPLAY:WINDOW#:STATE</a></p>
+<p>Turn a window on or off.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L119">PainterQB\src\instruments\VNAs\ZNB20.jl:119</a></p>
+<hr />
+<p><a id="method__generate_configure.1" class="lexicon_definition"></a></p>
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}}) <a href="#method__generate_configure.1">¶</a></h4>
+<p>This method generates the following method in the module where
+<code>generate_configure</code> is defined:</p>
+<pre><code>configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
+</code></pre>
+
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L82">PainterQB\src\Metaprogramming.jl:82</a></p>
+<hr />
+<p><a id="method__generate_configure.2" class="lexicon_definition"></a></p>
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-typepainterqbnoargs">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs}) <a href="#method__generate_configure.2">¶</a></h4>
+<p>This method generates the following method in the module where
+<code>generate_configure</code> is defined:</p>
+<pre><code>configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
+</code></pre>
+
+<p>This particular method will be deprecated soon.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L122">PainterQB\src\Metaprogramming.jl:122</a></p>
+<hr />
+<p><a id="method__generate_configure.3" class="lexicon_definition"></a></p>
+<h4 id="generate_configurespainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-returntype">generate_configure{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  returntype...) <a href="#method__generate_configure.3">¶</a></h4>
+<p>This method generates the following method in the module where
+<code>generate_configure</code> is defined:</p>
+<pre><code>configure(ins::InsType, Property, values..., infixes...)
+</code></pre>
+
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L151">PainterQB\src\Metaprogramming.jl:151</a></p>
+<hr />
+<p><a id="method__generate_handlers.1" class="lexicon_definition"></a></p>
+<h4 id="generate_handlerstpainterqbinstrumentinstypetypetpainterqbinstrument-responsedictdictk-v">generate_handlers{T&lt;:PainterQB.Instrument}(insType::Type{T&lt;:PainterQB.Instrument},  responseDict::Dict{K, V}) <a href="#method__generate_handlers.1">¶</a></h4>
+<p>Each instrument can have a <code>responseDict</code>. For each setting of the instrument,
+for instance the <code>ClockSource</code>, we need to know the correspondence between a
+logical state <code>ExternalClock</code> and how the instrument encodes that logical state
+(e.g. "EXT").</p>
+<p>The <code>responseDict</code> is actually a dictionary of dictionaries. The first level keys
+are like <code>ClockSource</code> and the second level keys are like "EXT", with the value
+being <code>:ExternalClock</code>. Undoubtedly
+this nested dictionary is "nasty" (in the technical parlance) but the dictionary
+is only used for code
+creation and is not used at run-time (if the code works as intended).</p>
+<p>This method makes a lot of other functions. Given some response from an instrument,
+we require a function to map that response back on to the appropiate logical state.</p>
+<p><code>ClockSource(ins::AWG5014C, res::AbstractString)</code>
+returns an <code>InternalClock</code> or <code>ExternalClock</code> type as appropriate,
+based on the logical meaning of the response.</p>
+<p>We also want a function to generate logical states without having to know the way
+they are encoded by the instrument.</p>
+<p><code>code(ins::AWG5014C, ::Type{InternalClock})</code> returns "INT",
+with "INT" encoding how to pass this logical state to the instrument <code>ins</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L218">PainterQB\src\Metaprogramming.jl:218</a></p>
+<hr />
+<p><a id="method__generate_inspect.1" class="lexicon_definition"></a></p>
+<h4 id="generate_inspectspainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-typepainterqbnoargs">generate_inspect{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  ::Type{PainterQB.NoArgs}) <a href="#method__generate_inspect.1">¶</a></h4>
+<p>This method does/returns nothing.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L14">PainterQB\src\Metaprogramming.jl:14</a></p>
+<hr />
+<p><a id="method__generate_inspect.2" class="lexicon_definition"></a></p>
+<h4 id="generate_inspectspainterqbinstrument-tpainterqbinstrumentpropertytinstypetypespainterqbinstrument-commandasciistring-proptypetypetpainterqbinstrumentpropertyt-returntype">generate_inspect{S&lt;:PainterQB.Instrument, T&lt;:PainterQB.InstrumentProperty{T}}(instype::Type{S&lt;:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T&lt;:PainterQB.InstrumentProperty{T}},  returntype...) <a href="#method__generate_inspect.2">¶</a></h4>
+<p>This method will
+generate the following method in the module where <code>generate_inspect</code> is defined:</p>
+<p><code>inspect(ins::instype, ::Type{proptype}, infixes::Int...)</code></p>
+<p>The <code>infixes</code> variable argument allows for numbers to be inserted within the
+commands, for instance in <code>OUTP#:FILT:FREQ</code>, where the <code>#</code> sign should be
+replaced by an integer. The replacements are done in the order of the arguments.
+Error checking is done on the number of arguments.</p>
+<p>For a given property, <code>inspect</code> will return either an InstrumentProperty subtype,
+a number, a boolean, or a string as appropriate.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L33">PainterQB\src\Metaprogramming.jl:33</a></p>
+<hr />
+<p><a id="method__generate_properties.1" class="lexicon_definition"></a></p>
+<h4 id="generate_propertiesspainterqbinstrumentpropertytsubtypesymbol-supertypetypespainterqbinstrumentpropertyt">generate_properties{S&lt;:PainterQB.InstrumentProperty{T}}(subtype::Symbol,  supertype::Type{S&lt;:PainterQB.InstrumentProperty{T}}) <a href="#method__generate_properties.1">¶</a></h4>
+<p>Creates and exports immutable singleton subtypes.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L183">PainterQB\src\Metaprogramming.jl:183</a></p>
+<hr />
+<p><a id="method__inspect.1" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbnumpoints">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints}) <a href="#method__inspect.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm">SENSE#:SWEEP:POINTS</a></p>
+<p>How many measurement points per sweep? Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L147">PainterQB\src\instruments\VNAs\ZNB20.jl:147</a></p>
+<hr />
+<p><a id="method__inspect.2" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbnumpoints-chint64">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  ch::Int64) <a href="#method__inspect.2">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm">SENSE#:SWEEP:POINTS</a></p>
+<p>How many measurement points per sweep? Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L147">PainterQB\src\instruments\VNAs\ZNB20.jl:147</a></p>
+<hr />
+<p><a id="method__inspect.3" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20moduleautosweeptime">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime}) <a href="#method__inspect.3">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm">SENSE#:SWEEP:TIME:AUTO</a></p>
+<p>Does the instrument choose the minimum sweep time,
+including all partial measurements? Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L130">PainterQB\src\instruments\VNAs\ZNB20.jl:130</a></p>
+<hr />
+<p><a id="method__inspect.4" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20moduleautosweeptime-chint64">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  ch::Int64) <a href="#method__inspect.4">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm">SENSE#:SWEEP:TIME:AUTO</a></p>
+<p>Does the instrument choose the minimum sweep time,
+including all partial measurements? Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L130">PainterQB\src\instruments\VNAs\ZNB20.jl:130</a></p>
+<hr />
+<p><a id="method__inspect.5" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20moduledisplayupdate">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate}) <a href="#method__inspect.5">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm">SYSTEM:DISPLAY:UPDATE</a></p>
+<p>Is the display updating?</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L138">PainterQB\src\instruments\VNAs\ZNB20.jl:138</a></p>
+<hr />
+<p><a id="method__inspect.6" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20modulesweeptime">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime}) <a href="#method__inspect.6">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm">SENSE#:SWEEP:TIME</a></p>
+<p>Define the time to complete a sweep, including all partial measurements.
+Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L158">PainterQB\src\instruments\VNAs\ZNB20.jl:158</a></p>
+<hr />
+<p><a id="method__inspect.7" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20modulesweeptime-chint64">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  ch::Int64) <a href="#method__inspect.7">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm">SENSE#:SWEEP:TIME</a></p>
+<p>Define the time to complete a sweep, including all partial measurements.
+Channel <code>ch</code> defaults to 1.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L158">PainterQB\src\instruments\VNAs\ZNB20.jl:158</a></p>
+<hr />
+<p><a id="method__inspect.8" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20modulewindow-winint64">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  win::Int64) <a href="#method__inspect.8">¶</a></h4>
+<p>Determines if a window exists, by window number. See <code>lswindow</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L163">PainterQB\src\instruments\VNAs\ZNB20.jl:163</a></p>
+<hr />
+<p><a id="method__inspect.9" class="lexicon_definition"></a></p>
+<h4 id="inspectinspainterqbznb20moduleznb20-typepainterqbznb20modulewindow-wnameabstractstring">inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  wname::AbstractString) <a href="#method__inspect.9">¶</a></h4>
+<p>Determines if a window exists, by window name. See <code>lswindow</code>.</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L171">PainterQB\src\instruments\VNAs\ZNB20.jl:171</a></p>
+<hr />
+<p><a id="method__lswindows.1" class="lexicon_definition"></a></p>
+<h4 id="lswindowsinspainterqbznb20moduleznb20">lswindows(ins::PainterQB.ZNB20Module.ZNB20) <a href="#method__lswindows.1">¶</a></h4>
+<p><a href="https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/abdd1db5dc0c48ee.htm">DISPLAY:CATALOG?</a></p>
+<p>Report the windows and their names in a tuple: (<code>arrNums::Array{Int64,1}</code>,
+    <code>arrNames::Array{SubString{ASCIIString},1})</code>).</p>
+<p><em>source:</em>
+<a href="https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L226">PainterQB\src\instruments\VNAs\ZNB20.jl:226</a></p></div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
