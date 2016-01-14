@@ -90,7 +90,7 @@ responseDictionary = Dict(
 
     ################
 
-    :DataRepresentation     => Dict("MLOG" => :LogMagnitude,
+    :VNAFormat              => Dict("MLOG" => :LogMagnitude,
                                     "PHAS" => :Phase,
                                     "GDEL" => :GroupDelay,
                                     "SLIN" => :SmithLinear,
@@ -104,7 +104,7 @@ responseDictionary = Dict(
                                     "MLIN" => :LinearMagnitude,
                                     "SWR"  => :SWR,
                                     "REAL" => :RealPart,
-                                    "IMAG" => :ImaginaryPart,
+                                    "IMAG" => :ImagPart,
                                     "UPH"  => :ExpandedPhase,
                                     "PPH"  => :PositivePhase),
 
@@ -181,13 +181,13 @@ abstract SetActiveChannel     <: InstrumentProperty
 
 commands = [
 
-    (":CALC#:TRAC#:FORM",           DataRepresentation),
     (":CALC#:TRAC#:CORR:EDEL:MED",  ElectricalMedium),
     (":TRIG:OUTP:POL",              TriggerOutputPolarity),
     (":TRIG:OUTP:POS",              TriggerOutputTiming),
     (":TRIG:SEQ:EXT:SLOP",          TriggerSlope),
     (":TRIG:SOUR",                  TriggerSource),
     (":CALC#:PAR#:DEF",             SParameter),
+    (":CALC#:TRAC#:FORM",           VNAFormat),
 
     (":DISP:WIND#:TRAC#:Y:AUTO",    Autoscale,             NoArgs),
     (":SENS#:AVER",                 Averaging,             Bool),

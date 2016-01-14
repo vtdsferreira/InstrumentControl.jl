@@ -10,10 +10,13 @@ include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
 
 export ZNB20
 
+export ActiveTrace
 export AutoSweepTime
 export Bandwidth
 export DisplayUpdate
 export SweepTime
+export TransferByteOrder
+export TransferFormat
 export Window
 
 export cd
@@ -47,20 +50,61 @@ type ZNB20 <: InstrumentVISA
     ZNB20() = new()
 end
 
+abstract TransferByteOrder <: InstrumentProperty
+abstract TransferFormat    <: InstrumentProperty
+
+subtypesArray = [
+    (:LittleEndianTransfer,  TransferFormat),
+    (:BigEndianTransfer,     TransferFormat),
+
+    (:ASCIITransfer,         TransferFormat),
+    (:Float32Transfer,       TransferFormat),
+    (:Float64Transfer,       TransferFormat)
+]
+
+# Create all the concrete types we need using the generate_properties function.
+for ((subtypeSymb,supertype) in subtypesArray)
+    generate_properties(subtypeSymb, supertype)
+end
+
 responseDictionary = Dict(
-    :TriggerSlope   => Dict("POS"  => :RisingTrigger,
-                            "NEG"  => :FallingTrigger),
 
-    :TriggerSource  => Dict("IMM"  => :InternalTrigger,
-                            "EXT"  => :ExternalTrigger,
-                            "MAN"  => :ManualTrigger,
-                            "MULT" => :MultipleTrigger),
+    :TransferByteOrder => Dict("NORM"    => :BigEndianTransfer,
+                               "SWAP"    => :LittleEndianTransfer),
 
-    :OscillatorSource => Dict("INT" => :InternalOscillator,
-                              "EXT" => :ExternalOscillator)
+    :TransferFormat    => Dict("ASC,0"   => :ASCIITransfer,
+                               "REAL,32" => :Float32Transfer,
+                               "REAL,64" => :Float64Transfer),
+
+    :VNAFormat         => Dict("MLIN" => :LinearMagnitude,
+                               "MLOG" => :LogMagnitude,
+                               "PHAS" => :Phase,
+                               "UPH"  => :ExpandedPhase,  # Is it?
+                               "POL"  => :PolarLinear, # Is it though?
+                               "SMIT" => :Smith, # Is it?
+                               "ISM"  => :SmithAdmittance, #Is it?
+                               "GDEL" => :GroupDelay,
+                               "REAL" => :RealPart,
+                               "IMAG" => :ImagPart,
+                               "SWR"  => :SWR),
+
+    :OscillatorSource  => Dict("INT" => :InternalOscillator,
+                               "EXT" => :ExternalOscillator),
+
+    :TriggerSlope      => Dict("POS"  => :RisingTrigger,
+                               "NEG"  => :FallingTrigger),
+
+    :TriggerSource     => Dict("IMM"  => :InternalTrigger,
+                               "EXT"  => :ExternalTrigger,
+                               "MAN"  => :ManualTrigger,
+                               "MULT" => :MultipleTrigger),
+
 )
 
 generate_handlers(ZNB20, responseDictionary)
+
+"Configure or inspect. Active trace."
+abstract ActiveTrace   <: InstrumentProperty
 
 "Configure or inspect. Does the instrument choose the minimum sweep time?"
 abstract AutoSweepTime <: InstrumentProperty
@@ -78,6 +122,15 @@ abstract SweepTime <: InstrumentProperty
 abstract Window <: InstrumentProperty
 
 ### Configure and inspect
+
+"""
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+Select an active trace. Channel `ch` defaults to 1.
+"""
+function configure(ins::ZNB20, ::Type{ActiveTrace}, name::AbstractString, ch::Int=1)
+    write(ins, "CALCulate"*string(ch)":PARameter:SELect "*quoted(name))
+end
 
 """
 [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
@@ -138,6 +191,26 @@ function configure(ins::ZNB20, ::Type{SweepTime}, time::Real, ch::Int=1)
 end
 
 """
+[FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
+
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+"""
+function configure{T<:TransferByteOrder}(ins::ZNB20, ::Type{T})
+    write(ins, "FORMat:BORDer "*code(ins, T))
+end
+
+"""
+[FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
+
+Configures the data transfer format:
+`ASCIITransfer`, `Float32Transfer`, `Float64Transfer`.
+For the latter two the byte order should also be considered.
+"""
+function configure{T<:TransferFormat}(ins::ZNB20, ::Type{T})
+    write(ins, "FORMat:DATA "*code(ins, T))
+end
+
+"""
 [TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
 
 Configure the trigger slope: `RisingTrigger`, `FallingTrigger`.
@@ -158,12 +231,35 @@ function configure{T<:TriggerSource}(ins::ZNB20, ::Type{T}, ch::Int=1)
 end
 
 """
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+Configure the format of the active trace:
+`LinearMagnitude`, `LogMagnitude`, `Phase`, `ExpandedPhase`, `PolarLinear`,
+`Smith`, `SmithAdmittance`, `GroupDelay`, `RealPart`, `ImagPart`, `SWR`.
+Channel `ch` defaults to 1.
+"""
+function configure{T<:VNAFormat}(ins::ZNB20, ::Type{T}, ch::Int=1)
+    write(ins, "CALCulate"*string(ch)*":FORMat "*code(ins,T))
+end
+
+"""
 [DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm)
 
 Turn a window on or off.
 """
 function configure(ins::ZNB20, ::Type{Window}, b::Bool, win::Int)
     write(ins,"DISPlay:WINDow"*string(win)*":STATe "*znbool(b))
+end
+
+
+
+"""
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+Query an active trace. Channel `ch` defaults to 1.
+"""
+function inspect(ins::ZNB20, ::Type{ActiveTrace}, ch::Int=1)
+    unquoted(ask(ins, "CALCulate"*string(ch)":PARameter:SELect "*quoted(name)))
 end
 
 """
@@ -184,6 +280,24 @@ Channel `ch` defaults to 1.
 """
 function inspect(ins::ZNB20, ::Type{Bandwidth}, ch::Int=1)
     parse(write(ins, "SENSe"*string(ch)*":BWIDth:RESolution?"))
+end
+
+"""
+[FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
+
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+"""
+function inspect(ins::ZNB20, ::Type{TransferByteOrder})
+    TransferByteOrder(ins, ask(ins, "FORMat:BORDer?"))
+end
+
+"""
+[FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
+
+Inspect the data transfer format. The byte order should also be considered.
+"""
+function inspect(ins::ZNB20, ::Type{TransferFormat})
+    TransferFormat(ins, ask(ins, "FORMat:DATA?"))
 end
 
 """
@@ -239,6 +353,15 @@ Inspect the trigger source. Channel `ch` defaults to 1.
 """
 function inspect(ins::ZNB20, ::Type{TriggerSource}, ch::Int=1)
     TriggerSource(ins, ask(ins, "TRIGger"*string(ch)*":SOURce?"))
+end
+
+"""
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+Inspect the format of the active trace. Channel `ch` defaults to 1.
+"""
+function inspect(ins::ZNB20, ::Type{VNAFormat}, ch::Int=1)
+    VNAFormat(unquoted(ask(ins, "CALCulate"*string(ch)*":FORMat?")))
 end
 
 """

@@ -4,7 +4,6 @@ export NoArgs
 
 # Properties common to many instruments and representable by codes
 export Coupling
-export DataRepresentation
 export ClockSlope
 export ClockSource
 export OscillatorSource
@@ -16,6 +15,7 @@ export TriggerSource
 export SampleRate
 export Search
 export SParameter
+export VNAFormat
 
 # Properties common to many instruments and representable by bits types
 export Frequency
@@ -76,7 +76,8 @@ abstract ClockSource           <: InstrumentProperty
 "Signals may be AC or DC coupled."
 abstract Coupling              <: InstrumentProperty
 
-abstract DataRepresentation    <: InstrumentProperty
+"Post-processing and display formats typical of VNAs."
+abstract VNAFormat             <: InstrumentProperty
 
 "Oscillator source can be internal or external."
 abstract OscillatorSource      <: InstrumentProperty
@@ -147,24 +148,6 @@ subtypesArray = [
     (:AC,                       Coupling),
     (:DC,                       Coupling),
 
-    (:LogMagnitude,             DataRepresentation),
-    (:Phase,                    DataRepresentation),
-    (:GroupDelay,               DataRepresentation),
-    (:SmithLinear,              DataRepresentation),
-    (:SmithLog,                 DataRepresentation),
-    (:SmithComplex,             DataRepresentation),
-    (:Smith,                    DataRepresentation),
-    (:SmithAdmittance,          DataRepresentation),
-    (:PolarLinear,              DataRepresentation),
-    (:PolarLog,                 DataRepresentation),
-    (:PolarComplex,             DataRepresentation),
-    (:LinearMagnitude,          DataRepresentation),
-    (:SWR,                      DataRepresentation),
-    (:RealPart,                 DataRepresentation),
-    (:ImaginaryPart,            DataRepresentation),
-    (:ExpandedPhase,            DataRepresentation),
-    (:PositivePhase,            DataRepresentation),
-
     (:InternalOscillator,       OscillatorSource),
     (:ExternalOscillator,       OscillatorSource),
 
@@ -200,6 +183,23 @@ subtypesArray = [
     (:BusTrigger,               TriggerSource),
     (:MultipleTrigger,          TriggerSource),
 
+    (:LogMagnitude,             VNAFormat),
+    (:Phase,                    VNAFormat),
+    (:GroupDelay,               VNAFormat),
+    (:SmithLinear,              VNAFormat),
+    (:SmithLog,                 VNAFormat),
+    (:SmithComplex,             VNAFormat),
+    (:Smith,                    VNAFormat),
+    (:SmithAdmittance,          VNAFormat),
+    (:PolarLinear,              VNAFormat),
+    (:PolarLog,                 VNAFormat),
+    (:PolarComplex,             VNAFormat),
+    (:LinearMagnitude,          VNAFormat),
+    (:SWR,                      VNAFormat),
+    (:RealPart,                 VNAFormat),
+    (:ImagPart,                 VNAFormat),
+    (:ExpandedPhase,            VNAFormat),
+    (:PositivePhase,            VNAFormat),
 ]::Array{Tuple{Symbol,DataType},1}
 
 # Create all the concrete types we need using the generate_properties function.
