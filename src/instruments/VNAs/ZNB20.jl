@@ -10,7 +10,6 @@ include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
 
 export ZNB20
 
-export ActiveTrace
 export AutoSweepTime
 export Bandwidth
 export DisplayUpdate
@@ -21,6 +20,7 @@ export Window
 
 export cd
 export cp
+export data
 export hidetrace
 export lstrace
 export mkdir
@@ -30,6 +30,7 @@ export readdir
 export rm
 export rmtrace
 export showtrace
+export stimdata
 
 znbool(a) = (Bool(a) ? "ON" : "OFF")
 
@@ -51,15 +52,11 @@ type ZNB20 <: InstrumentVISA
 end
 
 abstract TransferByteOrder <: InstrumentProperty
-abstract TransferFormat    <: InstrumentProperty
+abstract TransferFormat{T} <: InstrumentProperty
 
 subtypesArray = [
-    (:LittleEndianTransfer,  TransferFormat),
-    (:BigEndianTransfer,     TransferFormat),
-
-    (:ASCIITransfer,         TransferFormat),
-    (:Float32Transfer,       TransferFormat),
-    (:Float64Transfer,       TransferFormat)
+    (:LittleEndianTransfer,  TransferByteOrder),
+    (:BigEndianTransfer,     TransferByteOrder),
 ]
 
 # Create all the concrete types we need using the generate_properties function.
@@ -71,10 +68,6 @@ responseDictionary = Dict(
 
     :TransferByteOrder => Dict("NORM"    => :BigEndianTransfer,
                                "SWAP"    => :LittleEndianTransfer),
-
-    :TransferFormat    => Dict("ASC,0"   => :ASCIITransfer,
-                               "REAL,32" => :Float32Transfer,
-                               "REAL,64" => :Float64Transfer),
 
     :VNAFormat         => Dict("MLIN" => :LinearMagnitude,
                                "MLOG" => :LogMagnitude,
@@ -103,8 +96,20 @@ responseDictionary = Dict(
 
 generate_handlers(ZNB20, responseDictionary)
 
-"Configure or inspect. Active trace."
-abstract ActiveTrace   <: InstrumentProperty
+code(ins::ZNB20, ::Type{TransferFormat{ASCIIString}}) = "ASC,0"
+code(ins::ZNB20, ::Type{TransferFormat{Float32}}) = "REAL,32"
+code(ins::ZNB20, ::Type{TransferFormat{Float64}}) = "REAL,64"
+TransferFormat(ins::ZNB20, x::AbstractString) = begin
+    if x=="ASC,0"
+        return TransferFormat{ASCIIString}
+    elseif x=="REAL,32"
+        return TransferFormat{Float32}
+    elseif x=="REAL,64"
+        return TransferFormat{Float64}
+    else
+        error("Transfer format error.")
+    end
+end
 
 "Configure or inspect. Does the instrument choose the minimum sweep time?"
 abstract AutoSweepTime <: InstrumentProperty
@@ -116,10 +121,10 @@ abstract Bandwidth     <: InstrumentProperty{Float64}
 abstract DisplayUpdate <: InstrumentProperty
 
 "Configure or inspect. Adjust time it takes to complete a sweep (all partial measurements)."
-abstract SweepTime <: InstrumentProperty
+abstract SweepTime     <: InstrumentProperty
 
 "`InstrumentProperty`: Window."
-abstract Window <: InstrumentProperty
+abstract Window        <: InstrumentProperty
 
 ### Configure and inspect
 
@@ -203,7 +208,8 @@ end
 [FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
 
 Configures the data transfer format:
-`ASCIITransfer`, `Float32Transfer`, `Float64Transfer`.
+`TransferFormat{ASCIIString}`, `TransferFormat{Float32}`,
+`TransferFormat{Float64}`.
 For the latter two the byte order should also be considered.
 """
 function configure{T<:TransferFormat}(ins::ZNB20, ::Type{T})
@@ -450,9 +456,10 @@ end
 """
 [CALCulate#:PARameter:SDEFine](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/e75d49e2a14541c5.htm)
 
-Create a new trace with `name` and measurement `parameter` on channel `ch`.
+Create a new trace with `name` and measurement `parameter` on channel `ch`,
+defaulting to 1.
 """
-function mktrace(ins::ZNB20, name::AbstractString, parameter, ch::Int)
+function mktrace(ins::ZNB20, name::AbstractString, parameter, ch::Int=1)
     cmd = "CALCulate"*ch
     cmd = cmd*":PARameter:SDEFine "*quoted(name)*","*quoted(parameter)
     write(ins, cmd)
@@ -493,29 +500,29 @@ end
 """
 [CALCULATE#:PARAMETER:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/0763f74d0a2d4d61.htm)
 
-Remove trace with name `name` from channel `ch`.
+Remove trace with name `name` from channel `ch`, defaulting to 1.
 """
-function rmtrace(ins::ZNB20, name::AbstractString, ch::Int)
+function rmtrace(ins::ZNB20, name::AbstractString, ch::Int=1)
     write(ins, "CALCulate"*string(ch)*":PARameter:DELete "*quoted(name))
 end
 
 """
 [CALCulate#:PARameter:DELete:CALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8d937272d97244fb.htm)
 
-Deletes all traces in the given channel.
+Deletes all traces in the given channel `ch`, defaulting to 1.
 """
-function rmtrace(ins::ZNB20, ch::Int)
+function rmtrace(ins::ZNB20, ch::Int=1)
     write(ins, "CALCulate"*string(ch)*":PARameter:DELete:CALL")
 end
 
-"""
-[CALCulate:PARameter:DELete:ALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e69977.htm)
-
-Deletes all traces in all channels.
-"""
-function rmtrace(ins::ZNB20)
-    write(ins, "CALCulate:PARameter:DELete:ALL")
-end
+# """
+# [CALCulate:PARameter:DELete:ALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e69977.htm)
+#
+# Deletes all traces in all channels.
+# """
+# function rmtrace(ins::ZNB20)
+#     write(ins, "CALCulate:PARameter:DELete:ALL")
+# end
 
 """
 [DISPLAY:WINDOW#:TRACE#:FEED](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/58dad852e7db48a0.htm)
@@ -527,5 +534,72 @@ function showtrace(ins::ZNB20, name::AbstractString, win::Int, wtrace::Int)
     write(ins, "DISPlay:WINDow"*string(win)*
         ":TRACe"*string(wtrace)*":FEED "*quoted(name))
 end
+
+"""
+[CALCulate#:DATA:STIMulus?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/038ef1cf7a044e85.htm)
+
+Read the stimulus values of the active data or memory trace.
+"""
+function stimdata(ins::ZNB20, ch::Int=1)
+    xfer = inspect(ins, TransferFormat)
+    _getdata(ins, xfer, "CALCulate"*string(ch)*":DATA:STIMulus?")
+end
+
+
+"""
+[CALCULATE#:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/a9ce754f8a7c483a.htm)
+
+Retrieve data from the active trace or memory trace.
+Pass the desired format as a string, e.g. "fdat" for
+formatted trace data. See the link above for details.
+
+Channel `ch` defaults to 1.
+"""
+function data(ins::ZNB20, ch::Int=1; format=:fdat)
+
+    xfer = inspect(ins, TransferFormat)
+    array = _getdata(ins, xfer, "CALCulate"*string(ch)*":DATA? "*string(format))
+    _reformat(array, Val{format})
+end
+
+function _reformat{T}(x, ::Type{Val{T}})
+    x
+end
+
+function _reformat{T}(x::Array{T,1}, ::Type{Val{:sdat}})
+    [Complex{T}(x[i],x[i+1]) for i in 1:2:length(x)]
+end
+
+function _reformat{T}(x::Array{T,1}, ::Type{Val{:mdat}})
+    [Complex{T}(x[i],x[i+1]) for i in 1:2:length(x)]
+end
+
+"Retreive and parse a comma delimited string into an `Array{Float64,1}`."
+function _getdata(ins::ZNB20, ::Type{TransferFormat{ASCIIString}}, cmd)
+    data = ask(ins, cmd)
+    [parse(x)::Float64 for x in split(data,",")]
+end
+
+"Parse a binary block, taking care of float size and byte ordering."
+function _getdata{T<:Union{Float32,Float64}}(ins::ZNB20,
+        ::Type{TransferFormat{T}}, cmd)
+
+    write(ins, cmd)
+    io = binblockreadavailable(ins)
+
+    endian = inspect(ins, TransferByteOrder)
+    _conv = (endian == LittleEndianTransfer ? ltoh : ntoh)
+
+    bytes = sizeof(T)
+    nsam = Int(floor((io.size-(io.ptr-1))/bytes))
+
+    array = Vector{T}(nsam)
+    for i=1:nsam
+        array[i] = (_conv)(read(io, T))
+    end
+
+    array
+end
+
 
 end

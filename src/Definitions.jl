@@ -18,6 +18,7 @@ export SParameter
 export VNAFormat
 
 # Properties common to many instruments and representable by bits types
+export ActiveTrace
 export Frequency
 export FrequencyStart
 export FrequencyStop
@@ -102,6 +103,9 @@ abstract TriggerSlope          <: InstrumentProperty
 
 "Trigger may be sourced from: internal, external, bus, etc."
 abstract TriggerSource         <: InstrumentProperty
+
+"Active trace."
+abstract ActiveTrace           <: InstrumentProperty
 
 "Fixed frequency of a sourced signal."
 abstract Frequency             <: InstrumentProperty{Float64}

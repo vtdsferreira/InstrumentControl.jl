@@ -47,7 +47,6 @@ export YReferenceLevel
 export YReferencePosition
 export YScalePerDivision
 export SetActiveMarker
-export SetActiveTrace
 export SetActiveChannel
 
 export frequencydata, formatteddata
@@ -176,7 +175,6 @@ abstract YReferenceLevel      <: InstrumentProperty{Float64}
 abstract YReferencePosition   <: InstrumentProperty
 abstract WindowLayout         <: InstrumentProperty
 abstract SetActiveMarker      <: InstrumentProperty
-abstract SetActiveTrace       <: InstrumentProperty
 abstract SetActiveChannel     <: InstrumentProperty
 
 commands = [
@@ -230,7 +228,7 @@ commands = [
     (":DISP:WIND#:TRAC#:Y:RPOS",    YReferencePosition,    Int),
     (":DISP:SPL",                   WindowLayout,          ASCIIString),
     (":CALC#:MARK#:ACT",            SetActiveMarker,       NoArgs),
-    (":CALC#:PAR#:SEL",             SetActiveTrace,        NoArgs),
+    (":CALC#:PAR#:SEL",             ActiveTrace,           NoArgs),
     (":DISP:WIND#:ACT",             SetActiveChannel,      NoArgs),
 ]
 

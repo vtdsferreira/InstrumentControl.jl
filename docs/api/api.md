@@ -149,6 +149,8 @@
 
 [PainterQB.TriggerSource](PainterQB.md#type__triggersource.1)  Trigger may be sourced from: internal, external, bus, etc.
 
+[PainterQB.VNAFormat](PainterQB.md#type__vnaformat.1)  Post-processing and display formats typical of VNAs.
+
 ---
 
 ## Globals [Exported]
@@ -247,7 +249,11 @@
 
 ## Types [Exported]
 
+[PainterQB.ZNB20Module.ActiveTrace](ZNB20.md#type__activetrace.1)  Configure or inspect. Active trace.
+
 [PainterQB.ZNB20Module.AutoSweepTime](ZNB20.md#type__autosweeptime.1)  Configure or inspect. Does the instrument choose the minimum sweep time?
+
+[PainterQB.ZNB20Module.Bandwidth](ZNB20.md#type__bandwidth.1)  Configure or inspect. Measurement / resolution bandwidth. May be rounded.
 
 [PainterQB.ZNB20Module.DisplayUpdate](ZNB20.md#type__displayupdate.1)  Configure or inspect. Display updates during measurement.
 
@@ -263,17 +269,43 @@
 
 [configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  n::Int64,  ch::Int64)](ZNB20.md#method__configure.2)  [SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
 
-[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool)](ZNB20.md#method__configure.3)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace},  name::AbstractString)](ZNB20.md#method__configure.3)  [CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
 
-[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool,  ch::Int64)](ZNB20.md#method__configure.4)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace},  name::AbstractString,  ch::Int64)](ZNB20.md#method__configure.4)  [CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
 
-[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate},  b::Bool)](ZNB20.md#method__configure.5)  [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool)](ZNB20.md#method__configure.5)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
 
-[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real)](ZNB20.md#method__configure.6)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool,  ch::Int64)](ZNB20.md#method__configure.6)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
 
-[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real,  ch::Int64)](ZNB20.md#method__configure.7)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth},  bw::Float64)](ZNB20.md#method__configure.7)  [SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
 
-[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  b::Bool,  win::Int64)](ZNB20.md#method__configure.8)  [DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm)
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth},  bw::Float64,  ch::Int64)](ZNB20.md#method__configure.8)  [SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate},  b::Bool)](ZNB20.md#method__configure.9)  [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real)](ZNB20.md#method__configure.10)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real,  ch::Int64)](ZNB20.md#method__configure.11)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  b::Bool,  win::Int64)](ZNB20.md#method__configure.12)  [DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm)
+
+[configure{T<:PainterQB.OscillatorSource}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.OscillatorSource})](ZNB20.md#method__configure.13)  [SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
+
+[configure{T<:PainterQB.TriggerSlope}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSlope})](ZNB20.md#method__configure.14)  [TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+[configure{T<:PainterQB.TriggerSlope}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSlope},  ch::Int64)](ZNB20.md#method__configure.15)  [TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+[configure{T<:PainterQB.TriggerSource}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSource})](ZNB20.md#method__configure.16)  [TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/9c62999c5a1642f2.htm)
+
+[configure{T<:PainterQB.TriggerSource}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSource},  ch::Int64)](ZNB20.md#method__configure.17)  [TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/9c62999c5a1642f2.htm)
+
+[configure{T<:PainterQB.VNAFormat}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.VNAFormat})](ZNB20.md#method__configure.18)  [CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+[configure{T<:PainterQB.VNAFormat}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.VNAFormat},  ch::Int64)](ZNB20.md#method__configure.19)  [CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+[configure{T<:PainterQB.ZNB20Module.TransferByteOrder}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.ZNB20Module.TransferByteOrder})](ZNB20.md#method__configure.20)  [FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
+
+[configure{T<:PainterQB.ZNB20Module.TransferFormat}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.ZNB20Module.TransferFormat})](ZNB20.md#method__configure.21)  [FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
 
 [generate_configure{S<:PainterQB.Instrument, T<:PainterQB.InstrumentProperty{T}}(instype::Type{S<:PainterQB.Instrument},  command::ASCIIString,  proptype::Type{T<:PainterQB.InstrumentProperty{T}})](ZNB20.md#method__generate_configure.1)  This method generates the following method in the module where
 
@@ -293,19 +325,43 @@
 
 [inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.NumPoints},  ch::Int64)](ZNB20.md#method__inspect.2)  [SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime})](ZNB20.md#method__inspect.3)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.OscillatorSource})](ZNB20.md#method__inspect.3)  [SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  ch::Int64)](ZNB20.md#method__inspect.4)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSlope})](ZNB20.md#method__inspect.4)  [TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate})](ZNB20.md#method__inspect.5)  [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSlope},  ch::Int64)](ZNB20.md#method__inspect.5)  [TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime})](ZNB20.md#method__inspect.6)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSource})](ZNB20.md#method__inspect.6)  [TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/ZNB_ZNBT_WebHelp_en.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  ch::Int64)](ZNB20.md#method__inspect.7)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSource},  ch::Int64)](ZNB20.md#method__inspect.7)  [TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/ZNB_ZNBT_WebHelp_en.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  win::Int64)](ZNB20.md#method__inspect.8)  Determines if a window exists, by window number. See `lswindow`.
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.VNAFormat})](ZNB20.md#method__inspect.8)  [CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
 
-[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  wname::AbstractString)](ZNB20.md#method__inspect.9)  Determines if a window exists, by window name. See `lswindow`.
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.VNAFormat},  ch::Int64)](ZNB20.md#method__inspect.9)  [CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace})](ZNB20.md#method__inspect.10)  [CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace},  ch::Int64)](ZNB20.md#method__inspect.11)  [CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime})](ZNB20.md#method__inspect.12)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  ch::Int64)](ZNB20.md#method__inspect.13)  [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth})](ZNB20.md#method__inspect.14)  [SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth},  ch::Int64)](ZNB20.md#method__inspect.15)  [SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime})](ZNB20.md#method__inspect.16)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  ch::Int64)](ZNB20.md#method__inspect.17)  [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.TransferByteOrder})](ZNB20.md#method__inspect.18)  [FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.TransferFormat})](ZNB20.md#method__inspect.19)  [FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  win::Int64)](ZNB20.md#method__inspect.20)  Determines if a window exists, by window number. See `lswindow`.
+
+[inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  wname::AbstractString)](ZNB20.md#method__inspect.21)  Determines if a window exists, by window name. See `lswindow`.
 
 [lswindows(ins::PainterQB.ZNB20Module.ZNB20)](ZNB20.md#method__lswindows.1)  [DISPLAY:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/abdd1db5dc0c48ee.htm)
 

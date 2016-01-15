@@ -773,7 +773,7 @@ function pulllowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{
     marker1 = Vector{Bool}(samples)
     marker2 = Vector{Bool}(samples)
 
-    for (i=1:samples)
+    for i=1:samples
         amp[i] = ltoh(read(io,Float32))
         markers = read(io,UInt8)
         marker1[i] = Bool((markers >> 6) & UInt8(1))

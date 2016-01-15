@@ -184,7 +184,7 @@ function generate_properties{S<:InstrumentProperty}(
     subtype::Symbol, supertype::Type{S})
 
     name = string(subtype)
-    @eval type ($subtype) <: $supertype end
+    @eval immutable ($subtype) <: $supertype end
     @eval export $subtype
 
 end

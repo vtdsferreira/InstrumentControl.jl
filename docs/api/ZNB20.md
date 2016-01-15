@@ -13,7 +13,7 @@ Change directories. Pass "~" for default.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:184](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L184)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:399](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L399)
 
 ---
 
@@ -25,7 +25,7 @@ Copy a file.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:197](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L197)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:412](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L412)
 
 ---
 
@@ -37,7 +37,7 @@ Releases the assignment of window trace `wtrace` to window `win`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:206](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L206)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:421](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L421)
 
 ---
 
@@ -49,7 +49,7 @@ Report the traces assigned to a given channel.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:215](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L215)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:430](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L430)
 
 ---
 
@@ -61,7 +61,7 @@ Make a directory.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:240](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L240)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:455](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L455)
 
 ---
 
@@ -73,7 +73,7 @@ Create a new trace with `name` and measurement `parameter` on channel `ch`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:249](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L249)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:464](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L464)
 
 ---
 
@@ -85,7 +85,7 @@ Print the working directory.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:260](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L260)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:475](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L475)
 
 ---
 
@@ -97,7 +97,7 @@ Read the directory contents.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:269](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L269)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:484](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L484)
 
 ---
 
@@ -109,7 +109,7 @@ Read the directory contents.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:269](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L269)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:484](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L484)
 
 ---
 
@@ -121,7 +121,7 @@ Remove a file.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:282](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L282)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:497](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L497)
 
 ---
 
@@ -133,7 +133,7 @@ Deletes all traces in all channels.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:310](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L310)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:525](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L525)
 
 ---
 
@@ -145,7 +145,7 @@ Deletes all traces in the given channel.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:301](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L301)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:516](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L516)
 
 ---
 
@@ -157,7 +157,7 @@ Remove trace with name `name` from channel `ch`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:292](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L292)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:507](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L507)
 
 ---
 
@@ -170,9 +170,18 @@ window trace number `wtrace::Int`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:321](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L321)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:536](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L536)
 
 ## Types [Exported]
+
+---
+
+<a id="type__activetrace.1" class="lexicon_definition"></a>
+#### PainterQB.ZNB20Module.ActiveTrace [¶](#type__activetrace.1)
+Configure or inspect. Active trace.
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:107](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L107)
 
 ---
 
@@ -181,7 +190,16 @@ window trace number `wtrace::Int`.
 Configure or inspect. Does the instrument choose the minimum sweep time?
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:62](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L62)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:110](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L110)
+
+---
+
+<a id="type__bandwidth.1" class="lexicon_definition"></a>
+#### PainterQB.ZNB20Module.Bandwidth [¶](#type__bandwidth.1)
+Configure or inspect. Measurement / resolution bandwidth. May be rounded.
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:113](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L113)
 
 ---
 
@@ -190,7 +208,7 @@ Configure or inspect. Does the instrument choose the minimum sweep time?
 Configure or inspect. Display updates during measurement.
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:65](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L65)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:116](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L116)
 
 ---
 
@@ -199,7 +217,7 @@ Configure or inspect. Display updates during measurement.
 Configure or inspect. Adjust time it takes to complete a sweep (all partial measurements).
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:68](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L68)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:119](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L119)
 
 ---
 
@@ -208,7 +226,7 @@ Configure or inspect. Adjust time it takes to complete a sweep (all partial meas
 `InstrumentProperty`: Window.
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:71](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L71)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L122)
 
 
 ## Methods [Internal]
@@ -223,7 +241,7 @@ Define measurement points per sweep. Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:100](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L100)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:179](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L179)
 
 ---
 
@@ -235,25 +253,36 @@ Define measurement points per sweep. Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:100](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L100)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:179](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L179)
 
 ---
 
 <a id="method__configure.3" class="lexicon_definition"></a>
-#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool) [¶](#method__configure.3)
-[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace},  name::AbstractString) [¶](#method__configure.3)
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
 
-Determines whether or not the instrument chooses the minimum sweep time,
-including all partial measurements. Channel `ch` defaults to 1.
+Select an active trace. Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:83](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L83)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:140](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L140)
 
 ---
 
 <a id="method__configure.4" class="lexicon_definition"></a>
-#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool,  ch::Int64) [¶](#method__configure.4)
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace},  name::AbstractString,  ch::Int64) [¶](#method__configure.4)
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+Select an active trace. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:140](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L140)
+
+---
+
+<a id="method__configure.5" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool) [¶](#method__configure.5)
 [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
 
 Determines whether or not the instrument chooses the minimum sweep time,
@@ -261,24 +290,65 @@ including all partial measurements. Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:83](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L83)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L151)
 
 ---
 
-<a id="method__configure.5" class="lexicon_definition"></a>
-#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate},  b::Bool) [¶](#method__configure.5)
+<a id="method__configure.6" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  b::Bool,  ch::Int64) [¶](#method__configure.6)
+[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+
+Determines whether or not the instrument chooses the minimum sweep time,
+including all partial measurements. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L151)
+
+---
+
+<a id="method__configure.7" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth},  bw::Float64) [¶](#method__configure.7)
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+Set the measurement bandwidth between 1 Hz and 1 MHz
+(option ZNBT-K17 up to 10 MHz).
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:163](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L163)
+
+---
+
+<a id="method__configure.8" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth},  bw::Float64,  ch::Int64) [¶](#method__configure.8)
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+Set the measurement bandwidth between 1 Hz and 1 MHz
+(option ZNBT-K17 up to 10 MHz).
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:163](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L163)
+
+---
+
+<a id="method__configure.9" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate},  b::Bool) [¶](#method__configure.9)
 [SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
 
 Switches display update on / off.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:91](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L91)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:170](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L170)
 
 ---
 
-<a id="method__configure.6" class="lexicon_definition"></a>
-#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real) [¶](#method__configure.6)
+<a id="method__configure.10" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real) [¶](#method__configure.10)
 [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
@@ -286,12 +356,12 @@ Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:111](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L111)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:199](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L199)
 
 ---
 
-<a id="method__configure.7" class="lexicon_definition"></a>
-#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real,  ch::Int64) [¶](#method__configure.7)
+<a id="method__configure.11" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  time::Real,  ch::Int64) [¶](#method__configure.11)
 [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
@@ -299,19 +369,139 @@ Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:111](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L111)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:199](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L199)
 
 ---
 
-<a id="method__configure.8" class="lexicon_definition"></a>
-#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  b::Bool,  win::Int64) [¶](#method__configure.8)
+<a id="method__configure.12" class="lexicon_definition"></a>
+#### configure(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  b::Bool,  win::Int64) [¶](#method__configure.12)
 [DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm)
 
 Turn a window on or off.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:119](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L119)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:259](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L259)
+
+---
+
+<a id="method__configure.13" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.OscillatorSource}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.OscillatorSource}) [¶](#method__configure.13)
+[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
+
+Select oscillator source: `InternalOscillator`, `ExternalOscillator`
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:188](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L188)
+
+---
+
+<a id="method__configure.14" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.TriggerSlope}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSlope}) [¶](#method__configure.14)
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+Configure the trigger slope: `RisingTrigger`, `FallingTrigger`.
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:229](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L229)
+
+---
+
+<a id="method__configure.15" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.TriggerSlope}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSlope},  ch::Int64) [¶](#method__configure.15)
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+Configure the trigger slope: `RisingTrigger`, `FallingTrigger`.
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:229](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L229)
+
+---
+
+<a id="method__configure.16" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.TriggerSource}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSource}) [¶](#method__configure.16)
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/9c62999c5a1642f2.htm)
+
+Configure the trigger source: `InternalTrigger`, `ExternalTrigger`, `ManualTrigger`,
+`MultipleTrigger`. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:239](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L239)
+
+---
+
+<a id="method__configure.17" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.TriggerSource}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.TriggerSource},  ch::Int64) [¶](#method__configure.17)
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/9c62999c5a1642f2.htm)
+
+Configure the trigger source: `InternalTrigger`, `ExternalTrigger`, `ManualTrigger`,
+`MultipleTrigger`. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:239](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L239)
+
+---
+
+<a id="method__configure.18" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.VNAFormat}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.VNAFormat}) [¶](#method__configure.18)
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+Configure the format of the active trace:
+`LinearMagnitude`, `LogMagnitude`, `Phase`, `ExpandedPhase`, `PolarLinear`,
+`Smith`, `SmithAdmittance`, `GroupDelay`, `RealPart`, `ImagPart`, `SWR`.
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:253](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L253)
+
+---
+
+<a id="method__configure.19" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.VNAFormat}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.VNAFormat},  ch::Int64) [¶](#method__configure.19)
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+Configure the format of the active trace:
+`LinearMagnitude`, `LogMagnitude`, `Phase`, `ExpandedPhase`, `PolarLinear`,
+`Smith`, `SmithAdmittance`, `GroupDelay`, `RealPart`, `ImagPart`, `SWR`.
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:253](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L253)
+
+---
+
+<a id="method__configure.20" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.ZNB20Module.TransferByteOrder}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.ZNB20Module.TransferByteOrder}) [¶](#method__configure.20)
+[FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
+
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:207](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L207)
+
+---
+
+<a id="method__configure.21" class="lexicon_definition"></a>
+#### configure{T<:PainterQB.ZNB20Module.TransferFormat}(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{T<:PainterQB.ZNB20Module.TransferFormat}) [¶](#method__configure.21)
+[FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
+
+Configures the data transfer format:
+`ASCIITransfer`, `Float32Transfer`, `Float64Transfer`.
+For the latter two the byte order should also be considered.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:220](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L220)
 
 ---
 
@@ -326,7 +516,7 @@ configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:82](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L82)
+[PainterQB\src\Metaprogramming.jl:82](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L82)
 
 ---
 
@@ -343,7 +533,7 @@ This particular method will be deprecated soon.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L122)
+[PainterQB\src\Metaprogramming.jl:122](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L122)
 
 ---
 
@@ -358,7 +548,7 @@ configure(ins::InsType, Property, values..., infixes...)
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L151)
+[PainterQB\src\Metaprogramming.jl:151](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L151)
 
 ---
 
@@ -391,7 +581,7 @@ with "INT" encoding how to pass this logical state to the instrument `ins`.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:218](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L218)
+[PainterQB\src\Metaprogramming.jl:218](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L218)
 
 ---
 
@@ -400,7 +590,7 @@ with "INT" encoding how to pass this logical state to the instrument `ins`.
 This method does/returns nothing.
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:14](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L14)
+[PainterQB\src\Metaprogramming.jl:14](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L14)
 
 ---
 
@@ -421,7 +611,7 @@ a number, a boolean, or a string as appropriate.
 
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L33)
+[PainterQB\src\Metaprogramming.jl:33](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L33)
 
 ---
 
@@ -430,7 +620,7 @@ a number, a boolean, or a string as appropriate.
 Creates and exports immutable singleton subtypes.
 
 *source:*
-[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\Metaprogramming.jl#L183)
+[PainterQB\src\Metaprogramming.jl:183](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\Metaprogramming.jl#L183)
 
 ---
 
@@ -442,7 +632,7 @@ How many measurement points per sweep? Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:147](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L147)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:326](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L326)
 
 ---
 
@@ -454,25 +644,120 @@ How many measurement points per sweep? Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:147](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L147)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:326](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L326)
 
 ---
 
 <a id="method__inspect.3" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime}) [¶](#method__inspect.3)
-[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.OscillatorSource}) [¶](#method__inspect.3)
+[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
 
-Does the instrument choose the minimum sweep time,
-including all partial measurements? Channel `ch` defaults to 1.
+Inspect oscillator source: `InternalOscillator`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:130](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L130)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:335](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L335)
 
 ---
 
 <a id="method__inspect.4" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  ch::Int64) [¶](#method__inspect.4)
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSlope}) [¶](#method__inspect.4)
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+Inspect the trigger slope. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:354](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L354)
+
+---
+
+<a id="method__inspect.5" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSlope},  ch::Int64) [¶](#method__inspect.5)
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+
+Inspect the trigger slope. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:354](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L354)
+
+---
+
+<a id="method__inspect.6" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSource}) [¶](#method__inspect.6)
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/ZNB_ZNBT_WebHelp_en.htm)
+
+Inspect the trigger source. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:363](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L363)
+
+---
+
+<a id="method__inspect.7" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.TriggerSource},  ch::Int64) [¶](#method__inspect.7)
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/ZNB_ZNBT_WebHelp_en.htm)
+
+Inspect the trigger source. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:363](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L363)
+
+---
+
+<a id="method__inspect.8" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.VNAFormat}) [¶](#method__inspect.8)
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+Inspect the format of the active trace. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:372](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L372)
+
+---
+
+<a id="method__inspect.9" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.VNAFormat},  ch::Int64) [¶](#method__inspect.9)
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+
+Inspect the format of the active trace. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:372](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L372)
+
+---
+
+<a id="method__inspect.10" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace}) [¶](#method__inspect.10)
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+Query an active trace. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:270](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L270)
+
+---
+
+<a id="method__inspect.11" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.ActiveTrace},  ch::Int64) [¶](#method__inspect.11)
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+
+Query an active trace. Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:270](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L270)
+
+---
+
+<a id="method__inspect.12" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime}) [¶](#method__inspect.12)
 [SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
 
 Does the instrument choose the minimum sweep time,
@@ -480,24 +765,51 @@ including all partial measurements? Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:130](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L130)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:281](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L281)
 
 ---
 
-<a id="method__inspect.5" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.DisplayUpdate}) [¶](#method__inspect.5)
-[SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+<a id="method__inspect.13" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.AutoSweepTime},  ch::Int64) [¶](#method__inspect.13)
+[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
 
-Is the display updating?
+Does the instrument choose the minimum sweep time,
+including all partial measurements? Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:138](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L138)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:281](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L281)
 
 ---
 
-<a id="method__inspect.6" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime}) [¶](#method__inspect.6)
+<a id="method__inspect.14" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth}) [¶](#method__inspect.14)
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+Inspect the measurement bandwidth.
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:291](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L291)
+
+---
+
+<a id="method__inspect.15" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Bandwidth},  ch::Int64) [¶](#method__inspect.15)
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+
+Inspect the measurement bandwidth.
+Channel `ch` defaults to 1.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:291](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L291)
+
+---
+
+<a id="method__inspect.16" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime}) [¶](#method__inspect.16)
 [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
@@ -505,12 +817,12 @@ Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:158](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L158)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:346](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L346)
 
 ---
 
-<a id="method__inspect.7" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  ch::Int64) [¶](#method__inspect.7)
+<a id="method__inspect.17" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.SweepTime},  ch::Int64) [¶](#method__inspect.17)
 [SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
@@ -518,27 +830,51 @@ Channel `ch` defaults to 1.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:158](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L158)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:346](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L346)
 
 ---
 
-<a id="method__inspect.8" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  win::Int64) [¶](#method__inspect.8)
+<a id="method__inspect.18" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.TransferByteOrder}) [¶](#method__inspect.18)
+[FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
+
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:299](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L299)
+
+---
+
+<a id="method__inspect.19" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.TransferFormat}) [¶](#method__inspect.19)
+[FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
+
+Inspect the data transfer format. The byte order should also be considered.
+
+
+*source:*
+[PainterQB\src\instruments\VNAs\ZNB20.jl:308](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L308)
+
+---
+
+<a id="method__inspect.20" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  win::Int64) [¶](#method__inspect.20)
 Determines if a window exists, by window number. See `lswindow`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:163](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L163)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:378](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L378)
 
 ---
 
-<a id="method__inspect.9" class="lexicon_definition"></a>
-#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  wname::AbstractString) [¶](#method__inspect.9)
+<a id="method__inspect.21" class="lexicon_definition"></a>
+#### inspect(ins::PainterQB.ZNB20Module.ZNB20,  ::Type{PainterQB.ZNB20Module.Window},  wname::AbstractString) [¶](#method__inspect.21)
 Determines if a window exists, by window name. See `lswindow`.
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:171](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L171)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:386](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L386)
 
 ---
 
@@ -551,5 +887,5 @@ Report the windows and their names in a tuple: (`arrNums::Array{Int64,1}`,
 
 
 *source:*
-[PainterQB\src\instruments\VNAs\ZNB20.jl:226](https://github.com/ajkeller34/PainterQB.jl/tree/abc51a4b7d5f8bbf1713ef04ad347ebc00105106/src\instruments\VNAs\ZNB20.jl#L226)
+[PainterQB\src\instruments\VNAs\ZNB20.jl:441](https://github.com/ajkeller34/PainterQB.jl/tree/6ad6dc59e005ae7fd2f7b1b39403f3466e50ae22/src\instruments\VNAs\ZNB20.jl#L441)
 
