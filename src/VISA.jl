@@ -1,6 +1,7 @@
 ## Imports
 import VISA
 import Base: read, write, readavailable, reset, wait
+import Base: cp, mkdir, readdir, rm
 
 ## Get the resource manager
 "The default VISA resource manager."
@@ -24,6 +25,12 @@ export trigger, aborttrigger, wait
 
 ## Convenience
 export quoted, unquoted
+
+## Instrument directory manipulation
+export cp
+export mkdir
+export readdir
+export rm
 
 """
 Abstract supertype of all Instruments addressable using a VISA library.
@@ -131,3 +138,132 @@ quoted(str::ASCIIString) = "\""*str*"\""
 
 "Strip a string of enclosing quotation marks."
 unquoted(str::ASCIIString) = strip(str,['"','\''])
+
+
+"Retreive and parse a delimited string into an `Array{Float64,1}`."
+function _getdata(ins::InstrumentVISA, ::Type{TransferFormat{ASCIIString}}, cmd, delim=",")
+    data = ask(ins, cmd)
+    [parse(x)::Float64 for x in split(data, delim)]
+end
+
+"""
+Parse a binary block, taking care of float size and byte ordering.
+Return type is always `Array{Float64,1}` regardless of transfer format.
+"""
+function _getdata{T<:Union{Float32,Float64}}(ins::InstrumentVISA,
+        ::Type{TransferFormat{T}}, cmd)
+
+    write(ins, cmd)
+    io = binblockreadavailable(ins)
+
+    endian = inspect(ins, TransferByteOrder)
+    _conv = (endian == LittleEndianTransfer ? ltoh : ntoh)
+
+    bytes = sizeof(T)
+    nsam = Int(floor((io.size-(io.ptr-1))/bytes))
+
+    array = Vector{Float64}(nsam)
+    for i=1:nsam
+        array[i] = (_conv)(read(io, T))
+    end
+
+    array
+end
+
+
+## File management
+"""
+MMEMory:COPY
+[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_copy.htm)
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87048.htm)
+
+Copy a file.
+"""
+function cp(ins::InstrumentVISA, src::AbstractString, dest::AbstractString)
+    write(ins, "MMEMory:COPY "*quoted(src)*","*quoted(dest))
+end
+
+"""
+MMEMory:MDIRectory
+[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_mdirectory.htm)
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e89416.htm)
+
+Make a directory.
+"""
+function mkdir(ins::InstrumentVISA, dir::AbstractString)
+    write(ins, "MMEMory:MDIRectory "*quoted(dir))
+end
+
+"""
+MMEMory:CATalog?
+[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_catalog_dir.htm)
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm)
+
+Read the directory contents.
+"""
+function readdir(ins::InstrumentVISA, dir::AbstractString="")
+    cmd = "MMEMory:CATalog?"
+    if dir != ""
+        cmd = cmd*" "*quoted(dir)
+    end
+    ask(ins, cmd)
+end
+
+"""
+MMEMory:DELete
+[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_delete.htm)
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87202.htm)
+
+Remove a file.
+"""
+function rm(ins::InstrumentVISA, file::AbstractString)
+    write(ins, "MMEMory:DELete "*quoted(file))
+end
+
+## Data transfer formats
+"""
+FORMAT:BORDER
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
+
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+"""
+function configure{T<:TransferByteOrder}(ins::InstrumentVISA, ::Type{T})
+    write(ins, "FORMat:BORDer "*code(ins, T))
+end
+
+"""
+FORMAT:DATA
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_data.htm]
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85516.htm)
+
+Configures the data transfer format:
+`TransferFormat{ASCIIString}`, `TransferFormat{Float32}`,
+`TransferFormat{Float64}`.
+For the latter two the byte order should also be considered.
+"""
+function configure{T<:TransferFormat}(ins::InstrumentVISA, ::Type{T})
+    write(ins, "FORMat:DATA "*code(ins, T))
+end
+
+"""
+FORMAT:BORDER
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
+
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+"""
+function inspect(ins::InstrumentVISA, ::Type{TransferByteOrder})
+    TransferByteOrder(ins, ask(ins, "FORMat:BORDer?"))
+end
+
+"""
+FORMAT:DATA
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_data.htm]
+[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85516.htm)
+
+Inspect the data transfer format. The byte order should also be considered.
+"""
+function inspect(ins::InstrumentVISA, ::Type{TransferFormat})
+    TransferFormat(ins, ask(ins, "FORMat:DATA?"))
+end

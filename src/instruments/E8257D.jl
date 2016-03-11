@@ -6,7 +6,7 @@ import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
+include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E8257D
 

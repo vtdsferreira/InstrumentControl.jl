@@ -2,11 +2,13 @@ module ZNB20Module
 
 ## Import packages
 import VISA
-import Base: cd, cp, readdir, pwd, mkdir, rm
+import Base: cd, pwd
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
+import PainterQB.VNA: InstrumentVNA, Format, Parameter
+import PainterQB.VNA: _procdata
+include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export ZNB20
 
@@ -14,27 +16,20 @@ export AutoSweepTime
 export Bandwidth
 export DisplayUpdate
 export SweepTime
-export TransferByteOrder
-export TransferFormat
 export Window
 
 export cd
-export cp
-export data
 export hidetrace
 export lstrace
-export mkdir
 export mktrace
 export pwd
-export readdir
-export rm
 export rmtrace
 export showtrace
 export stimdata
 
 znbool(a) = (Bool(a) ? "ON" : "OFF")
 
-type ZNB20 <: InstrumentVISA
+type ZNB20 <: InstrumentVNA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
     model::AbstractString
@@ -51,25 +46,20 @@ type ZNB20 <: InstrumentVISA
     ZNB20() = new()
 end
 
-abstract TransferByteOrder <: InstrumentProperty
-abstract TransferFormat{T} <: InstrumentProperty
-
-subtypesArray = [
-    (:LittleEndianTransfer,  TransferByteOrder),
-    (:BigEndianTransfer,     TransferByteOrder),
-]
-
-# Create all the concrete types we need using the generate_properties function.
-for ((subtypeSymb,supertype) in subtypesArray)
-    generate_properties(subtypeSymb, supertype)
-end
+# subtypesArray = [
+# ]
+#
+# # Create all the concrete types we need using the generate_properties function.
+# for ((subtypeSymb,supertype) in subtypesArray)
+#     generate_properties(subtypeSymb, supertype)
+# end
 
 responseDictionary = Dict(
 
-    :TransferByteOrder => Dict("NORM"    => :BigEndianTransfer,
-                               "SWAP"    => :LittleEndianTransfer),
+    :TransferByteOrder => Dict("NORM" => :BigEndianTransfer,
+                               "SWAP" => :LittleEndianTransfer),
 
-    :VNAFormat         => Dict("MLIN" => :LinearMagnitude,
+    :Format            => Dict("MLIN" => :LinearMagnitude,
                                "MLOG" => :LogMagnitude,
                                "PHAS" => :Phase,
                                "UPH"  => :ExpandedPhase,  # Is it?
@@ -129,7 +119,7 @@ abstract Window        <: InstrumentProperty
 ### Configure and inspect
 
 """
-[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/3c03effa6de64ee5.htm)
 
 Select an active trace. Channel `ch` defaults to 1.
 """
@@ -138,7 +128,7 @@ function configure(ins::ZNB20, ::Type{ActiveTrace}, name::AbstractString, ch::In
 end
 
 """
-[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/4e1073e7fde645a8.htm)
 
 Determines whether or not the instrument chooses the minimum sweep time,
 including all partial measurements. Channel `ch` defaults to 1.
@@ -148,7 +138,7 @@ function configure(ins::ZNB20, ::Type{AutoSweepTime}, b::Bool, ch::Int=1)
 end
 
 """
-[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/dd1fd694e0ce4dd8.htm)
 
 Set the measurement bandwidth between 1 Hz and 1 MHz
 (option ZNBT-K17 up to 10 MHz).
@@ -159,7 +149,7 @@ function configure(ins::ZNB20, ::Type{Bandwidth}, bw::Float64, ch::Int=1)
 end
 
 """
-[SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+[SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e114067.htm)
 
 Switches display update on / off.
 """
@@ -168,7 +158,7 @@ function configure(ins::ZNB20, ::Type{DisplayUpdate}, b::Bool)
 end
 
 """
-[SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
+[SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/68b77d9828354b78.htm)
 
 Define measurement points per sweep. Channel `ch` defaults to 1.
 """
@@ -177,7 +167,7 @@ function configure(ins::ZNB20, ::Type{NumPoints}, n::Int, ch::Int=1)
 end
 
 """
-[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
+[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/4314a7accd124cd8.htm)
 
 Select oscillator source: `InternalOscillator`, `ExternalOscillator`
 """
@@ -186,7 +176,7 @@ function configure{T<:OscillatorSource}(ins::ZNB20, ::Type{T})
 end
 
 """
-[SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+[SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
 Channel `ch` defaults to 1.
@@ -196,28 +186,7 @@ function configure(ins::ZNB20, ::Type{SweepTime}, time::Real, ch::Int=1)
 end
 
 """
-[FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
-
-Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
-"""
-function configure{T<:TransferByteOrder}(ins::ZNB20, ::Type{T})
-    write(ins, "FORMat:BORDer "*code(ins, T))
-end
-
-"""
-[FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
-
-Configures the data transfer format:
-`TransferFormat{ASCIIString}`, `TransferFormat{Float32}`,
-`TransferFormat{Float64}`.
-For the latter two the byte order should also be considered.
-"""
-function configure{T<:TransferFormat}(ins::ZNB20, ::Type{T})
-    write(ins, "FORMat:DATA "*code(ins, T))
-end
-
-"""
-[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/cbc5449b57664ad3.htm)
 
 Configure the trigger slope: `RisingTrigger`, `FallingTrigger`.
 Channel `ch` defaults to 1.
@@ -227,7 +196,7 @@ function configure{T<:TriggerSlope}(ins::ZNB20, ::Type{T}, ch::Int=1)
 end
 
 """
-[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/9c62999c5a1642f2.htm)
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/9c62999c5a1642f2.htm)
 
 Configure the trigger source: `InternalTrigger`, `ExternalTrigger`, `ManualTrigger`,
 `MultipleTrigger`. Channel `ch` defaults to 1.
@@ -237,19 +206,19 @@ function configure{T<:TriggerSource}(ins::ZNB20, ::Type{T}, ch::Int=1)
 end
 
 """
-[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/132d40cd4d1d43c4.htm)
 
 Configure the format of the active trace:
 `LinearMagnitude`, `LogMagnitude`, `Phase`, `ExpandedPhase`, `PolarLinear`,
 `Smith`, `SmithAdmittance`, `GroupDelay`, `RealPart`, `ImagPart`, `SWR`.
 Channel `ch` defaults to 1.
 """
-function configure{T<:VNAFormat}(ins::ZNB20, ::Type{T}, ch::Int=1)
+function configure{T<:Format}(ins::ZNB20, ::Type{T}, ch::Int=1)
     write(ins, "CALCulate"*string(ch)*":FORMat "*code(ins,T))
 end
 
 """
-[DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/065c895d5a2c4230.htm)
+[DISPLAY:WINDOW#:STATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/065c895d5a2c4230.htm)
 
 Turn a window on or off.
 """
@@ -257,10 +226,8 @@ function configure(ins::ZNB20, ::Type{Window}, b::Bool, win::Int)
     write(ins,"DISPlay:WINDow"*string(win)*":STATe "*znbool(b))
 end
 
-
-
 """
-[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/3c03effa6de64ee5.htm)
+[CALCULATE#:PARAMETER:SELECT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/3c03effa6de64ee5.htm)
 
 Query an active trace. Channel `ch` defaults to 1.
 """
@@ -269,7 +236,7 @@ function inspect(ins::ZNB20, ::Type{ActiveTrace}, ch::Int=1)
 end
 
 """
-[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4e1073e7fde645a8.htm)
+[SENSE#:SWEEP:TIME:AUTO](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/4e1073e7fde645a8.htm)
 
 Does the instrument choose the minimum sweep time,
 including all partial measurements? Channel `ch` defaults to 1.
@@ -279,7 +246,7 @@ function inspect(ins::ZNB20, ::Type{AutoSweepTime}, ch::Int=1)
 end
 
 """
-[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/dd1fd694e0ce4dd8.htm)
+[SENSE#:BWIDTH:RESOLUTION](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/dd1fd694e0ce4dd8.htm)
 
 Inspect the measurement bandwidth.
 Channel `ch` defaults to 1.
@@ -289,25 +256,7 @@ function inspect(ins::ZNB20, ::Type{Bandwidth}, ch::Int=1)
 end
 
 """
-[FORMAT:BORDER](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85486.htm)
-
-Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
-"""
-function inspect(ins::ZNB20, ::Type{TransferByteOrder})
-    TransferByteOrder(ins, ask(ins, "FORMat:BORDer?"))
-end
-
-"""
-[FORMAT:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e85516.htm)
-
-Inspect the data transfer format. The byte order should also be considered.
-"""
-function inspect(ins::ZNB20, ::Type{TransferFormat})
-    TransferFormat(ins, ask(ins, "FORMat:DATA?"))
-end
-
-"""
-[SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e114067.htm)
+[SYSTEM:DISPLAY:UPDATE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e114067.htm)
 
 Is the display updating?
 """
@@ -316,7 +265,7 @@ function inspect(ins::ZNB20, ::Type{DisplayUpdate})
 end
 
 """
-[SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/68b77d9828354b78.htm)
+[SENSE#:SWEEP:POINTS](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/68b77d9828354b78.htm)
 
 How many measurement points per sweep? Channel `ch` defaults to 1.
 """
@@ -325,7 +274,7 @@ function inspect(ins::ZNB20, ::Type{NumPoints}, ch::Int=1)
 end
 
 """
-[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/4314a7accd124cd8.htm)
+[SENSE1:ROSCILLATOR:SOURCE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/4314a7accd124cd8.htm)
 
 Inspect oscillator source: `InternalOscillator`.
 """
@@ -334,7 +283,7 @@ function inspect(ins::ZNB20, ::Type{OscillatorSource})
 end
 
 """
-[SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8227ae4383e449fe.htm)
+[SENSE#:SWEEP:TIME](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/8227ae4383e449fe.htm)
 
 Define the time to complete a sweep, including all partial measurements.
 Channel `ch` defaults to 1.
@@ -344,7 +293,7 @@ function inspect(ins::ZNB20, ::Type{SweepTime}, ch::Int=1)
 end
 
 """
-[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/cbc5449b57664ad3.htm)
+[TRIGGER#:SEQUENCE:SLOPE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/cbc5449b57664ad3.htm)
 
 Inspect the trigger slope. Channel `ch` defaults to 1.
 """
@@ -353,7 +302,7 @@ function inspect(ins::ZNB20, ::Type{TriggerSlope}, ch::Int=1)
 end
 
 """
-[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/ZNB_ZNBT_WebHelp_en.htm)
+[TRIGger#:SEQuence:SOURce](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/ZNB_ZNBT_WebHelp_en.htm)
 
 Inspect the trigger source. Channel `ch` defaults to 1.
 """
@@ -362,12 +311,12 @@ function inspect(ins::ZNB20, ::Type{TriggerSource}, ch::Int=1)
 end
 
 """
-[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/132d40cd4d1d43c4.htm)
+[CALCULATE#:FORMAT](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/132d40cd4d1d43c4.htm)
 
 Inspect the format of the active trace. Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{VNAFormat}, ch::Int=1)
-    VNAFormat(unquoted(ask(ins, "CALCulate"*string(ch)*":FORMat?")))
+function inspect(ins::ZNB20, ::Type{Format}, ch::Int=1)
+    Format(unquoted(ask(ins, "CALCulate"*string(ch)*":FORMat?")))
 end
 
 """
@@ -389,7 +338,7 @@ end
 ## Other commands
 
 """
-[MMEMory:CDIRectory](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87010.htm)
+[MMEMory:CDIRectory](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e87010.htm)
 
 Change directories. Pass "~" for default.
 """
@@ -402,16 +351,7 @@ function cd(ins::ZNB20, dir::AbstractString)
 end
 
 """
-[MMEMory:COPY](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87048.htm)
-
-Copy a file.
-"""
-function cp(ins::ZNB20, src::AbstractString, dest::AbstractString)
-    write(ins, "MMEMory:COPY "*quoted(src)*","*quoted(dest))
-end
-
-"""
-[DISPLAY:WINDOW#:TRACE#:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/35e75331f5ce4fce.htm)
+[DISPLAY:WINDOW#:TRACE#:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/35e75331f5ce4fce.htm)
 
 Releases the assignment of window trace `wtrace` to window `win`.
 """
@@ -420,7 +360,7 @@ function hidetrace(ins::ZNB20, win::Int, wtrace::Int)
 end
 
 """
-[CALCULATE#:PARAMETER:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/2ce049f1af684d21.htm)
+[CALCULATE#:PARAMETER:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/2ce049f1af684d21.htm)
 
 Report the traces assigned to a given channel.
 """
@@ -429,7 +369,7 @@ function lstrace(ins::ZNB20, ch::Int)
 end
 
 """
-[DISPLAY:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/abdd1db5dc0c48ee.htm)
+[DISPLAY:CATALOG?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/abdd1db5dc0c48ee.htm)
 
 Report the windows and their names in a tuple: (`arrNums::Array{Int64,1}`,
     `arrNames::Array{SubString{ASCIIString},1})`).
@@ -445,16 +385,7 @@ function lswindows(ins::ZNB20)
 end
 
 """
-[MMEMory:MDIRectory](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e89416.htm)
-
-Make a directory.
-"""
-function mkdir(ins::ZNB20, dir::AbstractString)
-    write(ins, "MMEMory:MDIRectory "*quoted(dir))
-end
-
-"""
-[CALCulate#:PARameter:SDEFine](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/e75d49e2a14541c5.htm)
+[CALCulate#:PARameter:SDEFine](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/e75d49e2a14541c5.htm)
 
 Create a new trace with `name` and measurement `parameter` on channel `ch`,
 defaulting to 1.
@@ -466,7 +397,7 @@ function mktrace(ins::ZNB20, name::AbstractString, parameter, ch::Int=1)
 end
 
 """
-[MMEMory:CDIRectory?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87010.htm)
+[MMEMory:CDIRectory?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e87010.htm)
 
 Print the working directory.
 """
@@ -475,30 +406,7 @@ function pwd(ins::ZNB20)
 end
 
 """
-[MMEMory:CATalog?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm)
-
-Read the directory contents.
-"""
-function readdir(ins::ZNB20, dir::AbstractString="")
-    cmd = "MMEMory:CATalog?"
-    if dir != ""
-        cmd = cmd*" "*quoted(dir)
-    end
-    ask(ins, cmd)
-end
-
-"""
-[MMEMory:DELete](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87202.htm)
-
-Remove a file.
-"""
-function rm(ins::ZNB20, file::AbstractString)
-    write(ins, "MMEMory:DELete "*quoted(dir))
-end
-
-
-"""
-[CALCULATE#:PARAMETER:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/0763f74d0a2d4d61.htm)
+[CALCULATE#:PARAMETER:DELETE](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/0763f74d0a2d4d61.htm)
 
 Remove trace with name `name` from channel `ch`, defaulting to 1.
 """
@@ -507,7 +415,7 @@ function rmtrace(ins::ZNB20, name::AbstractString, ch::Int=1)
 end
 
 """
-[CALCulate#:PARameter:DELete:CALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/8d937272d97244fb.htm)
+[CALCulate#:PARameter:DELete:CALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/8d937272d97244fb.htm)
 
 Deletes all traces in the given channel `ch`, defaulting to 1.
 """
@@ -516,7 +424,7 @@ function rmtrace(ins::ZNB20, ch::Int=1)
 end
 
 # """
-# [CALCulate:PARameter:DELete:ALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e69977.htm)
+# [CALCulate:PARameter:DELete:ALL](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e69977.htm)
 #
 # Deletes all traces in all channels.
 # """
@@ -525,7 +433,7 @@ end
 # end
 
 """
-[DISPLAY:WINDOW#:TRACE#:FEED](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/58dad852e7db48a0.htm)
+[DISPLAY:WINDOW#:TRACE#:FEED](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/58dad852e7db48a0.htm)
 
 Show a trace named `name` in window `win::Int` as
 window trace number `wtrace::Int`.
@@ -536,18 +444,17 @@ function showtrace(ins::ZNB20, name::AbstractString, win::Int, wtrace::Int)
 end
 
 """
-[CALCulate#:DATA:STIMulus?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/038ef1cf7a044e85.htm)
+[CALCulate#:DATA:STIMulus?](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/038ef1cf7a044e85.htm)
 
-Read the stimulus values of the active data or memory trace.
+Read the stimulus values for the given channel (default ch. 1).
 """
 function stimdata(ins::ZNB20, ch::Int=1)
     xfer = inspect(ins, TransferFormat)
-    _getdata(ins, xfer, "CALCulate"*string(ch)*":DATA:STIMulus?")
+    PainterQB._getdata(ins, xfer, "CALCulate"*string(ch)*":DATA:STIMulus?")
 end
 
-
 """
-[CALCULATE#:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/a9ce754f8a7c483a.htm)
+[CALCULATE#:DATA](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/a9ce754f8a7c483a.htm)
 
 Retrieve data from the active trace or memory trace.
 Pass the desired format as a string, e.g. "fdat" for
@@ -555,12 +462,17 @@ formatted trace data. See the link above for details.
 
 Channel `ch` defaults to 1.
 """
-function data(ins::ZNB20, ch::Int=1; format=:fdat)
-
+function data(ins::ZNB20, ch::Integer=1; format::VNA.Processing=VNA.Formatted)
     xfer = inspect(ins, TransferFormat)
-    array = _getdata(ins, xfer, "CALCulate"*string(ch)*":DATA? "*string(format))
+    array = PainterQB._getdata(ins, xfer, "CALCulate"*string(ch)*":DATA? "*_procdata(ins,format))
     _reformat(array, Val{format})
 end
+
+_procdata(x::ZNB20, ::Type{VNA.Formatted}) = "fdat"
+_procdata(x::ZNB20, ::Type{VNA.Mathematics}) = "mdat"
+_procdata(x::ZNB20, ::Type{VNA.Calibrated}) = "sdat"
+_procdata(x::ZNB20, ::Type{VNA.Factory}) = "ncd"
+_procdata(x::ZNB20, ::Type{VNA.Raw}) = "ucd"
 
 function _reformat{T}(x, ::Type{Val{T}})
     x
@@ -573,33 +485,5 @@ end
 function _reformat{T}(x::Array{T,1}, ::Type{Val{:mdat}})
     [Complex{T}(x[i],x[i+1]) for i in 1:2:length(x)]
 end
-
-"Retreive and parse a comma delimited string into an `Array{Float64,1}`."
-function _getdata(ins::ZNB20, ::Type{TransferFormat{ASCIIString}}, cmd)
-    data = ask(ins, cmd)
-    [parse(x)::Float64 for x in split(data,",")]
-end
-
-"Parse a binary block, taking care of float size and byte ordering."
-function _getdata{T<:Union{Float32,Float64}}(ins::ZNB20,
-        ::Type{TransferFormat{T}}, cmd)
-
-    write(ins, cmd)
-    io = binblockreadavailable(ins)
-
-    endian = inspect(ins, TransferByteOrder)
-    _conv = (endian == LittleEndianTransfer ? ltoh : ntoh)
-
-    bytes = sizeof(T)
-    nsam = Int(floor((io.size-(io.ptr-1))/bytes))
-
-    array = Vector{T}(nsam)
-    for i=1:nsam
-        array[i] = (_conv)(read(io, T))
-    end
-
-    array
-end
-
 
 end

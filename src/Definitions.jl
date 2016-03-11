@@ -7,6 +7,8 @@ export Coupling
 export ClockSlope
 export ClockSource
 export OscillatorSource
+export TransferByteOrder
+export TransferFormat
 export TriggerImpedance
 export TriggerOutputTiming
 export TriggerOutputPolarity
@@ -14,8 +16,6 @@ export TriggerSlope
 export TriggerSource
 export SampleRate
 export Search
-export SParameter
-export VNAFormat
 
 # Properties common to many instruments and representable by bits types
 export ActiveTrace
@@ -24,6 +24,7 @@ export FrequencyStart
 export FrequencyStop
 export NumPoints
 export Output
+export Phase
 export Power
 export TriggerLevel
 
@@ -31,7 +32,7 @@ export TriggerLevel
 export InstrumentException
 
 # Miscellaneous stuff
-export All
+export VNA
 
 # Functions shared by multiple instruments
 global code, configure, inspect
@@ -45,6 +46,7 @@ export phase_rad, set_phase_rad
 export samplerate, set_samplerate
 export referenceoscillator_source, set_referenceoscillator_source
 export options
+export stimdata
 
 export Instrument
 
@@ -77,9 +79,6 @@ abstract ClockSource           <: InstrumentProperty
 "Signals may be AC or DC coupled."
 abstract Coupling              <: InstrumentProperty
 
-"Post-processing and display formats typical of VNAs."
-abstract VNAFormat             <: InstrumentProperty
-
 "Oscillator source can be internal or external."
 abstract OscillatorSource      <: InstrumentProperty
 
@@ -88,10 +87,14 @@ abstract SampleRate            <: InstrumentProperty{Float64}
 
 abstract Search                <: InstrumentProperty
 
-"Scattering parameter, e.g. S11, S12, etc."
-abstract SParameter            <: InstrumentProperty
-
 abstract State                 <: InstrumentProperty
+
+"Little-endian or big-endian binary transfer from an instrument?"
+abstract TransferByteOrder     <: InstrumentProperty
+
+"Format for moving data, e.g. typically ASCIIString, Float32, Float64."
+abstract TransferFormat{T}     <: InstrumentProperty
+
 abstract TriggerOutputTiming   <: InstrumentProperty
 abstract TriggerOutputPolarity <: InstrumentProperty
 
@@ -121,6 +124,9 @@ abstract NumPoints            <: InstrumentProperty
 
 "Boolean output state of an instrument."
 abstract Output                <: InstrumentProperty{Bool}
+
+"Output phase."
+abstract Phase                 <: InstrumentProperty{Float64}
 
 "Output power level."
 abstract Power                 <: InstrumentProperty{Float64}
@@ -164,10 +170,8 @@ subtypesArray = [
     (:LeftTarget,               Search),
     (:RightTarget,              Search),
 
-    (:S11,                      SParameter),
-    (:S12,                      SParameter),
-    (:S21,                      SParameter),
-    (:S22,                      SParameter),
+    (:LittleEndianTransfer,     TransferByteOrder),
+    (:BigEndianTransfer,        TransferByteOrder),
 
     (:Trigger50Ohms,            TriggerImpedance),
     (:Trigger1kOhms,            TriggerImpedance),
@@ -187,36 +191,18 @@ subtypesArray = [
     (:BusTrigger,               TriggerSource),
     (:MultipleTrigger,          TriggerSource),
 
-    (:LogMagnitude,             VNAFormat),
-    (:Phase,                    VNAFormat),
-    (:GroupDelay,               VNAFormat),
-    (:SmithLinear,              VNAFormat),
-    (:SmithLog,                 VNAFormat),
-    (:SmithComplex,             VNAFormat),
-    (:Smith,                    VNAFormat),
-    (:SmithAdmittance,          VNAFormat),
-    (:PolarLinear,              VNAFormat),
-    (:PolarLog,                 VNAFormat),
-    (:PolarComplex,             VNAFormat),
-    (:LinearMagnitude,          VNAFormat),
-    (:SWR,                      VNAFormat),
-    (:RealPart,                 VNAFormat),
-    (:ImagPart,                 VNAFormat),
-    (:ExpandedPhase,            VNAFormat),
-    (:PositivePhase,            VNAFormat),
 ]::Array{Tuple{Symbol,DataType},1}
 
 # Create all the concrete types we need using the generate_properties function.
-include("Metaprogramming.jl")
+include("meta/Metaprogramming.jl")
 for ((subtypeSymb,supertype) in subtypesArray)
     generate_properties(subtypeSymb, supertype)
 end
 # Note that it is tempting to do this as a macro, but you are not allowed to
 # export from a local scope, so there are some headaches with for loops, etc.
 
-"The All type is meant to be dispatched upon and not instantiated."
-immutable All
-end
+"Read the stimulus values."
+function stimdata end
 
 "Splat tuples into new inspect commands."
 inspect(ins::Instrument, args::Tuple{Vararg}) =

@@ -6,7 +6,12 @@ import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-include(joinpath(Pkg.dir("PainterQB"),"src/Metaprogramming.jl"))
+import PainterQB: _getdata
+
+importall PainterQB.VNA
+import PainterQB.VNA: _procdata
+
+include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E5071C
 
@@ -49,12 +54,18 @@ export YScalePerDivision
 export SetActiveMarker
 export SetActiveChannel
 
-export frequencydata, formatteddata
+export stimdata, data
+export mktrace
 
-type E5071C <: InstrumentVISA
+# The E5071C has rather incomplete support for referring to traces by name.
+# We will maintain an internal description of what names correspond to what
+# trace numbers.
+
+type E5071C <: InstrumentVNA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
     model::AbstractString
+    tracenames::Dict{AbstractString,Int}
 
     E5071C(x) = begin
         ins = new()
@@ -79,7 +90,7 @@ subtypesArray = [
 ]::Array{Tuple{Symbol,DataType},1}
 
 # Create all the concrete types we need using the generate_properties function.
-for ((subtypeSymb,supertype) in subtypesArray)
+for (subtypeSymb,supertype) in subtypesArray
     generate_properties(subtypeSymb, supertype)
 end
 
@@ -89,23 +100,23 @@ responseDictionary = Dict(
 
     ################
 
-    :VNAFormat              => Dict("MLOG" => :LogMagnitude,
-                                    "PHAS" => :Phase,
-                                    "GDEL" => :GroupDelay,
-                                    "SLIN" => :SmithLinear,
-                                    "SLOG" => :SmithLog,
-                                    "SCOM" => :SmithComplex,
-                                    "SMIT" => :Smith,
-                                    "SADM" => :SmithAdmittance,
-                                    "PLIN" => :PolarLinear,
-                                    "PLOG" => :PolarLog,
-                                    "POL"  => :PolarComplex,
-                                    "MLIN" => :LinearMagnitude,
-                                    "SWR"  => :SWR,
-                                    "REAL" => :RealPart,
-                                    "IMAG" => :ImagPart,
-                                    "UPH"  => :ExpandedPhase,
-                                    "PPH"  => :PositivePhase),
+    :Format                 => Dict("MLOG" => :(VNA.LogMagnitude),
+                                    "PHAS" => :(VNA.Phase),
+                                    "GDEL" => :(VNA.GroupDelay),
+                                    "SLIN" => :(VNA.SmithLinear),
+                                    "SLOG" => :(VNA.SmithLog),
+                                    "SCOM" => :(VNA.SmithComplex),
+                                    "SMIT" => :(VNA.Smith),
+                                    "SADM" => :(VNA.SmithAdmittance),
+                                    "PLIN" => :(VNA.PolarLinear),
+                                    "PLOG" => :(VNA.PolarLog),
+                                    "POL"  => :(VNA.PolarComplex),
+                                    "MLIN" => :(VNA.LinearMagnitude),
+                                    "SWR"  => :(VNA.SWR),
+                                    "REAL" => :(VNA.RealPart),
+                                    "IMAG" => :(VNA.ImagPart),
+                                    "UPH"  => :(VNA.ExpandedPhase),
+                                    "PPH"  => :(VNA.PositivePhase)),
 
     :Search                 => Dict("MAX"  => :Max,
                                     "MIN"  => :Min,
@@ -116,10 +127,13 @@ responseDictionary = Dict(
                                     "LTAR" => :LeftTarget,
                                     "RTAR" => :RightTarget),
 
-    :SParameter             => Dict("S11"  => :S11,
-                                    "S12"  => :S12,
-                                    "S21"  => :S21,
-                                    "S22"  => :S22),
+    :Parameter              => Dict("S11"  => :(VNA.S11),
+                                    "S12"  => :(VNA.S12),
+                                    "S21"  => :(VNA.S21),
+                                    "S22"  => :(VNA.S22)),
+
+    :TransferByteOrder      => Dict("NORM" => :BigEndianTransfer,
+                                    "SWAP" => :LittleEndianTransfer),
 
     :TriggerOutputPolarity  => Dict("POS"  => :TrigOutPosPolarity,
                                     "NEG"  => :TrigOutNegPolarity),
@@ -137,6 +151,21 @@ responseDictionary = Dict(
 )
 
 generate_handlers(E5071C, responseDictionary)
+
+code(ins::E5071C, ::Type{TransferFormat{ASCIIString}}) = "ASC"
+code(ins::E5071C, ::Type{TransferFormat{Float32}}) = "REAL32"
+code(ins::E5071C, ::Type{TransferFormat{Float64}}) = "REAL"
+TransferFormat(ins::E5071C, x::AbstractString) = begin
+    if x=="ASC"
+        return TransferFormat{ASCIIString}
+    elseif x=="REAL32"
+        return TransferFormat{Float32}
+    elseif x=="REAL"
+        return TransferFormat{Float64}
+    else
+        error("Transfer format error.")
+    end
+end
 
 abstract Autoscale            <: InstrumentProperty
 abstract Averaging            <: InstrumentProperty
@@ -184,8 +213,8 @@ commands = [
     (":TRIG:OUTP:POS",              TriggerOutputTiming),
     (":TRIG:SEQ:EXT:SLOP",          TriggerSlope),
     (":TRIG:SOUR",                  TriggerSource),
-    (":CALC#:PAR#:DEF",             SParameter),
-    (":CALC#:TRAC#:FORM",           VNAFormat),
+    (":CALC#:TRAC#:FORM",           VNA.Format),
+    (":CALC#:PAR#:DEF",             VNA.Parameter),
 
     (":DISP:WIND#:TRAC#:Y:AUTO",    Autoscale,             NoArgs),
     (":SENS#:AVER",                 Averaging,             Bool),
@@ -237,30 +266,83 @@ for args in commands
     args[1][end] != '?' && generate_configure(E5071C,args...)
 end
 
-function frequencydata(ins::E5071C, channel::Integer, trace::Integer)
-    data = ask(ins,string(":CALC",channel,":TRAC",trace,":DATA:XAX?"))
+"""
+[SENSe#:FREQuency:DATA?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_data.htm]
 
-    # Return an array of numbers
-    map(parse,split(data,",",keep=false))
+Read the stimulus values for the given channel (default ch. 1).
+"""
+function stimdata(ins::E5071C, ch::Int=1)
+    xfer = inspect(ins, TransferFormat)
+    PainterQB._getdata(ins, xfer, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
 
-function formatteddata(ins::E5071C, channel::Integer, trace::Integer)
-    data = ask(ins,string(":CALC",channel,":TRAC",trace,":DATA:FDAT?"))
+"""
+[Internal data processing][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/remote_control/reading-writing_measurement_data/internal_data_processing.htm]
+[:CALCulate#:DATA:FDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_fdata.htm]
+"""
+# Note that optional arguments still participate in method dispatch, so the
+# result should be type-stable.
+function data{T<:VNA.Processing}(ins::E5071C, processing::Type{T}=VNA.Formatted, ch::Integer=1, tr::Integer=1)
 
-    # Return an array of numbers
-    nums = map(parse,split(data,",",keep=false))
-    half = convert(Int, length(nums) / 2)
-    a = Array(AbstractFloat,half)
-    b = Array(AbstractFloat,half)
+    # Get measurement parameter
+    xfer = inspect(ins, TransferFormat)
+    cmdstr = _procdata(ins, processing)
+    cmdstr = replace(cmdstr,"#",string(ch),1)
+    cmdstr = replace(cmdstr,"#",string(tr),1)
+    data = _getdata(ins, xfer, cmdstr)
 
-    # Every other item should go in a separate collection
-    for (i in 1:half)
-        a[i] = nums[2*i-1]
-        b[i] = nums[2*i]
-    end
-
-    # Return both collections
-    (a,b)
+    # # Return an array of numbers
+    # nums = map(parse,split(data,",",keep=false))
+    # half = convert(Int, length(nums) / 2)
+    # a = Array(AbstractFloat,half)
+    # b = Array(AbstractFloat,half)
+    #
+    # # Every other item should go in a separate collection
+    # for (i in 1:half)
+    #     a[i] = nums[2*i-1]
+    #     b[i] = nums[2*i]
+    # end
+    #
+    # # Return both collections
+    # (a,b)
 end
+
+"""
+[:CALCulate#:DATA:SDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_sdata.htm]
+"""
+function data(ins::E5071C, processing::Type{VNA.Calibrated}, ch::Integer=1, tr::Integer=1)
+    xfer = inspect(ins, TransferFormat)
+    cmdstr = _procdata(ins, processing)
+    cmdstr = replace(cmdstr,"#",string(ch),1)
+    cmdstr = replace(cmdstr,"#",string(tr),1)
+    data = _getdata(ins, xfer, cmdstr)
+    reinterpret(Complex{Float64}, data)
+end
+
+"""
+[:SENSe#:DATA:RAWData][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi.sense(ch).data.rawdata.htm]
+This instrument does not associate raw data with a particular trace, but we use the
+trace number to look up what S parameter should be retrieved.
+"""
+function data(ins::E5071C, processing::Type{VNA.Raw}, ch::Integer=1, tr::Integer=1)
+    # Get measurement parameter
+    mpar = inspect(ins, VNA.Parameter, ch, tr)
+    !(mpar <: VNA.SParameter) &&
+        error("Raw data must represent a wave quantity or ratio.")
+
+    xfer = inspect(ins, TransferFormat)
+    cmdstr = _procdata(ins, processing)
+    cmdstr = replace(cmdstr,"#",string(ch),1)
+    cmdstr = replace(cmdstr,"#",code(ins,mpar),1)
+    data = _getdata(ins, xfer, cmdstr)
+    reinterpret(Complex{Float64}, data)
+end
+
+"Default to formatted data."
+data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) = data(ins, VNA.Formatted, ch, tr)
+
+_procdata(x::E5071C, ::Type{VNA.Formatted})  = ":CALC#:TRAC#:DATA:FDAT?"
+_procdata(x::E5071C, ::Type{VNA.Calibrated}) = ":CALC#:TRAC#:DATA:SDAT?"
+_procdata(x::E5071C, ::Type{VNA.Raw})        = ":SENS#:DATA:RAWD? #"
 
 end
