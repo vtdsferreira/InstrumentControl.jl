@@ -33,11 +33,12 @@ function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
     @eval function inspect(ins::$instype, ::Type{$proptype}, infixes::Int...)
         cmd = $command
         # Bail if we need more infixes
-        $nhash != length(infixes) && error(cmd," requires ",$nhash," infixes.")
+        # $nhash != length(infixes) && error(cmd," requires ",$nhash," infixes.")
 
         for infix in infixes
             cmd = replace(cmd,"#",infix,1)  # Replace all '#' chars
         end
+        cmd = replace(cmd, "#", "1")   # Replace remaining infixes with ones.
 
         if cmd[end] != '?'
             cmd = cmd*"?"       # Add question mark if needed
@@ -80,10 +81,11 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
 
         x == $proptype && error("Pass a subtype of ",string($proptype)," instead.")
 
-        $nhash != length(args) && error(cmd," requires ",$nhash," infixes.")
+        # $nhash != length(args) && error(cmd," requires ",$nhash," infixes.")
         for infix in args
             cmd = replace(cmd,"#",infix,1)
         end
+        cmd = replace(cmd, "#", "1")
 
         try
             cd = code(ins,x)
@@ -121,6 +123,7 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
         for infix in args
             cmd = replace(cmd,"#",infix,1)
         end
+        cmd = replace(cmd, "#", "1")
 
         write(ins, cmd)
     end
@@ -151,15 +154,17 @@ function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S
     @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, args...)
         cmd = $command
 
-        $nhash + 1 != length(args) && error(cmd," requires a ",$returntype[1],
-            " argument and ",$nhash," infixes.")
+        # $nhash + 1 != length(args) && error(cmd," requires a ",$returntype[1],
+        #     " argument and ",$nhash," infixes.")
+        length(args) < 1 && error("Not enough arguments.")
 
         !isa(args[1],$returntype[1]) &&
             error(cmd," requires a ",$returntype[1]," argument.")
 
-        for infix in args[end-($nhash-1):end]
+        for infix in args[2:end]
             cmd = replace(cmd,"#",infix,1)
         end
+        cmd = replace(cmd, "#", "1")
 
         write(ins, string(cmd," ",isa(args[1],Bool) ? Int(args[1]) : args[1]))
     end

@@ -6,10 +6,10 @@ import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-import PainterQB: _getdata
+import PainterQB: getdata
 
 importall PainterQB.VNA
-import PainterQB.VNA: _procdata
+import PainterQB.VNA: datacmd
 
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
@@ -217,39 +217,26 @@ commands = [
     (":CALC#:PAR#:DEF",             VNA.Parameter),
 
     (":DISP:WIND#:TRAC#:Y:AUTO",    Autoscale,             NoArgs),
-    (":SENS#:AVER",                 Averaging,             Bool),
-    (":SENS#:AVER:COUN",            AveragingFactor,       Int),
     (":TRIG:AVER",                  AveragingTrigger,      Bool),
-    (":SENS#:AVER:CLE",             ClearAveraging,        NoArgs),
     (":DISP:WIND#:TRAC#:STAT",      DataTrace,             Bool),
     (":CALC#:TRAC#:CORR:EDEL:TIME", ElectricalDelay,       AbstractFloat),
     (":TRIG:EXT:DEL",               ExtTriggerDelay,       AbstractFloat),
     (":TRIG:EXT:LLAT",              ExtTriggerLowLatency,  Bool),
-    (":SENS#:FREQ:CENT",            FrequencyCenter,       AbstractFloat),
-    (":SENS#:FREQ:SPAN",            FrequencySpan,         AbstractFloat),
-    (":SENS#:FREQ:STAR",            FrequencyStart,        AbstractFloat),
-    (":SENS#:FREQ:STOP",            FrequencyStop,         AbstractFloat),
     (":DISP:WIND#:SPL",             GraphLayout,           ASCIIString),
-    (":SENS1:BAND",                 IFBandwidth,           AbstractFloat),
     (":CALC#:MARK#",                Marker,                Bool),
     (":CALC#:MARK#:FUNC:EXEC",      MarkerSearch,          NoArgs),
     (":CALC#:MARK#:X",              MarkerX,               AbstractFloat),
     (":CALC#:MARK#:Y?",             MarkerY,               AbstractFloat),
     (":SENS#:SWE:POIN",             NumPoints,             Int),
     (":CALC#:PAR:COUN",             NumTraces,             Int),
-    (":OUTP",                       Output,                Bool),
     (":CALC#:TRAC#:CORR:OFFS:PHAS", PhaseOffset,           AbstractFloat),
     (":TRIG:POIN",                  PointTrigger,          Bool),
     (":SOUR#:POW:PORT:COUP",        PowerCoupled,          Bool),
-    (":SOUR#:POW",                  PowerLevel,            AbstractFloat),
     (":SOUR#:POW:PORT#",            PowerPortLevel,        AbstractFloat),
     (":SOUR#:POW:SLOP:STAT",        PowerSlope,            Bool),
     (":SOUR#:POW:SLOP",             PowerSlopeLevel,       AbstractFloat),
     (":SENS#:FREQ",                 PowerSweepFrequency,   AbstractFloat),
-    (":CALC1:SMO:STAT",             Smoothing,             Bool),
-    (":CALC#:SMO:APER",             SmoothingAperture,     AbstractFloat),
     (":DISP:WIND#:MAX",             TraceMaximized,        Bool),
-    (":TRIG:OUTP:STAT",             TriggerOutput,         Bool),
     (":CALC#:TRAC#:CORR:EDEL:WGC",  WaveguideCutoff,       AbstractFloat),
     (":DISP:WIND#:Y:DIV",           YDivisions,            Int),
     (":DISP:WIND#:TRAC#:Y:PDIV",    YScalePerDivision,     AbstractFloat),
@@ -267,56 +254,283 @@ for args in commands
 end
 
 """
+[SENSe#:AVERage][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_state.htm]
+
+Turn on or off averaging for a given channel `ch` (defaults to 1).
+"""
+function configure(ins::E5071C, ::Type{Averaging}, b::Bool, ch::Integer=1)
+    write(ins, ":SENS#:AVER #", ch, Int(b))
+end
+
+"""
+[SENSe#:AVERage:COUNt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_count.htm]
+
+Change the averaging factor for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range (1--999).
+"""
+function configure(ins::E5071C, ::Type{AveragingFactor}, b::Integer, ch::Integer=1)
+    # (1 <= b <= 999) || warn("Averaging factor $(string(b)) will be set within 1--999.")
+    write(ins, ":SENS#:AVER:COUN #", ch, b)
+    ret = inspect(ins, AveragingFactor, ch)
+    info("Averaging factor set to "*string(ret)*".")
+end
+
+"""
+[SENSe#:FREQuency:CENTer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
+
+Change the center frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::E5071C, ::Type{FrequencyCenter}, b::Real, ch::Integer=1)
+    write(ins, ":SENS#:FREQ:CENT #", ch, float(b))
+    ret = inspect(ins, FrequencyCenter, ch)
+    info("Center set to "*string(ret)*" Hz.")
+end
+
+"""
+[SENSe#:FREQuency:SPAN][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_span.htm]
+
+Change the frequency span for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::E5071C, ::Type{FrequencySpan}, b::Real, ch::Integer=1)
+    write(ins, ":SENS#:FREQ:SPAN #", ch, float(b))
+    ret = inspect(ins, FrequencySpan, ch)
+    info("Span set to "*string(ret)*" Hz.")
+end
+
+"""
+[SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
+
+Change the start frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::E5071C, ::Type{FrequencyStart}, b::Real, ch::Integer=1)
+    write(ins, ":SENS#:FREQ:STAR #", ch, float(b))
+    ret = inspect(ins, FrequencyStart, ch)
+    info("Start set to "*string(ret)*" Hz.")
+end
+
+"""
+[SENSe#:FREQuency:STOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_stop.htm]
+
+Change the stop frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::E5071C, ::Type{FrequencyStop}, b::Real, ch::Integer=1)
+    write(ins, ":SENS#:FREQ:STOP #", ch, float(b))
+    ret = inspect(ins, FrequencyStop, ch)
+    info("Stop set to "*string(ret)*" Hz.")
+end
+
+"""
+[SENSe#:BANDwidth][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_bandwidth_resolution.htm]
+
+Change the IF bandwidth for channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::E5071C, ::Type{IFBandwidth}, b::Real, ch::Integer=1)
+    # Valid range reported in programming guide does not seem consistent with what happens
+    # (10 <= b <= 1.5e6) || warn("IF bandwidth $(string(b)) will be set within 10--1.5e6.")
+    write(ins, ":SENS#:BAND #", ch, float(b))
+    ret = inspect(ins, IFBandwidth, ch)
+    info("IF bandwidth set to "*string(ret)*" Hz.")
+end
+
+"""
+[OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
+
+Turn on or off the stimulus signal output.
+"""
+function configure(ins::E5071C, ::Type{Output}, b::Bool)
+    write(ins, ":OUTP #", Int(b))
+end
+
+"""
+[SOURce#:POWer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/source/scpi_source_ch_power_level_immediate_amplitude.htm]
+
+Change the stimulus power level for channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range (it depends).
+"""
+function configure(ins::E5071C, ::Type{PowerLevel}, b::Real, ch::Integer=1)
+    write(ins, ":SOUR#:POW #", ch, float(b))
+    ret = inspect(ins, PowerLevel, ch)
+    info("Power level set to "*string(ret)*" dBm.")
+end
+
+"""
+[CALCulate#:TRACe#:SMOothing:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_state.htm]
+
+Turn on or off smoothing for a given channel `ch` and trace `tr` (default to 1).
+"""
+function configure(ins::E5071C, ::Type{Smoothing}, b::Bool, ch::Integer=1, tr::Integer=1)
+    write(ins, ":CALC#:TRAC#:SMO #", ch, tr, Int(b))
+end
+
+"""
+[CALCulate#:TRACe#:SMOothing:APERture][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_aperture.htm]
+
+Change the smoothing aperture (% of sweep span value) for
+channel `ch` and trace `tr` (default to 1).
+Invalid input will be clipped to valid range (0.05--25).
+"""
+function configure(ins::E5071C, ::Type{SmoothingAperture}, b::Real, ch::Integer=1, tr::Integer=1)
+    write(ins, ":CALC#:TRAC#:SMO:APER #", ch, tr, float(b))
+    ret = inspect(ins, SmoothingAperture, ch, tr)
+    info("Smoothing aperture set to "*string(ret)*"%.")
+end
+
+"""
+[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]
+
+Turn on or off the external trigger output.
+"""
+function configure(ins::E5071C, ::Type{TriggerOutput}, b::Bool)
+    write(ins, ":TRIG:OUTP #", Int(b))
+end
+
+"""
+[SENSe#:AVERage][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_state.htm]
+
+Is averaging on for a given channel `ch` (defaults to 1)?
+"""
+function inspect(ins::E5071C, ::Type{Averaging}, ch::Integer=1)
+    Bool(parse(ask(ins, ":SENS#:AVER?", ch))::Int)
+end
+
+"""
+[SENSe#:AVERage:COUNt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_count.htm]
+
+What is the averaging factor for a given channel `ch` (defaults to 1)?
+"""
+function inspect(ins::E5071C, ::Type{AveragingFactor}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:AVER:COUN?", ch))::Int
+end
+
+"""
+[SENSe#:FREQuency:CENTer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
+
+Inspect the center frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function inspect(ins::E5071C, ::Type{FrequencyCenter}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:FREQ:CENT?", ch))::Float64
+end
+
+"""
+[SENSe#:FREQuency:SPAN][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_span.htm]
+
+Inspect the frequency span for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function inspect(ins::E5071C, ::Type{FrequencySpan}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:FREQ:SPAN?", ch))::Float64
+end
+
+"""
+[SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
+
+Inspect the start frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function inspect(ins::E5071C, ::Type{FrequencyStart}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:FREQ:STAR?", ch))::Float64
+end
+
+"""
+[SENSe#:FREQuency:STOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_stop.htm]
+
+Inspect the stop frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function inspect(ins::E5071C, ::Type{FrequencyStop}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:FREQ:STOP?", ch))::Float64
+end
+
+"""
+[SENSe#:BANDwidth][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_bandwidth_resolution.htm]
+
+Inspect the IF bandwidth for channel `ch` (defaults to 1).
+"""
+function inspect(ins::E5071C, ::Type{IFBandwidth}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:BAND?", ch))::Float64
+end
+
+"""
+[OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
+
+Is the stimulus signal output on?
+"""
+function inspect(ins::E5071C, ::Type{Output})
+    Bool(parse(ask(ins, ":OUTP?"))::Int)
+end
+
+"""
+[SOURce#:POWer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/source/scpi_source_ch_power_level_immediate_amplitude.htm]
+
+Inspect the stimulus power level for channel `ch` (defaults to 1).
+"""
+function inspect(ins::E5071C, ::Type{PowerLevel}, ch::Integer=1)
+    parse(ask(ins, ":SOUR#:POW?", ch))::Float64
+end
+
+"""
+[CALCulate#:TRACe#:SMOothing:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_state.htm]
+
+Is smoothing on or off for a given channel `ch` and trace `tr` (default to 1)?
+"""
+function inspect(ins::E5071C, ::Type{Smoothing}, ch::Integer=1, tr::Integer=1)
+    Bool(parse(ask(ins, ":CALC#:TRAC#:SMO?", ch, tr))::Int)
+end
+
+"""
+[CALCulate#:TRACe#:SMOothing:APERture][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_aperture.htm]
+
+What is the smoothing aperture (% of sweep span value) for
+channel `ch` and trace `tr` (default to 1)?
+"""
+function inspect(ins::E5071C, ::Type{SmoothingAperture}, ch::Integer=1, tr::Integer=1)
+    parse(ask(ins, ":CALC#:TRAC#:SMO:APER?", ch, tr))::Float64
+end
+
+"""
+[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]
+
+Is the external trigger output on?
+"""
+function inspect(ins::E5071C, ::Type{TriggerOutput})
+    Bool(parse(ask(ins, ":TRIG:OUTP?"))::Int)
+end
+
+"""
 [SENSe#:FREQuency:DATA?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_data.htm]
 
-Read the stimulus values for the given channel (default ch. 1).
+Read the stimulus values for the given channel (defaults to 1).
 """
 function stimdata(ins::E5071C, ch::Int=1)
     xfer = inspect(ins, TransferFormat)
-    PainterQB._getdata(ins, xfer, ":SENSe"*string(ch)*":FREQuency:DATA?")
+    getdata(ins, xfer, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
 
 """
 [Internal data processing][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/remote_control/reading-writing_measurement_data/internal_data_processing.htm]
 [:CALCulate#:DATA:FDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_fdata.htm]
+[:CALCulate#:DATA:SDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_sdata.htm]
 """
 # Note that optional arguments still participate in method dispatch, so the
 # result should be type-stable.
-function data{T<:VNA.Processing}(ins::E5071C, processing::Type{T}=VNA.Formatted, ch::Integer=1, tr::Integer=1)
-
-    # Get measurement parameter
+function data{T<:VNA.Format}(ins::E5071C, fmt::Type{T}, ch::Integer=1, tr::Integer=1)
+    T != VNA.Format && configure(ins, fmt, ch, tr)
     xfer = inspect(ins, TransferFormat)
-    cmdstr = _procdata(ins, processing)
+    cmdstr = datacmd(ins, fmt)
     cmdstr = replace(cmdstr,"#",string(ch),1)
     cmdstr = replace(cmdstr,"#",string(tr),1)
-    data = _getdata(ins, xfer, cmdstr)
-
-    # # Return an array of numbers
-    # nums = map(parse,split(data,",",keep=false))
-    # half = convert(Int, length(nums) / 2)
-    # a = Array(AbstractFloat,half)
-    # b = Array(AbstractFloat,half)
-    #
-    # # Every other item should go in a separate collection
-    # for (i in 1:half)
-    #     a[i] = nums[2*i-1]
-    #     b[i] = nums[2*i]
-    # end
-    #
-    # # Return both collections
-    # (a,b)
-end
-
-"""
-[:CALCulate#:DATA:SDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_sdata.htm]
-"""
-function data(ins::E5071C, processing::Type{VNA.Calibrated}, ch::Integer=1, tr::Integer=1)
-    xfer = inspect(ins, TransferFormat)
-    cmdstr = _procdata(ins, processing)
-    cmdstr = replace(cmdstr,"#",string(ch),1)
-    cmdstr = replace(cmdstr,"#",string(tr),1)
-    data = _getdata(ins, xfer, cmdstr)
-    reinterpret(Complex{Float64}, data)
+    data = getdata(ins, xfer, cmdstr)
+    if T == VNA.Format
+        _reformat(ins, data, ch, tr)
+    else
+        _reformat(ins, fmt, data)
+    end
 end
 
 """
@@ -331,18 +545,54 @@ function data(ins::E5071C, processing::Type{VNA.Raw}, ch::Integer=1, tr::Integer
         error("Raw data must represent a wave quantity or ratio.")
 
     xfer = inspect(ins, TransferFormat)
-    cmdstr = _procdata(ins, processing)
+    cmdstr = datacmd(ins, processing)
     cmdstr = replace(cmdstr,"#",string(ch),1)
     cmdstr = replace(cmdstr,"#",code(ins,mpar),1)
-    data = _getdata(ins, xfer, cmdstr)
+    data = getdata(ins, xfer, cmdstr)
     reinterpret(Complex{Float64}, data)
 end
 
 "Default to formatted data."
-data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) = data(ins, VNA.Formatted, ch, tr)
+data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) =
+    data(ins, VNA.Format, ch, tr)
 
-_procdata(x::E5071C, ::Type{VNA.Formatted})  = ":CALC#:TRAC#:DATA:FDAT?"
-_procdata(x::E5071C, ::Type{VNA.Calibrated}) = ":CALC#:TRAC#:DATA:SDAT?"
-_procdata(x::E5071C, ::Type{VNA.Raw})        = ":SENS#:DATA:RAWD? #"
+datacmd{T<:VNA.Format}(x::E5071C, ::Type{T})  = ":CALC#:TRAC#:DATA:FDAT?"
+datacmd(x::E5071C, ::Type{VNA.Calibrated})    = ":CALC#:TRAC#:DATA:SDAT?"
+datacmd(x::E5071C, ::Type{VNA.Raw})           = ":SENS#:DATA:RAWD? #"
+
+function _reformat(x::E5071C, data, ch, tr)
+    fmt = inspect(x, VNA.Format, ch, tr)
+    _reformat(x, fmt, data)
+end
+_reformat(x::E5071C, ::Type{VNA.LogMagnitude}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.Phase}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.GroupDelay}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.SmithLinear}, data) =
+    reinterpret(NTuple{2,Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.SmithLog}, data) =
+    reinterpret(NTuple{2,Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.SmithComplex}, data) =
+    reinterpret(Complex{Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.Smith}, data) =
+    reinterpret(NTuple{2,Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.SmithAdmittance}, data) =
+    reinterpret(NTuple{2,Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.PolarLinear}, data) =
+    reinterpret(NTuple{2,Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.PolarLog}, data) =
+    reinterpret(NTuple{2,Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.PolarComplex}, data) =
+    reinterpret(Complex{Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.LinearMagnitude}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.SWR}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.RealPart}, data) =
+    reinterpret(Complex{Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.ImagPart}, data) =
+    im*reinterpret(Complex{Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.ExpandedPhase}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.Calibrated}, data) =
+    reinterpret(Complex{Float64}, data)
+_reformat{T<:VNA.Format}(x::E5071C, ::Type{T}, data) =
+    reinterpret(NTuple{2,Float64}, data)
 
 end

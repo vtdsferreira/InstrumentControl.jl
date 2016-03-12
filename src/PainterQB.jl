@@ -1,6 +1,5 @@
 module PainterQB
 
-import Base: show, showerror
 # export AlazarModule
 # export AWG5014CModule
 export E5071CModule

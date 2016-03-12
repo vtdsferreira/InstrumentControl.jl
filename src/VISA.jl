@@ -20,8 +20,8 @@ export ask, read, write, readavailable
 export binblockwrite, binblockreadavailable
 
 ## Common VISA commands
-export test, reset, identify, clearregisters
-export trigger, aborttrigger, wait
+export tst, rst, idn, cls
+export trg, abor, wait, errors
 
 ## Convenience
 export quoted, unquoted
@@ -77,8 +77,8 @@ tcpip_socket(ip,port) = VISA.viOpen(resourcemanager,
 ## Reading and writing
 
 """Idiomatic "write and read available" function with optional delay."""
-function ask(ins::InstrumentVISA, msg::ASCIIString, delay::Real=0)
-    write(ins, msg)
+function ask(ins::InstrumentVISA, msg::ASCIIString, infixes...; delay::Real=0)
+    write(ins, msg, infixes...)
     sleep(delay)
     readavailable(ins)
 end
@@ -90,9 +90,16 @@ Note that this function will only read so many characters (buffered).
 read(ins::InstrumentVISA) =
     rstrip(bytestring(VISA.viRead(ins.vi)), ['\r', '\n'])
 
-"Write to an instrument. Appends the instrument's write terminator."
-write(ins::InstrumentVISA, msg::ASCIIString) =
+"""
+Write to an instrument.
+Replaces hash signs with infixes and appends the instrument's write terminator.
+"""
+function write(ins::InstrumentVISA, msg::ASCIIString, infixes...)
+    for infix in infixes
+        msg = replace(msg, "#", infix, 1)
+    end
     VISA.viWrite(ins.vi, string(msg, ins.writeTerminator))
+end
 
 "Keep reading from an instrument until the instrument says we are done."
 readavailable(ins::InstrumentVISA) =
@@ -108,28 +115,53 @@ binblockwrite(ins::InstrumentVISA,
 "Read an entire block of bytes with properly formatted IEEE header."
 binblockreadavailable(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.vi)
 
-## Common VISA commands
+## IEEE standard commands
 
 "Test with the *TST? command."
-test(ins::InstrumentVISA)            = write(ins, "*TST?")
+tst(ins::InstrumentVISA)        = write(ins, "*TST?")
 
 "Reset with the *RST command."
-reset(ins::InstrumentVISA)           = write(ins, "*RST")
+rst(ins::InstrumentVISA)        = write(ins, "*RST")
 
 "Ask the *IDN? command."
-identify(ins::InstrumentVISA)        = ask(ins, "*IDN?")
+idn(ins::InstrumentVISA)        = ask(ins, "*IDN?")
 
 "Clear registers with *CLS."
-clearregisters(ins::InstrumentVISA)  = write(ins, "*CLS")
+cls(ins::InstrumentVISA)        = write(ins, "*CLS")
 
 "Bus trigger with *TRG."
-trigger(ins::InstrumentVISA)         = write(ins, "*TRG")
-
-"Abort triggering with ABOR."
-aborttrigger(ins::InstrumentVISA)    = write(ins, "ABOR")
+trg(ins::InstrumentVISA)        = write(ins, "*TRG")
 
 "Wait for completion of a sweep."
-wait(ins::InstrumentVISA)            = write(ins, "*WAI")
+wait(ins::InstrumentVISA)       = write(ins, "*WAI")
+
+# Useful common commands
+
+"Abort triggering with ABOR."
+abor(ins::InstrumentVISA)       = write(ins, "ABOR")
+
+"""
+Interrogate errors using `:SYST:ERR?` and raise an `InstrumentException`
+if appropriate. Otherwise, return `nothing`.
+
+The `maxerrors` optional argument prevents this function from querying
+the instrument forever if there is some unexpected trouble.
+"""
+function errors(ins::InstrumentVISA, maxerrors=100)
+    i, res = 0, split(ask(ins, ":SYST:ERR?"), ",")
+    if parse(res[1])::Int != 0
+        codes = Int64[]
+        strings = UTF8String[]
+        while (i < maxerrors && parse(res[1])::Int != 0)
+            push!(codes, parse(res[1])::Int)
+            push!(strings, res[2])
+            res = split(ask(ins, ":SYST:ERR?"),",")
+            i+=1
+        end
+        throw(InstrumentException(ins, codes, strings))
+    end
+    nothing
+end
 
 ## Convenient functions for parsing and sending strings.
 
@@ -140,8 +172,10 @@ quoted(str::ASCIIString) = "\""*str*"\""
 unquoted(str::ASCIIString) = strip(str,['"','\''])
 
 
+## Convenient functions for querying arrays of numbers.
+
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function _getdata(ins::InstrumentVISA, ::Type{TransferFormat{ASCIIString}}, cmd, delim=",")
+function getdata(ins::InstrumentVISA, ::Type{TransferFormat{ASCIIString}}, cmd, delim=",")
     data = ask(ins, cmd)
     [parse(x)::Float64 for x in split(data, delim)]
 end
@@ -150,7 +184,7 @@ end
 Parse a binary block, taking care of float size and byte ordering.
 Return type is always `Array{Float64,1}` regardless of transfer format.
 """
-function _getdata{T<:Union{Float32,Float64}}(ins::InstrumentVISA,
+function getdata{T<:Union{Float32,Float64}}(ins::InstrumentVISA,
         ::Type{TransferFormat{T}}, cmd)
 
     write(ins, cmd)
@@ -172,6 +206,7 @@ end
 
 
 ## File management
+
 """
 MMEMory:COPY
 [E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_copy.htm)

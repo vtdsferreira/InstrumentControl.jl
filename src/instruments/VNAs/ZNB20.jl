@@ -6,8 +6,11 @@ import Base: cd, pwd
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-import PainterQB.VNA: InstrumentVNA, Format, Parameter
-import PainterQB.VNA: _procdata
+import PainterQB: getdata
+
+importall PainterQB.VNA
+import PainterQB.VNA: datacmd
+
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export ZNB20
@@ -450,7 +453,7 @@ Read the stimulus values for the given channel (default ch. 1).
 """
 function stimdata(ins::ZNB20, ch::Int=1)
     xfer = inspect(ins, TransferFormat)
-    PainterQB._getdata(ins, xfer, "CALCulate"*string(ch)*":DATA:STIMulus?")
+    getdata(ins, xfer, "CALCulate"*string(ch)*":DATA:STIMulus?")
 end
 
 """
@@ -464,15 +467,15 @@ Channel `ch` defaults to 1.
 """
 function data(ins::ZNB20, ch::Integer=1; format::VNA.Processing=VNA.Formatted)
     xfer = inspect(ins, TransferFormat)
-    array = PainterQB._getdata(ins, xfer, "CALCulate"*string(ch)*":DATA? "*_procdata(ins,format))
+    array = getdata(ins, xfer, "CALCulate"*string(ch)*":DATA? "*datacmd(ins,format))
     _reformat(array, Val{format})
 end
 
-_procdata(x::ZNB20, ::Type{VNA.Formatted}) = "fdat"
-_procdata(x::ZNB20, ::Type{VNA.Mathematics}) = "mdat"
-_procdata(x::ZNB20, ::Type{VNA.Calibrated}) = "sdat"
-_procdata(x::ZNB20, ::Type{VNA.Factory}) = "ncd"
-_procdata(x::ZNB20, ::Type{VNA.Raw}) = "ucd"
+datacmd(x::ZNB20, ::Type{VNA.Formatted}) = "fdat"
+datacmd(x::ZNB20, ::Type{VNA.Mathematics}) = "mdat"
+datacmd(x::ZNB20, ::Type{VNA.Calibrated}) = "sdat"
+datacmd(x::ZNB20, ::Type{VNA.Factory}) = "ncd"
+datacmd(x::ZNB20, ::Type{VNA.Raw}) = "ucd"
 
 function _reformat{T}(x, ::Type{Val{T}})
     x
