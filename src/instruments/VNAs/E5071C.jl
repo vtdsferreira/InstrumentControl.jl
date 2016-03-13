@@ -738,10 +738,15 @@ _pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
 function bandwidth(ins::E5071C)
 end
 
-function screen(ins::E5071C, filename::AbstractString="screenshot.png")
-    write(ins, ":MMEM:STOR:IMAG #", quoted(filename))
-    write(ins, ":MMEM:TRAN? #", quoted(filename))
+function screen(ins::E5071C, filename::AbstractString="screenshot.png", display::Bool=true)
+    write(ins, ":MMEM:STOR:IMAG \"screen.png\"")
+    write(ins, ":MMEM:TRAN? \"screen.png\"")
     io = binblockreadavailable(ins)
+    img = readbytes(io)
+    fi = open(filename,"w+")
+    write(fi, img)
+    close(fi)
+    display && load(filename)
 end
 
 end
