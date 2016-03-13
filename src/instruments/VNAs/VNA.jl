@@ -37,14 +37,18 @@ The E5071C supports:
 ```
 """
 immutable MarkerSearch{T}
-    ch::Integer
-    m::Integer
+    ch::Int
+    m::Int
     val::Float64
     pol::Bool
 end
-MarkerSearch{:Max}(ch, m) = MarkerSearch{:Global}(ch,m,0.0,true)
-MarkerSearch{:Min}(ch, m) = MarkerSearch{:Global}(ch,m,0.0,false)
-MarkerSearch{:Bandwidth}(ch, m, bw) = MarkerSearch{:Bandwidth}(ch,m,bw,true)
+
+function MarkerSearch(typ::Symbol, ch, m, val=0.0, pol::Bool=true)
+    typ == :Max && return MarkerSearch{:Global}(ch, m, 0.0, true)
+    typ == :Min && return MarkerSearch{:Global}(ch, m, 0.0, false)
+    typ == :Bandwidth && return MarkerSearch{:Bandwidth}(ch, m, pol*val, true)
+    return MarkerSearch{typ}(ch, m, val, pol)
+end
 
 subtypesArray = [
     # True formatting types

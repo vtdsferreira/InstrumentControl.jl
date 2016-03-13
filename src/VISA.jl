@@ -175,7 +175,11 @@ unquoted(str::ASCIIString) = strip(str,['"','\''])
 ## Convenient functions for querying arrays of numbers.
 
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function getdata(ins::InstrumentVISA, ::Type{TransferFormat{ASCIIString}}, cmd, delim=",")
+function getdata(ins::InstrumentVISA, ::Type{TransferFormat{ASCIIString}},
+        cmd, infixes...; delim=",")
+    for infix in infixes
+        cmd = replace(cmd, "#", infix, 1)
+    end
     data = ask(ins, cmd)
     [parse(x)::Float64 for x in split(data, delim)]
 end
@@ -184,9 +188,11 @@ end
 Parse a binary block, taking care of float size and byte ordering.
 Return type is always `Array{Float64,1}` regardless of transfer format.
 """
-function getdata{T<:Union{Float32,Float64}}(ins::InstrumentVISA,
-        ::Type{TransferFormat{T}}, cmd)
-
+function getdata{T<:Number}(ins::InstrumentVISA,
+        ::Type{TransferFormat{T}}, cmd, infixes...)
+    for infix in infixes
+        cmd = replace(cmd, "#", infix, 1)
+    end
     write(ins, cmd)
     io = binblockreadavailable(ins)
 

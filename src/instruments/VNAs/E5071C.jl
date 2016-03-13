@@ -739,6 +739,9 @@ function bandwidth(ins::E5071C)
 end
 
 function screen(ins::E5071C, filename::AbstractString="screenshot.png")
-    write(ins, ":MMEM:STOR:IMAG #", filename)
-    ask(ins, ":MMEM:TRAN? #", filename)
+    write(ins, ":MMEM:STOR:IMAG #", quoted(filename))
+    write(ins, ":MMEM:TRAN? #", quoted(filename))
+    io = binblockreadavailable(ins)
+end
+
 end
