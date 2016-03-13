@@ -15,12 +15,10 @@ include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E5071C
 
-export Autoscale
 export Averaging
 export AveragingFactor
 export AveragingTrigger
 export ClearAveraging
-export DataTrace
 export ElectricalDelay
 export ElectricalMedium
 export ExtTriggerDelay
@@ -30,7 +28,6 @@ export FrequencySpan
 export GraphLayout
 export IFBandwidth
 export Marker
-export MarkerSearch
 export MarkerX
 export MarkerY
 export NumTraces
@@ -41,8 +38,10 @@ export PowerLevel
 export PowerSlope
 export PowerSlopeLevel
 export PowerSweepFrequency
+export SearchTracking
 export Smoothing
 export SmoothingAperture
+export TraceDisplay
 export TraceMaximized
 export TriggerOutput
 export WaveguideCutoff
@@ -54,6 +53,8 @@ export YScalePerDivision
 export SetActiveMarker
 export SetActiveChannel
 
+export autoscale, bandwidth
+export screen, search
 export stimdata, data
 export mktrace
 
@@ -118,15 +119,6 @@ responseDictionary = Dict(
                                     "UPH"  => :(VNA.ExpandedPhase),
                                     "PPH"  => :(VNA.PositivePhase)),
 
-    :Search                 => Dict("MAX"  => :Max,
-                                    "MIN"  => :Min,
-                                    "PEAK" => :Peak,
-                                    "LPE"  => :LeftPeak,
-                                    "RPE"  => :RightPeak,
-                                    "TARG" => :Target,
-                                    "LTAR" => :LeftTarget,
-                                    "RTAR" => :RightTarget),
-
     :Parameter              => Dict("S11"  => :(VNA.S11),
                                     "S12"  => :(VNA.S12),
                                     "S21"  => :(VNA.S21),
@@ -167,12 +159,11 @@ TransferFormat(ins::E5071C, x::AbstractString) = begin
     end
 end
 
-abstract Autoscale            <: InstrumentProperty
 abstract Averaging            <: InstrumentProperty
 abstract AveragingFactor      <: InstrumentProperty{Int}
 abstract AveragingTrigger     <: InstrumentProperty
 abstract ClearAveraging       <: InstrumentProperty
-abstract DataTrace            <: InstrumentProperty
+abstract TraceDisplay         <: InstrumentProperty
 abstract ElectricalDelay      <: InstrumentProperty{Float64}
 abstract ExtTriggerDelay      <: InstrumentProperty{Float64}
 abstract ExtTriggerLowLatency <: InstrumentProperty
@@ -181,7 +172,6 @@ abstract FrequencySpan        <: InstrumentProperty{Float64}
 abstract GraphLayout          <: InstrumentProperty
 abstract IFBandwidth          <: InstrumentProperty{Float64}
 abstract Marker               <: InstrumentProperty
-abstract MarkerSearch         <: InstrumentProperty
 abstract MarkerX              <: InstrumentProperty{Float64}
 abstract MarkerY              <: InstrumentProperty
 abstract NumTraces            <: InstrumentProperty
@@ -193,6 +183,7 @@ abstract PowerPortLevel       <: InstrumentProperty{Float64}
 abstract PowerSlope           <: InstrumentProperty
 abstract PowerSlopeLevel      <: InstrumentProperty{Float64}
 abstract PowerSweepFrequency  <: InstrumentProperty{Float64}
+abstract SearchTracking       <: InstrumentProperty
 abstract Smoothing            <: InstrumentProperty
 abstract SmoothingAperture    <: InstrumentProperty{Float64}
 abstract TraceMaximized       <: InstrumentProperty
@@ -216,18 +207,11 @@ commands = [
     (":CALC#:TRAC#:FORM",           VNA.Format),
     (":CALC#:PAR#:DEF",             VNA.Parameter),
 
-    (":DISP:WIND#:TRAC#:Y:AUTO",    Autoscale,             NoArgs),
     (":TRIG:AVER",                  AveragingTrigger,      Bool),
-    (":DISP:WIND#:TRAC#:STAT",      DataTrace,             Bool),
     (":CALC#:TRAC#:CORR:EDEL:TIME", ElectricalDelay,       AbstractFloat),
     (":TRIG:EXT:DEL",               ExtTriggerDelay,       AbstractFloat),
     (":TRIG:EXT:LLAT",              ExtTriggerLowLatency,  Bool),
     (":DISP:WIND#:SPL",             GraphLayout,           ASCIIString),
-    (":CALC#:MARK#",                Marker,                Bool),
-    (":CALC#:MARK#:FUNC:EXEC",      MarkerSearch,          NoArgs),
-    (":CALC#:MARK#:X",              MarkerX,               AbstractFloat),
-    (":CALC#:MARK#:Y?",             MarkerY,               AbstractFloat),
-    (":SENS#:SWE:POIN",             NumPoints,             Int),
     (":CALC#:PAR:COUN",             NumTraces,             Int),
     (":CALC#:TRAC#:CORR:OFFS:PHAS", PhaseOffset,           AbstractFloat),
     (":TRIG:POIN",                  PointTrigger,          Bool),
@@ -338,12 +322,42 @@ function configure(ins::E5071C, ::Type{IFBandwidth}, b::Real, ch::Integer=1)
 end
 
 """
+[:CALC#:TRAC#:MARK#:STATe][aaa]
+
+Turn on or off display of marker `m` for channel `ch` and trace `tr`.
+"""
+function configure(ins::E5071C, ::Type{Marker}, m::Integer, b::Bool, ch::Integer=1, tr::Integer=1)
+    1 <= m <= 10 || error("Invalid marker number.")
+    write(ins, "CALC#:TRAC#:MARK# #", ch, tr, m, Int(b))
+end
+
+(":CALC#:MARK#:X",              MarkerX,               AbstractFloat),
+(":CALC#:MARK#:Y?",             MarkerY,               AbstractFloat),
+
+"""
+[:CALC#:TRAC#:MARK#:X][aaa]
+"""
+function configure(ins::E5071C, ::Type{MarkerX}, m::Integer, b::Real, ch::Integer=1, tr::Integer=1)
+    1 <= m <= 10 || error("Invalid marker number.")
+    write(ins, "CALC#:TRAC#:MARK#:X #", ch, tr, m, float(b))
+end
+
+"""
 [OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
 
 Turn on or off the stimulus signal output.
 """
 function configure(ins::E5071C, ::Type{Output}, b::Bool)
     write(ins, ":OUTP #", Int(b))
+end
+
+"""
+[:SENS#:SWE:POIN][aaa]
+
+Set the number of points to sweep over for channel `ch`.
+"""
+function configure(ins::E5071C, ::Type{NumPoints}, b::Integer, ch::Integer=1)
+    write(ins, ":SENS#:SWE:POIN #", ch, b)
 end
 
 """
@@ -356,6 +370,15 @@ function configure(ins::E5071C, ::Type{PowerLevel}, b::Real, ch::Integer=1)
     write(ins, ":SOUR#:POW #", ch, float(b))
     ret = inspect(ins, PowerLevel, ch)
     info("Power level set to "*string(ret)*" dBm.")
+end
+
+"""
+[:CALC#:MARK#:FUNC:TRAC][aaa]
+
+Set whether or not the marker search for marker `m` is repeated with trace updates.
+"""
+function configure(ins::E5071C, ::Type{SearchTracking}, m::Integer, b::Bool, ch::Integer=1)
+    write(ins, ":CALC#:MARK#:FUNC:TRAC #", ch, m, Int(b))
 end
 
 """
@@ -378,6 +401,15 @@ function configure(ins::E5071C, ::Type{SmoothingAperture}, b::Real, ch::Integer=
     write(ins, ":CALC#:TRAC#:SMO:APER #", ch, tr, float(b))
     ret = inspect(ins, SmoothingAperture, ch, tr)
     info("Smoothing aperture set to "*string(ret)*"%.")
+end
+
+"""
+[:DISP:WIND#:TRAC#:STAT][aaa]
+
+Turn on or off display of trace `tr` of channel `ch`.
+"""
+function configure(ins::E5071C, ::Type{TraceDisplay}, b::Bool, ch::Integer=1, tr::Integer=1)
+    write(ins, ":DISP:WIND#:TRAC#:STAT #", ch, tr, Int(b))
 end
 
 """
@@ -457,6 +489,41 @@ function inspect(ins::E5071C, ::Type{IFBandwidth}, ch::Integer=1)
 end
 
 """
+[:CALC#:TRAC#:MARK#:STATe][aaa]
+
+Query whether marker `m` is displayed for channel `ch` and trace `tr`.
+"""
+function inspect(ins::E5071C, ::Type{Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
+    1 <= m <= 10 || error("Invalid marker number.")
+    Bool(parse(ask(ins, "CALC#:TRAC#:MARK#?", ch, tr, m))::Int)
+end
+
+"""
+[:CALC#:TRAC#:MARK#:X][aaa]
+"""
+function inspect(ins::E5071C, ::Type{MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
+    1 <= m <= 10 || error("Invalid marker number.")
+    parse(ask(ins, "CALC#:TRAC#:MARK#:X?", ch, tr, m))::Float64
+end
+
+"""
+[CALC#:TRAC#:MARK#:Y?][aaa]
+"""
+function inspect(ins::E5071C, ::Type{MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
+    1 <= m <= 10 || error("Invalid marker number.")
+    parse(ask(ins, "CALC#:TRAC#:MARK#:Y?", ch, tr, m))::Float64
+end
+
+"""
+[:SENS#:SWE:POIN][aaa]
+
+Set the number of points to sweep over for channel `ch`.
+"""
+function inspect(ins::E5071C, ::Type{NumPoints}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:SWE:POIN?", ch))::Int
+end
+
+"""
 [OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
 
 Is the stimulus signal output on?
@@ -472,6 +539,15 @@ Inspect the stimulus power level for channel `ch` (defaults to 1).
 """
 function inspect(ins::E5071C, ::Type{PowerLevel}, ch::Integer=1)
     parse(ask(ins, ":SOUR#:POW?", ch))::Float64
+end
+
+"""
+[:CALC#:MARK#:FUNC:TRAC][aaa]
+
+Set whether or not the marker search for marker `m` is repeated with trace updates.
+"""
+function inspect(ins::E5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1)
+    Bool(parse(ask(ins, ":CALC#:MARK#:FUNC:TRAC?", ch, m))::Int)
 end
 
 """
@@ -494,12 +570,30 @@ function inspect(ins::E5071C, ::Type{SmoothingAperture}, ch::Integer=1, tr::Inte
 end
 
 """
+[:DISP:WIND#:TRAC#:STAT][aaa]
+
+Turn on or off display of trace `tr` of channel `ch`.
+"""
+function inspect(ins::E5071C, ::Type{TraceDisplay}, ch::Integer=1, tr::Integer=1)
+    Bool(parse(ask(ins, ":DISP:WIND#:TRAC#:STAT?", ch, tr))::Int)
+end
+
+"""
 [TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]
 
 Is the external trigger output on?
 """
 function inspect(ins::E5071C, ::Type{TriggerOutput})
     Bool(parse(ask(ins, ":TRIG:OUTP?"))::Int)
+end
+
+"""
+[DISP:WIND#:TRAC#:Y:AUTO][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_y_scale_auto.htm]
+
+Autoscales y-axis of trace `tr` of channel `ch`.
+"""
+function autoscale(ins::E5071C, ch::Integer=1, tr::Integer=1)
+    write(ins, ":DISP:WIND#:TRAC#:Y:AUTO", ch, tr)
 end
 
 """
@@ -595,4 +689,56 @@ _reformat(x::E5071C, ::Type{VNA.Calibrated}, data) =
 _reformat{T<:VNA.Format}(x::E5071C, ::Type{T}, data) =
     reinterpret(NTuple{2,Float64}, data)
 
+function search(ins::E5071C, m::MarkerSearch{:Global}, exec::Bool=true)
+    typ = (m.pol ? "MAX" : "MIN")
+    write(ins, ":CALC#:MARK#:TYPE #", m.ch, m.m, typ)
+    exec && _search(ins, m)
+end
+
+function search{T}(ins::E5071C, m::MarkerSearch{T}, exec::Bool=true)
+    write(ins, _type(ins, m), m.ch, m.m)
+    write(ins, _val(ins, m),  m.ch, m.m, m.val)
+    write(ins, _pol(ins, m),  m.ch, m.m, Int(m.pol))
+    exec && _search(ins, m)
+end
+
+function _search(ins::E5071C, m::MarkerSearch)
+    write(ins, ":CALC#:MARK#:FUNC:EXEC", m.ch, m.m)
+    ask(ins, ":CALC#:MARK#:DATA?", m.ch, m.m)
+end
+
+function _search(ins::E5071C, m::MarkerSearch{:Bandwidth})
+    ask(ins, ":CALC#:MARK#:BWID:DATA?", m.ch, m.m)
+end
+
+_type(::E5071C, ::MarkerSearch{:Peak})         = ":CALC#:MARK#:TYPE PEAK"
+_type(::E5071C, ::MarkerSearch{:LeftPeak})     = ":CALC#:MARK#:TYPE LPE"
+_type(::E5071C, ::MarkerSearch{:RightPeak})    = ":CALC#:MARK#:TYPE RPE"
+_type(::E5071C, ::MarkerSearch{:Target})       = ":CALC#:MARK#:TYPE TARG"
+_type(::E5071C, ::MarkerSearch{:LeftTarget})   = ":CALC#:MARK#:TYPE LTAR"
+_type(::E5071C, ::MarkerSearch{:RightTarget})  = ":CALC#:MARK#:TYPE RTAR"
+_type(::E5071C, ::MarkerSearch{:Bandwidth})    = ""
+
+_val(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:MARK#:FUNC:PEXC #"
+_val(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:MARK#:FUNC:PEXC #"
+_val(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:MARK#:FUNC:PEXC #"
+_val(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:MARK#:FUNC:TARG #"
+_val(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:MARK#:FUNC:TARG #"
+_val(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:MARK#:FUNC:TARG #"
+_val(::E5071C,  ::MarkerSearch{:Bandwidth})    = ":CALC#:MARK#:BWID:THR #"
+
+_pol(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:MARK#:FUNC:PPOL #"
+_pol(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:MARK#:FUNC:PPOL #"
+_pol(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:MARK#:FUNC:PPOL #"
+_pol(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:MARK#:FUNC:TTR #"
+_pol(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:MARK#:FUNC:TTR #"
+_pol(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:MARK#:FUNC:TTR #"
+_pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
+
+function bandwidth(ins::E5071C)
+end
+
+function screen(ins::E5071C, filename::AbstractString="screenshot.png")
+    write(ins, ":MMEM:STOR:IMAG #", filename)
+    ask(ins, ":MMEM:TRAN? #", filename)
 end

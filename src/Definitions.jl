@@ -17,7 +17,6 @@ export TriggerOutputPolarity
 export TriggerSlope
 export TriggerSource
 export SampleRate
-export Search
 
 # Properties common to many instruments and representable by bits types
 export ActiveTrace
@@ -89,8 +88,6 @@ abstract OscillatorSource      <: InstrumentProperty
 
 "The sample rate for digitizing, synthesizing, etc."
 abstract SampleRate            <: InstrumentProperty{Float64}
-
-abstract Search                <: InstrumentProperty
 
 abstract State                 <: InstrumentProperty
 
@@ -180,15 +177,6 @@ subtypesArray = [
 
     (:InternalOscillator,       OscillatorSource),
     (:ExternalOscillator,       OscillatorSource),
-
-    (:Max,                      Search),
-    (:Min,                      Search),
-    (:Peak,                     Search),
-    (:LeftPeak,                 Search),
-    (:RightPeak,                Search),
-    (:Target,                   Search),
-    (:LeftTarget,               Search),
-    (:RightTarget,              Search),
 
     (:LittleEndianTransfer,     TransferByteOrder),
     (:BigEndianTransfer,        TransferByteOrder),

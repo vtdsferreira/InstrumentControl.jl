@@ -4,8 +4,8 @@ import PainterQB: InstrumentProperty, InstrumentVISA, TransferFormat
 
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
 
-export InstrumentVNA, Format, Parameter
-export clearavg, data
+export InstrumentVNA, Format, MarkerSearch, Parameter
+export clearavg, data, search
 
 "Assume that all VNAs support VISA."
 abstract InstrumentVNA  <: InstrumentVISA
@@ -17,6 +17,34 @@ abstract Format         <: InstrumentProperty
 abstract Parameter      <: InstrumentProperty
 abstract SParameter     <: Parameter
 abstract ABCDParameter  <: Parameter
+
+"""
+Object encapsulating a marker search query. The type parameter should be a
+symbol specifying the search type. The available options may depend on
+VNA capabilities.
+
+The E5071C supports:
+
+```jl
+:Max
+:Min
+:Peak
+:LeftPeak
+:RightPeak
+:Target
+:LeftTarget
+:RightTarget
+```
+"""
+immutable MarkerSearch{T}
+    ch::Integer
+    m::Integer
+    val::Float64
+    pol::Bool
+end
+MarkerSearch{:Max}(ch, m) = MarkerSearch{:Global}(ch,m,0.0,true)
+MarkerSearch{:Min}(ch, m) = MarkerSearch{:Global}(ch,m,0.0,false)
+MarkerSearch{:Bandwidth}(ch, m, bw) = MarkerSearch{:Bandwidth}(ch,m,bw,true)
 
 subtypesArray = [
     # True formatting types
@@ -76,5 +104,14 @@ end
 
 "Fallback method assumes we cannot do what is requested."
 datacmd{T<:Format}(x::InstrumentVNA, ::Type{T}) = error("Not supported for this VNA.")
+
+"""
+Can execute marker searches defined by any number of MarkerSearch objects.
+"""
+function search(ins::InstrumentVNA, m1::MarkerSearch, m2::MarkerSearch, m3::MarkerSearch...)
+    for s in [m1, m2, m3...]
+        search(ins, s)
+    end
+end
 
 end
