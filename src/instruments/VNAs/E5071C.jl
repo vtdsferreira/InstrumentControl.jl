@@ -3,6 +3,7 @@ module E5071CModule
 
 ## Import packages
 import VISA
+import FileIO
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
@@ -746,7 +747,7 @@ function screen(ins::E5071C, filename::AbstractString="screenshot.png", display:
     fi = open(filename,"w+")
     write(fi, img)
     close(fi)
-    display && load(filename)
+    display && FileIO.load(filename)
 end
 
 end
