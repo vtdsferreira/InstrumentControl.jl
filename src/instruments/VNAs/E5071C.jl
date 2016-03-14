@@ -765,3 +765,5 @@ function screen(ins::E5071C, filename::AbstractString="screenshot.png", display:
     getdata(ins, filename, filename)
     display && FileIO.load(filename)
 end
+
+end
