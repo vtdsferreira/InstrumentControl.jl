@@ -518,7 +518,7 @@ end
 """
 function inspect(ins::E5071C, ::Type{MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
-    data = split(ask(ins, "CALC#:TRAC#:MARK#:Y?", ch, tr, m), ",")
+    data = getdata(ins, TransferFormat{ASCIIString}, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
     _reformat(ins, data, ch, tr)[1]
 end
 
