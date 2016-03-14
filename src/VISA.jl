@@ -28,7 +28,7 @@ export quoted, unquoted
 
 ## Instrument file manipulation
 export cp
-export getdata
+export getfile
 export loadstate
 export mkdir
 export readdir
