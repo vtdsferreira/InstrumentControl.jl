@@ -190,10 +190,11 @@ abstract SetActiveMarker      <: InstrumentProperty
 abstract SetActiveChannel     <: InstrumentProperty
 
 commands = [
-    (":TRIG:OUTP:POL",              TriggerOutputPolarity),
-    (":TRIG:OUTP:POS",              TriggerOutputTiming),
+    (":CALC#:TRAC#:CORR:EDEL:MED",  VNA.ElectricalMedium),
     (":CALC#:TRAC#:FORM",           VNA.Format),
     (":CALC#:PAR#:DEF",             VNA.Parameter),
+    (":TRIG:OUTP:POL",              TriggerOutputPolarity),
+    (":TRIG:OUTP:POS",              TriggerOutputTiming),
 
     (":TRIG:AVER",                  AveragingTrigger,      Bool),
     (":CALC#:TRAC#:CORR:EDEL:TIME", ElectricalDelay,       AbstractFloat),
@@ -245,16 +246,6 @@ function configure(ins::E5071C, ::Type{AveragingFactor}, b::Integer, ch::Integer
     write(ins, ":SENS#:AVER:COUN #", ch, b)
     ret = inspect(ins, AveragingFactor, ch)
     info("Averaging factor set to "*string(ret)*".")
-end
-
-"""
-[:CALCulate#:TRACe#:CORRection:EDELay:MEDium][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_correction_edelay_medium.htm]
-
-Choose between coaxial or waveguide media for calculating electrical delay time,
-for channel `ch` and trace `tr`.
-"""
-function configure{T<:ElectricalMedium}(ins::E5071C, ::Type{T}, ch::Integer=1, tr::Integer=1)
-    write(ins, ":CALC#:TRAC#:CORR:EDEL:MED #", ch, tr, code(ins, T))
 end
 
 """
@@ -320,7 +311,7 @@ function configure(ins::E5071C, ::Type{IFBandwidth}, b::Real, ch::Integer=1)
 end
 
 """
-[:CALC#:TRAC#:MARK#:STATe][aaa]
+[:CALC#:TRAC#:MARK#:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_state.htm]
 
 Turn on or off display of marker `m` for channel `ch` and trace `tr`.
 """
@@ -330,7 +321,7 @@ function configure(ins::E5071C, ::Type{Marker}, m::Integer, b::Bool, ch::Integer
 end
 
 """
-[:CALC#:TRAC#:MARK#:X][aaa]
+[:CALC#:TRAC#:MARK#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
 function configure(ins::E5071C, ::Type{MarkerX}, m::Integer, b::Real, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
@@ -347,7 +338,7 @@ function configure(ins::E5071C, ::Type{Output}, b::Bool)
 end
 
 """
-[:SENS#:SWE:POIN][aaa]
+[:SENSe#:SWEep:POINts][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_sweep_points.htm]
 
 Set the number of points to sweep over for channel `ch`.
 """
@@ -368,12 +359,12 @@ function configure(ins::E5071C, ::Type{PowerLevel}, b::Real, ch::Integer=1)
 end
 
 """
-[:CALC#:MARK#:FUNC:TRAC][aaa]
+[CALCulate#:TRACe#:MARKer#:FUNCtion:TRACking][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_function_tracking.htm]
 
 Set whether or not the marker search for marker `m` is repeated with trace updates.
 """
-function configure(ins::E5071C, ::Type{SearchTracking}, m::Integer, b::Bool, ch::Integer=1)
-    write(ins, ":CALC#:MARK#:FUNC:TRAC #", ch, m, Int(b))
+function configure(ins::E5071C, ::Type{SearchTracking}, m::Integer, b::Bool, ch::Integer=1, tr::Integer=1)
+    write(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC #", ch, tr, m, Int(b))
 end
 
 """
@@ -399,7 +390,7 @@ function configure(ins::E5071C, ::Type{SmoothingAperture}, b::Real, ch::Integer=
 end
 
 """
-[:DISP:WIND#:TRAC#:STAT][aaa]
+[:DISP:WIND#:TRAC#:STAT][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_state.htm]
 
 Turn on or off display of trace `tr` of channel `ch`.
 """
@@ -454,16 +445,6 @@ function inspect(ins::E5071C, ::Type{AveragingFactor}, ch::Integer=1)
 end
 
 """
-[:CALCulate#:TRACe#:CORRection:EDELay:MEDium][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_correction_edelay_medium.htm]
-
-Is coaxial or waveguide media chosen for calculating electrical delay time,
-for channel `ch` and trace `tr`?
-"""
-function inspect(ins::E5071C, ::Type{ElectricalMedium}, ch::Integer=1, tr::Integer=1)
-    ElectricalMedium(ins, ask(ins, ":CALC#:TRAC#:CORR:EDEL:MED?", ch, tr))
-end
-
-"""
 [SENSe#:FREQuency:CENTer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
 
 Inspect the center frequency for a given channel `ch` (defaults to 1).
@@ -513,7 +494,7 @@ function inspect(ins::E5071C, ::Type{IFBandwidth}, ch::Integer=1)
 end
 
 """
-[:CALC#:TRAC#:MARK#:STATe][aaa]
+[CALCulate#:TRACe#:MARKer#:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_state.htm]
 
 Query whether marker `m` is displayed for channel `ch` and trace `tr`.
 """
@@ -523,7 +504,7 @@ function inspect(ins::E5071C, ::Type{Marker}, m::Integer, ch::Integer=1, tr::Int
 end
 
 """
-[:CALC#:TRAC#:MARK#:X][aaa]
+[CALCulate#:TRACe#:MARKer#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
 function inspect(ins::E5071C, ::Type{MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
@@ -531,7 +512,7 @@ function inspect(ins::E5071C, ::Type{MarkerX}, m::Integer, ch::Integer=1, tr::In
 end
 
 """
-[CALC#:TRAC#:MARK#:Y?][aaa]
+[CALCulate#:TRACe#:MARKer#:Y?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_y.htm]
 """
 function inspect(ins::E5071C, ::Type{MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
@@ -540,7 +521,7 @@ function inspect(ins::E5071C, ::Type{MarkerY}, m::Integer, ch::Integer=1, tr::In
 end
 
 """
-[:SENS#:SWE:POIN][aaa]
+[:SENSe#:SWEep:POINts][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_sweep_points.htm]
 
 Set the number of points to sweep over for channel `ch`.
 """
@@ -567,12 +548,12 @@ function inspect(ins::E5071C, ::Type{PowerLevel}, ch::Integer=1)
 end
 
 """
-[:CALC#:MARK#:FUNC:TRAC][aaa]
+[:CALCulate#:TRACe#:MARKer#:FUNCtion:TRACking][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_function_tracking.htm]
 
 Set whether or not the marker search for marker `m` is repeated with trace updates.
 """
-function inspect(ins::E5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1)
-    Bool(parse(ask(ins, ":CALC#:MARK#:FUNC:TRAC?", ch, m))::Int)
+function inspect(ins::E5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
+    Bool(parse(ask(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC?", ch, tr, m))::Int)
 end
 
 """
@@ -595,7 +576,7 @@ function inspect(ins::E5071C, ::Type{SmoothingAperture}, ch::Integer=1, tr::Inte
 end
 
 """
-[:DISP:WIND#:TRAC#:STAT][aaa]
+[:DISP:WIND#:TRAC#:STAT][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_state.htm]
 
 Turn on or off display of trace `tr` of channel `ch`.
 """
