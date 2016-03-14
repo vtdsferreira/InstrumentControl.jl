@@ -34,6 +34,7 @@ for (x,y) in [(AveragingFactor, 1),
     @test inspect(e5071c, x) == inspect(e5071c, x, 1) === y
 end
 
+configure(e5071c, FrequencyStop, 8e9)
 configure(e5071c, NumPoints, 2001)
 @test inspect(e5071c, NumPoints) === 2001
 
