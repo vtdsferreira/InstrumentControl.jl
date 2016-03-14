@@ -15,7 +15,7 @@ export InstrumentVISA
 export findresources
 export gpib, tcpip_instr, tcpip_socket
 
-## Reading and writing
+## Reading and writing (commands)
 export ask, read, write, readavailable
 export binblockwrite, binblockreadavailable
 
@@ -26,11 +26,14 @@ export trg, abor, wait, errors
 ## Convenience
 export quoted, unquoted
 
-## Instrument directory manipulation
+## Instrument file manipulation
 export cp
+export getdata
+export loadstate
 export mkdir
 export readdir
 export rm
+export savestate
 
 """
 Abstract supertype of all Instruments addressable using a VISA library.
@@ -212,7 +215,6 @@ function getdata{T<:Number}(ins::InstrumentVISA,
     array
 end
 
-
 ## File management
 
 """
@@ -220,10 +222,36 @@ MMEMory:COPY
 [E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_copy.htm)
 [ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87048.htm)
 
-Copy a file.
+Copy a file from path `src` to `dest`, both on the instrument.
 """
 function cp(ins::InstrumentVISA, src::AbstractString, dest::AbstractString)
     write(ins, "MMEMory:COPY "*quoted(src)*","*quoted(dest))
+end
+
+"""
+MMEMory:TRANsfer
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/_mmem_tran.htm]
+
+Copy a file from path `src` on the instrument, to path `dest` on the computer.
+There may be size limits for transfer via this protocol.
+"""
+function getfile(ins::InstrumentVISA, src::AbstractString, dest::AbstractString)
+    write(ins, ":MMEM:TRAN? #", quoted(src))
+    io = binblockreadavailable(ins)
+    byt = readbytes(io)
+    fi = open(dest, "w+")   # Overwrites...
+    write(fi, byt)
+    close(fi)
+end
+
+"""
+MMEMory:LOAD:STATe
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_load_state.htm]
+
+Load the settings of the instrument, and possibly other info (e.g. calibration).
+"""
+function loadstate(ins::InstrumentVISA, file::AbstractString)
+    write(ins, ":MMEM:LOAD:STAT #", quoted(file))
 end
 
 """
@@ -260,7 +288,17 @@ MMEMory:DELete
 Remove a file.
 """
 function rm(ins::InstrumentVISA, file::AbstractString)
-    write(ins, "MMEMory:DELete "*quoted(file))
+    write(ins, "MMEM:DEL #", quoted(file))
+end
+
+"""
+MMEMory:STORe:STATe
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_store_state.htm]
+
+Save the settings of the instrument, and possibly other info (e.g. calibration).
+"""
+function savestate(ins::InstrumentVISA, file::AbstractString)
+    write(ins, ":MMEM:STOR:STAT #", quoted(file))
 end
 
 ## Data transfer formats

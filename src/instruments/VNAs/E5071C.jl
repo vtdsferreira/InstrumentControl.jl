@@ -21,7 +21,6 @@ export AveragingFactor
 export AveragingTrigger
 export ClearAveraging
 export ElectricalDelay
-export ElectricalMedium
 export ExtTriggerDelay
 export ExtTriggerLowLatency
 export FrequencyCenter
@@ -81,15 +80,7 @@ type E5071C <: InstrumentVNA
     E5071C() = new()
 end
 
-"Signals may propagate on coax or waveguide media."
-abstract ElectricalMedium <: InstrumentProperty
 
-subtypesArray = [
-
-    (:Coaxial,                  ElectricalMedium),
-    (:Waveguide,                ElectricalMedium),
-
-]::Array{Tuple{Symbol,DataType},1}
 
 # Create all the concrete types we need using the generate_properties function.
 for (subtypeSymb,supertype) in subtypesArray
@@ -97,8 +88,8 @@ for (subtypeSymb,supertype) in subtypesArray
 end
 
 responseDictionary = Dict(
-    :ElectricalMedium       => Dict("COAX" => :Coaxial,
-                                    "WAV"  => :Waveguide),
+    :ElectricalMedium       => Dict("COAX" => :(VNA.Coaxial),
+                                    "WAV"  => :(VNA.Waveguide)),
 
     ################
 
@@ -199,11 +190,8 @@ abstract SetActiveMarker      <: InstrumentProperty
 abstract SetActiveChannel     <: InstrumentProperty
 
 commands = [
-
-    (":CALC#:TRAC#:CORR:EDEL:MED",  ElectricalMedium),
     (":TRIG:OUTP:POL",              TriggerOutputPolarity),
     (":TRIG:OUTP:POS",              TriggerOutputTiming),
-    (":TRIG:SEQ:EXT:SLOP",          TriggerSlope),
     (":CALC#:TRAC#:FORM",           VNA.Format),
     (":CALC#:PAR#:DEF",             VNA.Parameter),
 
@@ -257,6 +245,16 @@ function configure(ins::E5071C, ::Type{AveragingFactor}, b::Integer, ch::Integer
     write(ins, ":SENS#:AVER:COUN #", ch, b)
     ret = inspect(ins, AveragingFactor, ch)
     info("Averaging factor set to "*string(ret)*".")
+end
+
+"""
+[:CALCulate#:TRACe#:CORRection:EDELay:MEDium][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_correction_edelay_medium.htm]
+
+Choose between coaxial or waveguide media for calculating electrical delay time,
+for channel `ch` and trace `tr`.
+"""
+function configure{T<:ElectricalMedium}(ins::E5071C, ::Type{T}, ch::Integer=1, tr::Integer=1)
+    write(ins, ":CALC#:TRAC#:CORR:EDEL:MED #", ch, tr, code(ins, T))
 end
 
 """
@@ -419,6 +417,15 @@ function configure(ins::E5071C, ::Type{TriggerOutput}, b::Bool)
 end
 
 """
+[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]
+
+Set slope of external trigger input port: `RisingTrigger`, `FallingTrigger`.
+"""
+function configure{T<:TriggerSlope}(ins::E5071C, ::Type{T})
+    write(ins, ":TRIG:SEQ:EXT:SLOP #", code(ins, T))
+end
+
+"""
 [TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]
 
 Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
@@ -444,6 +451,16 @@ What is the averaging factor for a given channel `ch` (defaults to 1)?
 """
 function inspect(ins::E5071C, ::Type{AveragingFactor}, ch::Integer=1)
     parse(ask(ins, ":SENS#:AVER:COUN?", ch))::Int
+end
+
+"""
+[:CALCulate#:TRACe#:CORRection:EDELay:MEDium][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_correction_edelay_medium.htm]
+
+Is coaxial or waveguide media chosen for calculating electrical delay time,
+for channel `ch` and trace `tr`?
+"""
+function inspect(ins::E5071C, ::Type{ElectricalMedium}, ch::Integer=1, tr::Integer=1)
+    ElectricalMedium(ins, ask(ins, ":CALC#:TRAC#:CORR:EDEL:MED?", ch, tr))
 end
 
 """
@@ -596,6 +613,15 @@ function inspect(ins::E5071C, ::Type{TriggerOutput})
 end
 
 """
+[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]
+
+Inspect slope of external trigger input port: `RisingTrigger`, `FallingTrigger`?
+"""
+function inspect(ins::E5071C, ::Type{TriggerSlope})
+    TriggerSlope(ins, ask(ins, ":TRIG:SEQ:EXT:SLOP?"))
+end
+
+"""
 [TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]
 
 Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
@@ -701,6 +727,7 @@ _reformat(x::E5071C, ::Type{VNA.SWR}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.RealPart}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.ImagPart}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.ExpandedPhase}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.PositivePhase}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.Calibrated}, data) =
     reinterpret(Complex{Float64}, data)
 _reformat{T<:VNA.Format}(x::E5071C, ::Type{T}, data) =
@@ -754,13 +781,6 @@ _pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
 
 function screen(ins::E5071C, filename::AbstractString="screenshot.png", display::Bool=true)
     write(ins, ":MMEM:STOR:IMAG \"screen.png\"")
-    write(ins, ":MMEM:TRAN? \"screen.png\"")
-    io = binblockreadavailable(ins)
-    img = readbytes(io)
-    fi = open(filename,"w+")
-    write(fi, img)
-    close(fi)
+    getdata(ins, filename, filename)
     display && FileIO.load(filename)
-end
-
 end

@@ -46,6 +46,9 @@ configure(e5071c, TraceDisplay, true, 1, 1)
 configure(e5071c, InternalTrigger)
 @test inspect(e5071c, TriggerSource) == InternalTrigger
 
+configure(e5071c, RisingTrigger)
+@test inspect(e5071c, TriggerSlope) == RisingTrigger
+
 for x in 1:10
     configure(e5071c, SearchTracking, x, true)
     @test inspect(e5071c, SearchTracking, x) === true

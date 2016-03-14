@@ -4,11 +4,14 @@ import PainterQB: InstrumentProperty, InstrumentVISA, TransferFormat
 
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
 
-export InstrumentVNA, Format, MarkerSearch, Parameter
+export InstrumentVNA, ElectricalMedium, Format, MarkerSearch, Parameter
 export clearavg, data, search
 
 "Assume that all VNAs support VISA."
 abstract InstrumentVNA  <: InstrumentVISA
+
+"Signals may propagate on coax or waveguide media."
+abstract ElectricalMedium <: InstrumentProperty
 
 "Post-processing and display formats typical of VNAs."
 abstract Format         <: InstrumentProperty
@@ -52,6 +55,9 @@ function MarkerSearch(typ::Symbol, ch, tr, m, val=0.0, pol::Bool=true)
 end
 
 subtypesArray = [
+    (:Coaxial,                  ElectricalMedium),
+    (:Waveguide,                ElectricalMedium),
+
     # True formatting types
     # Format refers to e.g. log magnitude, phase, Smith chart, etc.
     (:LogMagnitude,             Format),
