@@ -53,3 +53,24 @@ for x in 1:10
     configure(e5071c, MarkerX, x, 4e9)
     @test inspect(e5071c, MarkerX, x) === 4e9
 end
+
+for (x,y) in [(VNA.LogMagnitude,    Float64),
+              (VNA.Phase,           Float64),
+              (VNA.GroupDelay,      Float64),
+              (VNA.SmithLinear,     Tuple{Float64, Float64}),
+              (VNA.SmithLog,        Tuple{Float64, Float64}),
+              (VNA.SmithComplex,    Complex{Float64}),
+              (VNA.Smith,           Tuple{Float64, Float64}),
+              (VNA.SmithAdmittance, Tuple{Float64, Float64}),
+              (VNA.PolarLinear,     Tuple{Float64, Float64}),
+              (VNA.PolarLog,        Tuple{Float64, Float64}),
+              (VNA.PolarComplex,    Complex{Float64}),
+              (VNA.LinearMagnitude, Float64),
+              (VNA.SWR,             Float64),
+              (VNA.RealPart,        Float64),
+              (VNA.ImagPart,        Float64),
+              (VNA.ExpandedPhase,   Float64),
+              (VNA.PositivePhase,   Float64)]
+    configure(e5071c, x)
+    @test typeof(inspect(e5071c, MarkerY, 1)) == y
+end

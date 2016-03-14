@@ -698,10 +698,8 @@ _reformat(x::E5071C, ::Type{VNA.PolarComplex}, data) =
     reinterpret(Complex{Float64}, data)
 _reformat(x::E5071C, ::Type{VNA.LinearMagnitude}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.SWR}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.RealPart}, data) =
-    reinterpret(Complex{Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.ImagPart}, data) =
-    im*reinterpret(Complex{Float64}, data)
+_reformat(x::E5071C, ::Type{VNA.RealPart}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{VNA.ImagPart}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.ExpandedPhase}, data) = data[1:2:end]
 _reformat(x::E5071C, ::Type{VNA.Calibrated}, data) =
     reinterpret(Complex{Float64}, data)
