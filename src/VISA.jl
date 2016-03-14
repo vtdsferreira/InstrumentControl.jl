@@ -98,7 +98,9 @@ function write(ins::InstrumentVISA, msg::ASCIIString, infixes...)
     for infix in infixes
         msg = replace(msg, "#", infix, 1)
     end
+    msg == "" && return nothing
     VISA.viWrite(ins.vi, string(msg, ins.writeTerminator))
+    return nothing
 end
 
 "Keep reading from an instrument until the instrument says we are done."

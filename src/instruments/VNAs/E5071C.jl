@@ -204,7 +204,6 @@ commands = [
     (":TRIG:OUTP:POL",              TriggerOutputPolarity),
     (":TRIG:OUTP:POS",              TriggerOutputTiming),
     (":TRIG:SEQ:EXT:SLOP",          TriggerSlope),
-    (":TRIG:SOUR",                  TriggerSource),
     (":CALC#:TRAC#:FORM",           VNA.Format),
     (":CALC#:PAR#:DEF",             VNA.Parameter),
 
@@ -332,9 +331,6 @@ function configure(ins::E5071C, ::Type{Marker}, m::Integer, b::Bool, ch::Integer
     write(ins, "CALC#:TRAC#:MARK# #", ch, tr, m, Int(b))
 end
 
-(":CALC#:MARK#:X",              MarkerX,               AbstractFloat),
-(":CALC#:MARK#:Y?",             MarkerY,               AbstractFloat),
-
 """
 [:CALC#:TRAC#:MARK#:X][aaa]
 """
@@ -420,6 +416,16 @@ Turn on or off the external trigger output.
 """
 function configure(ins::E5071C, ::Type{TriggerOutput}, b::Bool)
     write(ins, ":TRIG:OUTP #", Int(b))
+end
+
+"""
+[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]
+
+Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
+`BusTrigger`, `ManualTrigger`.
+"""
+function configure{T<:TriggerSource}(ins::E5071C, ::Type{T})
+    write(ins, ":TRIG:SOUR #", code(ins,T))
 end
 
 """
@@ -512,7 +518,8 @@ end
 """
 function inspect(ins::E5071C, ::Type{MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
-    parse(ask(ins, "CALC#:TRAC#:MARK#:Y?", ch, tr, m))::Float64
+    data = split(ask(ins, "CALC#:TRAC#:MARK#:Y?", ch, tr, m), ",")
+    _reformat(ins, data, ch, tr)[1]
 end
 
 """
@@ -589,12 +596,23 @@ function inspect(ins::E5071C, ::Type{TriggerOutput})
 end
 
 """
+[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]
+
+Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
+`BusTrigger`, `ManualTrigger`.
+"""
+function inspect(ins::E5071C, ::Type{TriggerSource})
+    code(ins, ask(ins, ":TRIG:SOUR?"))
+end
+
+"""
 [DISP:WIND#:TRAC#:Y:AUTO][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_y_scale_auto.htm]
 
 Autoscales y-axis of trace `tr` of channel `ch`.
 """
 function autoscale(ins::E5071C, ch::Integer=1, tr::Integer=1)
     write(ins, ":DISP:WIND#:TRAC#:Y:AUTO", ch, tr)
+    return nothing
 end
 
 """
@@ -692,52 +710,49 @@ _reformat{T<:VNA.Format}(x::E5071C, ::Type{T}, data) =
 
 function search(ins::E5071C, m::MarkerSearch{:Global}, exec::Bool=true)
     typ = (m.pol ? "MAX" : "MIN")
-    write(ins, ":CALC#:MARK#:TYPE #", m.ch, m.m, typ)
+    write(ins, ":CALC#:TRAC#:MARK#:TYPE #", m.ch, m.tr, m.m, typ)
     exec && _search(ins, m)
 end
 
 function search{T}(ins::E5071C, m::MarkerSearch{T}, exec::Bool=true)
-    write(ins, _type(ins, m), m.ch, m.m)
-    write(ins, _val(ins, m),  m.ch, m.m, m.val)
-    write(ins, _pol(ins, m),  m.ch, m.m, Int(m.pol))
+    write(ins, _type(ins, m), m.ch, m.tr, m.m)
+    write(ins, _val(ins, m),  m.ch, m.tr, m.m, m.val)
+    write(ins, _pol(ins, m),  m.ch, m.tr, m.m, Int(m.pol))
     exec && _search(ins, m)
 end
 
 function _search(ins::E5071C, m::MarkerSearch)
-    write(ins, ":CALC#:MARK#:FUNC:EXEC", m.ch, m.m)
-    ask(ins, ":CALC#:MARK#:DATA?", m.ch, m.m)
+    write(ins, ":CALC#:TRAC#:MARK#:FUNC:EXEC", m.ch, m.tr, m.m)
+    ask(ins, ":CALC#:TRAC#:MARK#:DATA?", m.ch, m.tr, m.m)
 end
 
 function _search(ins::E5071C, m::MarkerSearch{:Bandwidth})
     ask(ins, ":CALC#:MARK#:BWID:DATA?", m.ch, m.m)
 end
 
-_type(::E5071C, ::MarkerSearch{:Peak})         = ":CALC#:MARK#:TYPE PEAK"
-_type(::E5071C, ::MarkerSearch{:LeftPeak})     = ":CALC#:MARK#:TYPE LPE"
-_type(::E5071C, ::MarkerSearch{:RightPeak})    = ":CALC#:MARK#:TYPE RPE"
-_type(::E5071C, ::MarkerSearch{:Target})       = ":CALC#:MARK#:TYPE TARG"
-_type(::E5071C, ::MarkerSearch{:LeftTarget})   = ":CALC#:MARK#:TYPE LTAR"
-_type(::E5071C, ::MarkerSearch{:RightTarget})  = ":CALC#:MARK#:TYPE RTAR"
+_type(::E5071C, ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:TYPE PEAK"
+_type(::E5071C, ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:TYPE LPE"
+_type(::E5071C, ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:TYPE RPE"
+_type(::E5071C, ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TYPE TARG"
+_type(::E5071C, ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TYPE LTAR"
+_type(::E5071C, ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TYPE RTAR"
 _type(::E5071C, ::MarkerSearch{:Bandwidth})    = ""
 
-_val(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:MARK#:FUNC:PEXC #"
-_val(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:MARK#:FUNC:PEXC #"
-_val(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:MARK#:FUNC:PEXC #"
-_val(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:MARK#:FUNC:TARG #"
-_val(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:MARK#:FUNC:TARG #"
-_val(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:MARK#:FUNC:TARG #"
-_val(::E5071C,  ::MarkerSearch{:Bandwidth})    = ":CALC#:MARK#:BWID:THR #"
+_val(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
+_val(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
+_val(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
+_val(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
+_val(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
+_val(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
+_val(::E5071C,  ::MarkerSearch{:Bandwidth})    = ":CALC#:TRAC#:MARK#:BWID:THR #"
 
-_pol(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:MARK#:FUNC:PPOL #"
-_pol(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:MARK#:FUNC:PPOL #"
-_pol(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:MARK#:FUNC:PPOL #"
-_pol(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:MARK#:FUNC:TTR #"
-_pol(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:MARK#:FUNC:TTR #"
-_pol(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:MARK#:FUNC:TTR #"
+_pol(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
+_pol(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
+_pol(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
+_pol(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
+_pol(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
+_pol(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
 _pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
-
-function bandwidth(ins::E5071C)
-end
 
 function screen(ins::E5071C, filename::AbstractString="screenshot.png", display::Bool=true)
     write(ins, ":MMEM:STOR:IMAG \"screen.png\"")
