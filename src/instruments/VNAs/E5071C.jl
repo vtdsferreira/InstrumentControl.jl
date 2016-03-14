@@ -80,13 +80,6 @@ type E5071C <: InstrumentVNA
     E5071C() = new()
 end
 
-
-
-# Create all the concrete types we need using the generate_properties function.
-for (subtypeSymb,supertype) in subtypesArray
-    generate_properties(subtypeSymb, supertype)
-end
-
 responseDictionary = Dict(
     :ElectricalMedium       => Dict("COAX" => :(VNA.Coaxial),
                                     "WAV"  => :(VNA.Waveguide)),
