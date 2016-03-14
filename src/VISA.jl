@@ -171,10 +171,10 @@ end
 ## Convenient functions for parsing and sending strings.
 
 "Surround a string in quotation marks."
-quoted(str::ASCIIString) = "\""*str*"\""
+quoted(str::AbstractString) = "\""*str*"\""
 
 "Strip a string of enclosing quotation marks."
-unquoted(str::ASCIIString) = strip(str,['"','\''])
+unquoted(str::AbstractString) = strip(str,['"','\''])
 
 
 ## Convenient functions for querying arrays of numbers.
