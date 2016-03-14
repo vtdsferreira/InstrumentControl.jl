@@ -602,7 +602,7 @@ Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
 `BusTrigger`, `ManualTrigger`.
 """
 function inspect(ins::E5071C, ::Type{TriggerSource})
-    code(ins, ask(ins, ":TRIG:SOUR?"))
+    TriggerSource(ins, ask(ins, ":TRIG:SOUR?"))
 end
 
 """
