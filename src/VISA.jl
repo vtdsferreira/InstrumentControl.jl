@@ -277,8 +277,12 @@ function readdir(ins::InstrumentVISA, dir::AbstractString="")
     if dir != ""
         cmd = cmd*" "*quoted(dir)
     end
-    ask(ins, cmd)
+    res = unquoted(ask(ins, cmd))
+    _readdir(ins, res)
 end
+
+"Helper function to process `readdir` response."
+_readdir(ins::InstrumentVISA, res::AbstractString) = split(res,",")[3:3:end]
 
 """
 MMEMory:DELete

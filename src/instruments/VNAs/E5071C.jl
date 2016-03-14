@@ -755,7 +755,7 @@ _pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
 
 function screen(ins::E5071C, filename::AbstractString="screenshot.png", display::Bool=true)
     write(ins, ":MMEM:STOR:IMAG \"screen.png\"")
-    getdata(ins, filename, filename)
+    getfile(ins, filename, filename)
     display && FileIO.load(filename)
 end
 
