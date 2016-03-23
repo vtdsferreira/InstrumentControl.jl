@@ -229,7 +229,7 @@ end
 
 Turn on or off display of marker `m` for channel `ch` and trace `tr`.
 """
-function configure(ins::E5071C, ::Type{Marker}, m::Integer, b::Bool, ch::Integer=1, tr::Integer=1)
+function configure(ins::E5071C, ::Type{VNA.Marker}, m::Integer, b::Bool, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     write(ins, "CALC#:TRAC#:MARK# #", ch, tr, m, Int(b))
 end
@@ -238,7 +238,7 @@ end
 :CALC#:TRAC#:MARK#:X
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
-function configure(ins::E5071C, ::Type{MarkerX}, m::Integer, b::Real, ch::Integer=1, tr::Integer=1)
+function configure(ins::E5071C, ::Type{VNA.MarkerX}, m::Integer, b::Real, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     write(ins, "CALC#:TRAC#:MARK#:X #", ch, tr, m, float(b))
 end
@@ -247,7 +247,7 @@ end
 CALC#:PAR:COUNt
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
 """
-function configure(ins::E5071C, ::Type{NumTraces}, b::Integer, ch::Integer=1)
+function configure(ins::E5071C, ::Type{VNA.NumTraces}, b::Integer, ch::Integer=1)
     write(ins, ":CALC#:PAR:COUN #", ch, b)
 end
 
@@ -360,7 +360,7 @@ DISPlay:SPLit
 Configure the layout of graph windows using a matrix to abstract the layout.
 For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.
 """
-function configure(ins::E5071C, ::Type{Graphs}, a::AbstractArray{Int}, ch::Integer=1)
+function configure(ins::E5071C, ::Type{VNA.Graphs}, a::AbstractArray{Int}, ch::Integer=1)
     write(ins, ":DISP:WIND#:SPL #", ch, window(ins, Val{FixedSizeArrays.Mat(a)}))
 end
 
@@ -389,7 +389,7 @@ end
 
 Query whether marker `m` is displayed for channel `ch` and trace `tr`.
 """
-function inspect(ins::E5071C, ::Type{Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
+function inspect(ins::E5071C, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     Bool(parse(ask(ins, "CALC#:TRAC#:MARK#?", ch, tr, m))::Int)
 end
@@ -397,7 +397,7 @@ end
 """
 [CALCulate#:TRACe#:MARKer#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
-function inspect(ins::E5071C, ::Type{MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
+function inspect(ins::E5071C, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     parse(ask(ins, "CALC#:TRAC#:MARK#:X?", ch, tr, m))::Float64
 end
@@ -405,7 +405,7 @@ end
 """
 [CALCulate#:TRACe#:MARKer#:Y?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_y.htm]
 """
-function inspect(ins::E5071C, ::Type{MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
+function inspect(ins::E5071C, ::Type{VNA.MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     data = getdata(ins, TransferFormat{ASCIIString}, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
     _reformat(ins, data, ch, tr)[1]
@@ -424,7 +424,7 @@ end
 CALC#:PAR:COUNt
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
 """
-function inspect(ins::E5071C, ::Type{NumTraces}, ch::Integer=1)
+function inspect(ins::E5071C, ::Type{VNA.NumTraces}, ch::Integer=1)
     parse(ask(ins, ":CALC#:PAR:COUN?", ch))::Int
 end
 
