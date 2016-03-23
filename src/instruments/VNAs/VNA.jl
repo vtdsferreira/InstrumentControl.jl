@@ -1,9 +1,7 @@
 "Definitions specific to VNAs."
 module VNA
-import PainterQB: InstrumentException, InstrumentProperty, InstrumentVISA
-import PainterQB: configure, inspect
-using PainterQB: FrequencyStart, FrequencyStop
-using PainterQB: errors
+
+importall PainterQB
 import FixedSizeArrays
 import Base: search
 

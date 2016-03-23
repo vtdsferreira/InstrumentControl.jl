@@ -25,7 +25,7 @@ export FrequencyStart
 export FrequencyStop
 export NumPoints
 export Output
-export Phase
+export OutputPhase
 export Power
 export TriggerLevel
 
@@ -128,7 +128,7 @@ abstract NumPoints            <: InstrumentProperty
 abstract Output                <: InstrumentProperty{Bool}
 
 "Output phase."
-abstract Phase                 <: InstrumentProperty{Float64}
+abstract OutputPhase           <: InstrumentProperty{Float64}
 
 "Output power level."
 abstract Power                 <: InstrumentProperty{Float64}

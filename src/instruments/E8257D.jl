@@ -167,7 +167,7 @@ commands = [
     ("SOURce:OUTPut:BLANking:STATe",        OutputBlanking,          Bool),
     ("SOURce:OUTPut:BLANking:AUTO",         OutputBlankingAuto,      Bool),
     (":OUTPut:SETTled?",                    OutputSettled,           NoArgs),
-    ("SOURce:PHASe:ADJust",                 Phase,                   AbstractFloat),
+    ("SOURce:PHASe:ADJust",                 OutputPhase,             AbstractFloat),
     ("SOURce:POWer",                        Power,                   AbstractFloat),
     ("SOURce:POWer:LIMit:MAX",              PowerLimit,              AbstractFloat),
     ("SOURce:POWer:LIMit:MAX:ADJust",       PowerLimitAdjustable,    Bool),

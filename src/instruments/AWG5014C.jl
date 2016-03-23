@@ -457,13 +457,13 @@ macro allch(x::Expr)
 end
 
 "Get the output phase in degrees for a given channel."
-function inspect(ins::AWG5014C, ::Type{Phase}, ch::Integer)
+function inspect(ins::AWG5014C, ::Type{OutputPhase}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(ask(ins,string("SOUR",ch,":PHAS?")))
 end
 
 "Set the output phase in degrees for a given channel."
-function configure(ins::AWG5014C, ::Type{Phase}, phase::Real, ch::Integer)
+function configure(ins::AWG5014C, ::Type{OutputPhase}, phase::Real, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     ph = phase+180.
     ph = mod(ph,360.)
