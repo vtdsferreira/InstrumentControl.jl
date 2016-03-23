@@ -9,15 +9,17 @@ import Base: search
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
 
 export InstrumentVNA
-export ElectricalMedium, FrequencyCenter, FrequencySpan, Graphs, IFBandwidth
-export Marker, MarkerX, MarkerY
-export MarkerSearch, NumTraces
+export FrequencyCenter, FrequencySpan
+export MarkerSearch
 
 # export Format, Parameter
 export clearavg, data, search, shotgun
 
 "Assume that all VNAs support VISA."
 abstract InstrumentVNA  <: InstrumentVISA
+
+abstract Averaging        <: InstrumentProperty
+abstract AveragingFactor  <: InstrumentProperty{Int}
 
 "Signals may propagate on coax or waveguide media."
 abstract ElectricalMedium <: InstrumentProperty
@@ -155,6 +157,8 @@ end
 function data end
 
 """
+`clearavg(ins::InstrumentVNA, ch::Integer=1)`
+
 SENSe#:AVERage:CLEar
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_clear.htm]
 [ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/ff10e010f00d4b14.htm#ID_f98b8f87fa95f4f10a00206a01537005-1a87cdf1fa95ef340a00206a01a6673d-en-US]
@@ -199,5 +203,153 @@ function peaknotfound end
 
 "How to specify a window layout in a command string, given a matrix."
 function window end
+
+
+"""
+`configure(ins::InstrumentVNA, ::Type{Averaging}, b::Bool, ch::Integer=1)`
+
+SENSe#:AVERage
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_state.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/f2c90c7855f6416e.htm]
+
+Turn on or off averaging for a given channel `ch` (defaults to 1).
+"""
+function configure(ins::InstrumentVNA, ::Type{Averaging}, b::Bool, ch::Integer=1)
+    write(ins, ":SENS#:AVER #", ch, Int(b))
+end
+
+"""
+`configure(ins::InstrumentVNA, ::Type{AveragingFactor}, b::Integer, ch::Integer=1)`
+
+SENSe#:AVERage:COUNt
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_count.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/5f171177edec4acc.htm]
+
+Change the averaging factor for a given channel `ch` (defaults to 1).
+Invalid input may be clipped to a valid range.
+"""
+function configure(ins::InstrumentVNA, ::Type{AveragingFactor}, b::Integer, ch::Integer=1)
+    # (1 <= b <= 999) || warn("Averaging factor $(string(b)) will be set within 1--999.")
+    write(ins, ":SENS#:AVER:COUN #", ch, b)
+    ret = inspect(ins, AveragingFactor, ch)
+    info("Averaging factor set to "*string(ret)*".")
+end
+
+"""
+`configure(ins::InstrumentVNA, ::Type{FrequencyCenter}, b::Real, ch::Integer=1)`
+
+SENSe#:FREQuency:CENTer
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/42d8825bb9304f5a.htm]
+
+Change the center frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::InstrumentVNA, ::Type{FrequencyCenter}, b::Real, ch::Integer=1)
+    write(ins, ":SENS#:FREQ:CENT #", ch, float(b))
+    ret = inspect(ins, FrequencyCenter, ch)
+    info("Center set to "*string(ret)*" Hz.")
+end
+
+"""
+`configure(ins::InstrumentVNA, ::Type{FrequencySpan}, b::Real, ch::Integer=1)`
+
+SENSe#:FREQuency:SPAN
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_span.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/880fb7cf42594d10.htm]
+
+Change the frequency span for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::InstrumentVNA, ::Type{FrequencySpan}, b::Real, ch::Integer=1)
+    write(ins, ":SENS#:FREQ:SPAN #", ch, float(b))
+    ret = inspect(ins, FrequencySpan, ch)
+    info("Span set to "*string(ret)*" Hz.")
+end
+
+"""
+`configure(ins::InstrumentVNA, ::Type{IFBandwidth}, b::Real, ch::Integer=1)`
+
+SENSe#:BANDwidth
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_bandwidth_resolution.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/dd1fd694e0ce4dd8.htm]
+
+Change the IF bandwidth for channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function configure(ins::InstrumentVNA, ::Type{IFBandwidth}, b::Real, ch::Integer=1)
+    # Valid range reported in programming guide does not seem consistent with what happens
+    # (10 <= b <= 1.5e6) || warn("IF bandwidth $(string(b)) will be set within 10--1.5e6.")
+    write(ins, ":SENS#:BAND #", ch, float(b))
+    ret = inspect(ins, IFBandwidth, ch)
+    info("IF bandwidth set to "*string(ret)*" Hz.")
+end
+
+"""
+`inspect(ins::InstrumentVNA, ::Type{Averaging}, ch::Integer=1)`
+
+SENSe#:AVERage
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_state.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/f2c90c7855f6416e.htm]
+
+Is averaging on for a given channel `ch` (defaults to 1)?
+"""
+function inspect(ins::InstrumentVNA, ::Type{Averaging}, ch::Integer=1)
+    Bool(parse(ask(ins, ":SENS#:AVER?", ch))::Int)
+end
+
+"""
+`inspect(ins::InstrumentVNA, ::Type{AveragingFactor}, ch::Integer=1)`
+
+SENSe#:AVERage:COUNt
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_count.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/5f171177edec4acc.htm]
+
+What is the averaging factor for a given channel `ch` (defaults to 1)?
+"""
+function inspect(ins::InstrumentVNA, ::Type{AveragingFactor}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:AVER:COUN?", ch))::Int
+end
+
+"""
+`inspect(ins::InstrumentVNA, ::Type{FrequencyCenter}, ch::Integer=1)`
+
+SENSe#:FREQuency:CENTer
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/42d8825bb9304f5a.htm]
+
+Inspect the center frequency for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function inspect(ins::InstrumentVNA, ::Type{FrequencyCenter}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:FREQ:CENT?", ch))::Float64
+end
+
+"""
+`inspect(ins::InstrumentVNA, ::Type{FrequencySpan}, ch::Integer=1)`
+
+SENSe#:FREQuency:SPAN
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_span.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/880fb7cf42594d10.htm]
+
+Inspect the frequency span for a given channel `ch` (defaults to 1).
+Invalid input will be clipped to valid range.
+"""
+function inspect(ins::InstrumentVNA, ::Type{FrequencySpan}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:FREQ:SPAN?", ch))::Float64
+end
+
+"""
+`inspect(ins::InstrumentVNA, ::Type{IFBandwidth}, ch::Integer=1)`
+
+SENSe#:BANDwidth
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_bandwidth_resolution.htm]
+[ZNB20][https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/dd1fd694e0ce4dd8.htm]
+
+Inspect the IF bandwidth for channel `ch` (defaults to 1).
+"""
+function inspect(ins::InstrumentVNA, ::Type{IFBandwidth}, ch::Integer=1)
+    parse(ask(ins, ":SENS#:BAND?", ch))::Float64
+end
 
 end

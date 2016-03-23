@@ -18,10 +18,7 @@ include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E5071C
 
-export Averaging
-export AveragingFactor
 export AveragingTrigger
-export ClearAveraging
 export ElectricalDelay
 export ExtTriggerDelay
 export ExtTriggerLowLatency
@@ -139,10 +136,7 @@ TransferFormat(ins::E5071C, x::AbstractString) = begin
     end
 end
 
-abstract Averaging            <: InstrumentProperty
-abstract AveragingFactor      <: InstrumentProperty{Int}
 abstract AveragingTrigger     <: InstrumentProperty
-abstract ClearAveraging       <: InstrumentProperty
 abstract TraceDisplay         <: InstrumentProperty
 abstract ElectricalDelay      <: InstrumentProperty{Float64}
 abstract ExtTriggerDelay      <: InstrumentProperty{Float64}
@@ -207,52 +201,6 @@ for args in commands
 end
 
 """
-[SENSe#:AVERage][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_state.htm]
-
-Turn on or off averaging for a given channel `ch` (defaults to 1).
-"""
-function configure(ins::E5071C, ::Type{Averaging}, b::Bool, ch::Integer=1)
-    write(ins, ":SENS#:AVER #", ch, Int(b))
-end
-
-"""
-[SENSe#:AVERage:COUNt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_count.htm]
-
-Change the averaging factor for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range (1--999).
-"""
-function configure(ins::E5071C, ::Type{AveragingFactor}, b::Integer, ch::Integer=1)
-    # (1 <= b <= 999) || warn("Averaging factor $(string(b)) will be set within 1--999.")
-    write(ins, ":SENS#:AVER:COUN #", ch, b)
-    ret = inspect(ins, AveragingFactor, ch)
-    info("Averaging factor set to "*string(ret)*".")
-end
-
-"""
-[SENSe#:FREQuency:CENTer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
-
-Change the center frequency for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function configure(ins::E5071C, ::Type{FrequencyCenter}, b::Real, ch::Integer=1)
-    write(ins, ":SENS#:FREQ:CENT #", ch, float(b))
-    ret = inspect(ins, FrequencyCenter, ch)
-    info("Center set to "*string(ret)*" Hz.")
-end
-
-"""
-[SENSe#:FREQuency:SPAN][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_span.htm]
-
-Change the frequency span for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function configure(ins::E5071C, ::Type{FrequencySpan}, b::Real, ch::Integer=1)
-    write(ins, ":SENS#:FREQ:SPAN #", ch, float(b))
-    ret = inspect(ins, FrequencySpan, ch)
-    info("Span set to "*string(ret)*" Hz.")
-end
-
-"""
 [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
 
 Change the start frequency for a given channel `ch` (defaults to 1).
@@ -274,20 +222,6 @@ function configure(ins::E5071C, ::Type{FrequencyStop}, b::Real, ch::Integer=1)
     write(ins, ":SENS#:FREQ:STOP #", ch, float(b))
     ret = inspect(ins, FrequencyStop, ch)
     info("Stop set to "*string(ret)*" Hz.")
-end
-
-"""
-[SENSe#:BANDwidth][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_bandwidth_resolution.htm]
-
-Change the IF bandwidth for channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function configure(ins::E5071C, ::Type{IFBandwidth}, b::Real, ch::Integer=1)
-    # Valid range reported in programming guide does not seem consistent with what happens
-    # (10 <= b <= 1.5e6) || warn("IF bandwidth $(string(b)) will be set within 10--1.5e6.")
-    write(ins, ":SENS#:BAND #", ch, float(b))
-    ret = inspect(ins, IFBandwidth, ch)
-    info("IF bandwidth set to "*string(ret)*" Hz.")
 end
 
 """
@@ -431,44 +365,6 @@ function configure(ins::E5071C, ::Type{Graphs}, a::AbstractArray{Int}, ch::Integ
 end
 
 """
-[SENSe#:AVERage][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_state.htm]
-
-Is averaging on for a given channel `ch` (defaults to 1)?
-"""
-function inspect(ins::E5071C, ::Type{Averaging}, ch::Integer=1)
-    Bool(parse(ask(ins, ":SENS#:AVER?", ch))::Int)
-end
-
-"""
-[SENSe#:AVERage:COUNt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_count.htm]
-
-What is the averaging factor for a given channel `ch` (defaults to 1)?
-"""
-function inspect(ins::E5071C, ::Type{AveragingFactor}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:AVER:COUN?", ch))::Int
-end
-
-"""
-[SENSe#:FREQuency:CENTer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_center.htm]
-
-Inspect the center frequency for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function inspect(ins::E5071C, ::Type{FrequencyCenter}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:FREQ:CENT?", ch))::Float64
-end
-
-"""
-[SENSe#:FREQuency:SPAN][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_span.htm]
-
-Inspect the frequency span for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function inspect(ins::E5071C, ::Type{FrequencySpan}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:FREQ:SPAN?", ch))::Float64
-end
-
-"""
 [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
 
 Inspect the start frequency for a given channel `ch` (defaults to 1).
@@ -486,15 +382,6 @@ Invalid input will be clipped to valid range.
 """
 function inspect(ins::E5071C, ::Type{FrequencyStop}, ch::Integer=1)
     parse(ask(ins, ":SENS#:FREQ:STOP?", ch))::Float64
-end
-
-"""
-[SENSe#:BANDwidth][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_bandwidth_resolution.htm]
-
-Inspect the IF bandwidth for channel `ch` (defaults to 1).
-"""
-function inspect(ins::E5071C, ::Type{IFBandwidth}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:BAND?", ch))::Float64
 end
 
 """
