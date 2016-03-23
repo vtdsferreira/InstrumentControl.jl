@@ -1,11 +1,20 @@
 "Definitions specific to VNAs."
 module VNA
-import PainterQB: InstrumentProperty, InstrumentVISA, TransferFormat
+import PainterQB: InstrumentException, InstrumentProperty, InstrumentVISA
+using PainterQB: FrequencyStart, FrequencyStop
+using PainterQB: configure, inspect, errors
+import FixedSizeArrays
+import Base: search
 
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
 
-export InstrumentVNA, ElectricalMedium, Format, MarkerSearch, Parameter
-export clearavg, data, search
+export InstrumentVNA
+export ElectricalMedium, IFBandwidth
+export Marker, MarkerX, MarkerY
+export MarkerSearch, Windows
+
+# export Format, Parameter
+export clearavg, data, search, shotgun
 
 "Assume that all VNAs support VISA."
 abstract InstrumentVNA  <: InstrumentVISA
@@ -16,13 +25,42 @@ abstract ElectricalMedium <: InstrumentProperty
 "Post-processing and display formats typical of VNAs."
 abstract Format         <: InstrumentProperty
 
+"IF bandwidth for a VNA."
+abstract IFBandwidth    <: InstrumentProperty{Float64}
+
+"Marker state (on/off)."
+abstract Marker         <: InstrumentProperty
+
+"Stimulus value for a marker."
+abstract MarkerX        <: InstrumentProperty{Float64}
+
+"Response value for a marker."
+abstract MarkerY        <: InstrumentProperty
+
 "VNA measurement parameter, e.g. S11, S12, etc."
 abstract Parameter      <: InstrumentProperty
 abstract SParameter     <: Parameter
 abstract ABCDParameter  <: Parameter
 
+"Graph layout specified by a matrix."
+abstract Windows <: InstrumentProperty
+
+"Polarity for peak and dip searching with VNAs."
+abstract Polarity
+
+"Positive polarity (a peak)."
+immutable Positive <: Polarity end
+
+"Negative polarity (a dip)."
+immutable Negative <: Polarity end
+
+"Both polarities (peak or dip)."
+immutable Both <: Polarity end
+
 """
-Object encapsulating a marker search query. The type parameter should be a
+`immutable MarkerSearch{T}`
+
+Type encapsulating a marker search query. The type parameter should be a
 symbol specifying the search type. The available options may depend on
 VNA capabilities.
 
@@ -44,13 +82,21 @@ immutable MarkerSearch{T}
     tr::Int
     m::Int
     val::Float64
-    pol::Bool
+    pol::Polarity
 end
 
-function MarkerSearch(typ::Symbol, ch, tr, m, val=0.0, pol::Bool=true)
-    typ == :Max && return MarkerSearch{:Global}(ch, tr, m, 0.0, true)
-    typ == :Min && return MarkerSearch{:Global}(ch, tr, m, 0.0, false)
-    typ == :Bandwidth && return MarkerSearch{:Bandwidth}(ch, tr, m, val, true)
+"""
+You are recommended to construct a `MarkerSearch` object using this function,
+which makes a suitable one given the type of search you want to do
+(specified by `typ::Symbol`), the channel `ch`, trace `tr`, marker number `m`,
+value `val` and polarity `pol::Polarity` (`Positive()`, `Negative()`, or `Both()`).
+The value will depend on what you're doing but is typically a peak excursion
+or transition threshold.
+"""
+function MarkerSearch(typ::Symbol, ch, tr, m, val=0.0, pol::Polarity=Both())
+    typ == :Max && return MarkerSearch{:Global}(ch, tr, m, 0.0, Positive())
+    typ == :Min && return MarkerSearch{:Global}(ch, tr, m, 0.0, Negative())
+    typ == :Bandwidth && return MarkerSearch{:Bandwidth}(ch, tr, m, val, Both())
     return MarkerSearch{typ}(ch, tr, m, val, pol)
 end
 
@@ -119,10 +165,33 @@ datacmd{T<:Format}(x::InstrumentVNA, ::Type{T}) = error("Not supported for this 
 """
 Can execute marker searches defined by any number of MarkerSearch objects.
 """
-function search(ins::InstrumentVNA, m1::MarkerSearch, m2::MarkerSearch, m3::MarkerSearch...)
-    for s in [m1, m2, m3...]
-        search(ins, s)
+search(ins::InstrumentVNA, m1::MarkerSearch, m2::MarkerSearch, m3::MarkerSearch...) =
+    [search(ins, s) for s in [m1, m2, m3...]]
+
+"""
+Markers with numbers in the range `m` are spread across the frequency span.
+The first marker begins at the start frequency but the last marker is
+positioned before the stop frequency, such that each marker has the same
+frequency span to the right of it within the stimulus window.
+"""
+function shotgun(ins::InstrumentVNA, m::AbstractArray=collect(1:9),
+        ch::Integer=1, tr::Integer=1)
+    f1, f2 = inspect(ins, ((FrequencyStart, ch),
+                           (FrequencyStop, ch)))
+    fs = linspace(f1,f2,length(m)+1)
+    for marker in 1:length(m)
+        configure(ins, Marker,  m[marker], true, ch, tr)
+        configure(ins, MarkerX, m[marker], fs[marker], ch, tr)
     end
 end
+
+shotgun(ins::InstrumentVNA, m::OrdinalRange=1:9, ch::Integer=1, tr::Integer=1) =
+    shotgun(ins, collect(m), ch, tr)
+
+"Determines if an error code reflects a peak search failure."
+function peaknotfound end
+
+"How to specify a window layout in a command string, given a matrix."
+function window end
 
 end

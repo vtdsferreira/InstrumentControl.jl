@@ -45,6 +45,7 @@ end
 using PainterQB
 # using PainterQB.AWG5014CModule
 # using PainterQB.AlazarModule
+using PainterQB.VNA
 using PainterQB.E5071CModule
 # using PainterQB.E8257DModule
 # using PainterQB.ZNB20Module

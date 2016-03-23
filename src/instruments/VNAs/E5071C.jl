@@ -10,7 +10,8 @@ importall PainterQB                 # All the stuff in InstrumentDefs, etc.
 import PainterQB: getdata
 
 importall PainterQB.VNA
-import PainterQB.VNA: datacmd
+import PainterQB.VNA: datacmd, peaknotfound, window
+import FixedSizeArrays
 
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
@@ -26,10 +27,6 @@ export ExtTriggerLowLatency
 export FrequencyCenter
 export FrequencySpan
 export GraphLayout
-export IFBandwidth
-export Marker
-export MarkerX
-export MarkerY
 export NumTraces
 export PhaseOffset
 export PointTrigger
@@ -155,10 +152,6 @@ abstract ExtTriggerLowLatency <: InstrumentProperty
 abstract FrequencyCenter      <: InstrumentProperty{Float64}
 abstract FrequencySpan        <: InstrumentProperty{Float64}
 abstract GraphLayout          <: InstrumentProperty
-abstract IFBandwidth          <: InstrumentProperty{Float64}
-abstract Marker               <: InstrumentProperty
-abstract MarkerX              <: InstrumentProperty{Float64}
-abstract MarkerY              <: InstrumentProperty
 abstract NumTraces            <: InstrumentProperty
 abstract PhaseOffset          <: InstrumentProperty{Float64}
 abstract PointTrigger         <: InstrumentProperty
@@ -337,6 +330,8 @@ Set the number of points to sweep over for channel `ch`.
 """
 function configure(ins::E5071C, ::Type{NumPoints}, b::Integer, ch::Integer=1)
     write(ins, ":SENS#:SWE:POIN #", ch, b)
+    ret = inspect(ins, NumPoints, ch)
+    info("Number of points set to "*string(ret)*".")
 end
 
 """
@@ -417,6 +412,19 @@ Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
 """
 function configure{T<:TriggerSource}(ins::E5071C, ::Type{T})
     write(ins, ":TRIG:SOUR #", code(ins,T))
+end
+
+"""
+DISPlay:SPLit
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_split.htm]
+
+`configure(ins::InstrumentVNA, ::Type{Windows}, a::AbstractArray{Int})`
+
+Configure the layout of graph windows using a matrix to abstract the layout.
+For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.
+"""
+function configure(ins::E5071C, ::Type{Windows}, a::AbstractArray{Int})
+    write(ins, ":DISP:SPL #", window(ins, Val{FixedSizeArrays.Mat(a)}))
 end
 
 """
@@ -708,21 +716,35 @@ _reformat{T<:VNA.Format}(x::E5071C, ::Type{T}, data) =
     reinterpret(NTuple{2,Float64}, data)
 
 function search(ins::E5071C, m::MarkerSearch{:Global}, exec::Bool=true)
-    typ = (m.pol ? "MAX" : "MIN")
-    write(ins, ":CALC#:TRAC#:MARK#:TYPE #", m.ch, m.tr, m.m, typ)
+    write(ins, ":CALC#:TRAC#:MARK#:TYPE #", m.ch, m.tr, m.m, code(ins, m.pol))
+    errors(ins)
     exec && _search(ins, m)
 end
 
 function search{T}(ins::E5071C, m::MarkerSearch{T}, exec::Bool=true)
     write(ins, _type(ins, m), m.ch, m.tr, m.m)
     write(ins, _val(ins, m),  m.ch, m.tr, m.m, m.val)
-    write(ins, _pol(ins, m),  m.ch, m.tr, m.m, Int(m.pol))
+    write(ins, _pol(ins, m),  m.ch, m.tr, m.m, code(ins, m.pol))
+    errors(ins)
     exec && _search(ins, m)
 end
 
 function _search(ins::E5071C, m::MarkerSearch)
     write(ins, ":CALC#:TRAC#:MARK#:FUNC:EXEC", m.ch, m.tr, m.m)
-    ask(ins, ":CALC#:TRAC#:MARK#:DATA?", m.ch, m.tr, m.m)
+    f = eval(parse(ask(ins, ":CALC#:TRAC#:MARK#:DATA?", m.ch, m.tr, m.m)))[3]
+    try
+        errors(ins)
+    catch e
+        if isa(e, InstrumentException)
+            for x in e.val
+                peaknotfound(ins,x) || rethrow(e)
+            end
+            f = NaN
+        else
+            rethrow(e)
+        end
+    end
+    f
 end
 
 function _search(ins::E5071C, m::MarkerSearch{:Bandwidth})
@@ -753,10 +775,40 @@ _pol(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
 _pol(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
 _pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
 
-function screen(ins::E5071C, filename::AbstractString="screenshot.png", display::Bool=true)
-    write(ins, ":MMEM:STOR:IMAG \"screen.png\"")
-    getfile(ins, filename, filename)
+code(::E5071C,  ::VNA.Positive) = "POS"
+code(::E5071C,  ::VNA.Negative) = "NEG"
+code(::E5071C,  ::VNA.Both)    = "BOTH"
+
+peaknotfound(::E5071C, val::Integer) = (val == 41)
+
+function screen(ins::E5071C, filename::AbstractString="screen.png", display::Bool=true)
+    rempath = "D:\\screen.png"
+    write(ins, ":MMEM:STOR:IMAG #", quoted(rempath))
+    getfile(ins, rempath, filename)
     display && FileIO.load(filename)
 end
+
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1])}}) = "D1"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2])}}) = "D12"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,2])}}) = "D1_2"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 1 2])}}) = "D112"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,1,2])}}) = "D1_1_2"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3])}}) = "D123"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,2,3])}}) = "D1_2_3"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 3 3])}}) = "D12_33"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 1; 2 3])}}) = "D11_23"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 3; 2 3])}}) = "D13_23"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 1 3])}}) = "D12_13"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4])}}) = "D1234"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,2,3,4])}}) = "D1_2_3_4"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2;3 4])}}) = "D12_34"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3; 4 5 6])}}) = "D123_456"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 3 4; 5 6])}}) = "D12_34_56"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4; 5 6 7 8])}}) = "D1234_5678"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 3 4; 5 6; 7 8])}}) = "D12_34_56_78"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3; 4 5 6; 7 8 9])}}) = "D123_456_789"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3; 4 5 6; 7 8 9; 10 11 12])}}) = "D123__ABC"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4; 5 6 7 8; 9 10 11 12])}}) = "D1234__9ABC"
+window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16])}}) = "D1234__DEFG"
 
 end
