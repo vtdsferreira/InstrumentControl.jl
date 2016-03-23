@@ -166,7 +166,6 @@ commands = [
     (":OUTPut",                             Output,                  Bool),
     ("SOURce:OUTPut:BLANking:STATe",        OutputBlanking,          Bool),
     ("SOURce:OUTPut:BLANking:AUTO",         OutputBlankingAuto,      Bool),
-    (":OUTPut:SETTled?",                    OutputSettled,           NoArgs),
     ("SOURce:PHASe:ADJust",                 OutputPhase,             AbstractFloat),
     ("SOURce:POWer",                        Power,                   AbstractFloat),
     ("SOURce:POWer:LIMit:MAX",              PowerLimit,              AbstractFloat),
@@ -179,9 +178,6 @@ commands = [
     ("SOURce:POWer:REFerence",              PowerReferenceLevel,     AbstractFloat),
     ("SOURce:POWer:PROTection:STATe",       PowerSearchProtection,   Bool),
     ("SOURce:POWer:NOISe:STATe",            PowerOptimizeSNR,        Bool),
-    ("SOURce:FREQuency:REFerence:SET",      SetFrequencyReference,   NoArgs),
-    ("SOURce:PHASe:REFerence",              SetPhaseReference,       NoArgs),
-
 ]
 
 for args in commands
@@ -222,5 +218,10 @@ revision(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:REVision?")
 
 "Reports the revision of the E8257D."
 revision
+
+setfrequencyref(ins::E8257D) = write(ins, "SOURce:FREQuency:REFerence:SET")
+setphaseref(ins::E8257D) = write(ins, "SOURce:PHASe:REFerence")
+settled(ins::E8257D) = Bool(parse(ask(ins, ":OUTPut:SETTled?"))::Int)
+
 
 end

@@ -2,7 +2,6 @@ import Base: show, showerror
 
 # Instrument properties
 export InstrumentProperty
-export NoArgs
 
 # Properties common to many instruments and representable by codes
 export Coupling
@@ -70,9 +69,6 @@ To retrieve what one has to send the AWG from the type signature, we have
 defined a function `code`.
 """
 abstract InstrumentProperty{T}
-
-"Used internally to indicate that a property takes no argument."
-abstract NoArgs
 
 "Clock may tick on a rising or falling slope."
 abstract ClockSlope            <: InstrumentProperty

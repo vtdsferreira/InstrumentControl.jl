@@ -190,9 +190,9 @@ commands = [
     (":DISP:WIND#:TRAC#:Y:RLEV",    YReferenceLevel,       AbstractFloat),
     (":DISP:WIND#:TRAC#:Y:RPOS",    YReferencePosition,    Int),
     (":DISP:SPL",                   WindowLayout,          ASCIIString),
-    (":CALC#:MARK#:ACT",            SetActiveMarker,       NoArgs),
-    (":CALC#:PAR#:SEL",             ActiveTrace,           NoArgs),
-    (":DISP:WIND#:ACT",             SetActiveChannel,      NoArgs),
+    # (":CALC#:MARK#:ACT",            SetActiveMarker,       NoArgs),
+    # (":CALC#:PAR#:SEL",             ActiveTrace,           NoArgs),
+    # (":DISP:WIND#:ACT",             SetActiveChannel,      NoArgs),
 ]
 
 for args in commands

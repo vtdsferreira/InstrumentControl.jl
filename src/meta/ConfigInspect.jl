@@ -1,9 +1,3 @@
-"This method does/returns nothing."
-function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, ::Type{NoArgs})
-    nothing     # don't generate inspect methods for NoArgs
-end
-
 """
 This method will
 generate the following method in the module where `generate_inspect` is defined:
