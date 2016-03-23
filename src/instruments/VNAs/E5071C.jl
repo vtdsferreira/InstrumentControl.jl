@@ -25,8 +25,6 @@ export ClearAveraging
 export ElectricalDelay
 export ExtTriggerDelay
 export ExtTriggerLowLatency
-export FrequencyCenter
-export FrequencySpan
 export GraphLayout
 export PhaseOffset
 export PointTrigger
@@ -149,8 +147,6 @@ abstract TraceDisplay         <: InstrumentProperty
 abstract ElectricalDelay      <: InstrumentProperty{Float64}
 abstract ExtTriggerDelay      <: InstrumentProperty{Float64}
 abstract ExtTriggerLowLatency <: InstrumentProperty
-abstract FrequencyCenter      <: InstrumentProperty{Float64}
-abstract FrequencySpan        <: InstrumentProperty{Float64}
 abstract GraphLayout          <: InstrumentProperty
 abstract PhaseOffset          <: InstrumentProperty{Float64}
 abstract PointTrigger         <: InstrumentProperty

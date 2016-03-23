@@ -9,7 +9,7 @@ import Base: search
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
 
 export InstrumentVNA
-export ElectricalMedium, Graphs, IFBandwidth
+export ElectricalMedium, FrequencyCenter, FrequencySpan, Graphs, IFBandwidth
 export Marker, MarkerX, MarkerY
 export MarkerSearch, NumTraces
 
@@ -25,8 +25,11 @@ abstract ElectricalMedium <: InstrumentProperty
 "Post-processing and display formats typical of VNAs."
 abstract Format         <: InstrumentProperty
 
+abstract FrequencyCenter <: InstrumentProperty{Float64}
+abstract FrequencySpan   <: InstrumentProperty{Float64}
+
 "Graph layout specified by a matrix."
-abstract Graphs <: InstrumentProperty
+abstract Graphs         <: InstrumentProperty
 
 "IF bandwidth for a VNA."
 abstract IFBandwidth    <: InstrumentProperty{Float64}
