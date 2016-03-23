@@ -9,9 +9,9 @@ import Base: search
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
 
 export InstrumentVNA
-export ElectricalMedium, IFBandwidth
+export ElectricalMedium, Graphs, IFBandwidth
 export Marker, MarkerX, MarkerY
-export MarkerSearch, Windows
+export MarkerSearch, NumTraces
 
 # export Format, Parameter
 export clearavg, data, search, shotgun
@@ -25,6 +25,9 @@ abstract ElectricalMedium <: InstrumentProperty
 "Post-processing and display formats typical of VNAs."
 abstract Format         <: InstrumentProperty
 
+"Graph layout specified by a matrix."
+abstract Graphs <: InstrumentProperty
+
 "IF bandwidth for a VNA."
 abstract IFBandwidth    <: InstrumentProperty{Float64}
 
@@ -37,13 +40,13 @@ abstract MarkerX        <: InstrumentProperty{Float64}
 "Response value for a marker."
 abstract MarkerY        <: InstrumentProperty
 
+"Number of traces."
+abstract NumTraces      <: InstrumentProperty
+
 "VNA measurement parameter, e.g. S11, S12, etc."
 abstract Parameter      <: InstrumentProperty
 abstract SParameter     <: Parameter
 abstract ABCDParameter  <: Parameter
-
-"Graph layout specified by a matrix."
-abstract Windows <: InstrumentProperty
 
 "Polarity for peak and dip searching with VNAs."
 abstract Polarity

@@ -12,6 +12,7 @@ import PainterQB: getdata
 importall PainterQB.VNA
 import PainterQB.VNA: datacmd, peaknotfound, window
 import FixedSizeArrays
+import FixedSizeArrays.Mat
 
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
@@ -27,7 +28,6 @@ export ExtTriggerLowLatency
 export FrequencyCenter
 export FrequencySpan
 export GraphLayout
-export NumTraces
 export PhaseOffset
 export PointTrigger
 export PowerCoupled
@@ -152,7 +152,6 @@ abstract ExtTriggerLowLatency <: InstrumentProperty
 abstract FrequencyCenter      <: InstrumentProperty{Float64}
 abstract FrequencySpan        <: InstrumentProperty{Float64}
 abstract GraphLayout          <: InstrumentProperty
-abstract NumTraces            <: InstrumentProperty
 abstract PhaseOffset          <: InstrumentProperty{Float64}
 abstract PointTrigger         <: InstrumentProperty
 abstract PowerCoupled         <: InstrumentProperty
@@ -187,7 +186,6 @@ commands = [
     (":TRIG:EXT:DEL",               ExtTriggerDelay,       AbstractFloat),
     (":TRIG:EXT:LLAT",              ExtTriggerLowLatency,  Bool),
     (":DISP:WIND#:SPL",             GraphLayout,           ASCIIString),
-    (":CALC#:PAR:COUN",             NumTraces,             Int),
     (":CALC#:TRAC#:CORR:OFFS:PHAS", PhaseOffset,           AbstractFloat),
     (":TRIG:POIN",                  PointTrigger,          Bool),
     (":SOUR#:POW:PORT:COUP",        PowerCoupled,          Bool),
@@ -307,7 +305,8 @@ function configure(ins::E5071C, ::Type{Marker}, m::Integer, b::Bool, ch::Integer
 end
 
 """
-[:CALC#:TRAC#:MARK#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
+:CALC#:TRAC#:MARK#:X
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
 function configure(ins::E5071C, ::Type{MarkerX}, m::Integer, b::Real, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
@@ -315,12 +314,11 @@ function configure(ins::E5071C, ::Type{MarkerX}, m::Integer, b::Real, ch::Intege
 end
 
 """
-[OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
-
-Turn on or off the stimulus signal output.
+CALC#:PAR:COUNt
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
 """
-function configure(ins::E5071C, ::Type{Output}, b::Bool)
-    write(ins, ":OUTP #", Int(b))
+function configure(ins::E5071C, ::Type{NumTraces}, b::Integer, ch::Integer=1)
+    write(ins, ":CALC#:PAR:COUN #", ch, b)
 end
 
 """
@@ -332,6 +330,15 @@ function configure(ins::E5071C, ::Type{NumPoints}, b::Integer, ch::Integer=1)
     write(ins, ":SENS#:SWE:POIN #", ch, b)
     ret = inspect(ins, NumPoints, ch)
     info("Number of points set to "*string(ret)*".")
+end
+
+"""
+[OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
+
+Turn on or off the stimulus signal output.
+"""
+function configure(ins::E5071C, ::Type{Output}, b::Bool)
+    write(ins, ":OUTP #", Int(b))
 end
 
 """
@@ -423,8 +430,8 @@ DISPlay:SPLit
 Configure the layout of graph windows using a matrix to abstract the layout.
 For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.
 """
-function configure(ins::E5071C, ::Type{Windows}, a::AbstractArray{Int})
-    write(ins, ":DISP:SPL #", window(ins, Val{FixedSizeArrays.Mat(a)}))
+function configure(ins::E5071C, ::Type{Graphs}, a::AbstractArray{Int}, ch::Integer=1)
+    write(ins, ":DISP:WIND#:SPL #", ch, window(ins, Val{FixedSizeArrays.Mat(a)}))
 end
 
 """
@@ -528,6 +535,14 @@ Set the number of points to sweep over for channel `ch`.
 """
 function inspect(ins::E5071C, ::Type{NumPoints}, ch::Integer=1)
     parse(ask(ins, ":SENS#:SWE:POIN?", ch))::Int
+end
+
+"""
+CALC#:PAR:COUNt
+[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
+"""
+function inspect(ins::E5071C, ::Type{NumTraces}, ch::Integer=1)
+    parse(ask(ins, ":CALC#:PAR:COUN?", ch))::Int
 end
 
 """
@@ -788,27 +803,27 @@ function screen(ins::E5071C, filename::AbstractString="screen.png", display::Boo
     display && FileIO.load(filename)
 end
 
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1])}}) = "D1"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2])}}) = "D12"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,2])}}) = "D1_2"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 1 2])}}) = "D112"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,1,2])}}) = "D1_1_2"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3])}}) = "D123"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,2,3])}}) = "D1_2_3"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 3 3])}}) = "D12_33"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 1; 2 3])}}) = "D11_23"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 3; 2 3])}}) = "D13_23"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 1 3])}}) = "D12_13"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4])}}) = "D1234"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1,2,3,4])}}) = "D1_2_3_4"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2;3 4])}}) = "D12_34"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3; 4 5 6])}}) = "D123_456"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 3 4; 5 6])}}) = "D12_34_56"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4; 5 6 7 8])}}) = "D1234_5678"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2; 3 4; 5 6; 7 8])}}) = "D12_34_56_78"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3; 4 5 6; 7 8 9])}}) = "D123_456_789"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3; 4 5 6; 7 8 9; 10 11 12])}}) = "D123__ABC"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4; 5 6 7 8; 9 10 11 12])}}) = "D1234__9ABC"
-window(::E5071C, ::Type{Val{FixedSizeArrays.Mat([1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16])}}) = "D1234__DEFG"
+window(::E5071C, ::Type{Val{Mat([1])}}) = "D1"
+window(::E5071C, ::Type{Val{Mat([1 2])}}) = "D12"
+window(::E5071C, ::Type{Val{Mat([1,2])}}) = "D1_2"
+window(::E5071C, ::Type{Val{Mat([1 1 2])}}) = "D112"
+window(::E5071C, ::Type{Val{Mat([1,1,2])}}) = "D1_1_2"
+window(::E5071C, ::Type{Val{Mat([1 2 3])}}) = "D123"
+window(::E5071C, ::Type{Val{Mat([1,2,3])}}) = "D1_2_3"
+window(::E5071C, ::Type{Val{Mat([1 2; 3 3])}}) = "D12_33"
+window(::E5071C, ::Type{Val{Mat([1 1; 2 3])}}) = "D11_23"
+window(::E5071C, ::Type{Val{Mat([1 3; 2 3])}}) = "D13_23"
+window(::E5071C, ::Type{Val{Mat([1 2; 1 3])}}) = "D12_13"
+window(::E5071C, ::Type{Val{Mat([1 2 3 4])}}) = "D1234"
+window(::E5071C, ::Type{Val{Mat([1,2,3,4])}}) = "D1_2_3_4"
+window(::E5071C, ::Type{Val{Mat([1 2;3 4])}}) = "D12_34"
+window(::E5071C, ::Type{Val{Mat([1 2 3; 4 5 6])}}) = "D123_456"
+window(::E5071C, ::Type{Val{Mat([1 2; 3 4; 5 6])}}) = "D12_34_56"
+window(::E5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8])}}) = "D1234_5678"
+window(::E5071C, ::Type{Val{Mat([1 2; 3 4; 5 6; 7 8])}}) = "D12_34_56_78"
+window(::E5071C, ::Type{Val{Mat([1 2 3; 4 5 6; 7 8 9])}}) = "D123_456_789"
+window(::E5071C, ::Type{Val{Mat([1 2 3; 4 5 6; 7 8 9; 10 11 12])}}) = "D123__ABC"
+window(::E5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8; 9 10 11 12])}}) = "D1234__9ABC"
+window(::E5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16])}}) = "D1234__DEFG"
 
 end

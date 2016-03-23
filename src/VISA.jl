@@ -307,11 +307,11 @@ end
 
 ## Data transfer formats
 """
+Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+
 FORMAT:BORDER
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
 [ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
-
-Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
 """
 function configure{T<:TransferByteOrder}(ins::InstrumentVISA, ::Type{T})
     write(ins, "FORMat:BORDer "*code(ins, T))
@@ -332,22 +332,22 @@ function configure{T<:TransferFormat}(ins::InstrumentVISA, ::Type{T})
 end
 
 """
+Inspect the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+
 FORMAT:BORDER
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
 [ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
-
-Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
 """
 function inspect(ins::InstrumentVISA, ::Type{TransferByteOrder})
     TransferByteOrder(ins, ask(ins, "FORMat:BORDer?"))
 end
 
 """
+Inspect the data transfer format. The byte order should also be considered.
+
 FORMAT:DATA
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_data.htm]
 [ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85516.htm)
-
-Inspect the data transfer format. The byte order should also be considered.
 """
 function inspect(ins::InstrumentVISA, ::Type{TransferFormat})
     TransferFormat(ins, ask(ins, "FORMat:DATA?"))
