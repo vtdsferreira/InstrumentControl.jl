@@ -1,6 +1,52 @@
 {
     "properties":[
         {
+            "cmd":":CALCch:TRACtr:CORR:EDEL:MED",
+            "type":"VNA.ElectricalMedium",
+            "values":[
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:TRACtr:FORM",
+            "type":"VNA.Format",
+            "values":[
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:PARtr:DEF",
+            "type":"VNA.Parameter",
+            "values":[
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":TRIG:OUTP:POL",
+            "type":"TriggerOutputPolarity",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":TRIG:OUTP:POS",
+            "type":"TriggerOutputTiming",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
             "cmd":":TRIG:AVER",
             "type":"AveragingTrigger",
             "values":[

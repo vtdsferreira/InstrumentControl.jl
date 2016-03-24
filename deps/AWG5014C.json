@@ -1,0 +1,286 @@
+{
+    "properties":[
+        {
+            "cmd":"AWGC:CLOC:SOUR",
+            "type":"ClockSource",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"EVEN:IMP",
+            "type":"EventImpedance",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"EVEN:POL",
+            "type":"EventSlope",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"EVEN:JTIM",
+            "type":"EventTiming",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SOUR:ROSC:SOUR",
+            "type":"OscillatorSource",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:RMOD",
+            "type":"TriggerMode",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"TRIG:IMP",
+            "type":"TriggerImpedance",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"TRIG:POL",
+            "type":"TriggerSlope",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"TRIG:SOUR",
+            "type":"TriggerSource",
+            "values":[
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SOURch:DELAY",
+            "type":"AnalogOutputDelay",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"OUTPch:STAT",
+            "type":"ChannelOutput",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:DC:STAT",
+            "type":"DCOutput",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:DCch:VOLT:OFFS",
+            "type":"DCOutputLevel",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:CLOC:DRAT",
+            "type":"ExtOscDividerRate",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SOURch:MARKm:DEL",
+            "type":"MarkerDelay",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "m::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"OUTPch:FILT:FREQ",
+            "type":"OutputFilterFrequency",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SOUR:ROSC:FREQ",
+            "type":"RefOscFrequency",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SOUR:ROSC:MULT",
+            "type":"RefOscMultiplier",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:RRAT:HOLD",
+            "type":"RepRateHeld",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:RRAT",
+            "type":"RepRate",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:ELEMel:JTAR:IND",
+            "type":"SequencerEventJumpTarget",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:ELEMel:GOTO:STAT",
+            "type":"SequencerGOTOState",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:ELEMel:GOTO:IND",
+            "type":"SequencerGOTOTarget",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:ELEMel:LOOP:INF",
+            "type":"SequencerInfiniteLoop",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:LENG",
+            "type":"SequencerLength",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:ELEMel:LOOP:COUN",
+            "type":"SequencerLoopCount",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"AWGC:SEQ:POS?",
+            "type":"SequencerPosition",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"TRIG:LEV",
+            "type":"TriggerLevel",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"TRIG:TIM",
+            "type":"TriggerTimer",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"WLIST:SIZE?",
+            "type":"WavelistLength",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SOURch:VOLT:OFFS",
+            "type":"VoltageOffset",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }
+    ]
+}

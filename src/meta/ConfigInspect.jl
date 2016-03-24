@@ -92,22 +92,28 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
     length(p[:values]) > 1 && error("Not yet implemented.")
     if length(p[:values]) == 0
         # We must be configuring based on subtypes of T.
-
+        method = Expr(:call, Expr(:curly, :configure, Expr(:(<:), :T, p[:type])),
+            :(ins::$S), :(::Type{T}), p[:infixes]...)
     else
         # We must be configuring based on values.
         # Begin constructing our definition of `configure`
         method = Expr(:call, :configure,
             :(ins::$S), :(::Type{$T}), p[:values]..., p[:infixes]...)
-        configure = Expr(:function, method, Expr(:block))
-        fbody = configure.args[2].args
+    end
+    configure = Expr(:function, method, Expr(:block))
+    fbody = configure.args[2].args
 
-        # In the function body: Define `cmd`
-        push!(fbody, :(cmd = $(command*" #")))
-        for infix in p[:infixes]
-            sym = argsym(infix)
-            name = string(sym)
-            push!(fbody, :(cmd = replace(cmd, $name, $sym)))
-        end
+    # In the function body: Define `cmd`
+    push!(fbody, :(cmd = $(command*" #")))
+    for infix in p[:infixes]
+        sym = argsym(infix)
+        name = string(sym)
+        push!(fbody, :(cmd = replace(cmd, $name, $sym)))
+    end
+
+    if length(p[:values]) == 0
+        push!(fbody, :(write(ins, cmd, code(ins, T))))
+    else
         vsym = argsym(p[:values][1])
         push!(fbody, :(write(ins, cmd, fmt($vsym))))
     end

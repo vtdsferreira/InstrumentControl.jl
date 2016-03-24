@@ -6,6 +6,7 @@ import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
+metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E8257D.json"))
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E8257D
@@ -143,46 +144,15 @@ abstract PowerOptimizeSNR        <: InstrumentProperty
 abstract SetFrequencyReference   <: InstrumentProperty
 abstract SetPhaseReference       <: InstrumentProperty
 
-commands = [
-    ("SOURce:ROSCillator:SOURce?",          OscillatorSource),
-    ("TRIG:OUTP:POL",                       TriggerOutputPolarity),
-    ("TRIG:SOUR",                           TriggerSource),
+returntype(::Type{Bool}) = (Int, Bool)
+returntype(::Type{Real}) = (Float64, Float64)
+returntype(::Type{Integer}) = (Int, Int)
+fmt(v::Bool) = string(Int(v))
+fmt(v) = string(v)
 
-    ("SOURce:POWer:ALC:STATe",              ALC,                     Bool),
-    ("SOURce:POWer:ALC:BANDwidth",          ALCBandwidth,            AbstractFloat),
-    ("SOURce:POWer:ALC:BANDwidth:AUTO",     ALCBandwidthAuto,        Bool),
-    ("SOURce:POWer:ALC:LEVel",              ALCLevel,                AbstractFloat),
-    ("SOURce:POWer:ATTenuation:AUTO",       AttenuatorAuto,          Bool),
-    ("SOURce:CORRection:STATe",             FlatnessCorrection,      Bool),
-    ("SOURce:FREQuency:FIXed",              Frequency,               AbstractFloat),
-#    ("SOURce:FREQuency:MULTiplier",         FrequencyMultiplier,     Int),
-    ("SOURce:FREQuency:STARt",              FrequencyStart,          AbstractFloat),
-    ("SOURce:FREQuency:STOP",               FrequencyStop,           AbstractFloat),
-    ("SOURce:FREQuency:STEP",               FrequencyStep,           AbstractFloat),
-#    ("SOURce:FREQuency:OFFSet",             FrequencyOffsetLevel,    AbstractFloat),
-#    ("SOURce:POWer:REFerence:STATe",        FrequencyOffset,         Bool),
-    ("SOURce:FREQuency:REFerence",          FrequencyReferenceLevel, AbstractFloat),
-    ("SOURce:FREQuency:REFerence:STATe",    FrequencyReference,      Bool),
-    (":OUTPut",                             Output,                  Bool),
-    ("SOURce:OUTPut:BLANking:STATe",        OutputBlanking,          Bool),
-    ("SOURce:OUTPut:BLANking:AUTO",         OutputBlankingAuto,      Bool),
-    ("SOURce:PHASe:ADJust",                 OutputPhase,             AbstractFloat),
-    ("SOURce:POWer",                        Power,                   AbstractFloat),
-    ("SOURce:POWer:LIMit:MAX",              PowerLimit,              AbstractFloat),
-    ("SOURce:POWer:LIMit:MAX:ADJust",       PowerLimitAdjustable,    Bool),
-    ("SOURce:POWer:STARt",                  PowerStart,              AbstractFloat),
-    ("SOURce:POWer:STOP",                   PowerStop,               AbstractFloat),
-    ("SOURce:POWer:LEVel:STEP",             PowerStep,               AbstractFloat),
-#    ("SOURce:POWer:LEVel:OFFSet",           PowerOffsetLevel,        AbstractFloat),
-    ("SOURce:POWer:REFerence:STATe",        PowerReference,          Bool),
-    ("SOURce:POWer:REFerence",              PowerReferenceLevel,     AbstractFloat),
-    ("SOURce:POWer:PROTection:STATe",       PowerSearchProtection,   Bool),
-    ("SOURce:POWer:NOISe:STATe",            PowerOptimizeSNR,        Bool),
-]
-
-for args in commands
-    generate_inspect(E8257D,args...)
-    args[1][end] != '?' && generate_configure(E8257D,args...)
+for p in metadata[:properties]
+    generate_inspect(E8257D, p)
+    p[:cmd][end] != '?' && generate_configure(E8257D, p)
 end
 
 boards(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:BOARds?")

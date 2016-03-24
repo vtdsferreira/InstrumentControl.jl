@@ -6,6 +6,7 @@ import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
+metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/AWG5014C.json"))
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 ## Exports
@@ -357,48 +358,15 @@ abstract WavelistLength           <: InstrumentProperty{Int}
 "Offset voltage for a given channel."
 abstract VoltageOffset            <: InstrumentProperty{Float64}
 
-commands = [
-    ("AWGC:CLOC:SOUR",      ClockSource),    #reference clock source
-    ("EVEN:IMP",            EventImpedance),
-    ("EVEN:POL",            EventSlope),
-    ("EVEN:JTIM",           EventTiming),
-    ("SOUR:ROSC:SOUR",      OscillatorSource),
-    ("AWGC:RMOD",           TriggerMode),
-    ("TRIG:IMP",            TriggerImpedance),
-    ("TRIG:POL",            TriggerSlope),
-    ("TRIG:SOUR",           TriggerSource),
+returntype(::Type{Bool}) = (Int, Bool)
+returntype(::Type{Real}) = (Float64, Float64)
+returntype(::Type{Integer}) = (Int, Int)
+fmt(v::Bool) = string(Int(v))
+fmt(v) = string(v)
 
-    ("SOUR#:DELAY",         AnalogOutputDelay,         AbstractFloat),
-    # ("AWGC:CONF:CNUM?",     ChannelCount,              Int),
-    ("OUTP#:STAT",          ChannelOutput,             Bool),
-    ("AWGC:DC:STAT",        DCOutput,                  Bool),
-    ("AWGC:DC#:VOLT:OFFS",  DCOutputLevel,             AbstractFloat),
-    ("SOUR#:COMB:FEED",     ExtInputAddsToOutput,      ASCIIString),    ### ???
-    ("AWGC:CLOC:DRAT",      ExtOscDividerRate,         Int), # needs error handling?
-    ("SOUR#:MARK#:DEL",     MarkerDelay,               AbstractFloat),
-    ("OUTP#:FILT:FREQ",     OutputFilterFrequency,     AbstractFloat),
-    ("SOUR:ROSC:FREQ",      RefOscFrequency,           AbstractFloat),
-    ("SOUR:ROSC:MULT",      RefOscMultiplier,          Int),
-    ("AWGC:RRAT:HOLD",      RepRateHeld,               Bool),
-    ("AWGC:RRAT",           RepRate,                   AbstractFloat),
-    ("SYST:VERS?",          SCPIVersion,               ASCIIString),
-    ("SEQ:ELEM#:JTAR:IND",  SequencerEventJumpTarget,  Int),
-    ("SEQ:ELEM#:GOTO:STAT", SequencerGOTOState,        Bool),
-    ("SEQ:ELEM#:GOTO:IND",  SequencerGOTOTarget,       Int),
-    ("SEQ:ELEM#:LOOP:INF",  SequencerInfiniteLoop,     Bool),
-    ("SEQ:LENG",            SequencerLength,           Int),
-    ("SEQ:ELEM#:LOOP:COUN", SequencerLoopCount,        Int),
-    ("AWGC:SEQ:POS?",       SequencerPosition,         Int),             ###
-    ("TRIG:LEV",            TriggerLevel,              AbstractFloat),
-    ("TRIG:TIM",            TriggerTimer,              AbstractFloat),
-#    ("SOUR#:DELAY:POIN",   AnalogOutputDelayPoints,   Int),
-    ("WLIST:SIZE?",         WavelistLength,            Int),
-    ("SOUR#:VOLT:OFFS",     VoltageOffset,             AbstractFloat),  #-2.25 to 2.25V
-]
-
-for args in commands
-    generate_inspect(AWG5014C,args...)
-    args[1][end] != '?' && generate_configure(AWG5014C,args...)
+for p in metadata[:properties]
+    generate_inspect(AWG5014C, p)
+    p[:cmd][end] != '?' && generate_configure(AWG5014C, p)
 end
 
 "Configure the global analog output state of the AWG."

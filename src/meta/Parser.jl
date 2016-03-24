@@ -59,7 +59,7 @@ function insjson(file::AbstractString)
         # Prefer symbols instead of strings
         j[:properties][i] = convert(Dict{Symbol,Any}, j[:properties][i])
         p = j[:properties][i]
-        p[:type] = symbol(p[:type])
+        p[:type] = parse(p[:type])
 
         # These should be Julia expressions.
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))

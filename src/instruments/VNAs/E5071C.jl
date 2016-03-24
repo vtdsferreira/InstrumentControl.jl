@@ -74,12 +74,12 @@ type E5071C <: InstrumentVNA
 end
 
 responseDictionary = Dict(
-    :ElectricalMedium       => Dict("COAX" => :(VNA.Coaxial),
+    :(VNA.ElectricalMedium) => Dict("COAX" => :(VNA.Coaxial),
                                     "WAV"  => :(VNA.Waveguide)),
 
     ################
 
-    :Format                 => Dict("MLOG" => :(VNA.LogMagnitude),
+    :(VNA.Format)           => Dict("MLOG" => :(VNA.LogMagnitude),
                                     "PHAS" => :(VNA.Phase),
                                     "GDEL" => :(VNA.GroupDelay),
                                     "SLIN" => :(VNA.SmithLinear),
@@ -97,7 +97,7 @@ responseDictionary = Dict(
                                     "UPH"  => :(VNA.ExpandedPhase),
                                     "PPH"  => :(VNA.PositivePhase)),
 
-    :Parameter              => Dict("S11"  => :(VNA.S11),
+    :(VNA.Parameter)        => Dict("S11"  => :(VNA.S11),
                                     "S12"  => :(VNA.S12),
                                     "S21"  => :(VNA.S21),
                                     "S22"  => :(VNA.S22)),
@@ -172,7 +172,7 @@ fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
 for p in metadata[:properties]
-    print(generate_inspect(E5071C, p))
+    generate_inspect(E5071C, p)
     p[:cmd][end] != '?' && generate_configure(E5071C, p)
 end
 
