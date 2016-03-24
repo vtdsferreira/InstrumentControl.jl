@@ -1,167 +1,125 @@
+"Given an expression like `:(x::Integer)` or `:(x::Integer=3)`, will return `Integer`."
+function argtype(expr)
+    if expr.head == :(::)
+        if length(expr.args) == 1
+            return eval(expr.args[1])
+        else
+            return eval(expr.args[2])
+        end
+    elseif expr.head == :(=) || expr.head == :(kw)
+        return argtype(expr.args[1])
+    else
+        error("Cannot handle this argument.")
+    end
+end
+
 """
-This method will
-generate the following method in the module where `generate_inspect` is defined:
-
-`inspect(ins::instype, ::Type{proptype}, infixes::Int...)`
-
-The `infixes` variable argument allows for numbers to be inserted within the
-commands, for instance in `OUTP#:FILT:FREQ`, where the `#` sign should be
-replaced by an integer. The replacements are done in the order of the arguments.
-Error checking is done on the number of arguments.
-
-For a given property, `inspect` will return either an InstrumentProperty subtype,
-a number, a boolean, or a string as appropriate.
+Given an expression like `:(x::Integer)` or `:(x::Integer=3)`, will return `x`.
+Returns :_____ if given `:(::Integer)`.
 """
+function argsym(expr)
+    if expr.head == :(::)
+        if length(expr.args) == 1
+            return :_____
+        else
+            return expr.args[1]
+        end
+    elseif expr.head == :(=) || expr.head == :(kw)
+        return argsym(expr.args[1])
+    else
+        error("Cannot handle this argument.")
+    end
+end
+
 function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
+        command::ASCIIString, proptype::Type{T}, args...)
 
-    if (length(returntype) > 1)
-        warning("More arguments than supported in generate_inspect.")
-    end
+    infixnames = matchall(r"[a-z]+", command)
+    infixsymbs = [symbol(n) for n in infixnames]
 
-    nhash = 0
-    for i in command
-        i == '#' ? nhash += 1 : nothing     # Count the number of '#' in command
-    end
+    valtypes = DataType[]
 
-    @eval function inspect(ins::$instype, ::Type{$proptype}, infixes::Int...)
-        cmd = $command
-        # Bail if we need more infixes
-        # $nhash != length(infixes) && error(cmd," requires ",$nhash," infixes.")
-
-        for infix in infixes
-            cmd = replace(cmd,"#",infix,1)  # Replace all '#' chars
+    fargs = [:(ins::$S), :(::Type{$T})]
+    for a in args
+        # The equal sign in an optional function argument is reinterpreted as :kw.
+        a.head == :(=) && (a.head = :kw)
+        if findfirst(infixsymbs, argsym(a)) == 0
+            push!(valtypes, argtype(a))
+        else
+            push!(fargs, a)
         end
-        cmd = replace(cmd, "#", "1")   # Replace remaining infixes with ones.
-
-        if cmd[end] != '?'
-            cmd = cmd*"?"       # Add question mark if needed
-        end
-
-        response = ask(ins, cmd)    # Ask the instrument
-
-        # Parse string into number if appropriate.
-        # Note this is insecure if we don't trust our instrument
-        # since parse can make arbitrary expressions...
-        res = isa(parse(response), Number) ? parse(response) : response
-
-        # If we should return a number/string/Bool do so,
-        # otherwise ($proptype)(ins,res) will use a handler from generate_handlers
-        # to return an object, a subtype of $proptype.
-        length($returntype) > 0 ? ($returntype[1])(res) : ($proptype)(ins,res)
     end
 
-    nothing
+    # If it looks like configure needs two or more parameters to follow the
+    # command, the return type for inspect is not obvious
+    length(valtypes) > 1 && error("Not yet implemented.")
+
+    method  = Expr(:call, :inspect, fargs...)
+    inspect = Expr(:function, method, Expr(:block))
+    fbody = inspect.args[2].args
+
+    command[end] != '?' && (command *= "?")
+    push!(fbody, :(cmd = $command))
+
+    for name in infixnames
+        push!(fbody, :(cmd = replace(cmd, $name, $(symbol(name)))))
+    end
+
+    if length(valtypes) == 1
+        vtyp = valtypes[1]
+        if vtyp <: Number
+            P,C = returntype(vtyp)
+            push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
+        else
+            push!(fbody, :(ask(ins, cmd)) )
+        end
+    else
+        push!(fbody, :(($T)(ins, ask(ins, cmd))))
+    end
+    eval(inspect)
+
+    inspect
 end
 
-"""
-This method generates the following method in the module where
-`generate_configure` is defined:
-
-```
-configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
-```
-"""
 function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T})
+    command::ASCIIString, proptype::Type{T}, args...)
 
-    nhash = 0
-    for i in command
-        i == '#' ? nhash += 1 : nothing
-    end
+    infixnames = matchall(r"[a-z]+", command)
+    infixsymbs = [symbol(n) for n in infixnames]
 
-    @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, args...)
-        cmd = $command
+    valtypes = DataType[]
+    valsymbs = Symbol[]
 
-        x == $proptype && error("Pass a subtype of ",string($proptype)," instead.")
+    fargs = [:(ins::$S)]
 
-        # $nhash != length(args) && error(cmd," requires ",$nhash," infixes.")
-        for infix in args
-            cmd = replace(cmd,"#",infix,1)
+    # See what we have that is not an infix
+    for a in args
+        # Make optional args
+        a.head == :(=) && (a.head = :kw)
+        # If not an infix, push to valtypes and valsymbs
+        if findfirst(infixsymbs, argsym(a)) == 0
+            push!(valtypes, argtype(a))
+            push!(valsymbs, argsym(a))
         end
-        cmd = replace(cmd, "#", "1")
+    end
 
-        try
-            cd = code(ins,x)
-        catch
-            error("This subtype not be supported for this instrument.")
+    length(valtypes) > 1 && error("Not yet implemented.")
+    if length(valtypes) == 0
+        # We must be configuring based on subtypes of T.
+        
+    else
+        # We configure based on a value.
+        push!(fargs, :(::Type{$T}))
+        method = Expr(:call, :configure, fargs..., args...)
+        configure = Expr(:function, method, Expr(:block))
+        fbody = configure.args[2].args
+        push!(fbody, :(cmd = $command * " #"))
+        for name in infixnames
+            push!(fbody, :(cmd = replace(cmd, $name, $(symbol(name)))))
         end
-
-        write(ins, string(cmd," ",code(ins,x)))
+        push!(fbody, :(write(ins, cmd, fmt($(valsymbs[1])))))
     end
+    eval(configure)
 
-    nothing
-end
-
-"""
-This method generates the following method in the module where
-`generate_configure` is defined:
-
-```
-configure(ins::InsType, ::Type{PropertySubtype}, infixes...)
-```
-
-This particular method will be deprecated soon.
-"""
-function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, ::Type{NoArgs})
-
-    nhash = 0
-    for i in command
-        i == '#' ? nhash += 1 : nothing
-    end
-
-    @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, args...)
-        cmd = $command
-
-        for infix in args
-            cmd = replace(cmd,"#",infix,1)
-        end
-        cmd = replace(cmd, "#", "1")
-
-        write(ins, cmd)
-    end
-
-    nothing
-end
-
-"""
-This method generates the following method in the module where
-`generate_configure` is defined:
-
-```
-configure(ins::InsType, Property, values..., infixes...)
-```
-"""
-function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-
-    if (length(returntype) > 1)
-        warning("More arguments than supported in generate_configure.")
-    end
-
-    nhash = 0
-    for i in command
-        i == '#' ? nhash += 1 : nothing
-    end
-
-    @eval function configure{T<:$proptype}(ins::$instype, x::Type{T}, args...)
-        cmd = $command
-
-        # $nhash + 1 != length(args) && error(cmd," requires a ",$returntype[1],
-        #     " argument and ",$nhash," infixes.")
-        length(args) < 1 && error("Not enough arguments.")
-
-        !isa(args[1],$returntype[1]) &&
-            error(cmd," requires a ",$returntype[1]," argument.")
-
-        for infix in args[2:end]
-            cmd = replace(cmd,"#",infix,1)
-        end
-        cmd = replace(cmd, "#", "1")
-
-        write(ins, string(cmd," ",isa(args[1],Bool) ? Int(args[1]) : args[1]))
-    end
-
-    nothing
+    configure
 end
