@@ -15,12 +15,12 @@ end
 
 """
 Given an expression like `:(x::Integer)` or `:(x::Integer=3)`, will return `x`.
-Returns :_____ if given `:(::Integer)`.
+Returns :_ if given `:(::Integer)`.
 """
 function argsym(expr)
     if expr.head == :(::)
         if length(expr.args) == 1
-            return :_____
+            return :_
         else
             return expr.args[1]
         end
@@ -31,42 +31,43 @@ function argsym(expr)
     end
 end
 
-function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, args...)
+function generate_inspect{S<:Instrument}(instype::Type{S}, p)
+        #command::ASCIIString, proptype::Type{T}, args...)
 
-    infixnames = matchall(r"[a-z]+", command)
-    infixsymbs = [symbol(n) for n in infixnames]
+    # Get the instrument property type and assert.
+    T = eval(p[:type])
 
-    valtypes = DataType[]
-
+    # Collect the arguments for `inspect`
     fargs = [:(ins::$S), :(::Type{$T})]
-    for a in args
-        # The equal sign in an optional function argument is reinterpreted as :kw.
-        a.head == :(=) && (a.head = :kw)
-        if findfirst(infixsymbs, argsym(a)) == 0
-            push!(valtypes, argtype(a))
-        else
-            push!(fargs, a)
-        end
+    for a in p[:infixes]
+        push!(fargs, a)
     end
 
     # If it looks like configure needs two or more parameters to follow the
     # command, the return type for inspect is not obvious
-    length(valtypes) > 1 && error("Not yet implemented.")
+    length(p[:values]) > 1 && error("Not yet implemented.")
 
+    # Begin constructing our definition of `inspect`
     method  = Expr(:call, :inspect, fargs...)
     inspect = Expr(:function, method, Expr(:block))
     fbody = inspect.args[2].args
 
+    # Add the question mark for a query
+    command = p[:cmd]
     command[end] != '?' && (command *= "?")
+
+    # In the function body: Define `cmd`
     push!(fbody, :(cmd = $command))
 
-    for name in infixnames
-        push!(fbody, :(cmd = replace(cmd, $name, $(symbol(name)))))
+    # In the function body: Replace the infixes with the `inspect` arguments
+    for infix in p[:infixes]
+        sym = argsym(infix)
+        name = string(sym)
+        push!(fbody, :(cmd = replace(cmd, $name, $sym)))
     end
 
-    if length(valtypes) == 1
-        vtyp = valtypes[1]
+    if length(p[:values]) == 1
+        vtyp = argtype(p[:values][1])
         if vtyp <: Number
             P,C = returntype(vtyp)
             push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
@@ -81,43 +82,34 @@ function generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
     inspect
 end
 
-function generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-    command::ASCIIString, proptype::Type{T}, args...)
+function generate_configure{S<:Instrument}(instype::Type{S}, p)
 
-    infixnames = matchall(r"[a-z]+", command)
-    infixsymbs = [symbol(n) for n in infixnames]
+    # Get the instrument property type and assert.
+    T = eval(p[:type])
 
-    valtypes = DataType[]
-    valsymbs = Symbol[]
+    command = p[:cmd]
 
-    fargs = [:(ins::$S)]
-
-    # See what we have that is not an infix
-    for a in args
-        # Make optional args
-        a.head == :(=) && (a.head = :kw)
-        # If not an infix, push to valtypes and valsymbs
-        if findfirst(infixsymbs, argsym(a)) == 0
-            push!(valtypes, argtype(a))
-            push!(valsymbs, argsym(a))
-        end
-    end
-
-    length(valtypes) > 1 && error("Not yet implemented.")
-    if length(valtypes) == 0
+    length(p[:values]) > 1 && error("Not yet implemented.")
+    if length(p[:values]) == 0
         # We must be configuring based on subtypes of T.
-        
+
     else
-        # We configure based on a value.
-        push!(fargs, :(::Type{$T}))
-        method = Expr(:call, :configure, fargs..., args...)
+        # We must be configuring based on values.
+        # Begin constructing our definition of `configure`
+        method = Expr(:call, :configure,
+            :(ins::$S), :(::Type{$T}), p[:values]..., p[:infixes]...)
         configure = Expr(:function, method, Expr(:block))
         fbody = configure.args[2].args
-        push!(fbody, :(cmd = $command * " #"))
-        for name in infixnames
-            push!(fbody, :(cmd = replace(cmd, $name, $(symbol(name)))))
+
+        # In the function body: Define `cmd`
+        push!(fbody, :(cmd = $(command*" #")))
+        for infix in p[:infixes]
+            sym = argsym(infix)
+            name = string(sym)
+            push!(fbody, :(cmd = replace(cmd, $name, $sym)))
         end
-        push!(fbody, :(write(ins, cmd, fmt($(valsymbs[1])))))
+        vsym = argsym(p[:values][1])
+        push!(fbody, :(write(ins, cmd, fmt($vsym))))
     end
     eval(configure)
 

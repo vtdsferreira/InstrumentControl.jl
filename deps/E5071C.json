@@ -1,0 +1,178 @@
+{
+    "properties":[
+        {
+            "cmd":":TRIG:AVER",
+            "type":"AveragingTrigger",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:TRACtr:CORR:EDEL:TIME",
+            "type":"ElectricalDelay",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":TRIG:EXT:DEL",
+            "type":"ExtTriggerDelay",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":TRIG:EXT:LLAT",
+            "type":"ExtTriggerLowLatency",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:TRACtr:CORR:OFFS:PHAS",
+            "type":"PhaseOffset",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":TRIG:POIN",
+            "type":"PointTrigger",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SOURch:POW:PORT:COUP",
+            "type":"PowerCoupled",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SOURch:POW:PORTport",
+            "type":"PowerPortLevel",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "port::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SOURch:POW:SLOP:STAT",
+            "type":"PowerSlope",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SOURch:POW:SLOP",
+            "type":"PowerSlopeLevel",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENSch:FREQ",
+            "type":"PowerSweepFrequency",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":DISP:WINDch:MAX",
+            "type":"TraceMaximized",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:TRACtr:CORR:EDEL:WGC",
+            "type":"WaveguideCutoff",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":DISP:WINDch:Y:DIV",
+            "type":"YDivisions",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":DISP:WINDch:TRACtr:Y:PDIV",
+            "type":"YScalePerDivision",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":DISP:WINDch:TRACtr:Y:RLEV",
+            "type":"YReferenceLevel",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":DISP:WINDch:TRACtr:Y:RPOS",
+            "type":"YReferencePosition",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }
+    ]
+}

@@ -14,6 +14,7 @@ import PainterQB.VNA: datacmd, peaknotfound, window
 import FixedSizeArrays
 import FixedSizeArrays.Mat
 
+metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
 include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E5071C
@@ -170,41 +171,10 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-commands = [
-    # (":CALCch:TRACtr:CORR:EDEL:MED",  VNA.ElectricalMedium),
-    # (":CALCch:TRACtr:FORM",           VNA.Format),
-    # (":CALCch:PARtr:DEF",             VNA.Parameter),
-    # (":TRIG:OUTP:POL",                TriggerOutputPolarity),
-    # (":TRIG:OUTP:POS",                TriggerOutputTiming),
-
-    (":TRIG:AVER",                    AveragingTrigger,      :(v::Bool)),
-    (":CALCch:TRACtr:CORR:EDEL:TIME", ElectricalDelay,       :(v::Real), :(ch::Integer=1), :(tr::Integer=1)),
-    (":TRIG:EXT:DEL",                 ExtTriggerDelay,       :(v::Real)),
-    (":TRIG:EXT:LLAT",                ExtTriggerLowLatency,  :(v::Bool)),
-    (":CALCch:TRACtr:CORR:OFFS:PHAS", PhaseOffset,           :(v::Real), :(ch::Integer=1), :(tr::Integer=1)),
-    (":TRIG:POIN",                    PointTrigger,          :(v::Bool)),
-    (":SOURch:POW:PORT:COUP",         PowerCoupled,          :(v::Bool), :(ch::Integer=1)),
-    (":SOURch:POW:PORTport",          PowerPortLevel,        :(v::Real), :(ch::Integer=1), :(port::Integer=1)),
-    (":SOURch:POW:SLOP:STAT",         PowerSlope,            :(v::Bool), :(ch::Integer=1)),
-    (":SOURch:POW:SLOP",              PowerSlopeLevel,       :(v::Real), :(ch::Integer=1)),
-    (":SENSch:FREQ",                  PowerSweepFrequency,   :(v::Real), :(ch::Integer=1)),
-    (":DISP:WINDch:MAX",              TraceMaximized,        :(v::Bool), :(ch::Integer=1)),
-    (":CALCch:TRACtr:CORR:EDEL:WGC",  WaveguideCutoff,       :(v::Real), :(ch::Integer=1), :(tr::Integer=1)),
-    (":DISP:WINDch:Y:DIV",            YDivisions,            :(v::Integer), :(ch::Integer=1)),
-    (":DISP:WINDch:TRACtr:Y:PDIV",    YScalePerDivision,     :(v::Real), :(ch::Integer=1), :(tr::Integer=1)),
-    (":DISP:WINDch:TRACtr:Y:RLEV",    YReferenceLevel,       :(v::Real), :(ch::Integer=1), :(tr::Integer=1)),
-    (":DISP:WINDch:TRACtr:Y:RPOS",    YReferencePosition,    :(v::Integer), :(ch::Integer=1), :(tr::Integer=1)),
-    # (":DISP:SPL",                   WindowLayout,          ASCIIString),
-    # (":CALC#:MARK#:ACT",            SetActiveMarker,       NoArgs),
-    # (":CALC#:PAR#:SEL",             ActiveTrace,           NoArgs),
-    # (":DISP:WIND#:ACT",             SetActiveChannel,      NoArgs),
-]
-
-for args in commands
-    generate_inspect(E5071C,args...)
-    args[1][end] != '?' && generate_configure(E5071C,args...)
+for p in metadata[:properties]
+    print(generate_inspect(E5071C, p))
+    p[:cmd][end] != '?' && generate_configure(E5071C, p)
 end
-
 
 """
 [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]

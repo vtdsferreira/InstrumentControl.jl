@@ -17,6 +17,8 @@ include("VISA.jl")
 include("sourcemeasure/SourceMeasure.jl")
 
 # Various instruments
+# Parsing JSON files for easy instrument onroading
+include("meta/Parser.jl")
 include("instruments/VNAs/VNA.jl")
 include("instruments/VNAs/E5071C.jl")
 # include("instruments/VNAs/ZNB20.jl")

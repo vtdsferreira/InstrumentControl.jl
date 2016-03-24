@@ -10,6 +10,7 @@
 # Nothing is exported as the user should never use these, and we don't want
 # instruments to see this if it is used from our PainterQB module.
 
+import JSON
 include("ConfigInspect.jl")
 include("Properties.jl")
 include("Handlers.jl")
