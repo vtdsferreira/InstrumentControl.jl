@@ -45,11 +45,12 @@ export YReferencePosition
 export YScalePerDivision
 export SetActiveMarker
 export SetActiveChannel
+export SweepTime
 
 export autoscale, bandwidth
 export screen, search
 export stimdata, data
-export mktrace
+export mktrace, trig1
 
 # The E5071C has rather incomplete support for referring to traces by name.
 # We will maintain an internal description of what names correspond to what
@@ -164,6 +165,7 @@ abstract YReferencePosition   <: InstrumentProperty
 abstract WindowLayout         <: InstrumentProperty
 abstract SetActiveMarker      <: InstrumentProperty
 abstract SetActiveChannel     <: InstrumentProperty
+abstract SweepTime            <: InstrumentProperty
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
@@ -546,6 +548,8 @@ function data(ins::E5071C, processing::Type{VNA.Raw}, ch::Integer=1, tr::Integer
     data = getdata(ins, xfer, cmdstr)
     reinterpret(Complex{Float64}, data)
 end
+
+trig1(ins::E5071C) = write(ins, ":TRIG:SING")
 
 "Default to formatted data."
 data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) =

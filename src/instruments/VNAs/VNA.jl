@@ -155,6 +155,10 @@ end
 "Read the data from the VNA."
 function data end
 
+
+
+
+
 """
 `clearavg(ins::InstrumentVNA, ch::Integer=1)`
 

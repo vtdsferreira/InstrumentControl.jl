@@ -21,7 +21,7 @@ export binblockwrite, binblockreadavailable
 
 ## Common VISA commands
 export tst, rst, idn, cls
-export trg, abor, wait, errors
+export trg, abor, wait, opc, errors
 
 ## Convenience
 export quoted, unquoted
@@ -123,27 +123,30 @@ binblockreadavailable(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.vi)
 ## IEEE standard commands
 
 "Test with the *TST? command."
-tst(ins::InstrumentVISA)        = write(ins, "*TST?")
+tst(ins::InstrumentVISA)    = write(ins, "*TST?")
 
 "Reset with the *RST command."
-rst(ins::InstrumentVISA)        = write(ins, "*RST")
+rst(ins::InstrumentVISA)    = write(ins, "*RST")
 
 "Ask the *IDN? command."
-idn(ins::InstrumentVISA)        = ask(ins, "*IDN?")
+idn(ins::InstrumentVISA)    = ask(ins, "*IDN?")
 
 "Clear registers with *CLS."
-cls(ins::InstrumentVISA)        = write(ins, "*CLS")
+cls(ins::InstrumentVISA)    = write(ins, "*CLS")
 
 "Bus trigger with *TRG."
-trg(ins::InstrumentVISA)        = write(ins, "*TRG")
+trg(ins::InstrumentVISA)    = write(ins, "*TRG")
 
-"Wait for completion of a sweep."
-wait(ins::InstrumentVISA)       = write(ins, "*WAI")
+"Wait for completion of a sweep with *WAI."
+wai(ins::InstrumentVISA)    = write(ins, "*WAI")
+
+"Wait for completion of a sweep with *OPC?."
+opc(ins::InstrumentVISA)    = ask(ins, "*OPC?")
 
 # Useful common commands
 
 "Abort triggering with ABOR."
-abor(ins::InstrumentVISA)       = write(ins, "ABOR")
+abor(ins::InstrumentVISA)   = write(ins, "ABOR")
 
 """
 Interrogate errors using `:SYST:ERR?` and raise an `InstrumentException`

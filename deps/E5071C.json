@@ -1,6 +1,16 @@
 {
     "properties":[
         {
+            "cmd":":SENSch:SWE:TIME",
+            "type":"SweepTime",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"This command sets/gets the sweep time of selected channel (ch). Before using this object to set the sweep time, turns OFF the auto setting of the sweep time (specify False with the SCPI.SENSe(Ch).SWEep.TIME.AUTO object). When Port IFBW is turned ON, this command returns the sweep time for Port 1."
+        }, {
             "cmd":":CALCch:TRACtr:CORR:EDEL:MED",
             "type":"VNA.ElectricalMedium",
             "values":[
