@@ -17,6 +17,11 @@ export clearavg, data, search, shotgun
 "Assume that all VNAs support VISA."
 abstract InstrumentVNA  <: InstrumentVISA
 
+"Typical frequency sweep response."
+type FSweep <: Response
+    ins::InstrumentVNA
+end
+
 abstract Averaging        <: InstrumentProperty
 abstract AveragingFactor  <: InstrumentProperty{Int}
 
