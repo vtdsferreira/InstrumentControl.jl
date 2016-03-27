@@ -14,7 +14,12 @@
             "cmd":":CALCch:TRACtr:CORR:EDEL:MED",
             "type":"VNA.ElectricalMedium",
             "values":[
+                "v::Symbol in symbols"
             ],
+            "symbols":{
+                "Coaxial":"COAX",
+                "Waveguide":"WAV"
+            },
             "infixes":[
                 "ch::Integer=1",
                 "tr::Integer=1"
@@ -24,7 +29,27 @@
             "cmd":":CALCch:TRACtr:FORM",
             "type":"VNA.Format",
             "values":[
+                "v::Symbol in symbols"
             ],
+            "symbols":{
+                "LogMagnitude":"MLOG",
+                "Phase":"PHAS",
+                "GroupDelay":"GDEL",
+                "SmithLinear":"SLIN",
+                "SmithLog":"SLOG",
+                "SmithComplex":"SCOM",
+                "Smith":"SMIT",
+                "SmithAdmittance":"SADM",
+                "PolarLinear":"PLIN",
+                "PolarLog":"PLOG",
+                "PolarComplex":"POL",
+                "LinearMagnitude":"MLIN",
+                "SWR":"SWR",
+                "RealPart":"REAL",
+                "ImagPart":"IMAG",
+                "ExpandedPhase":"UPH",
+                "PositivePhase":"PPH"
+            },
             "infixes":[
                 "ch::Integer=1",
                 "tr::Integer=1"
@@ -34,7 +59,14 @@
             "cmd":":CALCch:PARtr:DEF",
             "type":"VNA.Parameter",
             "values":[
+                "v::Symbol in symbols"
             ],
+            "symbols":{
+                "S11":"S11",
+                "S12":"S12",
+                "S21":"S21",
+                "S22":"S22"
+            },
             "infixes":[
                 "ch::Integer=1",
                 "tr::Integer=1"
@@ -44,25 +76,29 @@
             "cmd":":TRIG:OUTP:POL",
             "type":"TriggerOutputPolarity",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Positive":"POS",
+                "Negative":"NEG"
+            },
             "doc":"Hey"
         }, {
             "cmd":":TRIG:OUTP:POS",
             "type":"TriggerOutputTiming",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Before":"BEF",
+                "After":"AFT"
+            },
             "doc":"Hey"
         }, {
             "cmd":":TRIG:AVER",
             "type":"AveragingTrigger",
             "values":[
                 "v::Bool"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -82,16 +118,12 @@
             "values":[
                 "v::Real"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":":TRIG:EXT:LLAT",
             "type":"ExtTriggerLowLatency",
             "values":[
                 "v::Bool"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -110,8 +142,6 @@
             "type":"PointTrigger",
             "values":[
                 "v::Bool"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -229,6 +259,48 @@
                 "tr::Integer=1"
             ],
             "doc":"Hey"
+        }, {
+            "cmd":":FORM:BORD",
+            "type":"TransferByteOrder",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "BigEndianTransfer":"NORM",
+                "LittleEndianTransfer":"SWAP"
+            },
+            "doc":"Hey"
+        }, {
+            "cmd":":TRIG:SLOP",
+            "type":"TriggerSlope",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Rising":"POS",
+                "Falling":"NEG"
+            },
+            "doc":"[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]\n\nSet slope of external trigger input port: `RisingTrigger`, `FallingTrigger`."
+        }, {
+            "cmd":":TRIG:SOUR",
+            "type":"TriggerSource",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "InternalTrigger":"INT",
+                "ExternalTrigger":"EXT",
+                "ManualTrigger":"MAN",
+                "BusTrigger":"BUS"
+            },
+            "doc":"[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]\n\nConfigure the trigger source: `InternalTrigger`, `ExternalTrigger`, `BusTrigger`, `ManualTrigger`."
+        }, {
+            "cmd":":TRIG:OUTP",
+            "type":"TriggerOutput",
+            "values":[
+                "v::Bool"
+            ],
+            "doc":"[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]\n\nTurn on or off the external trigger output."
         }
     ]
 }

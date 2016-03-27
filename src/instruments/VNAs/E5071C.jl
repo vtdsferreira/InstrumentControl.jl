@@ -74,55 +74,6 @@ type E5071C <: InstrumentVNA
     E5071C() = new()
 end
 
-responseDictionary = Dict(
-    :(VNA.ElectricalMedium) => Dict("COAX" => :(VNA.Coaxial),
-                                    "WAV"  => :(VNA.Waveguide)),
-
-    ################
-
-    :(VNA.Format)           => Dict("MLOG" => :(VNA.LogMagnitude),
-                                    "PHAS" => :(VNA.Phase),
-                                    "GDEL" => :(VNA.GroupDelay),
-                                    "SLIN" => :(VNA.SmithLinear),
-                                    "SLOG" => :(VNA.SmithLog),
-                                    "SCOM" => :(VNA.SmithComplex),
-                                    "SMIT" => :(VNA.Smith),
-                                    "SADM" => :(VNA.SmithAdmittance),
-                                    "PLIN" => :(VNA.PolarLinear),
-                                    "PLOG" => :(VNA.PolarLog),
-                                    "POL"  => :(VNA.PolarComplex),
-                                    "MLIN" => :(VNA.LinearMagnitude),
-                                    "SWR"  => :(VNA.SWR),
-                                    "REAL" => :(VNA.RealPart),
-                                    "IMAG" => :(VNA.ImagPart),
-                                    "UPH"  => :(VNA.ExpandedPhase),
-                                    "PPH"  => :(VNA.PositivePhase)),
-
-    :(VNA.Parameter)        => Dict("S11"  => :(VNA.S11),
-                                    "S12"  => :(VNA.S12),
-                                    "S21"  => :(VNA.S21),
-                                    "S22"  => :(VNA.S22)),
-
-    :TransferByteOrder      => Dict("NORM" => :BigEndianTransfer,
-                                    "SWAP" => :LittleEndianTransfer),
-
-    :TriggerOutputPolarity  => Dict("POS"  => :TrigOutPosPolarity,
-                                    "NEG"  => :TrigOutNegPolarity),
-
-    :TriggerOutputTiming    => Dict("BEF"  => :TrigOutBeforeMeasuring,
-                                    "AFT"  => :TrigOutAfterMeasuring),
-
-    :TriggerSlope           => Dict("POS"  => :RisingTrigger,
-                                    "NEG"  => :FallingTrigger),
-
-    :TriggerSource          => Dict("INT"  => :InternalTrigger,
-                                    "EXT"  => :ExternalTrigger,
-                                    "MAN"  => :ManualTrigger,
-                                    "BUS"  => :BusTrigger)
-)
-
-generate_handlers(E5071C, responseDictionary)
-
 code(ins::E5071C, ::Type{TransferFormat{ASCIIString}}) = "ASC"
 code(ins::E5071C, ::Type{TransferFormat{Float32}}) = "REAL32"
 code(ins::E5071C, ::Type{TransferFormat{Float64}}) = "REAL"
@@ -174,6 +125,7 @@ fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
 for p in metadata[:properties]
+    generate_handlers(E5071C, p)
     generate_inspect(E5071C, p)
     p[:cmd][end] != '?' && generate_configure(E5071C, p)
 end
@@ -299,34 +251,6 @@ Turn on or off display of trace `tr` of channel `ch`.
 """
 function configure(ins::E5071C, ::Type{TraceDisplay}, b::Bool, ch::Integer=1, tr::Integer=1)
     write(ins, ":DISP:WIND#:TRAC#:STAT #", ch, tr, Int(b))
-end
-
-"""
-[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]
-
-Turn on or off the external trigger output.
-"""
-function configure(ins::E5071C, ::Type{TriggerOutput}, b::Bool)
-    write(ins, ":TRIG:OUTP #", Int(b))
-end
-
-"""
-[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]
-
-Set slope of external trigger input port: `RisingTrigger`, `FallingTrigger`.
-"""
-function configure{T<:TriggerSlope}(ins::E5071C, ::Type{T})
-    write(ins, ":TRIG:SEQ:EXT:SLOP #", code(ins, T))
-end
-
-"""
-[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]
-
-Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
-`BusTrigger`, `ManualTrigger`.
-"""
-function configure{T<:TriggerSource}(ins::E5071C, ::Type{T})
-    write(ins, ":TRIG:SOUR #", code(ins,T))
 end
 
 """
@@ -459,34 +383,6 @@ Turn on or off display of trace `tr` of channel `ch`.
 """
 function inspect(ins::E5071C, ::Type{TraceDisplay}, ch::Integer=1, tr::Integer=1)
     Bool(parse(ask(ins, ":DISP:WIND#:TRAC#:STAT?", ch, tr))::Int)
-end
-
-"""
-[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]
-
-Is the external trigger output on?
-"""
-function inspect(ins::E5071C, ::Type{TriggerOutput})
-    Bool(parse(ask(ins, ":TRIG:OUTP?"))::Int)
-end
-
-"""
-[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]
-
-Inspect slope of external trigger input port: `RisingTrigger`, `FallingTrigger`?
-"""
-function inspect(ins::E5071C, ::Type{TriggerSlope})
-    TriggerSlope(ins, ask(ins, ":TRIG:SEQ:EXT:SLOP?"))
-end
-
-"""
-[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]
-
-Configure the trigger source: `InternalTrigger`, `ExternalTrigger`,
-`BusTrigger`, `ManualTrigger`.
-"""
-function inspect(ins::E5071C, ::Type{TriggerSource})
-    TriggerSource(ins, ask(ins, ":TRIG:SOUR?"))
 end
 
 """

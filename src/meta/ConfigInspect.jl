@@ -1,12 +1,26 @@
-"Given an expression like `:(x::Integer)` or `:(x::Integer=3)`, will return `Integer`."
+"""
+Given function arguments, will return types:
+
+- `:(x::Integer)` → `Integer`
+- `:(x::Integer=3)` → `Integer`
+- `:(x)` → `Any`
+- `:(x=3)` → `Any`
+
+Some package-specific cases:
+
+- `:(x in symbols)` → `Any`
+- `:(x::Symbol in symbols)` → `Symbol`
+"""
 function argtype(expr)
-    if expr.head == :(::)
+    if isa(expr, Symbol)
+        return Any
+    elseif expr.head == :(::)
         if length(expr.args) == 1
             return eval(expr.args[1])
         else
             return eval(expr.args[2])
         end
-    elseif expr.head == :(=) || expr.head == :(kw)
+    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
         return argtype(expr.args[1])
     else
         error("Cannot handle this argument.")
@@ -14,21 +28,81 @@ function argtype(expr)
 end
 
 """
-Given an expression like `:(x::Integer)` or `:(x::Integer=3)`, will return `x`.
-Returns :_ if given `:(::Integer)`.
+Given function arguments, will return symbols:
+
+- `:(x::Integer)` → `:x`
+- `:(x::Integer=3)` → `:x`
+- `:(x)` → `:x`
+- `:(x=3)` → `:x`
+
+Some package-specific syntax:
+
+- `:(x in symbols)` → `:x`
+- `:(x::Symbol in symbols)` → `:x`
 """
 function argsym(expr)
-    if expr.head == :(::)
+    if isa(expr, Symbol)
+        return expr
+    elseif expr.head == :(::)
         if length(expr.args) == 1
             return :_
         else
             return expr.args[1]
         end
-    elseif expr.head == :(=) || expr.head == :(kw)
+    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
         return argsym(expr.args[1])
     else
         error("Cannot handle this argument.")
     end
+end
+
+"""
+Return the same expression in most cases except:
+- `:(x::Symbol in symbols)` → `:(x::Symbol)`
+- `:(x in symbols)` → `:x`
+"""
+function stripin(expr)
+    isa(expr, Symbol) && return expr
+    if expr.head == :(in)
+        return expr.args[1]
+    else
+        return expr
+    end
+end
+
+function generate_handlers{S<:Instrument}(instype::Type{S}, p)
+
+    T = eval(p[:type])
+
+    # Look for symbol dictionaries
+    for v in p[:values]
+        if v.head == :(in)
+            # Looks like we have a dictionary of symbols
+            sym = v.args[2]     # name of dictionary
+            !haskey(p, sym) && error("Property $p lacking some information.")
+            dict = p[sym]       # the dictionary
+
+            # Define methods to dispatch based on Val types
+            # e.g. symbols(ins::AWG5014C, ::Type{ClockSource}, v::Symbol) =
+            #       symbols(ins, ClockSource, Val{v})
+            # and  ClockSource(ins::AWG5014C, s::AbstractString) =
+            #       ClockSource(ins, Val{symbol(s)})
+            @eval ($sym)(ins::$instype, ::Type{$T}, $(v.args[1])) =
+                ($sym)(ins, $T, Val{$(argsym(v))})
+            @eval ($T)(ins::$instype, s::AbstractString) =
+                ($T)(ins, Val{symbol(s)})
+
+            # Now define the methods that use the Val types
+            # e.g. symbols(ins::AWG5014C, ::Type{ClockSource}, Val{:Internal}) = "INT"
+            # and  ClockSource(ins::AWG5014C, Val{:INT}) = :Internal
+            for a,b in dict
+                @eval ($sym)(ins::$instype, ::Type{$T}, ::Type{Val{parse($a)}}) = $b
+                @eval ($T)(ins::$instype, ::Type{Val{symbol($b)}}) = parse($a)
+            end
+        end
+    end
+
+    nothing
 end
 
 function generate_inspect{S<:Instrument}(instype::Type{S}, p)
@@ -36,6 +110,7 @@ function generate_inspect{S<:Instrument}(instype::Type{S}, p)
 
     # Get the instrument property type and assert.
     T = eval(p[:type])
+    !haskey(p, :infixes) && p[:infixes] = []
 
     # Collect the arguments for `inspect`
     fargs = [:(ins::$S), :(::Type{$T})]
@@ -66,7 +141,7 @@ function generate_inspect{S<:Instrument}(instype::Type{S}, p)
         push!(fbody, :(cmd = replace(cmd, $name, $sym)))
     end
 
-    if length(p[:values]) == 1
+    if p[:values][1].head != :(in)
         vtyp = argtype(p[:values][1])
         if vtyp <: Number
             P,C = returntype(vtyp)
@@ -88,18 +163,13 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
     T = eval(p[:type])
 
     command = p[:cmd]
+    !haskey(p, :infixes) && p[:infixes] = []
 
     length(p[:values]) > 1 && error("Not yet implemented.")
-    if length(p[:values]) == 0
-        # We must be configuring based on subtypes of T.
-        method = Expr(:call, Expr(:curly, :configure, Expr(:(<:), :T, p[:type])),
-            :(ins::$S), :(::Type{T}), p[:infixes]...)
-    else
-        # We must be configuring based on values.
-        # Begin constructing our definition of `configure`
-        method = Expr(:call, :configure,
-            :(ins::$S), :(::Type{$T}), p[:values]..., p[:infixes]...)
-    end
+
+    method = Expr(:call, :configure,
+        :(ins::$S), :(::Type{$T}), map(stripin, p[:values])..., p[:infixes]...)
+
     configure = Expr(:function, method, Expr(:block))
     fbody = configure.args[2].args
 
@@ -111,8 +181,9 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
         push!(fbody, :(cmd = replace(cmd, $name, $sym)))
     end
 
-    if length(p[:values]) == 0
-        push!(fbody, :(write(ins, cmd, code(ins, T))))
+    if p[:values][1].head == :(in)
+        dictname = p[:values][1].args[2]
+        push!(fbody, :(write(ins, cmd, ($dictname)(ins, $T, $(argsym(p[:values][1]))))))
     else
         vsym = argsym(p[:values][1])
         push!(fbody, :(write(ins, cmd, fmt($vsym))))

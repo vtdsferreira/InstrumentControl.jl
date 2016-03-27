@@ -4,7 +4,7 @@ module PainterQB
 # export AWG5014CModule
 export E5071CModule
 # export E8257DModule
-export ZNB20Module
+# export ZNB20Module
 
 # Define common types and shared functions
 include("Definitions.jl")
@@ -22,17 +22,17 @@ include("instruments/VNAs/VNA.jl")
 include("instruments/VNAs/E5071C.jl")
 # include("instruments/VNAs/ZNB20.jl")
 
-include("instruments/E8257D.jl")
-include("instruments/AWG5014C.jl")
+# include("instruments/E8257D.jl")
+# include("instruments/AWG5014C.jl")
 # include("instruments/Alazar/Alazar.jl")
 
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 
 # importall .AlazarModule
-importall .AWG5014CModule
+# importall .AWG5014CModule
 importall .E5071CModule
-importall .E8257DModule
+# importall .E8257DModule
 # importall .ZNB20Module
 
 # Utility functions
@@ -44,11 +44,11 @@ include("LiveUpdate.jl")
 end
 
 using PainterQB
-using PainterQB.AWG5014CModule
+# using PainterQB.AWG5014CModule
 # using PainterQB.AlazarModule
 using PainterQB.VNA
 using PainterQB.E5071CModule
-using PainterQB.E8257DModule
+# using PainterQB.E8257DModule
 # using PainterQB.ZNB20Module
 
 const PARALLEL_PATH = joinpath(Pkg.dir("PainterQB"), "src", "ParallelUtils.jl")

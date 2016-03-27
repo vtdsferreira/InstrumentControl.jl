@@ -23,7 +23,7 @@ Here is an example of a valid JSON file with valid schema for parsing:
     "properties":[
         {
             "cmd":":CALCch:TRACtr:CORR:EDEL:TIME",
-            "type":"ElectricalDelay",
+            "type":"VNA.ElectricalDelay",
             "values":[
                 "v::Real"
             ],
@@ -39,7 +39,8 @@ Here is an example of a valid JSON file with valid schema for parsing:
 - `cmd`: Specifies what must be sent to the instrument (it should be
 terminated with "?" for query-only). The lower-case characters are replaced
 by infix arguments.
-- `type`: Specifies the InstrumentProperty subtype to use this command
+- `type`: Specifies the InstrumentProperty subtype to use this command. Will be
+parsed and evaluated.
 - `values`: Specifies the required arguments for `configure` which will
 appear after `cmd` in the string sent to the instrument.
 - `infixes`: Specifies the infix arguments in `cmd`. Symbol names must match
@@ -61,8 +62,9 @@ function insjson(file::AbstractString)
         p = j[:properties][i]
         p[:type] = parse(p[:type])
 
-        # These should be Julia expressions.
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
+
+        !haskey(p, :infixes) && p[:infixes] = []
         p[:infixes] = convert(Array{Expr,1}, map(parse, p[:infixes]))
         for k in p[:infixes]
             # `parse` doesn't recognize we want the equal sign to indicate
