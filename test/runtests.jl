@@ -12,13 +12,13 @@ using Base.Test
 rst(e5071c)
 
 for x in [Averaging, Smoothing]
-    configure(e5071c, x, true)
-    @test inspect(e5071c, x) == inspect(e5071c, x, 1) === true
+    e5071c[x] = true
+    @test e5071c[x] == e5071c[x,1]  === true
 end
 
 for x in [TriggerOutput, Output]
-    configure(e5071c, x, true)
-    @test inspect(e5071c, x) === true
+    e5071c[x] = true
+    @test e5071c[x] === true
 end
 
 for (x,y) in [(AveragingFactor, 1),
@@ -30,51 +30,51 @@ for (x,y) in [(AveragingFactor, 1),
               (PowerLevel, -85.0),
               (SmoothingAperture, 0.05)]
 
-    configure(e5071c, x, -1000)
-    @test inspect(e5071c, x) == inspect(e5071c, x, 1) === y
+    e5071c[x] = -1000
+    @test e5071c[x] == e5071c[x, 1] === y
 end
 
-configure(e5071c, FrequencyStop, 8e9)
-configure(e5071c, NumPoints, 2001)
-@test inspect(e5071c, NumPoints) === 2001
+e5071c[FrequencyStop] = 8e9
+e5071c[NumPoints] = 2001
+@test e5071c[NumPoints] === 2001
 
-configure(e5071c, TraceDisplay, false, 1, 1)
-@test inspect(e5071c, TraceDisplay, 1, 1) === false
-configure(e5071c, TraceDisplay, true, 1, 1)
+e5071c[TraceDisplay, 1, 1] = false
+@test e5071c[TraceDisplay, 1, 1] === false
+e5071c[TraceDisplay, 1, 1] = true
 @test autoscale(e5071c) == nothing
 
-configure(e5071c, InternalTrigger)
-@test inspect(e5071c, TriggerSource) == InternalTrigger
+e5071c[TriggerSource] = :Internal
+@test e5071c[TriggerSource] == :Internal
 
-configure(e5071c, RisingTrigger)
-@test inspect(e5071c, TriggerSlope) == RisingTrigger
+e5071c[TriggerSlope] = :Rising
+@test e5071c[TriggerSlope] == :Rising
 
 for x in 1:10
-    configure(e5071c, SearchTracking, x, true)
-    @test inspect(e5071c, SearchTracking, x) === true
-    configure(e5071c, Marker, x, true)
-    @test inspect(e5071c, Marker, x) === true
-    configure(e5071c, MarkerX, x, 4e9)
-    @test inspect(e5071c, MarkerX, x) === 4e9
+    e5071c[SearchTracking, x] = true
+    @test e5071c[SearchTracking, x] === true
+    e5071c[Marker, x] = true
+    @test e5071c[Marker, x] === true
+    e5071c[MarkerX, x] = 4e9
+    @test e5071c[MarkerX, x] === 4e9
 end
 
-for (x,y) in [(VNA.LogMagnitude,    Float64),
-              (VNA.Phase,           Float64),
-              (VNA.GroupDelay,      Float64),
-              (VNA.SmithLinear,     Tuple{Float64, Float64}),
-              (VNA.SmithLog,        Tuple{Float64, Float64}),
-              (VNA.SmithComplex,    Complex{Float64}),
-              (VNA.Smith,           Tuple{Float64, Float64}),
-              (VNA.SmithAdmittance, Tuple{Float64, Float64}),
-              (VNA.PolarLinear,     Tuple{Float64, Float64}),
-              (VNA.PolarLog,        Tuple{Float64, Float64}),
-              (VNA.PolarComplex,    Complex{Float64}),
-              (VNA.LinearMagnitude, Float64),
-              (VNA.SWR,             Float64),
-              (VNA.RealPart,        Float64),
-              (VNA.ImagPart,        Float64),
-              (VNA.ExpandedPhase,   Float64),
-              (VNA.PositivePhase,   Float64)]
-    configure(e5071c, x)
-    @test typeof(inspect(e5071c, MarkerY, 1)) == y
+for (x,y) in [(:LogMagnitude,    Float64),
+              (:Phase,           Float64),
+              (:GroupDelay,      Float64),
+              (:SmithLinear,     Tuple{Float64, Float64}),
+              (:SmithLog,        Tuple{Float64, Float64}),
+              (:SmithComplex,    Complex{Float64}),
+              (:Smith,           Tuple{Float64, Float64}),
+              (:SmithAdmittance, Tuple{Float64, Float64}),
+              (:PolarLinear,     Tuple{Float64, Float64}),
+              (:PolarLog,        Tuple{Float64, Float64}),
+              (:PolarComplex,    Complex{Float64}),
+              (:LinearMagnitude, Float64),
+              (:SWR,             Float64),
+              (:RealPart,        Float64),
+              (:ImagPart,        Float64),
+              (:ExpandedPhase,   Float64),
+              (:PositivePhase,   Float64)]
+    e5071c[VNA.Format] = x
+    @test typeof(e5071c[MarkerY, 1]) == y
 end

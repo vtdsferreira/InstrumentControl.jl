@@ -74,21 +74,6 @@ type E5071C <: InstrumentVNA
     E5071C() = new()
 end
 
-code(ins::E5071C, ::Type{TransferFormat{ASCIIString}}) = "ASC"
-code(ins::E5071C, ::Type{TransferFormat{Float32}}) = "REAL32"
-code(ins::E5071C, ::Type{TransferFormat{Float64}}) = "REAL"
-TransferFormat(ins::E5071C, x::AbstractString) = begin
-    if x=="ASC"
-        return TransferFormat{ASCIIString}
-    elseif x=="REAL32"
-        return TransferFormat{Float32}
-    elseif x=="REAL"
-        return TransferFormat{Float64}
-    else
-        error("Transfer format error.")
-    end
-end
-
 abstract AveragingTrigger     <: InstrumentProperty
 abstract TraceDisplay         <: InstrumentProperty
 abstract ElectricalDelay      <: InstrumentProperty{Float64}
@@ -130,36 +115,26 @@ for p in metadata[:properties]
     p[:cmd][end] != '?' && generate_configure(E5071C, p)
 end
 
-"""
-[SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
-
-Change the start frequency for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function configure(ins::E5071C, ::Type{FrequencyStart}, b::Real, ch::Integer=1)
-    write(ins, ":SENS#:FREQ:STAR #", ch, float(b))
-    ret = inspect(ins, FrequencyStart, ch)
-    info("Start set to "*string(ret)*" Hz.")
-end
-
-"""
-[SENSe#:FREQuency:STOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_stop.htm]
-
-Change the stop frequency for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function configure(ins::E5071C, ::Type{FrequencyStop}, b::Real, ch::Integer=1)
-    write(ins, ":SENS#:FREQ:STOP #", ch, float(b))
-    ret = inspect(ins, FrequencyStop, ch)
-    info("Stop set to "*string(ret)*" Hz.")
-end
+# """
+# [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
+#
+# Change the start frequency for a given channel `ch` (defaults to 1).
+# Invalid input will be clipped to valid range.
+# """
+#
+# """
+# [SENSe#:FREQuency:STOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_stop.htm]
+#
+# Change the stop frequency for a given channel `ch` (defaults to 1).
+# Invalid input will be clipped to valid range.
+# """
 
 """
 [:CALC#:TRAC#:MARK#:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_state.htm]
 
 Turn on or off display of marker `m` for channel `ch` and trace `tr`.
 """
-function configure(ins::E5071C, ::Type{VNA.Marker}, m::Integer, b::Bool, ch::Integer=1, tr::Integer=1)
+function setindex!(ins::E5071C, b::Bool, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     write(ins, "CALC#:TRAC#:MARK# #", ch, tr, m, Int(b))
 end
@@ -168,122 +143,68 @@ end
 :CALC#:TRAC#:MARK#:X
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
-function configure(ins::E5071C, ::Type{VNA.MarkerX}, m::Integer, b::Real, ch::Integer=1, tr::Integer=1)
+function setindex!(ins::E5071C, b::Real, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     write(ins, "CALC#:TRAC#:MARK#:X #", ch, tr, m, float(b))
 end
 
-"""
-CALC#:PAR:COUNt
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
-"""
-function configure(ins::E5071C, ::Type{VNA.NumTraces}, b::Integer, ch::Integer=1)
-    write(ins, ":CALC#:PAR:COUN #", ch, b)
-end
-
-"""
-[:SENSe#:SWEep:POINts][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_sweep_points.htm]
-
-Set the number of points to sweep over for channel `ch`.
-"""
-function configure(ins::E5071C, ::Type{NumPoints}, b::Integer, ch::Integer=1)
-    write(ins, ":SENS#:SWE:POIN #", ch, b)
-    ret = inspect(ins, NumPoints, ch)
-    info("Number of points set to "*string(ret)*".")
-end
-
-"""
-[OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
-
-Turn on or off the stimulus signal output.
-"""
-function configure(ins::E5071C, ::Type{Output}, b::Bool)
-    write(ins, ":OUTP #", Int(b))
-end
-
-"""
-[SOURce#:POWer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/source/scpi_source_ch_power_level_immediate_amplitude.htm]
-
-Change the stimulus power level for channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range (it depends).
-"""
-function configure(ins::E5071C, ::Type{PowerLevel}, b::Real, ch::Integer=1)
-    write(ins, ":SOUR#:POW #", ch, float(b))
-    ret = inspect(ins, PowerLevel, ch)
-    info("Power level set to "*string(ret)*" dBm.")
-end
-
-"""
-[CALCulate#:TRACe#:MARKer#:FUNCtion:TRACking][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_function_tracking.htm]
-
-Set whether or not the marker search for marker `m` is repeated with trace updates.
-"""
-function configure(ins::E5071C, ::Type{SearchTracking}, m::Integer, b::Bool, ch::Integer=1, tr::Integer=1)
+# """
+# CALC#:PAR:COUNt
+# [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
+# """
+# """
+# [:SENSe#:SWEep:POINts][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_sweep_points.htm]
+#
+# Set the number of points to sweep over for channel `ch`.
+# """
+# """
+# [OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
+#
+# Turn on or off the stimulus signal output.
+# """
+# """
+# [SOURce#:POWer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/source/scpi_source_ch_power_level_immediate_amplitude.htm]
+#
+# Change the stimulus power level for channel `ch` (defaults to 1).
+# Invalid input will be clipped to valid range (it depends).
+# """
+# """
+# [CALCulate#:TRACe#:MARKer#:FUNCtion:TRACking][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_function_tracking.htm]
+#
+# Set whether or not the marker search for marker `m` is repeated with trace updates.
+# """
+function setindex!(ins::E5071C, b::Bool, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
     write(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC #", ch, tr, m, Int(b))
 end
-
-"""
-[CALCulate#:TRACe#:SMOothing:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_state.htm]
-
-Turn on or off smoothing for a given channel `ch` and trace `tr` (default to 1).
-"""
-function configure(ins::E5071C, ::Type{Smoothing}, b::Bool, ch::Integer=1, tr::Integer=1)
-    write(ins, ":CALC#:TRAC#:SMO #", ch, tr, Int(b))
-end
-
-"""
-[CALCulate#:TRACe#:SMOothing:APERture][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_aperture.htm]
-
-Change the smoothing aperture (% of sweep span value) for
-channel `ch` and trace `tr` (default to 1).
-Invalid input will be clipped to valid range (0.05--25).
-"""
-function configure(ins::E5071C, ::Type{SmoothingAperture}, b::Real, ch::Integer=1, tr::Integer=1)
-    write(ins, ":CALC#:TRAC#:SMO:APER #", ch, tr, float(b))
-    ret = inspect(ins, SmoothingAperture, ch, tr)
-    info("Smoothing aperture set to "*string(ret)*"%.")
-end
-
-"""
-[:DISP:WIND#:TRAC#:STAT][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_state.htm]
-
-Turn on or off display of trace `tr` of channel `ch`.
-"""
-function configure(ins::E5071C, ::Type{TraceDisplay}, b::Bool, ch::Integer=1, tr::Integer=1)
-    write(ins, ":DISP:WIND#:TRAC#:STAT #", ch, tr, Int(b))
-end
+# """
+# [CALCulate#:TRACe#:SMOothing:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_state.htm]
+#
+# Turn on or off smoothing for a given channel `ch` and trace `tr` (default to 1).
+# """
+# """
+# [CALCulate#:TRACe#:SMOothing:APERture][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_aperture.htm]
+#
+# Change the smoothing aperture (% of sweep span value) for
+# channel `ch` and trace `tr` (default to 1).
+# Invalid input will be clipped to valid range (0.05--25).
+# """
+# """
+# [:DISP:WIND#:TRAC#:STAT][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_state.htm]
+#
+# Turn on or off display of trace `tr` of channel `ch`.
+# """
 
 """
 DISPlay:SPLit
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_split.htm]
 
-`configure(ins::InstrumentVNA, ::Type{Windows}, a::AbstractArray{Int})`
+`setindex!(ins::InstrumentVNA, ::Type{Windows}, a::AbstractArray{Int})`
 
 Configure the layout of graph windows using a matrix to abstract the layout.
 For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.
 """
-function configure(ins::E5071C, ::Type{VNA.Graphs}, a::AbstractArray{Int}, ch::Integer=1)
+function setindex!(ins::E5071C, a::AbstractArray{Int}, ::Type{VNA.Graphs}, ch::Integer=1)
     write(ins, ":DISP:WIND#:SPL #", ch, window(ins, Val{FixedSizeArrays.Mat(a)}))
-end
-
-"""
-[SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
-
-Inspect the start frequency for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function inspect(ins::E5071C, ::Type{FrequencyStart}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:FREQ:STAR?", ch))::Float64
-end
-
-"""
-[SENSe#:FREQuency:STOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_stop.htm]
-
-Inspect the stop frequency for a given channel `ch` (defaults to 1).
-Invalid input will be clipped to valid range.
-"""
-function inspect(ins::E5071C, ::Type{FrequencyStop}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:FREQ:STOP?", ch))::Float64
 end
 
 """
@@ -291,7 +212,7 @@ end
 
 Query whether marker `m` is displayed for channel `ch` and trace `tr`.
 """
-function inspect(ins::E5071C, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::E5071C, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     Bool(parse(ask(ins, "CALC#:TRAC#:MARK#?", ch, tr, m))::Int)
 end
@@ -299,7 +220,7 @@ end
 """
 [CALCulate#:TRACe#:MARKer#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
-function inspect(ins::E5071C, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::E5071C, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     parse(ask(ins, "CALC#:TRAC#:MARK#:X?", ch, tr, m))::Float64
 end
@@ -307,45 +228,10 @@ end
 """
 [CALCulate#:TRACe#:MARKer#:Y?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_y.htm]
 """
-function inspect(ins::E5071C, ::Type{VNA.MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::E5071C, ::Type{VNA.MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
-    data = getdata(ins, TransferFormat{ASCIIString}, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
+    data = getdata(ins, Val{:ASCIIString}, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
     _reformat(ins, data, ch, tr)[1]
-end
-
-"""
-[:SENSe#:SWEep:POINts][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_sweep_points.htm]
-
-Set the number of points to sweep over for channel `ch`.
-"""
-function inspect(ins::E5071C, ::Type{NumPoints}, ch::Integer=1)
-    parse(ask(ins, ":SENS#:SWE:POIN?", ch))::Int
-end
-
-"""
-CALC#:PAR:COUNt
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_parameter_count.htm]
-"""
-function inspect(ins::E5071C, ::Type{VNA.NumTraces}, ch::Integer=1)
-    parse(ask(ins, ":CALC#:PAR:COUN?", ch))::Int
-end
-
-"""
-[OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/output/scpi_output_state.htm]
-
-Is the stimulus signal output on?
-"""
-function inspect(ins::E5071C, ::Type{Output})
-    Bool(parse(ask(ins, ":OUTP?"))::Int)
-end
-
-"""
-[SOURce#:POWer][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/source/scpi_source_ch_power_level_immediate_amplitude.htm]
-
-Inspect the stimulus power level for channel `ch` (defaults to 1).
-"""
-function inspect(ins::E5071C, ::Type{PowerLevel}, ch::Integer=1)
-    parse(ask(ins, ":SOUR#:POW?", ch))::Float64
 end
 
 """
@@ -353,36 +239,8 @@ end
 
 Set whether or not the marker search for marker `m` is repeated with trace updates.
 """
-function inspect(ins::E5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::E5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
     Bool(parse(ask(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC?", ch, tr, m))::Int)
-end
-
-"""
-[CALCulate#:TRACe#:SMOothing:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_state.htm]
-
-Is smoothing on or off for a given channel `ch` and trace `tr` (default to 1)?
-"""
-function inspect(ins::E5071C, ::Type{Smoothing}, ch::Integer=1, tr::Integer=1)
-    Bool(parse(ask(ins, ":CALC#:TRAC#:SMO?", ch, tr))::Int)
-end
-
-"""
-[CALCulate#:TRACe#:SMOothing:APERture][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_smoothing_aperture.htm]
-
-What is the smoothing aperture (% of sweep span value) for
-channel `ch` and trace `tr` (default to 1)?
-"""
-function inspect(ins::E5071C, ::Type{SmoothingAperture}, ch::Integer=1, tr::Integer=1)
-    parse(ask(ins, ":CALC#:TRAC#:SMO:APER?", ch, tr))::Float64
-end
-
-"""
-[:DISP:WIND#:TRAC#:STAT][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_window_ch_trace_tr_state.htm]
-
-Turn on or off display of trace `tr` of channel `ch`.
-"""
-function inspect(ins::E5071C, ::Type{TraceDisplay}, ch::Integer=1, tr::Integer=1)
-    Bool(parse(ask(ins, ":DISP:WIND#:TRAC#:STAT?", ch, tr))::Int)
 end
 
 """
@@ -401,8 +259,8 @@ end
 Read the stimulus values for the given channel (defaults to 1).
 """
 function stimdata(ins::E5071C, ch::Int=1)
-    xfer = inspect(ins, TransferFormat)
-    getdata(ins, xfer, ":SENSe"*string(ch)*":FREQuency:DATA?")
+    xfer = ins[TransferFormat]
+    getdata(ins, Val{xfer}, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
 
 """
@@ -410,20 +268,14 @@ end
 [:CALCulate#:DATA:FDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_fdata.htm]
 [:CALCulate#:DATA:SDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_sdata.htm]
 """
-# Note that optional arguments still participate in method dispatch, so the
-# result should be type-stable.
-function data{T<:VNA.Format}(ins::E5071C, fmt::Type{T}, ch::Integer=1, tr::Integer=1)
-    T != VNA.Format && configure(ins, fmt, ch, tr)
-    xfer = inspect(ins, TransferFormat)
-    cmdstr = datacmd(ins, fmt)
-    cmdstr = replace(cmdstr,"#",string(ch),1)
-    cmdstr = replace(cmdstr,"#",string(tr),1)
-    data = getdata(ins, xfer, cmdstr)
-    if T == VNA.Format
-        _reformat(ins, data, ch, tr)
-    else
-        _reformat(ins, fmt, data)
-    end
+function data{T}(ins::E5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1)
+    ins[VNA.Format, ch, tr] = T
+    xfer = ins[TransferFormat]
+    cmdstr = datacmd(ins, Val{T})
+    cmdstr = replace(cmdstr, "#", string(ch), 1)
+    cmdstr = replace(cmdstr, "#", string(tr), 1)
+    data = getdata(ins, Val{xfer}, cmdstr)
+    _reformat(ins, Val{T}, data)
 end
 
 """
@@ -431,63 +283,55 @@ end
 This instrument does not associate raw data with a particular trace, but we use the
 trace number to look up what S parameter should be retrieved.
 """
-function data(ins::E5071C, processing::Type{VNA.Raw}, ch::Integer=1, tr::Integer=1)
+function data(ins::E5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::Integer=1)
     # Get measurement parameter
-    mpar = inspect(ins, VNA.Parameter, ch, tr)
-    !(mpar <: VNA.SParameter) &&
+    mpar = ins[VNA.Parameter, ch, tr]
+    !(mpar ∈ [:S11, :S12, :S21, :S22]) &&
         error("Raw data must represent a wave quantity or ratio.")
 
-    xfer = inspect(ins, TransferFormat)
+    xfer = ins[TransferFormat]
     cmdstr = datacmd(ins, processing)
     cmdstr = replace(cmdstr,"#",string(ch),1)
     cmdstr = replace(cmdstr,"#",code(ins,mpar),1)
-    data = getdata(ins, xfer, cmdstr)
+    data = getdata(ins, Val{xfer}, cmdstr)
     reinterpret(Complex{Float64}, data)
 end
 
+"Trigger a single sweep when TriggerSource is :Bus."
 trig1(ins::E5071C) = write(ins, ":TRIG:SING")
 
-"Default to formatted data."
-data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) =
-    data(ins, VNA.Format, ch, tr)
+datacmd{T}(x::E5071C, ::Type{Val{T}})        = ":CALC#:TRAC#:DATA:FDAT?"
+datacmd(x::E5071C, ::Type{Val{:Calibrated}}) = ":CALC#:TRAC#:DATA:SDAT?"
+datacmd(x::E5071C, ::Type{Val{:Raw}})        = ":SENS#:DATA:RAWD? #"
 
-datacmd{T<:VNA.Format}(x::E5071C, ::Type{T})  = ":CALC#:TRAC#:DATA:FDAT?"
-datacmd(x::E5071C, ::Type{VNA.Calibrated})    = ":CALC#:TRAC#:DATA:SDAT?"
-datacmd(x::E5071C, ::Type{VNA.Raw})           = ":SENS#:DATA:RAWD? #"
-
-function _reformat(x::E5071C, data, ch, tr)
-    fmt = inspect(x, VNA.Format, ch, tr)
-    _reformat(x, fmt, data)
-end
-_reformat(x::E5071C, ::Type{VNA.LogMagnitude}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.Phase}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.GroupDelay}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.SmithLinear}, data) =
+_reformat(x::E5071C, ::Type{Val{:LogMagnitude}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:Phase}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:GroupDelay}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:SmithLinear}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.SmithLog}, data) =
+_reformat(x::E5071C, ::Type{Val{:SmithLog}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.SmithComplex}, data) =
+_reformat(x::E5071C, ::Type{Val{:SmithComplex}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.Smith}, data) =
+_reformat(x::E5071C, ::Type{Val{:Smith}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.SmithAdmittance}, data) =
+_reformat(x::E5071C, ::Type{Val{:SmithAdmittance}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.PolarLinear}, data) =
+_reformat(x::E5071C, ::Type{Val{:PolarLinear}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.PolarLog}, data) =
+_reformat(x::E5071C, ::Type{Val{:PolarLog}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.PolarComplex}, data) =
+_reformat(x::E5071C, ::Type{Val{:PolarComplex}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat(x::E5071C, ::Type{VNA.LinearMagnitude}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.SWR}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.RealPart}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.ImagPart}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.ExpandedPhase}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.PositivePhase}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{VNA.Calibrated}, data) =
+_reformat(x::E5071C, ::Type{Val{:LinearMagnitude}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:SWR}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:RealPart}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:ImagPart}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:ExpandedPhase}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:PositivePhase}}, data) = data[1:2:end]
+_reformat(x::E5071C, ::Type{Val{:Calibrated}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat{T<:VNA.Format}(x::E5071C, ::Type{T}, data) =
-    reinterpret(NTuple{2,Float64}, data)
+_reformat{T}(x::E5071C, ::Type{Val{T}}, data) = reinterpret(NTuple{2,Float64}, data)
 
 function search(ins::E5071C, m::MarkerSearch{:Global}, exec::Bool=true)
     write(ins, ":CALC#:TRAC#:MARK#:TYPE #", m.ch, m.tr, m.m, code(ins, m.pol))

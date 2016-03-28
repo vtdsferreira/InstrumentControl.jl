@@ -95,6 +95,26 @@
             },
             "doc":"Hey"
         }, {
+            "cmd":":SENSch:AVER",
+            "type":"VNA.Averaging",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENS#:AVER:COUN",
+            "type":"VNA.AveragingFactor",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
             "cmd":":TRIG:AVER",
             "type":"AveragingTrigger",
             "values":[
@@ -127,6 +147,83 @@
             ],
             "doc":"Hey"
         }, {
+            "cmd":":SENSch:FREQ:STAR",
+            "type":"FrequencyStart",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENSch:FREQ:STOP",
+            "type":"FrequencyStop",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENSch:FREQ:CENT",
+            "type":"VNA.FrequencyCenter",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENSch:FREQ:SPAN",
+            "type":"VNA.FrequencySpan",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENSch:BAND",
+            "type":"VNA.IFBandwidth",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:PAR:COUN",
+            "type":"VNA.NumTraces",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SENSch:SWE:POIN",
+            "type":"NumPoints",
+            "values":[
+                "v::Integer"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":OUTP",
+            "type":"Output",
+            "values":[
+                "v::Bool"
+            ],
+            "doc":"Hey"
+        }, {
             "cmd":":CALCch:TRACtr:CORR:OFFS:PHAS",
             "type":"PhaseOffset",
             "values":[
@@ -149,6 +246,16 @@
             "type":"PowerCoupled",
             "values":[
                 "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":SOURch:POW",
+            "type":"PowerLevel",
+            "values":[
+                "v::Real"
             ],
             "infixes":[
                 "ch::Integer=1"
@@ -193,6 +300,39 @@
             ],
             "infixes":[
                 "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":DISP:WINDch:TRACtr:STAT",
+            "type":"TraceDisplay",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:TRACtr:SMO",
+            "type":"Smoothing",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":":CALCch:TRACtr:SMO:APER",
+            "type":"SmoothingAperture",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "tr::Integer=1"
             ],
             "doc":"Hey"
         }, {
@@ -268,6 +408,18 @@
             "symbols":{
                 "BigEndianTransfer":"NORM",
                 "LittleEndianTransfer":"SWAP"
+            },
+            "doc":"Hey"
+        }, {
+            "cmd":":FORM:DATA",
+            "type":"TransferFormat",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "ASCIIString":"ASC",
+                "Float32":"REAL32",
+                "Float64":"REAL"
             },
             "doc":"Hey"
         }, {

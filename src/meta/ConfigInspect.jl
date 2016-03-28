@@ -1,3 +1,5 @@
+import Base: getindex, setindex!
+
 """
 Given function arguments, will return types:
 
@@ -123,7 +125,7 @@ function generate_inspect{S<:Instrument}(instype::Type{S}, p)
     length(p[:values]) > 1 && error("Not yet implemented.")
 
     # Begin constructing our definition of `inspect`
-    method  = Expr(:call, :inspect, fargs...)
+    method  = Expr(:call, :getindex, fargs...)
     inspect = Expr(:function, method, Expr(:block))
     fbody = inspect.args[2].args
 
@@ -167,8 +169,8 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
 
     length(p[:values]) > 1 && error("Not yet implemented.")
 
-    method = Expr(:call, :configure,
-        :(ins::$S), :(::Type{$T}), map(stripin, p[:values])..., p[:infixes]...)
+    method = Expr(:call, :setindex!,
+        :(ins::$S), map(stripin, p[:values])..., :(::Type{$T}), p[:infixes]...)
 
     configure = Expr(:function, method, Expr(:block))
     fbody = configure.args[2].args

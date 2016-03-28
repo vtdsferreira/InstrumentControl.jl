@@ -179,11 +179,9 @@ quoted(str::AbstractString) = "\""*str*"\""
 "Strip a string of enclosing quotation marks."
 unquoted(str::AbstractString) = strip(str,['"','\''])
 
-
 ## Convenient functions for querying arrays of numbers.
-
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function getdata(ins::InstrumentVISA, ::Type{TransferFormat{ASCIIString}},
+function getdata(ins::InstrumentVISA, ::Type{Val{:ASCIIString}},
         cmd, infixes...; delim=",")
     for infix in infixes
         cmd = replace(cmd, "#", infix, 1)
@@ -196,16 +194,15 @@ end
 Parse a binary block, taking care of float size and byte ordering.
 Return type is always `Array{Float64,1}` regardless of transfer format.
 """
-function getdata{T<:Number}(ins::InstrumentVISA,
-        ::Type{TransferFormat{T}}, cmd, infixes...)
+function getdata{T}(ins::InstrumentVISA, ::Type{Val{T}}, cmd, infixes...)
     for infix in infixes
         cmd = replace(cmd, "#", infix, 1)
     end
     write(ins, cmd)
     io = binblockreadavailable(ins)
 
-    endian = inspect(ins, TransferByteOrder)
-    _conv = (endian == LittleEndianTransfer ? ltoh : ntoh)
+    endian = ins[TransferByteOrder]
+    _conv = (endian == :LittleEndian ? ltoh : ntoh)
 
     bytes = sizeof(T)
     nsam = Int(floor((io.size-(io.ptr-1))/bytes))
@@ -309,49 +306,20 @@ function savestate(ins::InstrumentVISA, file::AbstractString)
 end
 
 ## Data transfer formats
-"""
-Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
-
-FORMAT:BORDER
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
-"""
-function configure{T<:TransferByteOrder}(ins::InstrumentVISA, ::Type{T})
-    write(ins, "FORMat:BORDer "*code(ins, T))
-end
-
-"""
-FORMAT:DATA
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_data.htm]
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85516.htm)
-
-Configures the data transfer format:
-`TransferFormat{ASCIIString}`, `TransferFormat{Float32}`,
-`TransferFormat{Float64}`.
-For the latter two the byte order should also be considered.
-"""
-function configure{T<:TransferFormat}(ins::InstrumentVISA, ::Type{T})
-    write(ins, "FORMat:DATA "*code(ins, T))
-end
-
-"""
-Inspect the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
-
-FORMAT:BORDER
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
-"""
-function inspect(ins::InstrumentVISA, ::Type{TransferByteOrder})
-    TransferByteOrder(ins, ask(ins, "FORMat:BORDer?"))
-end
-
-"""
-Inspect the data transfer format. The byte order should also be considered.
-
-FORMAT:DATA
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_data.htm]
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85516.htm)
-"""
-function inspect(ins::InstrumentVISA, ::Type{TransferFormat})
-    TransferFormat(ins, ask(ins, "FORMat:DATA?"))
-end
+# """
+# Configure the transfer byte order: `LittleEndianTransfer`, `BigEndianTransfer`.
+#
+# FORMAT:BORDER
+# [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_border.htm]
+# [ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85486.htm)
+# """
+# """
+# FORMAT:DATA
+# [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/format/scpi_format_data.htm]
+# [ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_6/Content/d36e85516.htm)
+#
+# Configures the data transfer format:
+# `TransferFormat{ASCIIString}`, `TransferFormat{Float32}`,
+# `TransferFormat{Float64}`.
+# For the latter two the byte order should also be considered.
+# """
