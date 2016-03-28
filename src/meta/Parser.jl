@@ -64,7 +64,7 @@ function insjson(file::AbstractString)
 
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
 
-        !haskey(p, :infixes) && p[:infixes] = []
+        !haskey(p, :infixes) && (p[:infixes] = [])
         p[:infixes] = convert(Array{Expr,1}, map(parse, p[:infixes]))
         for k in p[:infixes]
             # `parse` doesn't recognize we want the equal sign to indicate

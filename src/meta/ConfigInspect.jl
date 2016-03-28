@@ -89,15 +89,15 @@ function generate_handlers{S<:Instrument}(instype::Type{S}, p)
             #       ClockSource(ins, Val{symbol(s)})
             @eval ($sym)(ins::$instype, ::Type{$T}, $(v.args[1])) =
                 ($sym)(ins, $T, Val{$(argsym(v))})
-            @eval ($T)(ins::$instype, s::AbstractString) =
-                ($T)(ins, Val{symbol(s)})
+            @eval ($(p[:type]))(ins::$instype, s::AbstractString) =
+                ($(p[:type]))(ins, Val{symbol(s)})
 
             # Now define the methods that use the Val types
             # e.g. symbols(ins::AWG5014C, ::Type{ClockSource}, Val{:Internal}) = "INT"
             # and  ClockSource(ins::AWG5014C, Val{:INT}) = :Internal
-            for a,b in dict
+            for (a,b) in dict
                 @eval ($sym)(ins::$instype, ::Type{$T}, ::Type{Val{parse($a)}}) = $b
-                @eval ($T)(ins::$instype, ::Type{Val{symbol($b)}}) = parse($a)
+                @eval ($(p[:type]))(ins::$instype, ::Type{Val{symbol($b)}}) = parse($a)
             end
         end
     end
@@ -110,7 +110,7 @@ function generate_inspect{S<:Instrument}(instype::Type{S}, p)
 
     # Get the instrument property type and assert.
     T = eval(p[:type])
-    !haskey(p, :infixes) && p[:infixes] = []
+    !haskey(p, :infixes) && (p[:infixes] = [])
 
     # Collect the arguments for `inspect`
     fargs = [:(ins::$S), :(::Type{$T})]
@@ -163,7 +163,7 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
     T = eval(p[:type])
 
     command = p[:cmd]
-    !haskey(p, :infixes) && p[:infixes] = []
+    !haskey(p, :infixes) && (p[:infixes] = [])
 
     length(p[:values]) > 1 && error("Not yet implemented.")
 
