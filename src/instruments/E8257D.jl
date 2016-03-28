@@ -61,19 +61,6 @@ type E8257D <: InstrumentVISA
     E8257D() = new()
 end
 
-responses = Dict(
-
-    :OscillatorSource     => Dict("INT"  => :InternalOscillator,
-                                  "EXT"  => :ExternalOscillator),
-
-    :TriggerSource        => Dict("IMM"  => :InternalTrigger,
-                                  "EXT"  => :ExternalTrigger,
-                                  "KEY"  => :ManualTrigger,
-                                  "BUS"  => :BusTrigger),
-)
-
-generate_handlers(E8257D, responses)
-
 "ALC bandwidth."
 abstract ALCBandwidth            <: InstrumentProperty{Float64}
 
@@ -151,6 +138,7 @@ fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
 for p in metadata[:properties]
+    generate_handlers(E8257D, p)
     generate_inspect(E8257D, p)
     p[:cmd][end] != '?' && generate_configure(E8257D, p)
 end

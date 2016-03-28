@@ -34,7 +34,6 @@ export RefOscFrequency
 export RefOscMultiplier
 export RepRate
 export RepRateHeld
-export SCPIVersion
 export SequencerEventJumpTarget
 export SequencerGOTOTarget
 export SequencerGOTOState
@@ -151,87 +150,16 @@ abstract TriggerMode       <: InstrumentProperty
 "Waveform type may be integer or real."
 abstract WaveformType      <: InstrumentProperty
 
-subtypesArray = [
+code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:None}}) = "NONE"
+code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:FullScale}}) = "FSC"
+code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:PreserveOffset}}) = "ZREF"
 
-    (:Event50Ohms,                  EventImpedance),
-    (:Event1kOhms,                  EventImpedance),
+code(ins::AWG5014C, ::Type{WaveformType}, ::Type{Val{:IntWaveform}})  = "INT"
+code(ins::AWG5014C, ::Type{WaveformType}, ::Type{Val{:RealWaveform}}) = "REAL"
 
-    (:RisingEvent,                  EventSlope),
-    (:FallingEvent,                 EventSlope),
-
-    (:EventAsynchronous,            EventTiming),
-    (:EventSynchronous,             EventTiming),
-
-    (:NotNormalized,                Normalization),
-    (:NormalizedFullScale,          Normalization),
-    (:NormalizedPreservingOffset,   Normalization),
-
-    (:HardwareSequencer,            SequencerType),
-    (:SoftwareSequencer,            SequencerType),
-
-    (:Triggered,                    TriggerMode),
-    (:Continuous,                   TriggerMode),
-    (:Gated,                        TriggerMode),
-    (:Sequence,                     TriggerMode),
-
-    (:IntWaveform,                  WaveformType),
-    (:RealWaveform,                 WaveformType),
-
-]::Array{Tuple{Symbol,DataType},1}
-
-# Create all the concrete types we need using the generate_properties function.
-for ((subtypeSymb,supertype) in subtypesArray)
-    generate_properties(subtypeSymb, supertype)
+function WaveformType(ins::AWG5014C, s::AbstractString)
+    s == "INT" ? :IntWaveform : :RealWaveform
 end
-
-responses = Dict(
-
-    :Normalization    => Dict("NONE"  => :NotNormalized,
-                              "FSC"   => :NormalizedFullScale,
-                              "ZREF"  => :NormalizedPreservingOffset),
-
-    :SequencerType    => Dict("HARD"  => :HardwareSequencer,
-                              "SOFT"  => :SoftwareSequencer),
-
-    :TriggerMode      => Dict("TRIG"  => :Triggered,
-                              "CONT"  => :Continuous,
-                              "GAT"   => :Gated,
-                              "SEQ"   => :Sequence),
-
-    :WaveformType     => Dict("INT"   => :IntWaveform,
-                              "REAL"  => :RealWaveform),
-
-########
-
-    :ClockSlope       => Dict("POS"   => :RisingClock,
-                              "NEG"   => :FallingClock),
-
-    :ClockSource      => Dict("INT"   => :InternalClock,
-                              "EXT"   => :ExternalClock),
-
-    :EventImpedance   => Dict(  50.0  => :Event50Ohms,
-                              1000.0  => :Event1kOhms),
-
-    :EventSlope       => Dict("POS"   => :RisingEvent,
-                              "NEG"   => :FallingEvent),
-
-    :EventTiming      => Dict("SYNC"  => :EventSynchronous,
-                              "ASYN"  => :EventAsynchronous),
-
-    :OscillatorSource => Dict("INT"   => :InternalOscillator,
-                              "EXT"   => :ExternalOscillator),
-
-    :TriggerImpedance => Dict(  50.0  => :Trigger50Ohms,
-                              1000.0  => :Trigger1kOhms),
-
-    :TriggerSlope     => Dict("POS"   => :RisingTrigger,
-                              "NEG"   => :FallingTrigger),
-
-    :TriggerSource    => Dict("INT"   => :InternalTrigger,
-                              "EXT"   => :ExternalTrigger),
-
-)
-
 generate_handlers(AWG5014C,responses)
 
 """
@@ -313,9 +241,6 @@ not change when the size of the waveform changes.
 """
 abstract RepRateHeld              <: InstrumentProperty
 
-"The SCPI version of the AWG."
-abstract SCPIVersion              <: InstrumentProperty
-
 """
 Target index for the sequencer event jump operation.
 Note that this will take effect only when
@@ -365,6 +290,7 @@ fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
 for p in metadata[:properties]
+    generate_handlers(AWG5014C, p)
     generate_inspect(AWG5014C, p)
     p[:cmd][end] != '?' && generate_configure(AWG5014C, p)
 end
@@ -489,11 +415,6 @@ function inspect(ins::AWG5014C, ::Type{SampleRate})
     parse(ask(ins,"SOUR:FREQ?"))
 end
 
-"Returns current sequencer type."
-function inspect(ins::AWG5014C, ::Type{SequencerType})
-    SequencerType(ins,ask(ins,"AWGC:SEQ:TYPE?"))
-end
-
 function runapplication(ins::AWG5014C, app::ASCIIString)
     write(ins,"AWGC:APPL:RUN \""+app+"\"")
 end
@@ -539,16 +460,17 @@ end
 "Delete a waveform by name."
 deletewaveform
 
-function newwaveform{T<:WaveformType}(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Type{T})
-    wvtype == WaveformType ? error("Specify IntWaveform or RealWaveform.") : nothing
-    write(ins, "WLIS:WAV:NEW "*quoted(name)*","*string(numPoints)*","*code(ins,wvtype))
+function newwaveform(ins::AWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Symbol)
+    write(ins, "WLIS:WAV:NEW #,#,#",quoted(name),
+        string(numPoints), code(ins, WaveformType, Val{wvtype}))
+    nothing
 end
 
 "Create a new waveform by name, number of points, and waveform type."
 newwaveform
 
-function normalizewaveform{T<:Normalization}(ins::AWG5014C, name::ASCIIString, norm::Type{T})
-    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(ins,norm))
+function normalizewaveform(ins::AWG5014C, name::ASCIIString, norm::Symbol)
+    write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(ins, Normalization, Val{norm}))
 end
 
 "Normalize a waveform."
@@ -615,8 +537,8 @@ ultimately uses an `IntWaveform` but `RealWaveform` is more convenient.
 """
 waveformtype
 
-function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString,
-        awgData::AWG5014CData, wvType::Type{T}, resampleOk::Bool=false)
+function pushto_awg(ins::AWG5014C, name::ASCIIString,
+        awgData::AWG5014CData, wvType::Symbol, resampleOk::Bool=false)
 
     # First validate the awgData
     validate(awgData, wvType)
@@ -633,7 +555,7 @@ function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString,
 
         # Is the type different than requested?
         # We are unable to modify an existing waveform's type, so the best thing to do is bail.
-        if !(waveformtype(ins,name) <: wvType)
+        if !(waveformtype(ins,name) == wvType)
             error("Existing waveform type differs. If you insist on this type, you need to delete the waveform first, with possible consequences for sequencing.")
         end
 
@@ -647,15 +569,15 @@ function pushto_awg{T<:WaveformType}(ins::AWG5014C, name::ASCIIString,
         end
     end
 
-    pushlowlevel(ins,name,awgData,wvType)
+    pushlowlevel(ins,name,awgData,Val{wvType})
 
 end
 
 "Push waveform data to the AWG, performing checks and generating errors as appropriate."
 pushto_awg
 
-function pushlowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString,
-        awgData::AWG5014CData, wvType::Type{T})
+function pushlowlevel(ins::AWG5014C, name::ASCIIString,
+        awgData::AWG5014CData, wvType::Type{Val{:RealWaveform}})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         # AWG wants little endian data
@@ -666,8 +588,8 @@ function pushlowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString,
     binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
-function pushlowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString,
-        awgData::AWG5014CData, wvType::Type{T})
+function pushlowlevel(ins::AWG5014C, name::ASCIIString,
+        awgData::AWG5014CData, wvType::Type{Val{:IntWaveform}})
     buf = IOBuffer()
     for (i in 1:length(awgData.data))
         value = (awgData.data)[i]
@@ -683,13 +605,13 @@ end
 "Takes care of the dirty work in pushing the data to the AWG."
 pushlowlevel
 
-function validate(awgData::AWG5014CData, wvType::Type{WaveformType})
+function validate(awgData::AWG5014CData, wvType::Symbol)
     # Length checks
     if (length(awgData.data) != length(awgData.marker1) != length(awgData.marker2))
         error("Data and marker lengths are not the same.")
     end
 
-    nb = nbytes(wvType)
+    nb = nbytes(Val{wvType})
     if (length(awgData.data) * nb > byteLimit)
         if (length(awgData.data) * 2 <= byteLimit)
             error("Too many bytes for a `RealWaveform`. However, an `IntWaveform` would work.")
@@ -708,8 +630,8 @@ end
 and appropriate range."
 validate
 
-nbytes(::RealWaveform) = 5
-nbytes(::IntWaveform)  = 2
+nbytes(::Type{Val{:RealWaveform}}) = 5
+nbytes(::Type{Val{:IntWaveform}})  = 2
 
 "Returns the number of bytes per sample for a a given waveform type."
 nbytes
@@ -721,14 +643,14 @@ function pullfrom_awg(ins::AWG5014C, name::ASCIIString)
     end
 
     typ = waveformtype(ins, name)
-    pulllowlevel(ins,name,typ)
+    pulllowlevel(ins,name,Val{typ})
 
 end
 
 "Pull data from the AWG, performing checks and generating errors as appropriate."
 pullfrom_awg
 
-function pulllowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
+function pulllowlevel(ins::AWG5014C, name::ASCIIString, ::Type{Val{:RealWaveform}})
 
     len = waveformlength(ins, name)
 
@@ -751,7 +673,7 @@ function pulllowlevel{T<:RealWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{
     AWG5014CData(amp,marker1,marker2)
 end
 
-function pulllowlevel{T<:IntWaveform}(ins::AWG5014C, name::ASCIIString, ::Type{T})
+function pulllowlevel(ins::AWG5014C, name::ASCIIString, ::Type{Val{:IntWaveform}})
 
     len = waveformlength(ins, name)
 

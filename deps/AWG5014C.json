@@ -1,76 +1,116 @@
 {
     "properties":[
         {
+            "cmd":"AWGC:CLOC:SLOP",
+            "type":"ClockSlope",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Rising":"POS",
+                "Falling":"NEG"
+            },
+            "doc":"Hey"
+        }, {
             "cmd":"AWGC:CLOC:SOUR",
             "type":"ClockSource",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "InternalClock":"INT",
+                "ExternalClock":"EXT"
+            },
             "doc":"Hey"
         }, {
             "cmd":"EVEN:IMP",
             "type":"EventImpedance",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Ohms50":50.0,
+                "Ohms1k":1000.0
+            },
             "doc":"Hey"
         }, {
             "cmd":"EVEN:POL",
             "type":"EventSlope",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Rising":"POS",
+                "Falling":"NEG"
+            },
             "doc":"Hey"
         }, {
             "cmd":"EVEN:JTIM",
             "type":"EventTiming",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Synchronous":"SYNC",
+                "Asynchronous":"ASYN"
+            },
             "doc":"Hey"
         }, {
             "cmd":"SOUR:ROSC:SOUR",
             "type":"OscillatorSource",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Internal":"INT",
+                "External":"EXT"
+            },
             "doc":"Hey"
         }, {
             "cmd":"AWGC:RMOD",
             "type":"TriggerMode",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Triggered":"TRIG",
+                "Continuous":"CONT",
+                "Gated":"GAT",
+                "Sequence":"SEQ"
+            },
             "doc":"Hey"
         }, {
             "cmd":"TRIG:IMP",
             "type":"TriggerImpedance",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Ohms50":50.0,
+                "Ohms1k":1000.0
+            },
             "doc":"Hey"
         }, {
             "cmd":"TRIG:POL",
             "type":"TriggerSlope",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Rising":"POS",
+                "Falling":"NEG"
+            },
             "doc":"Hey"
         }, {
             "cmd":"TRIG:SOUR",
             "type":"TriggerSource",
             "values":[
+                "v::Symbol in symbols"
             ],
-            "infixes":[
-            ],
+            "symbols":{
+                "Internal":"INT",
+                "External":"EXT"
+            },
             "doc":"Hey"
         }, {
             "cmd":"SOURch:DELAY",
@@ -98,8 +138,6 @@
             "values":[
                 "v::Bool"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":"AWGC:DCch:VOLT:OFFS",
@@ -107,16 +145,12 @@
             "values":[
                 "v::Real"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":"AWGC:CLOC:DRAT",
             "type":"ExtOscDividerRate",
             "values":[
                 "v::Integer"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -146,16 +180,12 @@
             "values":[
                 "v::Real"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":"SOUR:ROSC:MULT",
             "type":"RefOscMultiplier",
             "values":[
                 "v::Integer"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -164,16 +194,12 @@
             "values":[
                 "v::Bool"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":"AWGC:RRAT",
             "type":"RepRate",
             "values":[
                 "v::Real"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -222,8 +248,6 @@
             "values":[
                 "v::Integer"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":"SEQ:ELEMel:LOOP:COUN",
@@ -241,16 +265,23 @@
             "values":[
                 "v::Integer"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
+        }, {
+            "cmd":"AWGC:SEQ:POS?",
+            "type":"SequencerType",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Hardware":"HARD",
+                "Software":"SOFT"
+            },
+            "doc":"Returns current sequencer type."
         }, {
             "cmd":"TRIG:LEV",
             "type":"TriggerLevel",
             "values":[
                 "v::Real"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
@@ -259,16 +290,12 @@
             "values":[
                 "v::Real"
             ],
-            "infixes":[
-            ],
             "doc":"Hey"
         }, {
             "cmd":"WLIST:SIZE?",
             "type":"WavelistLength",
             "values":[
                 "v::Integer"
-            ],
-            "infixes":[
             ],
             "doc":"Hey"
         }, {
