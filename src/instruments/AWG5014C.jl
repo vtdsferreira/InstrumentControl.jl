@@ -150,6 +150,12 @@ abstract TriggerMode       <: InstrumentProperty
 "Waveform type may be integer or real."
 abstract WaveformType      <: InstrumentProperty
 
+returntype(::Type{Bool}) = (Int, Bool)
+returntype(::Type{Real}) = (Float64, Float64)
+returntype(::Type{Integer}) = (Int, Int)
+fmt(v::Bool) = string(Int(v))
+fmt(v) = string(v)
+
 code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:None}}) = "NONE"
 code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:FullScale}}) = "FSC"
 code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:PreserveOffset}}) = "ZREF"
@@ -160,7 +166,6 @@ code(ins::AWG5014C, ::Type{WaveformType}, ::Type{Val{:RealWaveform}}) = "REAL"
 function WaveformType(ins::AWG5014C, s::AbstractString)
     s == "INT" ? :IntWaveform : :RealWaveform
 end
-generate_handlers(AWG5014C,responses)
 
 """
 Amplitude for a given channel.

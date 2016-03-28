@@ -15,7 +15,12 @@
             "cmd":"TRIG:OUTP:POL",
             "type":"TriggerOutputPolarity",
             "values":[
+                "v::Symbol in symbols"
             ],
+            "symbols":{
+                "Positive":"POS",
+                "Negative":"NEG"
+            },
             "doc":"Hey"
         }, {
             "cmd":"TRIG:SOUR",
