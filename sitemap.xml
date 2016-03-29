@@ -4,7 +4,7 @@
     
     <url>
      <loc>None/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -13,13 +13,13 @@
         
     <url>
      <loc>None/design/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>None/implementation/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -28,44 +28,14 @@
     
         
     <url>
-     <loc>None/api/api/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <loc>None/awg5014c/</loc>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/api/PainterQB/</loc>
-     <lastmod>2016-01-13</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/api/E8257D/</loc>
-     <lastmod>2016-01-13</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/api/E5071C/</loc>
-     <lastmod>2016-01-13</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/api/ZNB20/</loc>
-     <lastmod>2016-01-13</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/api/AWG5014C/</loc>
-     <lastmod>2016-01-13</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>None/api/AlazarTech/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <loc>None/e5071c/</loc>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -75,13 +45,13 @@
         
     <url>
      <loc>None/releases/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>None/LICENSE/</loc>
-     <lastmod>2016-01-13</lastmod>
+     <lastmod>2016-03-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

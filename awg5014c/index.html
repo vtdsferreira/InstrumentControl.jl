@@ -9,10 +9,8 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>PainterQB.jl - Package for instrument control and superconducting qubit measurement.</title>
+        <title>AWG5014C - PainterQB.jl</title>
       
-      
-        <meta name="description" content="Package for instrument control and superconducting qubit measurement.">
       
       
       
@@ -21,33 +19,33 @@
     
     <meta property="og:url" content="None">
     <meta property="og:title" content="PainterQB.jl">
-    <meta property="og:image" content="None/./">
+    <meta property="og:image" content="None/../">
     <meta name="apple-mobile-web-app-title" content="PainterQB.jl">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="./None">
-    <link rel="icon" type="image/x-icon" href="./None">
+    <link rel="shortcut icon" type="image/x-icon" href="../None">
+    <link rel="icon" type="image/x-icon" href="../None">
     <style>
       @font-face {
       	font-family: 'Icon';
-      	src: url('./assets/fonts/icon.eot?52m981');
-      	src: url('./assets/fonts/icon.eot?#iefix52m981')
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
                format('embedded-opentype'),
-      		   url('./assets/fonts/icon.woff?52m981')
+      		   url('../assets/fonts/icon.woff?52m981')
                format('woff'),
-      		   url('./assets/fonts/icon.ttf?52m981')
+      		   url('../assets/fonts/icon.ttf?52m981')
                format('truetype'),
-      		   url('./assets/fonts/icon.svg?52m981#icon')
+      		   url('../assets/fonts/icon.svg?52m981#icon')
                format('svg');
       	font-weight: normal;
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="./assets/stylesheets/application-54f87043f3.css">
+    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
     
-      <link rel="stylesheet" href="./assets/stylesheets/palettes-05ab2406df.css">
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
     
     
       
@@ -64,9 +62,9 @@
       </style>
     
     
-      <link rel="stylesheet" href="./assets/Documenter.css">
+      <link rel="stylesheet" href="../assets/Documenter.css">
     
-    <script src="./assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
@@ -96,9 +94,13 @@
         
           <span class="path">
             
+              
+                Instruments <i class="icon icon-link"></i>
+              
+            
           </span>
         
-        PainterQB.jl
+        AWG5014C
       </div>
     </div>
     
@@ -168,36 +170,9 @@
           
             
   <li>
-    <a class="current" title="Home" href=".">
+    <a class="" title="Home" href="..">
       Home
     </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Installation" href="#installation">
-                Installation
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Quick start" href="#quick-start">
-                Quick start
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Building this documentation" href="#building-this-documentation">
-                Building this documentation
-              </a>
-            </li>
-          
-        </ul>
-      
     
   </li>
 
@@ -209,7 +184,7 @@
       
         
   <li>
-    <a class="" title="Design" href="design/">
+    <a class="" title="Design" href="../design/">
       Design
     </a>
     
@@ -218,7 +193,7 @@
       
         
   <li>
-    <a class="" title="Implementation" href="implementation/">
+    <a class="" title="Implementation" href="../implementation/">
       Implementation
     </a>
     
@@ -236,16 +211,19 @@
       
         
   <li>
-    <a class="" title="AWG5014C" href="awg5014c/">
+    <a class="current" title="AWG5014C" href="./">
       AWG5014C
     </a>
+    
+      
+      
     
   </li>
 
       
         
   <li>
-    <a class="" title="E5071C" href="e5071c/">
+    <a class="" title="E5071C" href="../e5071c/">
       E5071C
     </a>
     
@@ -263,7 +241,7 @@
       
         
   <li>
-    <a class="" title="Release notes" href="releases/">
+    <a class="" title="Release notes" href="../releases/">
       Release notes
     </a>
     
@@ -272,7 +250,7 @@
       
         
   <li>
-    <a class="" title="License" href="LICENSE/">
+    <a class="" title="License" href="../LICENSE/">
       License
     </a>
     
@@ -293,48 +271,9 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='PainterQB.jl-1'></a></p>
-<h1 id="painterqbjl">PainterQB.jl</h1>
-<p>A <a href="http://julialang.org">Julia</a> package for qubit measurement and analysis.</p>
-<p>Work in development, not ready for implementation. The documentation may assume some familiarity with Julia.</p>
-<p><a id='Installation-1'></a></p>
-<h2 id="installation">Installation</h2>
-<ul>
-<li>Install <a href="https://www.ni.com/visa/">National Instruments VISA libraries</a>  (tested with v15.0.1 on Windows 10)</li>
-<li>Install <a href="http://www.alazartech.com">AlazarTech</a> digitizer drivers and shared libraries  (may need to contact AlazarTech)</li>
-<li>Install <a href="http://www.github.com/ajkeller34/VISA.jl">VISA.jl</a></li>
-<li>Install <a href="http://www.github.com/ajkeller34/Alazar.jl">Alazar.jl</a></li>
-<li>Install <a href="http://www.github.com/ajkeller34/PainterQB.jl">PainterQB.jl</a></li>
-</ul>
-<p><a id='Quick-start-1'></a></p>
-<h2 id="quick-start">Quick start</h2>
-<div class="codehilite"><pre><span></span>using PainterQB
-using PainterQB.AlazarModule
-using PainterQB.AWG5014CModule  # etc.
-
-awg = AWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
-ats = AlazarATS9360()
-
-# do something with awg and ats
-</pre></div>
-
-
-<p><a id='Building-this-documentation-1'></a></p>
-<h2 id="building-this-documentation">Building this documentation</h2>
-<p>In a fresh instance of Julia:</p>
-<div class="codehilite"><pre><span></span>include(joinpath(Pkg.dir(&quot;PainterQB&quot;),&quot;docs/make.jl&quot;))
-</pre></div>
-
-
-<p>To process with mkdocs, run the following in the PainterQB/docs directory:</p>
-<div class="codehilite"><pre><span></span>mkdocs build --clean
-</pre></div>
-
-
-<p>To serve locally or publish to GitHub, run either of the following in the PainterQB/docs directory:</p>
-<div class="codehilite"><pre><span></span>mkdocs serve
-mkdocs gh-deploy --clean
-</pre></div>
+            <h1>AWG5014C</h1>
+          
+          <p>Documentation forthcoming.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -351,17 +290,33 @@ mkdocs gh-deploy --clean
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
+        <a href="../implementation/" title="Implementation">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Implementation
+              </div>
+            </div>
+          </div>
+        </a>
+      
     </div>
     <div class="next">
       
-        <a href="design/" title="Design">
+        <a href="../e5071c/" title="E5071C">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Design
+                E5071C
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
@@ -387,14 +342,14 @@ mkdocs gh-deploy --clean
       </div>
     </main>
     <script>
-      var base_url = '.';
+      var base_url = '..';
       var repo_id  = 'ajkeller34/PainterQB.jl';
     </script>
-    <script src="./assets/javascripts/application-997097ee0c.js"></script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
     
       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
     
-      <script src="./assets/mathjaxhelper.js"></script>
+      <script src="../assets/mathjaxhelper.js"></script>
     
     
   </body>

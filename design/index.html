@@ -1,392 +1,467 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        
-        
-        <link rel="shortcut icon" href="../img/favicon.ico">
-
-	<title>Design - PainterQB.jl</title>
-
-        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
-        <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="../css/highlight.css">
-
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-        <![endif]-->
-
-        
-    </head>
-
-    <body>
-
-        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
-
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            
-
-            <!-- Main title -->
-            <a class="navbar-brand" href="..">PainterQB.jl</a>
-        </div>
-
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-            
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                
-                
-                    <li >
-                        <a href="..">Home</a>
-                    </li>
-                
-                
-                
-                    <li class="dropdown active">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Overview <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                        
-                            
-<li class="active">
-    <a href="./">Design</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../implementation/">Implementation</a>
-</li>
-
-                        
-                        </ul>
-                    </li>
-                
-                
-                
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                        
-                            
-<li >
-    <a href="../api/api/">Index</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../api/PainterQB/">PainterQB</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../api/E8257D/">E8257D</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../api/E5071C/">E5071C</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../api/ZNB20/">ZNB20</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../api/AWG5014C/">AWG5014C</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../api/AlazarTech/">AlazarTech</a>
-</li>
-
-                        
-                        </ul>
-                    </li>
-                
-                
-                
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Miscellaneous <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                        
-                            
-<li >
-    <a href="../releases/">Release notes</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="../LICENSE/">License</a>
-</li>
-
-                        
-                        </ul>
-                    </li>
-                
-                
-                </ul>
-            
-
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                </li>
-                
-                    <li >
-                        <a rel="next" href="..">
-                            <i class="fa fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="prev" href="../implementation/">
-                            Next <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </li>
-                
-                
-                    <li>
-                        <a href="https://github.com/ajkeller34/PainterQB.jl/">
-                            
-                                <i class="fa fa-github"></i>
-                            
-                            GitHub
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Design - PainterQB.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="PainterQB.jl">
+    <meta property="og:image" content="None/../">
+    <meta name="apple-mobile-web-app-title" content="PainterQB.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../None">
+    <link rel="icon" type="image/x-icon" href="../None">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
     </div>
-</div>
-
-        <div class="container">
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
             
-                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
+              
+                Overview <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Design
+      </div>
+    </div>
     
-        <li class="main active"><a href="#design-overview">Design overview</a></li>
-        
-            <li><a href="#what-should-good-measurement-code-do">What should good measurement code do?</a></li>
-        
-            <li><a href="#how-do-we-take-measurements">How do we take measurements?</a></li>
-        
-            <li><a href="#what-is-an-instrument">What is an instrument?</a></li>
-        
-            <li><a href="#how-do-we-configure-instruments">How do we configure instruments?</a></li>
-        
-            <li><a href="#future-directions">Future directions</a></li>
-        
     
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/ajkeller34/PainterQB.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          PainterQB.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          ajkeller34/PainterQB.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/ajkeller34/PainterQB.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/ajkeller34/PainterQB.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Overview</span>
+    <ul>
+      
+        
+  <li>
+    <a class="current" title="Design" href="./">
+      Design
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="What should good measurement code do?" href="#what-should-good-measurement-code-do">
+                What should good measurement code do?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="How do we take measurements?" href="#how-do-we-take-measurements">
+                How do we take measurements?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="What is an instrument?" href="#what-is-an-instrument">
+                What is an instrument?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="How do we configure instruments?" href="#how-do-we-configure-instruments">
+                How do we configure instruments?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Future directions" href="#future-directions">
+                Future directions
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Implementation" href="../implementation/">
+      Implementation
+    </a>
+    
+  </li>
+
+      
     </ul>
-</div></div>
-                <div class="col-md-9" role="main">
+  </li>
 
+          
+            
+  <li>
+    <span class="section">Instruments</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="AWG5014C" href="../awg5014c/">
+      AWG5014C
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="E5071C" href="../e5071c/">
+      E5071C
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Miscellaneous</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Release notes" href="../releases/">
+      Release notes
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="License" href="../LICENSE/">
+      License
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <p><a id='Design-overview-1'></a></p>
 <h1 id="design-overview">Design overview</h1>
+<p><a id='What-should-good-measurement-code-do?-1'></a></p>
 <h2 id="what-should-good-measurement-code-do">What should good measurement code do?</h2>
-<p>Anyone who has written code in MATLAB or something comparable (IGOR Pro, in the
-author's case) has undoubtedly seen spaghetti code. Often there are many copies
-of a measurement routine that differ only slightly, perhaps in the functionality
-of what happens inside some for loop, etc.</p>
-<p>We would like to have clear, reusable code to avoid redundancy and accidental
-errors, both of which consume precious time on the part of the experimenters.
-Consider an archetypal measurement scheme wherein we measure a device's response to
-various stimuli (perhaps we measure current as a function of applied bias).
-We should be able to write just one sweep function to do this:</p>
-<pre><code class="julia">function sweep(ch0::Stimulus, ch1::Response, x_itr, tstep)
-    map(x_itr) do x
-        source(ch0, x)
-        sleep(tstep)
-        measure(ch1)
-    end
-end
-</code></pre>
+<p>Anyone who has written code in MATLAB or something comparable (IGOR Pro, in the author's case) has undoubtedly seen spaghetti code. Often there are many copies of a measurement routine that differ only slightly, perhaps in the functionality of what happens inside some for loop, etc.</p>
+<p>We would like to have clear, reusable code to avoid redundancy and accidental errors, both of which consume precious time on the part of the experimenters. Consider an archetypal measurement scheme wherein we measure a device's response to various stimuli (perhaps we measure current as a function of applied bias). We should be able to write just one sweep function to do this:</p>
+<div class="codehilite"><pre><span></span><span class="k">function</span><span class="nf"> sweep</span><span class="p">(</span><span class="n">ch0</span><span class="p">::</span><span class="n">Stimulus</span><span class="p">,</span> <span class="n">ch1</span><span class="p">::</span><span class="n">Response</span><span class="p">,</span> <span class="n">x_itr</span><span class="p">,</span> <span class="n">tstep</span><span class="p">)</span>
+    <span class="n">map</span><span class="p">(</span><span class="n">x_itr</span><span class="p">)</span> <span class="k">do</span> <span class="n">x</span>
+        <span class="n">source</span><span class="p">(</span><span class="n">ch0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="n">tstep</span><span class="p">)</span>
+        <span class="n">measure</span><span class="p">(</span><span class="n">ch1</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
 
-<p>The idea of <em>multiple dispatch</em>, natively supported in Julia, permits writing such
-convenient and abstract code. This is just one example where the advantages of
-multiple dispatch are obvious. We hope it will more broadly simplify the extension of
-measurement code while ensuring continued reliability.</p>
+
+<p>The idea of <em>multiple dispatch</em>, natively supported in Julia, permits writing such convenient and abstract code. This is just one example where the advantages of multiple dispatch are obvious. We hope it will more broadly simplify the extension of measurement code while ensuring continued reliability.</p>
+<p><a id='How-do-we-take-measurements?-1'></a></p>
 <h2 id="how-do-we-take-measurements">How do we take measurements?</h2>
+<p><a id='Source-and-measure-1'></a></p>
 <h3 id="source-and-measure">Source and measure</h3>
-<p>Two functions are provided to abstract away many kinds of measurements: <code>source</code>
-and <code>measure</code>. In an experiment you source some stimulus and measure a response.
-Therefore <code>source</code> takes as an argument an object matching type signature
-<code>Stimulus</code>, which can have different fields for different types of stimuli, as
-well as some value. <code>measure</code> takes as an argument an object matching type
-signature <code>Response</code>. The idea is to write new subtypes of <code>Stimulus</code> and <code>Response</code>
-to describe what you are doing, as well as new methods for <code>source</code> and <code>measure</code>.</p>
+<p>Two functions are provided to abstract away many kinds of measurements: <code>source</code> and <code>measure</code>. In an experiment you source some stimulus and measure a response. Therefore <code>source</code> takes as an argument an object matching type signature <code>Stimulus</code>, which can have different fields for different types of stimuli, as well as some value. <code>measure</code> takes as an argument an object matching type signature <code>Response</code>. The idea is to write new subtypes of <code>Stimulus</code> and <code>Response</code> to describe what you are doing, as well as new methods for <code>source</code> and <code>measure</code>.</p>
+<p><a id='Stimuli-1'></a></p>
 <h3 id="stimuli">Stimuli</h3>
-<p>All stimuli are objects, subtyped from the abstract <code>Stimulus</code> type.
-Many stimuli, associated with the capabilities of particular instruments,
-are already implemented.</p>
-<p>Not all stimuli are associated with a physical instrument. For instance, sourcing a
-<code>DelayStimulus</code> will cause the script to block until a specified time after
-creation of the <code>DelayStimulus</code> object.</p>
-<p>Stimuli could also be associated with several instruments. Maybe a stimulus that
-makes sense for a particular experiment would be to change all gate voltages at once.
-These gate voltages could of course be sourced by several physical instruments.</p>
+<p>All stimuli are objects, subtyped from the abstract <code>Stimulus</code> type. Many stimuli, associated with the capabilities of particular instruments, are already implemented.</p>
+<p>Not all stimuli are associated with a physical instrument. For instance, sourcing a <code>DelayStimulus</code> will cause the script to block until a specified time after creation of the <code>DelayStimulus</code> object.</p>
+<p>Stimuli could also be associated with several instruments. Maybe a stimulus that makes sense for a particular experiment would be to change all gate voltages at once. These gate voltages could of course be sourced by several physical instruments.</p>
+<p><a id='Responses-1'></a></p>
 <h3 id="responses">Responses</h3>
-<p>All responses are objects, subtyped from the abstract parametric <code>Response{T}</code> type.
-We use a parametric type for responses so that the return type of the numerical data
-is clear. Usually a response is associated with a particular instrument.</p>
-<p>However, responses need not come from instruments. For test purposes, suppose we want to
-mimic a measurement by generating random numbers. <code>RandomResponse</code> produces a
-random number in the unit interval when it is measured. A <code>TimerResponse</code> will
-measure the time since creation of the <code>TimerResponse</code> object.</p>
+<p>All responses are objects, subtyped from the abstract parametric <code>Response{T}</code> type. We use a parametric type for responses so that the return type of the numerical data is clear. Usually a response is associated with a particular instrument.</p>
+<p>However, responses need not come from instruments. For test purposes, suppose we want to mimic a measurement by generating random numbers. <code>RandomResponse</code> produces a random number in the unit interval when it is measured. A <code>TimerResponse</code> will measure the time since creation of the <code>TimerResponse</code> object.</p>
+<p><a id='What-is-an-instrument?-1'></a></p>
 <h2 id="what-is-an-instrument">What is an instrument?</h2>
-<p>For the purposes of this package, an instrument is just something connected to the
-computer that we need to communicate with, and which can source or measure something.
-Every instrument may connect to the computer by different hardware,
-comms protocols, and command dialects.</p>
+<p>For the purposes of this package, an instrument is just something connected to the computer that we need to communicate with, and which can source or measure something. Every instrument may connect to the computer by different hardware, comms protocols, and command dialects.</p>
 <p>All instruments are Julia objects, subtypes of the abstract type <code>Instrument</code>.</p>
+<p><a id='Instrument-types-1'></a></p>
 <h3 id="instrument-types">Instrument types</h3>
-<p>Many instruments share the same communications protocols. We subtype <code>Instrument</code>
-based on these protocols.</p>
+<p>Many instruments share the same communications protocols. We subtype <code>Instrument</code> based on these protocols.</p>
+<p><a id='VISA-1'></a></p>
 <h4 id="visa">VISA</h4>
-<p>Many instruments are able to be addressed using the
-<a href="http://www.ivifoundation.org/docs/vpp432_2014-06-19.pdf">VISA</a> standard (Virtual
-Instrument Software Architecture), currently maintained by the IVI Foundation.
-<code>InstrumentVISA</code> is an abstract subtype of <code>Instrument</code>.</p>
-<p>To talk to VISA instruments will require the Julia package <a href="http://www.github.com/ajkeller34/VISA.jl">VISA.jl</a>
-as well as the <a href="https://www.ni.com/visa/">National Instruments VISA libraries</a>.
-Installation instructions are available at each link.</p>
+<p>Many instruments are able to be addressed using the <a href="http://www.ivifoundation.org/docs/vpp432_2014-06-19.pdf">VISA</a> standard (Virtual Instrument Software Architecture), currently maintained by the IVI Foundation. <code>InstrumentVISA</code> is an abstract subtype of <code>Instrument</code>.</p>
+<p>To talk to VISA instruments will require the Julia package <a href="http://www.github.com/ajkeller34/VISA.jl">VISA.jl</a> as well as the <a href="https://www.ni.com/visa/">National Instruments VISA libraries</a>. Installation instructions are available at each link.</p>
+<p><a id='Alazar-digitizers-1'></a></p>
 <h4 id="alazar-digitizers">Alazar digitizers</h4>
-<p>Digitizers made by <a href="http://www.alazartech.com">AlazarTech</a> are notably <em>not</em>
-compatible with the VISA standard. All Alazar digitizers are addressable by an API
-supplied by the company, which talks to the card through a shared library (a .dll on
-Windows or .so on Linux). <code>InstrumentAlazar</code> is an abstract subtype of <code>Instrument</code>.</p>
+<p>Digitizers made by <a href="http://www.alazartech.com">AlazarTech</a> are notably <em>not</em> compatible with the VISA standard. All Alazar digitizers are addressable by an API supplied by the company, which talks to the card through a shared library (a .dll on Windows or .so on Linux). <code>InstrumentAlazar</code> is an abstract subtype of <code>Instrument</code>.</p>
 <p>The shared library files and API documentation are only available from AlazarTech.</p>
+<p><a id='How-do-we-configure-instruments?-1'></a></p>
 <h2 id="how-do-we-configure-instruments">How do we configure instruments?</h2>
+<p><a id='Properties-1'></a></p>
 <h3 id="properties">Properties</h3>
-<p>Instrument properties are configured and inspected using two functions,
-<code>configure</code> and <code>inspect</code>. Why not <code>set</code> and <code>get</code>? Ultimately these verbs are
-pretty generic and often have implicit meanings in other programming languages.
-In Objective C, for instance, <code>get</code> implies that the function will return an address
-in memory rather than a value.</p>
-<p>Both <code>configure</code> and <code>inspect</code> have a lot of methods that take as one of their
-arguments an <code>InstrumentProperty</code> subtype. One subtypes <code>InstrumentProperty</code> for
-properties such as <code>ClockSource</code>, the
-logical states of which have no obvious consistent encoding. One should instead
-subtype <code>NumericalProperty</code> for properties where a number suffices to describe
-the property (up to units).</p>
-<p>Properties which may be shared by multiple instruments should be defined in
-<code>src/InstrumentDefs.jl</code>. Examples include <code>Frequency</code>, <code>Power</code>, <code>SampleRate</code>, etc.
-They may be imported in each instrument's module as needed. Properties specific
-to a given instrument may of course be defined in that instrument's module.</p>
-<p>A design choice was for <code>configure</code> and <code>inspect</code> to take types rather than
-objects. Two examples:</p>
-<pre><code class="julia">configure(awg, RisingTrigger)    # not RisingTrigger()
-configure(awg, SampleRate, 10e6) # not SampleRate() or SampleRate(10e6)
-</code></pre>
+<p>Instrument properties are configured and inspected using two functions, <code>setindex!</code> and <code>getindex</code>. This results in a convenient and concise syntax (<a href="https://groups.google.com/d/msg/julia-users/Dt6nbfhtaNQ/81KgQmttCwAJ">credit due to Oliver Schulz</a> for this idea).</p>
+<p>For example:</p>
+<div class="codehilite"><pre><span></span><span class="n">awg</span><span class="p">[</span><span class="n">TriggerSlope</span><span class="p">]</span> <span class="o">=</span> <span class="p">:</span><span class="n">Rising</span>
+<span class="n">awg</span><span class="p">[</span><span class="n">SampleRate</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10e6</span>
+</pre></div>
 
+
+<p><a id='Difference-between-stimuli-and-instrument-properties-1'></a></p>
 <h3 id="difference-between-stimuli-and-instrument-properties">Difference between stimuli and instrument properties</h3>
-<p>Because a stimulus is defined so broadly, the difference between a stimulus
-and an instrument property is not obvious. A stimulus is like a generalized
-instrument property: sourcing a stimulus may entail configuring zero or more
-instrument properties.</p>
-<p>It is useful to think of a stimulus to be something that what you are measuring
-has a chance to react to. For example, this could be applied voltage, sourced by
-one or more instruments. The applied voltages would be seen by the device under test,
-which would respond accordingly. The stimulus could also just be a time delay,
-provided by the measurement computer. It could even be the number of threads used
-by Julia for real-time processing.</p>
-<p>An instrument property is any persistent setting of an instrument. Tweaking an
-instrument property could affect the device under test, but it might not.
-Averaging is a good example. With averaging a measurement may look less noisy,
-but your device under test doesn't know the difference. The trigger engine of a
-digitizer would also have associated instrument properties.</p>
-<p>In many cases there is an overlap between stimuli and properties. Consider that
-the frequency of a signal generator is an instrument property. In this case
-sourcing a frequency stimulus results in configuring an instrument property.
-Rather than make a <code>FrequencyStimulus</code> type, we provide a <code>PropertyStimulus</code> type
-which can be used more generically. Consider the following example, where we make a
-<code>PropertyStimulus</code> for sweeping the frequency of our E8257D signal generator:</p>
-<pre><code class="julia">stim = PropertyStimulus(siggen::E8257D, Frequency)
-for freq in 1e9:1e8:5e9     # 1 GHz to 5 GHz in steps of 100 MHz
-    source(stim, freq)
-    # measure(something)
-end
-</code></pre>
+<p>Because a stimulus is defined so broadly, the difference between a stimulus and an instrument property is not obvious. A stimulus is like a generalized instrument property: sourcing a stimulus may entail configuring zero or more instrument properties.</p>
+<p>It is useful to think of a stimulus to be something that what you are measuring has a chance to react to. For example, this could be applied voltage, sourced by one or more instruments. The applied voltages would be seen by the device under test, which would respond accordingly. The stimulus could also just be a time delay, provided by the measurement computer. It could even be the number of threads used by Julia for real-time processing.</p>
+<p>An instrument property is any persistent setting of an instrument. Tweaking an instrument property could affect the device under test, but it might not. Averaging is a good example. With averaging a measurement may look less noisy, but your device under test doesn't know the difference. The trigger engine of a digitizer would also have associated instrument properties.</p>
+<p>In many cases there is an overlap between stimuli and properties. Consider that the frequency of a signal generator is an instrument property. In this case sourcing a frequency stimulus results in configuring an instrument property. Rather than make a <code>FrequencyStimulus</code> type, we provide a <code>PropertyStimulus</code> type which can be used more generically. Consider the following example, where we make a <code>PropertyStimulus</code> for sweeping the frequency of our E8257D signal generator:</p>
+<div class="codehilite"><pre><span></span><span class="n">stim</span> <span class="o">=</span> <span class="n">PropertyStimulus</span><span class="p">(</span><span class="n">siggen</span><span class="p">::</span><span class="n">E8257D</span><span class="p">,</span> <span class="n">Frequency</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">freq</span> <span class="k">in</span> <span class="mf">1e9</span><span class="p">:</span><span class="mf">1e8</span><span class="p">:</span><span class="mf">5e9</span>     <span class="c"># 1 GHz to 5 GHz in steps of 100 MHz</span>
+    <span class="n">source</span><span class="p">(</span><span class="n">stim</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+    <span class="c"># measure(something)</span>
+<span class="k">end</span>
+</pre></div>
 
-<p>Note that <code>Frequency</code> is a subtype of <code>NumericalProperty</code>, which is required for
-making a <code>PropertyStimulus</code>.</p>
-<p>Again, stimuli need not be tied to a particular property. Rather, this is just one
-convenient and easily generalized example. In more complicated instances it is
-probably better to make a new <code>Stimulus</code> subtype rather than use <code>PropertyStimulus</code>.</p>
+
+<p>Note that <code>Frequency</code> is a subtype of <code>InstrumentProperty</code>, which is required for making a <code>PropertyStimulus</code>.</p>
+<p>Again, stimuli need not be tied to a particular property. Rather, this is just one convenient and easily generalized example. In more complicated instances it is probably better to make a new <code>Stimulus</code> subtype rather than use <code>PropertyStimulus</code>.</p>
+<p><a id='Future-directions-1'></a></p>
 <h2 id="future-directions">Future directions</h2>
+<p><a id='Feedback-loops-1'></a></p>
 <h3 id="feedback-loops">Feedback loops</h3>
-<p>In principle, asynchronous software feedback loops could be implemented
-with the <a href="http://www.github.com/shashi/Reactive.jl">Reactive.jl</a> package. This
-would probably only be suitable for slowly varying signals, e.g. PID temperature
-control. Ultimately benchmarking needs to be done to determine how useful
-this approach would be.</p></div>
+<p>In principle, asynchronous software feedback loops could be implemented with the <a href="http://www.github.com/shashi/Reactive.jl">Reactive.jl</a> package. This would probably only be suitable for slowly varying signals, e.g. PID temperature control. Ultimately benchmarking needs to be done to determine how useful this approach would be.</p>
+          <aside class="copyright" role="note">
             
-        </div>
-
-        <footer class="col-md-12">
-            <hr>
-            
-            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
-        </footer>
-
-        <script src="../js/jquery-1.10.2.min.js"></script>
-        <script src="../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../js/highlight.pack.js"></script>
-        <script>var base_url = '..';</script>
-        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
-        <script src="../js/base.js"></script>
-
-        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            From here you can search these documents. Enter
-                            your search terms below.
-                        </p>
-                        <form role="form">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
-                            </div>
-                        </form>
-                        <div id="mkdocs-search-results"></div>
-                    </div>
-                    <div class="modal-footer">
-                    </div>
-                </div>
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href=".." title="Home">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
             </div>
-        </div>
+            <div class="stretch">
+              <div class="title">
+                Home
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../implementation/" title="Implementation">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Implementation
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
 
-    </body>
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'ajkeller34/PainterQB.jl';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
 </html>
