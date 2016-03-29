@@ -353,18 +353,12 @@
 </ul>
 <p><code>insjson{T&lt;:Instrument}(::Type{T})</code></p>
 <p>Simple wrapper to call <code>insjson</code> on the appropriate file path for a given instrument type.</p>
-<p><a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
-<strong><code>PainterQB.generate_configure</code></strong> &mdash; <em>Function</em>.</p>
+<p><a id='PainterQB.generate_types' href='#PainterQB.generate_types'>#</a>
+<strong><code>PainterQB.generate_types</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
-<p><code>generate_configure{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
+<p><code>generate_types{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
-<p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
-<p><a id='PainterQB.generate_inspect' href='#PainterQB.generate_inspect'>#</a>
-<strong><code>PainterQB.generate_inspect</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
-<p><code>generate_inspect{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
-<p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
-<p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
+<p>This function is responsible for generating the <code>InstrumentProperty</code> subtypes to use with <code>getindex</code> and <code>setindex!</code> if they have not been defined already. Ordinarily these types are defined in the PainterQB module but if a really generic name is desired that makes sense for a class of instruments (e.g. <code>VNA.Format</code>) then the <code>Format</code> subtype is defined in the <code>PainterQB.VNA</code> module. The defined subtype is then imported into the module where the <code>instype</code> is defined.</p>
 <p><a id='PainterQB.generate_handlers' href='#PainterQB.generate_handlers'>#</a>
 <strong><code>PainterQB.generate_handlers</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -416,6 +410,18 @@
 
 
 <p>The above methods will be defined in the E5071C module. Note that the function <code>symbols</code> has its name chosen based on the dictionary name in the JSON file. This was done for future flexibliity.</p>
+<p><a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
+<strong><code>PainterQB.generate_configure</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p><code>generate_configure{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
+<p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
+<p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
+<p><a id='PainterQB.generate_inspect' href='#PainterQB.generate_inspect'>#</a>
+<strong><code>PainterQB.generate_inspect</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p><code>generate_inspect{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
+<p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
+<p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
 <p><a id='Responses-1'></a></p>
 <h2 id="responses">Responses</h2>
 <p>Unlike stimuli, all responses are subtypes of an abstract parametric type, <code>Response{T}</code>. Although it may seem unduly abstract to have it be both abstract and parametric, we use this functionality to distinguish between desired return types of a measurement. Suppose an instrument provides data in some kind of awkward format, like 12-bit unsigned integers. For reasons of convenience we may want the measurement to return the data in a machine-native <code>Int64</code> format, or we may want to specify a linear or 2D shape for the data, etc.</p>
