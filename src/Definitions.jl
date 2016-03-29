@@ -91,7 +91,7 @@ abstract State                 <: InstrumentProperty
 abstract TransferByteOrder     <: InstrumentProperty
 
 "Format for moving data, e.g. typically ASCIIString, Float32, Float64."
-abstract TransferFormat{T}     <: InstrumentProperty
+abstract TransferFormat        <: InstrumentProperty
 
 abstract TriggerOutputTiming   <: InstrumentProperty
 abstract TriggerOutputPolarity <: InstrumentProperty
@@ -157,53 +157,6 @@ function showerror(io::IO, e::InstrumentException)
         end
     end
 end
-
-# The subtypesArray is used to generate concrete types of the abstract subtypes
-# of InstrumentProperty (see just above for some examples). The keys are strings containing
-# the names of the concrete types, and the values are the respective abstract types.
-subtypesArray = [
-    (:RisingClock,              ClockSlope),
-    (:FallingClock,             ClockSlope),
-
-    (:InternalClock,            ClockSource),
-    (:ExternalClock,            ClockSource),
-
-    (:AC,                       Coupling),
-    (:DC,                       Coupling),
-
-    (:InternalOscillator,       OscillatorSource),
-    (:ExternalOscillator,       OscillatorSource),
-
-    (:LittleEndianTransfer,     TransferByteOrder),
-    (:BigEndianTransfer,        TransferByteOrder),
-
-    (:Trigger50Ohms,            TriggerImpedance),
-    (:Trigger1kOhms,            TriggerImpedance),
-
-    (:TrigOutPosPolarity,       TriggerOutputPolarity),
-    (:TrigOutNegPolarity,       TriggerOutputPolarity),
-
-    (:TrigOutBeforeMeasuring,   TriggerOutputTiming),
-    (:TrigOutAfterMeasuring,    TriggerOutputTiming),
-
-    (:RisingTrigger,            TriggerSlope),
-    (:FallingTrigger,           TriggerSlope),
-
-    (:InternalTrigger,          TriggerSource),
-    (:ExternalTrigger,          TriggerSource),
-    (:ManualTrigger,            TriggerSource),
-    (:BusTrigger,               TriggerSource),
-    (:MultipleTrigger,          TriggerSource),
-
-]::Array{Tuple{Symbol,DataType},1}
-
-# Create all the concrete types we need using the generate_properties function.
-include("meta/Metaprogramming.jl")
-for ((subtypeSymb,supertype) in subtypesArray)
-    generate_properties(subtypeSymb, supertype)
-end
-# Note that it is tempting to do this as a macro, but you are not allowed to
-# export from a local scope, so there are some headaches with for loops, etc.
 
 "Read the stimulus values."
 function stimdata end

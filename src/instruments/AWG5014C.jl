@@ -294,11 +294,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-for p in metadata[:properties]
-    generate_handlers(AWG5014C, p)
-    generate_inspect(AWG5014C, p)
-    p[:cmd][end] != '?' && generate_configure(AWG5014C, p)
-end
+generate_all(AWG5014C)
 
 "Configure the global analog output state of the AWG."
 function configure(ins::AWG5014C, ::Type{Output}, on::Bool)

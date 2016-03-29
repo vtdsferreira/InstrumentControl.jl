@@ -4,6 +4,9 @@ export insjson
 
 """
 `insjson{T<:Instrument}(::Type{T})`
+
+Simple wrapper to call `insjson` on the appropriate file path for a given
+instrument type.
 """
 function insjson{T<:Instrument}(::Type{T})
     # Get the name of the instrument by taking the type name (without module prefixes!)
@@ -19,6 +22,7 @@ an instrument.
 
 Here is an example of a valid JSON file with valid schema for parsing:
 
+```json
 {
     "properties":[
         {
@@ -35,13 +39,14 @@ Here is an example of a valid JSON file with valid schema for parsing:
         }
     ]
 }
+```
 
 - `cmd`: Specifies what must be sent to the instrument (it should be
 terminated with "?" for query-only). The lower-case characters are replaced
 by infix arguments.
-- `type`: Specifies the InstrumentProperty subtype to use this command. Will be
+- `type`: Specifies the `InstrumentProperty` subtype to use this command. Will be
 parsed and evaluated.
-- `values`: Specifies the required arguments for `configure` which will
+- `values`: Specifies the required arguments for `setindex!` which will
 appear after `cmd` in the string sent to the instrument.
 - `infixes`: Specifies the infix arguments in `cmd`. Symbol names must match
 infix arguments.
@@ -65,6 +70,7 @@ function insjson(file::AbstractString)
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
 
         !haskey(p, :infixes) && (p[:infixes] = [])
+        !haskey(p, :doc) && (p[:doc] = "Undocumented.")
         p[:infixes] = convert(Array{Expr,1}, map(parse, p[:infixes]))
         for k in p[:infixes]
             # `parse` doesn't recognize we want the equal sign to indicate

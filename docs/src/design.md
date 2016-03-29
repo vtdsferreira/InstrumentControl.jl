@@ -104,29 +104,14 @@ The shared library files and API documentation are only available from AlazarTec
 ### Properties
 
 Instrument properties are configured and inspected using two functions,
-`configure` and `inspect`. Why not `set` and `get`? Ultimately these verbs are
-pretty generic and often have implicit meanings in other programming languages.
-In Objective C, for instance, `get` implies that the function will return an address
-in memory rather than a value.
+`setindex!` and `getindex`. This results in a convenient and concise syntax (credit
+due to Oliver Schulz for this idea).
 
-Both `configure` and `inspect` have a lot of methods that take as one of their
-arguments an `InstrumentProperty` subtype. One subtypes `InstrumentProperty` for
-properties such as `ClockSource`, the
-logical states of which have no obvious consistent encoding. One should instead
-subtype `NumericalProperty` for properties where a number suffices to describe
-the property (up to units).
-
-Properties which may be shared by multiple instruments should be defined in
-`src/InstrumentDefs.jl`. Examples include `Frequency`, `Power`, `SampleRate`, etc.
-They may be imported in each instrument's module as needed. Properties specific
-to a given instrument may of course be defined in that instrument's module.
-
-A design choice was for `configure` and `inspect` to take types rather than
-objects. Two examples:
+For example:
 
 ```julia
-configure(awg, RisingTrigger)    # not RisingTrigger()
-configure(awg, SampleRate, 10e6) # not SampleRate() or SampleRate(10e6)
+awg[TriggerSlope] = :Rising
+awg[SampleRate] = 10e6
 ```
 
 ### Difference between stimuli and instrument properties
@@ -164,13 +149,12 @@ for freq in 1e9:1e8:5e9     # 1 GHz to 5 GHz in steps of 100 MHz
 end
 ```
 
-Note that `Frequency` is a subtype of `NumericalProperty`, which is required for
+Note that `Frequency` is a subtype of `InstrumentProperty`, which is required for
 making a `PropertyStimulus`.
 
 Again, stimuli need not be tied to a particular property. Rather, this is just one
 convenient and easily generalized example. In more complicated instances it is
 probably better to make a new `Stimulus` subtype rather than use `PropertyStimulus`.
-
 
 ## Future directions
 

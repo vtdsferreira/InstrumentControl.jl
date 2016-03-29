@@ -35,16 +35,16 @@ Building this documentation
 ---------------------------
 In a fresh instance of Julia:
 ```
-include(joinpath(Pkg.dir("PainterQB"),"docs/build.jl"))
+include(joinpath(Pkg.dir("PainterQB"),"docs/make.jl"))
 ```
 
-To process with mkdocs, run the following in the PainterQB pkg. directory:
+To process with mkdocs, run the following in the PainterQB/docs directory:
 ```
 mkdocs build --clean
 ```
 
-To serve locally or publish to GitHub, run either of the following in the PainterQB pkg. directory:
-
+To serve locally or publish to GitHub, run either of the following in the
+PainterQB/docs directory:
 ```
 mkdocs serve
 mkdocs gh-deploy --clean

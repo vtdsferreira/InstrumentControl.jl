@@ -39,72 +39,22 @@ uncomment the `importall` statements in `src/PainterQB.jl`.
 
 Many commercial instruments support a common communications protocol and command
 syntax (VISA and SCPI respectively). For such instruments, many methods for
-`configure` and `inspect` can be generated with metaprogramming, rather than
-typing them out explicitly. The implementation could and should be done
-more elegantly, but it seems to work for now.
+`setindex!` and `getindex` can be generated with metaprogramming, rather than
+typing them out explicitly.
 
 The file `src/Metaprogramming.jl` is included in each VISA
 instrument's source file, and therefore in each instrument's own module.
-Initially this file was included directly in the PainterQB module, but it seems
-there are subtleties regarding the use of the `@eval` macro between modules.
+In the future this might be improved through more judicious choice of which
+module `eval` is run in.
 
 ### Metaprogramming
 
-#### generate_inspect
+The following methods are internal and do not need to be used explicitly.
+They are described here for completeness.
 
-```
-generate_inspect{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-```
+    {docs}
+    insjson
 
-This command takes an `Instrument` subtype `instype`, a VISA command, an
-`InstrumentProperty` subtype `proptype`, and possibly an argument. It will
-generate the following method in the module where `generate_inspect` is defined:
-
-`inspect(ins::instype, ::Type{proptype}, infixes::Int...)`
-
-The `infixes` variable argument allows for numbers to be inserted within the
-commands, for instance in `OUTP#:FILT:FREQ`, where the `#` sign should be
-replaced by an integer. The replacements are done in the order of the arguments.
-Error checking is done on the number of arguments.
-
-For a given property, `inspect` will return either an InstrumentProperty subtype,
-a number, a boolean, or a string as appropriate.
-
-#### generate_configure
-
-```
-generate_configure{S<:Instrument,T<:InstrumentProperty}(instype::Type{S},
-        command::ASCIIString, proptype::Type{T}, returntype...)
-```
-
-This command takes an `Instrument` subtype `InsType`, a VISA command, an
-`InstrumentProperty` type, and possibly an argument. It will generate one of the
-following methods in the module where `generate_inspect` is defined:
-
-```
-configure(ins::InsType, PropertySubtype)
-configure(ins::InsType, Property, values..., infixes...)
-```
-
-#### generate_properties
-
-```
-generate_properties{S<:InstrumentProperty}(subtype::Symbol, supertype::Type{S})
-```
-
-This makes it easy to generate new `InstrumentProperty` subtypes. Typically
-this function is called inside a for loop. Calling this function is equivalent
-to writing the following pseudocode:
-
-```
-immutable subtype{T} <: supertype
-end
-
-export subtype
-```
-
-#### generate_handlers
 
 ```
 generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)

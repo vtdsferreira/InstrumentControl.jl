@@ -1,0 +1,3 @@
+    {docs}
+    getindex
+    setindex!

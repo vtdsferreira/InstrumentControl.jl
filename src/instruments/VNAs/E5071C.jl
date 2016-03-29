@@ -109,11 +109,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-for p in metadata[:properties]
-    generate_handlers(E5071C, p)
-    generate_inspect(E5071C, p)
-    p[:cmd][end] != '?' && generate_configure(E5071C, p)
-end
+generate_all(E5071C)
 
 # """
 # [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]

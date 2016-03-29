@@ -5,8 +5,6 @@ importall PainterQB
 import FixedSizeArrays
 import Base: search
 
-include(joinpath(Pkg.dir("PainterQB"),"src/meta/Properties.jl"))
-
 export InstrumentVNA
 export FrequencyCenter, FrequencySpan
 export MarkerSearch
