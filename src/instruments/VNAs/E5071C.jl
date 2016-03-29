@@ -1,5 +1,5 @@
 ### Keysight / Agilent E5071C
-module E5071CModule
+module E5071C
 
 import Base: getindex, setindex!
 
@@ -18,7 +18,7 @@ import FixedSizeArrays.Mat
 
 metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
 
-export E5071C
+export InsE5071C
 
 export GraphLayout
 export SearchTracking
@@ -35,13 +35,13 @@ export mktrace, trig1
 # We will maintain an internal description of what names correspond to what
 # trace numbers.
 
-type E5071C <: InstrumentVNA
+type InsE5071C <: InstrumentVNA
     vi::(VISA.ViSession)
     writeTerminator::ASCIIString
     model::AbstractString
     tracenames::Dict{AbstractString,Int}
 
-    E5071C(x) = begin
+    InsE5071C(x) = begin
         ins = new()
         ins.vi = x
         ins.writeTerminator = "\n"
@@ -50,7 +50,7 @@ type E5071C <: InstrumentVNA
         ins
     end
 
-    E5071C() = new()
+    InsE5071C() = new()
 end
 
 abstract GraphLayout          <: InstrumentProperty
@@ -65,7 +65,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-generate_all(E5071C, metadata)
+generate_all(InsE5071C, metadata)
 
 # """
 # [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
@@ -86,7 +86,7 @@ generate_all(E5071C, metadata)
 
 Turn on or off display of marker `m` for channel `ch` and trace `tr`.
 """
-function setindex!(ins::E5071C, b::Bool, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
+function setindex!(ins::InsE5071C, b::Bool, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     write(ins, "CALC#:TRAC#:MARK# #", ch, tr, m, Int(b))
 end
@@ -95,7 +95,7 @@ end
 :CALC#:TRAC#:MARK#:X
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
-function setindex!(ins::E5071C, b::Real, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
+function setindex!(ins::InsE5071C, b::Real, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     write(ins, "CALC#:TRAC#:MARK#:X #", ch, tr, m, float(b))
 end
@@ -125,7 +125,7 @@ end
 #
 # Set whether or not the marker search for marker `m` is repeated with trace updates.
 # """
-function setindex!(ins::E5071C, b::Bool, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
+function setindex!(ins::InsE5071C, b::Bool, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
     write(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC #", ch, tr, m, Int(b))
 end
 # """
@@ -155,7 +155,7 @@ DISPlay:SPLit
 Configure the layout of graph windows using a matrix to abstract the layout.
 For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.
 """
-function setindex!(ins::E5071C, a::AbstractArray{Int}, ::Type{VNA.Graphs}, ch::Integer=1)
+function setindex!(ins::InsE5071C, a::AbstractArray{Int}, ::Type{VNA.Graphs}, ch::Integer=1)
     write(ins, ":DISP:WIND#:SPL #", ch, window(ins, Val{FixedSizeArrays.Mat(a)}))
 end
 
@@ -164,7 +164,7 @@ end
 
 Query whether marker `m` is displayed for channel `ch` and trace `tr`.
 """
-function getindex(ins::E5071C, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::InsE5071C, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     Bool(parse(ask(ins, "CALC#:TRAC#:MARK#?", ch, tr, m))::Int)
 end
@@ -172,7 +172,7 @@ end
 """
 [CALCulate#:TRACe#:MARKer#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]
 """
-function getindex(ins::E5071C, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::InsE5071C, ::Type{VNA.MarkerX}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     parse(ask(ins, "CALC#:TRAC#:MARK#:X?", ch, tr, m))::Float64
 end
@@ -180,7 +180,7 @@ end
 """
 [CALCulate#:TRACe#:MARKer#:Y?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_y.htm]
 """
-function getindex(ins::E5071C, ::Type{VNA.MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::InsE5071C, ::Type{VNA.MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
     data = getdata(ins, Val{:ASCIIString}, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
     _reformat(ins, data, ch, tr)[1]
@@ -191,7 +191,7 @@ end
 
 Set whether or not the marker search for marker `m` is repeated with trace updates.
 """
-function getindex(ins::E5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
+function getindex(ins::InsE5071C, ::Type{SearchTracking}, m::Integer, ch::Integer=1, tr::Integer=1)
     Bool(parse(ask(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC?", ch, tr, m))::Int)
 end
 
@@ -200,7 +200,7 @@ end
 
 Autoscales y-axis of trace `tr` of channel `ch`.
 """
-function autoscale(ins::E5071C, ch::Integer=1, tr::Integer=1)
+function autoscale(ins::InsE5071C, ch::Integer=1, tr::Integer=1)
     write(ins, ":DISP:WIND#:TRAC#:Y:AUTO", ch, tr)
     return nothing
 end
@@ -210,7 +210,7 @@ end
 
 Read the stimulus values for the given channel (defaults to 1).
 """
-function stimdata(ins::E5071C, ch::Int=1)
+function stimdata(ins::InsE5071C, ch::Int=1)
     xfer = ins[TransferFormat]
     getdata(ins, Val{xfer}, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
@@ -220,7 +220,7 @@ end
 [:CALCulate#:DATA:FDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_fdata.htm]
 [:CALCulate#:DATA:SDATa][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_data_sdata.htm]
 """
-function data{T}(ins::E5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1)
+function data{T}(ins::InsE5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1)
     ins[VNA.Format, ch, tr] = T
     xfer = ins[TransferFormat]
     cmdstr = datacmd(ins, Val{T})
@@ -235,7 +235,7 @@ end
 This instrument does not associate raw data with a particular trace, but we use the
 trace number to look up what S parameter should be retrieved.
 """
-function data(ins::E5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::Integer=1)
+function data(ins::InsE5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::Integer=1)
     # Get measurement parameter
     mpar = ins[VNA.Parameter, ch, tr]
     !(mpar ∈ [:S11, :S12, :S21, :S22]) &&
@@ -250,48 +250,48 @@ function data(ins::E5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::Integ
 end
 
 "Trigger a single sweep when TriggerSource is :Bus."
-trig1(ins::E5071C) = write(ins, ":TRIG:SING")
+trig1(ins::InsE5071C) = write(ins, ":TRIG:SING")
 
-datacmd{T}(x::E5071C, ::Type{Val{T}})        = ":CALC#:TRAC#:DATA:FDAT?"
-datacmd(x::E5071C, ::Type{Val{:Calibrated}}) = ":CALC#:TRAC#:DATA:SDAT?"
-datacmd(x::E5071C, ::Type{Val{:Raw}})        = ":SENS#:DATA:RAWD? #"
+datacmd{T}(x::InsE5071C, ::Type{Val{T}})        = ":CALC#:TRAC#:DATA:FDAT?"
+datacmd(x::InsE5071C, ::Type{Val{:Calibrated}}) = ":CALC#:TRAC#:DATA:SDAT?"
+datacmd(x::InsE5071C, ::Type{Val{:Raw}})        = ":SENS#:DATA:RAWD? #"
 
-_reformat(x::E5071C, ::Type{Val{:LogMagnitude}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:Phase}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:GroupDelay}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:SmithLinear}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:LogMagnitude}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:Phase}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:GroupDelay}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:SmithLinear}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:SmithLog}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:SmithLog}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:SmithComplex}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:SmithComplex}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:Smith}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:Smith}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:SmithAdmittance}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:SmithAdmittance}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:PolarLinear}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:PolarLinear}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:PolarLog}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:PolarLog}}, data) =
     reinterpret(NTuple{2,Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:PolarComplex}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:PolarComplex}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat(x::E5071C, ::Type{Val{:LinearMagnitude}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:SWR}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:RealPart}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:ImagPart}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:ExpandedPhase}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:PositivePhase}}, data) = data[1:2:end]
-_reformat(x::E5071C, ::Type{Val{:Calibrated}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{:LinearMagnitude}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:SWR}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:RealPart}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:ImagPart}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:ExpandedPhase}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:PositivePhase}}, data) = data[1:2:end]
+_reformat(x::InsE5071C, ::Type{Val{:Calibrated}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat{T}(x::E5071C, ::Type{Val{T}}, data) = reinterpret(NTuple{2,Float64}, data)
+_reformat{T}(x::InsE5071C, ::Type{Val{T}}, data) = reinterpret(NTuple{2,Float64}, data)
 
-function search(ins::E5071C, m::MarkerSearch{:Global}, exec::Bool=true)
+function search(ins::InsE5071C, m::MarkerSearch{:Global}, exec::Bool=true)
     write(ins, ":CALC#:TRAC#:MARK#:TYPE #", m.ch, m.tr, m.m, code(ins, m.pol))
     errors(ins)
     exec && _search(ins, m)
 end
 
-function search{T}(ins::E5071C, m::MarkerSearch{T}, exec::Bool=true)
+function search{T}(ins::InsE5071C, m::MarkerSearch{T}, exec::Bool=true)
     write(ins, _type(ins, m), m.ch, m.tr, m.m)
     write(ins, _val(ins, m),  m.ch, m.tr, m.m, m.val)
     write(ins, _pol(ins, m),  m.ch, m.tr, m.m, code(ins, m.pol))
@@ -299,7 +299,7 @@ function search{T}(ins::E5071C, m::MarkerSearch{T}, exec::Bool=true)
     exec && _search(ins, m)
 end
 
-function _search(ins::E5071C, m::MarkerSearch)
+function _search(ins::InsE5071C, m::MarkerSearch)
     write(ins, ":CALC#:TRAC#:MARK#:FUNC:EXEC", m.ch, m.tr, m.m)
     f = eval(parse(ask(ins, ":CALC#:TRAC#:MARK#:DATA?", m.ch, m.tr, m.m)))[3]
     try
@@ -317,68 +317,68 @@ function _search(ins::E5071C, m::MarkerSearch)
     f
 end
 
-function _search(ins::E5071C, m::MarkerSearch{:Bandwidth})
+function _search(ins::InsE5071C, m::MarkerSearch{:Bandwidth})
     ask(ins, ":CALC#:MARK#:BWID:DATA?", m.ch, m.m)
 end
 
-_type(::E5071C, ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:TYPE PEAK"
-_type(::E5071C, ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:TYPE LPE"
-_type(::E5071C, ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:TYPE RPE"
-_type(::E5071C, ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TYPE TARG"
-_type(::E5071C, ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TYPE LTAR"
-_type(::E5071C, ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TYPE RTAR"
-_type(::E5071C, ::MarkerSearch{:Bandwidth})    = ""
+_type(::InsE5071C, ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:TYPE PEAK"
+_type(::InsE5071C, ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:TYPE LPE"
+_type(::InsE5071C, ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:TYPE RPE"
+_type(::InsE5071C, ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TYPE TARG"
+_type(::InsE5071C, ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TYPE LTAR"
+_type(::InsE5071C, ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TYPE RTAR"
+_type(::InsE5071C, ::MarkerSearch{:Bandwidth})    = ""
 
-_val(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
-_val(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
-_val(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
-_val(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
-_val(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
-_val(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
-_val(::E5071C,  ::MarkerSearch{:Bandwidth})    = ":CALC#:TRAC#:MARK#:BWID:THR #"
+_val(::InsE5071C,  ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
+_val(::InsE5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
+_val(::InsE5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:PEXC #"
+_val(::InsE5071C,  ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
+_val(::InsE5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
+_val(::InsE5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TARG #"
+_val(::InsE5071C,  ::MarkerSearch{:Bandwidth})    = ":CALC#:TRAC#:MARK#:BWID:THR #"
 
-_pol(::E5071C,  ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
-_pol(::E5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
-_pol(::E5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
-_pol(::E5071C,  ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
-_pol(::E5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
-_pol(::E5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
-_pol(::E5071C,  ::MarkerSearch{:Bandwidth})    = ""
+_pol(::InsE5071C,  ::MarkerSearch{:Peak})         = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
+_pol(::InsE5071C,  ::MarkerSearch{:LeftPeak})     = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
+_pol(::InsE5071C,  ::MarkerSearch{:RightPeak})    = ":CALC#:TRAC#:MARK#:FUNC:PPOL #"
+_pol(::InsE5071C,  ::MarkerSearch{:Target})       = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
+_pol(::InsE5071C,  ::MarkerSearch{:LeftTarget})   = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
+_pol(::InsE5071C,  ::MarkerSearch{:RightTarget})  = ":CALC#:TRAC#:MARK#:FUNC:TTR #"
+_pol(::InsE5071C,  ::MarkerSearch{:Bandwidth})    = ""
 
-code(::E5071C,  ::VNA.Positive) = "POS"
-code(::E5071C,  ::VNA.Negative) = "NEG"
-code(::E5071C,  ::VNA.Both)    = "BOTH"
+code(::InsE5071C,  ::VNA.Positive) = "POS"
+code(::InsE5071C,  ::VNA.Negative) = "NEG"
+code(::InsE5071C,  ::VNA.Both)    = "BOTH"
 
-peaknotfound(::E5071C, val::Integer) = (val == 41)
+peaknotfound(::InsE5071C, val::Integer) = (val == 41)
 
-function screen(ins::E5071C, filename::AbstractString="screen.png", display::Bool=true)
+function screen(ins::InsE5071C, filename::AbstractString="screen.png", display::Bool=true)
     rempath = "D:\\screen.png"
     write(ins, ":MMEM:STOR:IMAG #", quoted(rempath))
     getfile(ins, rempath, filename)
     display && FileIO.load(filename)
 end
 
-window(::E5071C, ::Type{Val{Mat([1])}}) = "D1"
-window(::E5071C, ::Type{Val{Mat([1 2])}}) = "D12"
-window(::E5071C, ::Type{Val{Mat([1,2])}}) = "D1_2"
-window(::E5071C, ::Type{Val{Mat([1 1 2])}}) = "D112"
-window(::E5071C, ::Type{Val{Mat([1,1,2])}}) = "D1_1_2"
-window(::E5071C, ::Type{Val{Mat([1 2 3])}}) = "D123"
-window(::E5071C, ::Type{Val{Mat([1,2,3])}}) = "D1_2_3"
-window(::E5071C, ::Type{Val{Mat([1 2; 3 3])}}) = "D12_33"
-window(::E5071C, ::Type{Val{Mat([1 1; 2 3])}}) = "D11_23"
-window(::E5071C, ::Type{Val{Mat([1 3; 2 3])}}) = "D13_23"
-window(::E5071C, ::Type{Val{Mat([1 2; 1 3])}}) = "D12_13"
-window(::E5071C, ::Type{Val{Mat([1 2 3 4])}}) = "D1234"
-window(::E5071C, ::Type{Val{Mat([1,2,3,4])}}) = "D1_2_3_4"
-window(::E5071C, ::Type{Val{Mat([1 2;3 4])}}) = "D12_34"
-window(::E5071C, ::Type{Val{Mat([1 2 3; 4 5 6])}}) = "D123_456"
-window(::E5071C, ::Type{Val{Mat([1 2; 3 4; 5 6])}}) = "D12_34_56"
-window(::E5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8])}}) = "D1234_5678"
-window(::E5071C, ::Type{Val{Mat([1 2; 3 4; 5 6; 7 8])}}) = "D12_34_56_78"
-window(::E5071C, ::Type{Val{Mat([1 2 3; 4 5 6; 7 8 9])}}) = "D123_456_789"
-window(::E5071C, ::Type{Val{Mat([1 2 3; 4 5 6; 7 8 9; 10 11 12])}}) = "D123__ABC"
-window(::E5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8; 9 10 11 12])}}) = "D1234__9ABC"
-window(::E5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16])}}) = "D1234__DEFG"
+window(::InsE5071C, ::Type{Val{Mat([1])}}) = "D1"
+window(::InsE5071C, ::Type{Val{Mat([1 2])}}) = "D12"
+window(::InsE5071C, ::Type{Val{Mat([1,2])}}) = "D1_2"
+window(::InsE5071C, ::Type{Val{Mat([1 1 2])}}) = "D112"
+window(::InsE5071C, ::Type{Val{Mat([1,1,2])}}) = "D1_1_2"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3])}}) = "D123"
+window(::InsE5071C, ::Type{Val{Mat([1,2,3])}}) = "D1_2_3"
+window(::InsE5071C, ::Type{Val{Mat([1 2; 3 3])}}) = "D12_33"
+window(::InsE5071C, ::Type{Val{Mat([1 1; 2 3])}}) = "D11_23"
+window(::InsE5071C, ::Type{Val{Mat([1 3; 2 3])}}) = "D13_23"
+window(::InsE5071C, ::Type{Val{Mat([1 2; 1 3])}}) = "D12_13"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3 4])}}) = "D1234"
+window(::InsE5071C, ::Type{Val{Mat([1,2,3,4])}}) = "D1_2_3_4"
+window(::InsE5071C, ::Type{Val{Mat([1 2;3 4])}}) = "D12_34"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3; 4 5 6])}}) = "D123_456"
+window(::InsE5071C, ::Type{Val{Mat([1 2; 3 4; 5 6])}}) = "D12_34_56"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8])}}) = "D1234_5678"
+window(::InsE5071C, ::Type{Val{Mat([1 2; 3 4; 5 6; 7 8])}}) = "D12_34_56_78"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3; 4 5 6; 7 8 9])}}) = "D123_456_789"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3; 4 5 6; 7 8 9; 10 11 12])}}) = "D123__ABC"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8; 9 10 11 12])}}) = "D1234__9ABC"
+window(::InsE5071C, ::Type{Val{Mat([1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16])}}) = "D1234__DEFG"
 
 end

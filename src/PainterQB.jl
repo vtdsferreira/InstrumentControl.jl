@@ -1,14 +1,5 @@
 module PainterQB
 
-export generate_all
-export generate_types, generate_handlers, generate_configure, generate_inspect
-export argsym, argtype, insjson, stripin
-# export AlazarModule
-# export AWG5014CModule
-export E5071CModule
-# export E8257DModule
-# export ZNB20Module
-
 # Define common types and shared functions
 include("Definitions.jl")
 
@@ -19,8 +10,7 @@ include("VISA.jl")
 include("sourcemeasure/SourceMeasure.jl")
 
 # Parsing JSON files for easy instrument onboarding
-include("meta/Parser.jl")
-include("meta/Metaprogramming.jl")
+include("Metaprogramming.jl")
 
 # Various instruments
 include("instruments/VNAs/VNA.jl")
@@ -35,9 +25,9 @@ include("instruments/AWG5014C.jl")
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 
 # importall .AlazarModule
-importall .AWG5014CModule
-importall .E5071CModule
-importall .E8257DModule
+importall .AWG5014C
+importall .E5071C
+importall .E8257D
 # importall .ZNB20Module
 
 # Utility functions
@@ -49,11 +39,11 @@ include("LiveUpdate.jl")
 end
 
 using PainterQB
-using PainterQB.AWG5014CModule
+using PainterQB.AWG5014C
 # using PainterQB.AlazarModule
 using PainterQB.VNA
-using PainterQB.E5071CModule
-using PainterQB.E8257DModule
+using PainterQB.E5071C
+using PainterQB.E8257D
 # using PainterQB.ZNB20Module
 
 const PARALLEL_PATH = joinpath(Pkg.dir("PainterQB"), "src", "ParallelUtils.jl")

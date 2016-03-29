@@ -108,7 +108,7 @@ end
 abstract AutoSweepTime <: InstrumentProperty
 
 "Configure or inspect. Measurement / resolution bandwidth. May be rounded."
-abstract Bandwidth     <: InstrumentProperty{Float64}
+abstract Bandwidth     <: InstrumentProperty
 
 "Configure or inspect. Display updates during measurement."
 abstract DisplayUpdate <: InstrumentProperty

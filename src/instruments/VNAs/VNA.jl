@@ -20,16 +20,16 @@ type FSweep <: Response
 end
 
 "Graph layout specified by a matrix."
-abstract Graphs         <: InstrumentProperty
+abstract Graphs <: InstrumentProperty
 
 "Marker state (on/off)."
-abstract Marker         <: InstrumentProperty
+abstract Marker <: InstrumentProperty
 
 "Stimulus value for a marker."
-abstract MarkerX        <: InstrumentProperty{Float64}
+abstract MarkerX <: InstrumentProperty
 
 "Response value for a marker."
-abstract MarkerY        <: InstrumentProperty
+abstract MarkerY <: InstrumentProperty
 
 "Polarity for peak and dip searching with VNAs."
 abstract Polarity

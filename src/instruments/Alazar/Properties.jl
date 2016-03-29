@@ -29,7 +29,7 @@ export TriggerTimeoutTicks
 export Rate1GSps
 
 "An InstrumentProperty specific to AlazarTech digitizers."
-abstract AlazarProperty{T}    <: InstrumentProperty{T}
+abstract AlazarProperty       <: InstrumentProperty
 
 abstract AlazarAux            <: AlazarProperty
 abstract AlazarChannel        <: AlazarProperty
