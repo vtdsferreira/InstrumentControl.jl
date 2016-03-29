@@ -173,4 +173,3 @@ Again, stimuli need not be tied to a particular property. Rather, this is just o
 
 
 In principle, asynchronous software feedback loops could be implemented with the [Reactive.jl](http://www.github.com/shashi/Reactive.jl) package. This would probably only be suitable for slowly varying signals, e.g. PID temperature control. Ultimately benchmarking needs to be done to determine how useful this approach would be.
-
