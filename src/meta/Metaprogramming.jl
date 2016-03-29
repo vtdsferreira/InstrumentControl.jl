@@ -93,11 +93,58 @@ end
 
 function generate_all{S<:Instrument}(ins::Type{S}, metadata)
     for p in metadata[:properties]
+        generate_types(ins, p)
         generate_handlers(ins, p)
         generate_inspect(ins, p)
         if p[:cmd][end] != '?'
             generate_configure(ins, p)
         end
+    end
+end
+
+"""
+`generate_types{S<:Instrument}(instype::Type{S}, p)`
+
+This function takes an `Instrument` subtype `instype`, and a property dictionary
+`p`. The property dictionary is built out of an auxiliary JSON file described above.
+
+This function is responsible for generating the `InstrumentProperty` subtypes
+to use with `getindex` and `setindex!` if they have not been defined already.
+Ordinarily these types are defined in the PainterQB module but if a really
+generic name is desired that makes sense for a class of instruments (e.g. `VNA.Format`)
+then the `Format` subtype is defined in the `PainterQB.VNA` module. The defined
+subtype is then imported into the module where the `instype` is defined.
+
+"""
+function generate_types{S<:Instrument}(instype::Type{S}, p)
+    md = instype.name.module
+    if isa(p[:type], Symbol)
+        # No module path; assume we define it in the base module
+        if !isdefined(PainterQB, p[:type])
+            # Define and export the InstrumentProperty subtype in PainterQB
+            eval(PainterQB, :(abstract $(p[:type]) <: InstrumentProperty))
+            eval(PainterQB, :(export $(p[:type])))
+            # Import the subtype in our instrument's module
+            eval(md, :(import PainterQB.$(p[:type])))
+        end
+    elseif isa(p[:type], Expr)
+        # Symbol is qualified by module path.
+        sym = p[:type].args[2].value
+        where = eval(p[:type].args[1])
+        if !isdefined(where, sym)
+            # Define and export the InstrumentProperty subtype in PainterQB
+            eval(where, :(abstract $sym <: InstrumentProperty))
+            eval(where, :(export $sym))
+            # We need to take care with module paths. The following is
+            # kind of crude but import doesn't accept modules, only symbols
+            syms = map(symbol, split(string(p[:type]),"."))
+            syms[1] != :PainterQB && (insert!(syms, 1, :PainterQB))
+            # Import the subtype in our instrument's module
+            eval(md, Expr(:import, syms...))
+        end
+    else
+        # Parser found something weird
+        error("Unexpected InstrumentProperty subtype name.")
     end
 end
 

@@ -56,6 +56,16 @@
             },
             "doc":"Hey"
         }, {
+            "cmd":"SOURch:PHAS",
+            "type":"OutputPhase",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
             "cmd":"SOUR:ROSC:SOUR",
             "type":"OscillatorSource",
             "values":[

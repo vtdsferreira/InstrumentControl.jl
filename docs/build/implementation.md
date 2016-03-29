@@ -77,29 +77,17 @@ Here is an example of a valid JSON file with valid schema for parsing:
 
 Simple wrapper to call `insjson` on the appropriate file path for a given instrument type.
 
-<a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
-**`PainterQB.generate_configure`** &mdash; *Function*.
+<a id='PainterQB.generate_types' href='#PainterQB.generate_types'>#</a>
+**`PainterQB.generate_types`** &mdash; *Function*.
 
 ---
 
 
-`generate_configure{S<:Instrument}(instype::Type{S}, p)`
+`generate_types{S<:Instrument}(instype::Type{S}, p)`
 
 This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
 
-This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
-
-<a id='PainterQB.generate_inspect' href='#PainterQB.generate_inspect'>#</a>
-**`PainterQB.generate_inspect`** &mdash; *Function*.
-
----
-
-
-`generate_inspect{S<:Instrument}(instype::Type{S}, p)`
-
-This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
-
-This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
+This function is responsible for generating the `InstrumentProperty` subtypes to use with `getindex` and `setindex!` if they have not been defined already. Ordinarily these types are defined in the PainterQB module but if a really generic name is desired that makes sense for a class of instruments (e.g. `VNA.Format`) then the `Format` subtype is defined in the `PainterQB.VNA` module. The defined subtype is then imported into the module where the `instype` is defined.
 
 <a id='PainterQB.generate_handlers' href='#PainterQB.generate_handlers'>#</a>
 **`PainterQB.generate_handlers`** &mdash; *Function*.
@@ -160,6 +148,30 @@ VNA.Format(ins::E5071C, ::Type{Val{symbol("MLOG")}}) = :LogMagnitude # ... etc. 
 ```
 
 The above methods will be defined in the E5071C module. Note that the function `symbols` has its name chosen based on the dictionary name in the JSON file. This was done for future flexibliity.
+
+<a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
+**`PainterQB.generate_configure`** &mdash; *Function*.
+
+---
+
+
+`generate_configure{S<:Instrument}(instype::Type{S}, p)`
+
+This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
+
+This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
+
+<a id='PainterQB.generate_inspect' href='#PainterQB.generate_inspect'>#</a>
+**`PainterQB.generate_inspect`** &mdash; *Function*.
+
+---
+
+
+`generate_inspect{S<:Instrument}(instype::Type{S}, p)`
+
+This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
+
+This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
 
 
 <a id='Responses-1'></a>

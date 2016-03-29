@@ -6,7 +6,6 @@ import FixedSizeArrays
 import Base: search
 
 export InstrumentVNA
-export FrequencyCenter, FrequencySpan
 export MarkerSearch
 
 # export Format, Parameter
@@ -20,23 +19,8 @@ type FSweep <: Response
     ins::InstrumentVNA
 end
 
-abstract Averaging        <: InstrumentProperty
-abstract AveragingFactor  <: InstrumentProperty{Int}
-
-"Signals may propagate on coax or waveguide media."
-abstract ElectricalMedium <: InstrumentProperty
-
-"Post-processing and display formats typical of VNAs."
-abstract Format         <: InstrumentProperty
-
-abstract FrequencyCenter <: InstrumentProperty{Float64}
-abstract FrequencySpan   <: InstrumentProperty{Float64}
-
 "Graph layout specified by a matrix."
 abstract Graphs         <: InstrumentProperty
-
-"IF bandwidth for a VNA."
-abstract IFBandwidth    <: InstrumentProperty{Float64}
 
 "Marker state (on/off)."
 abstract Marker         <: InstrumentProperty
@@ -46,14 +30,6 @@ abstract MarkerX        <: InstrumentProperty{Float64}
 
 "Response value for a marker."
 abstract MarkerY        <: InstrumentProperty
-
-"Number of traces."
-abstract NumTraces      <: InstrumentProperty
-
-"VNA measurement parameter, e.g. S11, S12, etc."
-abstract Parameter      <: InstrumentProperty
-abstract SParameter     <: Parameter
-abstract ABCDParameter  <: Parameter
 
 "Polarity for peak and dip searching with VNAs."
 abstract Polarity
@@ -133,7 +109,7 @@ function clearavg(ins::InstrumentVNA, ch::Integer=1)
 end
 
 "Fallback method assumes we cannot do what is requested."
-datacmd{T<:Format}(x::InstrumentVNA, ::Type{T}) = error("Not supported for this VNA.")
+datacmd(x::InstrumentVNA, y) = error("Not supported for this VNA.")
 
 """
 Can execute marker searches defined by any number of MarkerSearch objects.

@@ -54,9 +54,10 @@ They are described here for completeness.
 
     {docs}
     insjson
+    generate_types
+    generate_handlers
     generate_configure
     generate_inspect
-    generate_handlers
 
 ## Responses
 Unlike stimuli, all responses are subtypes of an abstract parametric type,

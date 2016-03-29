@@ -12,33 +12,7 @@ metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E8257D.json"))
 
 export E8257D
 
-export ALCBandwidth
-export ALCBandwidthAuto
-export ALC
-export ALCLevel
-export AttenuatorAuto
-export FlatnessCorrection
-#export FrequencyMultiplier
-export FrequencyStart
-export FrequencyStop
-export FrequencyStep
-#export FrequencyOffsetLevel
-#export FrequencyOffset
-export FrequencyReferenceLevel
-export FrequencyReference
-export OutputBlanking
-export OutputBlankingAuto
 export OutputSettled
-export PowerLimit
-export PowerLimitAdjustable
-export PowerStart
-export PowerStop
-export PowerStep
-#export PowerOffsetLevel
-export PowerReference
-export PowerReferenceLevel
-export PowerSearchProtection
-export PowerOptimizeSNR
 export SetFrequencyReference
 export SetPhaseReference
 
@@ -62,73 +36,8 @@ type E8257D <: InstrumentVISA
     E8257D() = new()
 end
 
-"ALC bandwidth."
-abstract ALCBandwidth            <: InstrumentProperty{Float64}
-
-"Boolean state for automatic selection of the ALC bandwidth."
-abstract ALCBandwidthAuto        <: InstrumentProperty
-
-"Boolean state of the ALC."
-abstract ALC                     <: InstrumentProperty
-
-"Level of the ALC when the attenuator hold is active."
-abstract ALCLevel                <: InstrumentProperty{Float64}
-
-"Boolean state for automatic operation of the attenuator."
-abstract AttenuatorAuto          <: InstrumentProperty
-
-"Boolean state for flatness correction."
-abstract FlatnessCorrection      <: InstrumentProperty
-
-
-# abstract FrequencyMultiplier     <: InstrumentProperty{Int}
-"Step size for a frequency sweep."
-abstract FrequencyStep           <: InstrumentProperty{Float64}
-
-#abstract FrequencyOffsetLevel    <: InstrumentProperty{Float64}
-#abstract FrequencyOffset         <: InstrumentProperty
-
-"Boolean state of the frequency reference level."
-abstract FrequencyReference      <: InstrumentProperty
-
-"Reference level for configuring/inspecting frequency."
-abstract FrequencyReferenceLevel <: InstrumentProperty{Float64}
-
-"Boolean state for the output blanking."
-abstract OutputBlanking          <: InstrumentProperty
-
-"Boolean state for automatic blanking of the output."
-abstract OutputBlankingAuto      <: InstrumentProperty
-
 "Has the output settled?"
 abstract OutputSettled           <: InstrumentProperty
-
-"RF output power limit."
-abstract PowerLimit              <: InstrumentProperty{Float64}
-
-"Boolean for whether or not the RF output power limit can be adjusted."
-abstract PowerLimitAdjustable    <: InstrumentProperty
-
-"Start power in a sweep."
-abstract PowerStart              <: InstrumentProperty{Float64}
-
-"Stop power in a sweep."
-abstract PowerStop               <: InstrumentProperty{Float64}
-
-"Step size for a power sweep."
-abstract PowerStep               <: InstrumentProperty{Float64}
-
-#abstract PowerOffsetLevel        <: InstrumentProperty{Float64}
-
-"Boolean state of the power reference level."
-abstract PowerReference          <: InstrumentProperty
-
-"Reference level for configuring/inspecting power."
-abstract PowerReferenceLevel     <: InstrumentProperty{Float64}
-
-abstract PowerSearchProtection   <: InstrumentProperty
-abstract PowerOptimizeSNR        <: InstrumentProperty
-
 abstract SetFrequencyReference   <: InstrumentProperty
 abstract SetPhaseReference       <: InstrumentProperty
 

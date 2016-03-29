@@ -1,6 +1,7 @@
 module PainterQB
 
-export generate_all, generate_configure, generate_handlers, generate_inspect
+export generate_all
+export generate_types, generate_handlers, generate_configure, generate_inspect
 export argsym, argtype, insjson, stripin
 # export AlazarModule
 # export AWG5014CModule

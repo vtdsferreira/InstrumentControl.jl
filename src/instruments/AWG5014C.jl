@@ -17,37 +17,12 @@ export allWaveforms
 
 export AWG5014CData
 
-export Normalization, SequencerType, WaveformType
+export Normalization, WaveformType
 
 export Amplitude
-export AnalogOutputDelay
-export ChannelOutput
-export DCOutput
-export DCOutputLevel
-export EventImpedance
-export EventSlope
-export EventTiming
 export ExtInputAddsToOutput
-export ExtOscDividerRate
-export MarkerDelay
-export OutputFilterFrequency
-export RefOscFrequency
-export RefOscMultiplier
-export RepRate
-export RepRateHeld
-export SequencerEventJumpTarget
-export SequencerGOTOTarget
-export SequencerGOTOState
-export SequencerInfiniteLoop
-export SequencerLength
-export SequencerLoopCount
-export SequencerPosition
-export TriggerMode
-export TriggerTimer
 export WaitingForTrigger
 export Waveform
-export WavelistLength
-export VoltageOffset
 
 export runapplication, applicationstate, validate
 export load_awg_settings, save_awg_settings
@@ -131,22 +106,7 @@ exceptions    = Dict(
 
 InstrumentException(ins::AWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
-"Event input impedance may be 50 Ohm or 1 kOhm."
-abstract EventImpedance    <: InstrumentProperty
-
-"Event may fire on a rising or falling slope."
-abstract EventSlope        <: InstrumentProperty
-
-"Events may occur synchronously or asynchronously."
-abstract EventTiming       <: InstrumentProperty
-
 abstract Normalization     <: InstrumentProperty
-
-"Sequencer may be hardware or software."
-abstract SequencerType     <: InstrumentProperty
-
-"Trigger engine may be triggered, continuously firing, gated, or sequenced."
-abstract TriggerMode       <: InstrumentProperty
 
 "Waveform type may be integer or real."
 abstract WaveformType      <: InstrumentProperty
@@ -168,108 +128,9 @@ Amplitude for a given channel.
 abstract Amplitude                <: InstrumentProperty{Float64}
 
 """
-Analog output delay for a given channel.
-The effect of this command can be seen only in non-sequence mode.
-"""
-abstract AnalogOutputDelay        <: InstrumentProperty{Float64}
-
-"""
-Boolean state of the output for a given channel.
-"""
-abstract ChannelOutput            <: InstrumentProperty
-
-"""
-Boolean state of the DC output for a given channel (bottom-right of AWG).
-"""
-abstract DCOutput                 <: InstrumentProperty
-
-"""
-DC output level for a given channel.
-"""
-abstract DCOutputLevel            <: InstrumentProperty{Float64}
-
-"""
 Add the signal from an external input to the given channel output.
 """
 abstract ExtInputAddsToOutput     <: InstrumentProperty
-
-"""
-Divider rate of the external oscillator; must be a power of 2 (1 ok).
-"""
-abstract ExtOscDividerRate        <: InstrumentProperty{Int}
-
-"""
-Marker delay for a given channel and marker. Marker can be 1 or 2.
-"""
-abstract MarkerDelay              <: InstrumentProperty{Float64}
-
-"""
-Low-pass filter frequency for the output. INF = 9.9e37
-"""
-abstract OutputFilterFrequency    <: InstrumentProperty{Float64}
-
-"""
-Reference oscillator frequency.
-
-Valid values are 10 MHz, 20 MHz and 100 MHz. Used when:
-
-- Clock Source is Internal
-- Reference Input is External
-- External Reference Type is Fixed.
-"""
-abstract RefOscFrequency          <: InstrumentProperty{Float64}
-
-"""
-Reference oscillator multiplier.
-
-Used when:
-- Clock Source is Internal
-- Reference Source is External
-- External Reference Type is Variable.
-"""
-abstract RefOscMultiplier         <: InstrumentProperty{Int}
-
-"""
-Repetition rate (frequency of waveform). Changing this will change the
-sampling rate.
-"""
-abstract RepRate                  <: InstrumentProperty{Float64}
-
-"""
-Boolean hold state of the repetition rate. If held, the repetition rate will
-not change when the size of the waveform changes.
-"""
-abstract RepRateHeld              <: InstrumentProperty
-
-"""
-Target index for the sequencer event jump operation.
-Note that this will take effect only when
-SEQuence:ELEMent[n]:JTARget:TYPE is set to INDex.
-"""
-abstract SequencerEventJumpTarget <: InstrumentProperty{Int}
-
-"""
-Target index for the GOTO command of the sequencer.
-"""
-abstract SequencerGOTOTarget      <: InstrumentProperty{Int}
-
-"Boolean GOTO state of the sequencer."
-abstract SequencerGOTOState       <: InstrumentProperty
-
-"Boolean state of infinite loop on a sequencer element."
-abstract SequencerInfiniteLoop    <: InstrumentProperty
-
-"Length of the sequence. Can be destructive to existing sequences."
-abstract SequencerLength          <: InstrumentProperty{Int}
-
-"Loop count of the sequencer, from 1 to 65536. Ignored if infinite loop."
-abstract SequencerLoopCount       <: InstrumentProperty{Int}
-
-"Current sequencer position."
-abstract SequencerPosition        <: InstrumentProperty{Int}
-
-"Internal trigger rate."
-abstract TriggerTimer             <: InstrumentProperty{Float64}
 
 "When inspected, will report if the instrument is waiting for a trigger."
 abstract WaitingForTrigger        <: InstrumentProperty
@@ -277,11 +138,6 @@ abstract WaitingForTrigger        <: InstrumentProperty
 "Name of a waveform loaded into a given channel."
 abstract Waveform                 <: InstrumentProperty
 
-"The number of waveforms stored in the AWG."
-abstract WavelistLength           <: InstrumentProperty{Int}
-
-"Offset voltage for a given channel."
-abstract VoltageOffset            <: InstrumentProperty{Float64}
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
@@ -345,31 +201,6 @@ macro allch(x::Expr)
     # esc forces evaluation of the expression in the macro's calling environment.
     esc(Expr(:block,myargs...))
 end
-
-"Get the output phase in degrees for a given channel."
-function inspect(ins::AWG5014C, ::Type{OutputPhase}, ch::Integer)
-    @assert (1 <= ch <= 4) "Channel out of range."
-    parse(ask(ins,string("SOUR",ch,":PHAS?")))
-end
-
-"Set the output phase in degrees for a given channel."
-function configure(ins::AWG5014C, ::Type{OutputPhase}, phase::Real, ch::Integer)
-    @assert (1 <= ch <= 4) "Channel out of range."
-    ph = phase+180.
-    ph = mod(ph,360.)
-    ph -= 180.
-    parse(ask(ins,string("SOUR",ch,":PHAS ",phase)))
-end
-#
-# "Get the output phase in radians for a given channel."
-# function phase_rad(ins::AWG5014C, ch::Integer)
-#     phaseDegrees(ins,ch) * π / 180.
-# end
-#
-# "Set the output phase in radians for a given channel."
-# function set_phase_rad(ins::AWG5014C, phase::Real, ch::Integer)
-#     setPhaseDegrees(ins, phase*180./π, ch)
-# end
 
 "Configure the waveform by name for a given channel."
 function configure(ins::AWG5014C, ::Type{Waveform}, name::ASCIIString, ch::Integer)

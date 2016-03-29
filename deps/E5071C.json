@@ -12,7 +12,7 @@
             "doc":"This command sets/gets the sweep time of selected channel (ch). Before using this object to set the sweep time, turns OFF the auto setting of the sweep time (specify False with the SCPI.SENSe(Ch).SWEep.TIME.AUTO object). When Port IFBW is turned ON, this command returns the sweep time for Port 1."
         }, {
             "cmd":":CALCch:TRACtr:CORR:EDEL:MED",
-            "type":"VNA.ElectricalMedium",
+            "type":"ElectricalMedium",
             "values":[
                 "v::Symbol in symbols"
             ],
@@ -96,7 +96,7 @@
             "doc":"Hey"
         }, {
             "cmd":":SENSch:AVER",
-            "type":"VNA.Averaging",
+            "type":"Averaging",
             "values":[
                 "v::Bool"
             ],
@@ -106,7 +106,7 @@
             "doc":"Hey"
         }, {
             "cmd":":SENS#:AVER:COUN",
-            "type":"VNA.AveragingFactor",
+            "type":"AveragingFactor",
             "values":[
                 "v::Integer"
             ],
@@ -168,7 +168,7 @@
             "doc":"Hey"
         }, {
             "cmd":":SENSch:FREQ:CENT",
-            "type":"VNA.FrequencyCenter",
+            "type":"FrequencyCenter",
             "values":[
                 "v::Real"
             ],
@@ -178,7 +178,7 @@
             "doc":"Hey"
         }, {
             "cmd":":SENSch:FREQ:SPAN",
-            "type":"VNA.FrequencySpan",
+            "type":"FrequencySpan",
             "values":[
                 "v::Real"
             ],
@@ -188,7 +188,7 @@
             "doc":"Hey"
         }, {
             "cmd":":SENSch:BAND",
-            "type":"VNA.IFBandwidth",
+            "type":"IFBandwidth",
             "values":[
                 "v::Real"
             ],
@@ -198,7 +198,7 @@
             "doc":"Hey"
         }, {
             "cmd":":CALCch:PAR:COUN",
-            "type":"VNA.NumTraces",
+            "type":"NumTraces",
             "values":[
                 "v::Integer"
             ],

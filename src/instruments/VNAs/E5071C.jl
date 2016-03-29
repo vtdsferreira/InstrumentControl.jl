@@ -20,33 +20,11 @@ metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
 
 export E5071C
 
-export AveragingTrigger
-export ElectricalDelay
-export ExtTriggerDelay
-export ExtTriggerLowLatency
 export GraphLayout
-export PhaseOffset
-export PointTrigger
-export PowerCoupled
-export PowerLevel
-export PowerSlope
-export PowerSlopeLevel
-export PowerSweepFrequency
 export SearchTracking
-export Smoothing
-export SmoothingAperture
-export TraceDisplay
-export TraceMaximized
-export TriggerOutput
-export WaveguideCutoff
 export WindowLayout
-export YDivisions
-export YReferenceLevel
-export YReferencePosition
-export YScalePerDivision
 export SetActiveMarker
 export SetActiveChannel
-export SweepTime
 
 export autoscale, bandwidth
 export screen, search
@@ -75,34 +53,11 @@ type E5071C <: InstrumentVNA
     E5071C() = new()
 end
 
-abstract AveragingTrigger     <: InstrumentProperty
-abstract TraceDisplay         <: InstrumentProperty
-abstract ElectricalDelay      <: InstrumentProperty{Float64}
-abstract ExtTriggerDelay      <: InstrumentProperty{Float64}
-abstract ExtTriggerLowLatency <: InstrumentProperty
 abstract GraphLayout          <: InstrumentProperty
-abstract PhaseOffset          <: InstrumentProperty{Float64}
-abstract PointTrigger         <: InstrumentProperty
-abstract PowerCoupled         <: InstrumentProperty
-abstract PowerLevel           <: InstrumentProperty{Float64}
-abstract PowerPortLevel       <: InstrumentProperty{Float64}
-abstract PowerSlope           <: InstrumentProperty
-abstract PowerSlopeLevel      <: InstrumentProperty{Float64}
-abstract PowerSweepFrequency  <: InstrumentProperty{Float64}
 abstract SearchTracking       <: InstrumentProperty
-abstract Smoothing            <: InstrumentProperty
-abstract SmoothingAperture    <: InstrumentProperty{Float64}
-abstract TraceMaximized       <: InstrumentProperty
-abstract TriggerOutput        <: InstrumentProperty
-abstract WaveguideCutoff      <: InstrumentProperty{Float64}
-abstract YDivisions           <: InstrumentProperty
-abstract YScalePerDivision    <: InstrumentProperty{Float64}
-abstract YReferenceLevel      <: InstrumentProperty{Float64}
-abstract YReferencePosition   <: InstrumentProperty
 abstract WindowLayout         <: InstrumentProperty
 abstract SetActiveMarker      <: InstrumentProperty
 abstract SetActiveChannel     <: InstrumentProperty
-abstract SweepTime            <: InstrumentProperty
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
