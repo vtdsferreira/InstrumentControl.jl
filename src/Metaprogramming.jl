@@ -144,6 +144,8 @@ which is expected to have the following structure:
 
 - `module`: The module name. Can already exist but is created if it does not.
 - `type`: The name of the type to create for the new instrument.
+- `super`: This field is optional. If provided it will be the supertype of
+the new instrument type, otherwise the supertype will be `InstrumentVISA`.
 - `make`: The make of the instrument, e.g. Keysight, Tektronix, etc.
 - `model`: The model of the instrument, e.g. E5071C, E8257D, etc.
 - `writeterminator`: Write termination string for sending SCPI commands.
@@ -169,7 +171,13 @@ function generate_instruments(metadata)
 
     # Now the module is defined. We evaluate the symbol and get the Module object
     md = eval(PainterQB, mdname)
+
+    # Some type logic
     typsym = idata[:type]
+    !haskey(idata, :super) ? idata[:super] = :InstrumentVISA
+    sup = eval(md, idata[:super])
+
+    # boring assignment for convenience
     term = idata[:writeterminator]
     model = idata[:model]
     make = idata[:make]
@@ -177,7 +185,7 @@ function generate_instruments(metadata)
     # Here we define the InstrumentVISA subtype.
     eval(md, quote
         export $typsym
-        type $typsym <: InstrumentVISA
+        type $typsym <: $sup
             vi::(VISA.ViSession)
             writeTerminator::ASCIIString
             ($typsym)(x) = begin

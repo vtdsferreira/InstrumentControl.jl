@@ -2,6 +2,8 @@ module E5071C
 import Base: getindex, setindex!
 import VISA
 importall PainterQB
+importall PainterQB.VNA
+import PainterQB.VNA: datacmd, peaknotfound, window
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
@@ -14,8 +16,6 @@ generate_all(metadata)
 
 import FileIO
 import PainterQB: getdata
-importall PainterQB.VNA
-import PainterQB.VNA: datacmd, peaknotfound, window
 import FixedSizeArrays
 import FixedSizeArrays.Mat
 

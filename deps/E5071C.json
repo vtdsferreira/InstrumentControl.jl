@@ -2,6 +2,7 @@
     "instrument":{
             "module":"E5071C",
             "type":"InsE5071C",
+            "super":"InstrumentVNA",
             "make":"Keysight",
             "model":"E5071C",
             "writeterminator":"\n"
