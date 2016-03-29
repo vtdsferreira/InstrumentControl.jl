@@ -3,6 +3,7 @@ import Base: show, showerror
 export Instrument
 export InstrumentProperty
 
+export FrequencyStart, FrequencyStop
 export SampleRate
 export InstrumentException
 
@@ -31,6 +32,9 @@ Subtypes of `InstrumentProperty` can be configured or inspect using
 `setindex!` or `getindex`.
 """
 abstract InstrumentProperty
+
+abstract FrequencyStart <: InstrumentProperty
+abstract FrequencyStop <: InstrumentProperty
 
 "The sample rate for digitizing, synthesizing, etc."
 abstract SampleRate <: InstrumentProperty
