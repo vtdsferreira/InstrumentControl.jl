@@ -77,25 +77,89 @@ Here is an example of a valid JSON file with valid schema for parsing:
 
 Simple wrapper to call `insjson` on the appropriate file path for a given instrument type.
 
+<a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
+**`PainterQB.generate_configure`** &mdash; *Function*.
 
+---
+
+
+`generate_configure{S<:Instrument}(instype::Type{S}, p)`
+
+This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
+
+This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
+
+<a id='PainterQB.generate_inspect' href='#PainterQB.generate_inspect'>#</a>
+**`PainterQB.generate_inspect`** &mdash; *Function*.
+
+---
+
+
+`generate_inspect{S<:Instrument}(instype::Type{S}, p)`
+
+This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
+
+This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
+
+<a id='PainterQB.generate_handlers' href='#PainterQB.generate_handlers'>#</a>
+**`PainterQB.generate_handlers`** &mdash; *Function*.
+
+---
+
+
+`generate_handlers{S<:Instrument}(instype::Type{S}, p)`
+
+This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
+
+In some cases, an instrument command does not except numerical arguments but rather a small set of options. Here is an example of the JSON template for such a command, which sets/gets the format for a given channel and trace on the E5071C vector network analyzer:
+
+```json
+{
+    "cmd":":CALCch:TRACtr:FORM",
+    "type":"VNA.Format",
+    "values":[
+        "v::Symbol in symbols"
+    ],
+    "symbols":{
+        "LogMagnitude":"MLOG",
+        "Phase":"PHAS",
+        "GroupDelay":"GDEL",
+        "SmithLinear":"SLIN",
+        "SmithLog":"SLOG",
+        "SmithComplex":"SCOM",
+        "Smith":"SMIT",
+        "SmithAdmittance":"SADM",
+        "PolarLinear":"PLIN",
+        "PolarLog":"PLOG",
+        "PolarComplex":"POL",
+        "LinearMagnitude":"MLIN",
+        "SWR":"SWR",
+        "RealPart":"REAL",
+        "ImagPart":"IMAG",
+        "ExpandedPhase":"UPH",
+        "PositivePhase":"PPH"
+    },
+    "infixes":[
+        "ch::Integer=1",
+        "tr::Integer=1"
+    ],
+    "doc":"Hey"
+}
 ```
-generate_handlers{T<:Instrument}(insType::Type{T}, responseDict::Dict)
+
+We see here that the `values` key is saying that we are only going to accept `Symbol` type for our `setindex!` method and the symbol has to come out of `symbols`, a dictionary that is defined on the next line. The keys of this dictionary are going to be interpreted as symbols (e.g. `:LogMagnitude`) and the values are just ASCII strings to be sent to the instrument.
+
+`generate_handlers` makes a bidirectional mapping between the symbols and the strings. In this example, this is accomplished as follows:
+
+```jl
+symbols(ins::E5071C, ::Type{VNA.Format}, v::Symbol) = symbols(ins, VNA.Format, Val{v})
+symbols(ins::E5071C, ::Type{VNA.Format}, ::Type{Val{:LogMagnitude}}) = "MLOG" # ... etc. for each symbol.
+
+VNA.Format(ins::E5071C, s::AbstractString) = VNA.Format(ins, Val{symbol(s)})
+VNA.Format(ins::E5071C, ::Type{Val{symbol("MLOG")}}) = :LogMagnitude # ... etc. for each symbol.
 ```
 
-
-Each instrument can have a `responseDict`. For each setting of the instrument, for instance the `ClockSource`, we need to know the correspondence between a logical state `ExternalClock` and how the instrument encodes that logical state (e.g. "EXT"). The `responseDict` is actually a dictionary of dictionaries. The first level keys are like `ClockSource` and the second level keys are like "EXT", with the value being `:ExternalClock`. Undoubtedly this nested dictionary is "nasty" (in the technical parlance) but the dictionary is only used for code creation and is not used at run-time (if the code works as intended).
-
-
-This function makes a lot of other functions. Given some response from an instrument, we require a function to map that response back on to the appropiate logical state.
-
-
-`ClockSource(ins::AWG5014C, res::AbstractString)` returns an `InternalClock` or `ExternalClock` type as appropriate, based on the logical meaning of the response.
-
-
-We also want a function to generate logical states without having to know the way they are encoded by the instrument.
-
-
-`code(ins::AWG5014C, ::Type{InternalClock})` returns "INT", with "INT" encoding how to pass this logical state to the instrument `ins`.
+The above methods will be defined in the E5071C module. Note that the function `symbols` has its name chosen based on the dictionary name in the JSON file. This was done for future flexibliity.
 
 
 <a id='Responses-1'></a>

@@ -1,13 +1,14 @@
 ### Keysight / Agilent E8257D
 module E8257DModule
 
+import Base: getindex, setindex!
+
 ## Import packages
 import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
 metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E8257D.json"))
-include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E8257D
 
@@ -137,11 +138,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-for p in metadata[:properties]
-    generate_handlers(E8257D, p)
-    generate_inspect(E8257D, p)
-    p[:cmd][end] != '?' && generate_configure(E8257D, p)
-end
+generate_all(E8257D, metadata)
 
 boards(ins::E8257D) = ask(ins,"DIAGnostic:INFOrmation:BOARds?")
 

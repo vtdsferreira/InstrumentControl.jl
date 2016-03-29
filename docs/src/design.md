@@ -104,8 +104,9 @@ The shared library files and API documentation are only available from AlazarTec
 ### Properties
 
 Instrument properties are configured and inspected using two functions,
-`setindex!` and `getindex`. This results in a convenient and concise syntax (credit
-due to Oliver Schulz for this idea).
+`setindex!` and `getindex`. This results in a convenient and concise syntax
+([credit due to Oliver Schulz](https://groups.google.com/d/msg/julia-users/Dt6nbfhtaNQ/81KgQmttCwAJ)
+for this idea).
 
 For example:
 

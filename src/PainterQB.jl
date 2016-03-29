@@ -1,5 +1,7 @@
 module PainterQB
 
+export generate_all, generate_configure, generate_handlers, generate_inspect
+export argsym, argtype, insjson, stripin
 # export AlazarModule
 # export AWG5014CModule
 export E5071CModule
@@ -15,9 +17,11 @@ include("VISA.jl")
 # Stimuli, responses, source, measure...
 include("sourcemeasure/SourceMeasure.jl")
 
-# Various instruments
 # Parsing JSON files for easy instrument onboarding
 include("meta/Parser.jl")
+include("meta/Metaprogramming.jl")
+
+# Various instruments
 include("instruments/VNAs/VNA.jl")
 include("instruments/VNAs/E5071C.jl")
 # include("instruments/VNAs/ZNB20.jl")

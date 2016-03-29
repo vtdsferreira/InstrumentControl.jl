@@ -1,3 +1,1 @@
-    {docs}
-    getindex
-    setindex!
+Documentation forthcoming.

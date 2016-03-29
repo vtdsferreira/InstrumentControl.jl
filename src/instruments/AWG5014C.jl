@@ -1,13 +1,14 @@
 ### Tektronix AWG5014C
 module AWG5014CModule
 
+import Base: getindex, setindex!
+
 ## Import packages
 import VISA
 
 ## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
 metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/AWG5014C.json"))
-include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 ## Exports
 export AWG5014C
@@ -150,12 +151,6 @@ abstract TriggerMode       <: InstrumentProperty
 "Waveform type may be integer or real."
 abstract WaveformType      <: InstrumentProperty
 
-returntype(::Type{Bool}) = (Int, Bool)
-returntype(::Type{Real}) = (Float64, Float64)
-returntype(::Type{Integer}) = (Int, Int)
-fmt(v::Bool) = string(Int(v))
-fmt(v) = string(v)
-
 code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:None}}) = "NONE"
 code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:FullScale}}) = "FSC"
 code(ins::AWG5014C, ::Type{Normalization}, ::Type{Val{:PreserveOffset}}) = "ZREF"
@@ -294,7 +289,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-generate_all(AWG5014C)
+generate_all(AWG5014C, metadata)
 
 "Configure the global analog output state of the AWG."
 function configure(ins::AWG5014C, ::Type{Output}, on::Bool)

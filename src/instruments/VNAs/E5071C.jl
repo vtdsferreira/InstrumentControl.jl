@@ -1,6 +1,8 @@
 ### Keysight / Agilent E5071C
 module E5071CModule
 
+import Base: getindex, setindex!
+
 ## Import packages
 import VISA
 import FileIO
@@ -15,7 +17,6 @@ import FixedSizeArrays
 import FixedSizeArrays.Mat
 
 metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
-include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
 
 export E5071C
 
@@ -109,7 +110,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-generate_all(E5071C)
+generate_all(E5071C, metadata)
 
 # """
 # [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
