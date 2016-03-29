@@ -71,9 +71,13 @@ function insjson(file::AbstractString)
     !haskey(j, :instrument) && error("Missing instrument information.")
     !haskey(j, :properties) && error("Missing property information.")
 
-    # Tidy up (and validate?) the properties dictionary
+    # Tidy up (and validate?) the instrument dictionary
     j[:instrument] = convert(Dict{Symbol, Any}, j[:instrument])
-    for x in [:module, :type]
+
+    # Define a supertype if one is not specified
+    !haskey(j[:instrument], :super) && (j[:instrument][:super] = :InstrumentVISA)
+
+    for x in [:module, :type, :super]
         j[:instrument][x] = symbol(j[:instrument][x])
     end
 
@@ -83,7 +87,6 @@ function insjson(file::AbstractString)
         j[:properties][i] = convert(Dict{Symbol,Any}, j[:properties][i])
         p = j[:properties][i]
         p[:type] = parse(p[:type])
-
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
 
         !haskey(p, :infixes) && (p[:infixes] = [])
@@ -172,12 +175,9 @@ function generate_instruments(metadata)
     # Now the module is defined. We evaluate the symbol and get the Module object
     md = eval(PainterQB, mdname)
 
-    # Some type logic
-    typsym = idata[:type]
-    !haskey(idata, :super) ? idata[:super] = :InstrumentVISA
-    sup = eval(md, idata[:super])
-
     # boring assignment for convenience
+    typsym = idata[:type]
+    sup = idata[:super]
     term = idata[:writeterminator]
     model = idata[:model]
     make = idata[:make]
