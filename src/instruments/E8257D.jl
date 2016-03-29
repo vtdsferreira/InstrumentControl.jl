@@ -1,16 +1,16 @@
-### Keysight / Agilent E8257D
 module E8257D
-
 import Base: getindex, setindex!
-
-## Import packages
 import VISA
-
-## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E8257D.json"))
 
-export InsE8257D
+returntype(::Type{Bool}) = (Int, Bool)
+returntype(::Type{Real}) = (Float64, Float64)
+returntype(::Type{Integer}) = (Int, Int)
+fmt(v::Bool) = string(Int(v))
+fmt(v) = string(v)
+
+metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E8257D.json"))
+generate_all(metadata)
 
 export OutputSettled
 export SetFrequencyReference
@@ -19,35 +19,11 @@ export SetPhaseReference
 export boards, cumulativeattenuatorswitches, cumulativepowerons, cumulativeontime
 export options, revision
 
-"Concrete type representing an E8257D."
-type InsE8257D <: InstrumentVISA
-    vi::(VISA.ViSession)
-    writeTerminator::ASCIIString
-    model::AbstractString
-    InsE8257D(x) = begin
-        ins = new()
-        ins.vi = x
-        ins.writeTerminator = "\n"
-        ins.model = "E8257D"
-        VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
-        ins
-    end
-
-    InsE8257D() = new()
-end
-
 "Has the output settled?"
 abstract OutputSettled           <: InstrumentProperty
 abstract SetFrequencyReference   <: InstrumentProperty
 abstract SetPhaseReference       <: InstrumentProperty
 
-returntype(::Type{Bool}) = (Int, Bool)
-returntype(::Type{Real}) = (Float64, Float64)
-returntype(::Type{Integer}) = (Int, Int)
-fmt(v::Bool) = string(Int(v))
-fmt(v) = string(v)
-
-generate_all(InsE8257D, metadata)
 
 boards(ins::InsE8257D) = ask(ins,"DIAGnostic:INFOrmation:BOARds?")
 

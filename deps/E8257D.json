@@ -1,4 +1,11 @@
 {
+    "instrument":{
+            "module":"E8257D",
+            "type":"InsE8257D",
+            "make":"Keysight",
+            "model":"E8257D",
+            "writeterminator":"\n"
+    },
     "properties":[
         {
             "cmd":"SOUR:ROSC:SOUR?",

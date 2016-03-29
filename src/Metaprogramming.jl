@@ -1,8 +1,8 @@
 import JSON
 
 export insjson
-export generate_all
-export generate_types, generate_handlers, generate_configure, generate_inspect
+export generate_all, generate_instruments
+export generate_properties, generate_handlers, generate_configure, generate_inspect
 export argsym, argtype, insjson, stripin
 
 """
@@ -27,6 +27,13 @@ Here is an example of a valid JSON file with valid schema for parsing:
 
 ```json
 {
+    "instrument":{
+            "module":"E5071C",
+            "type":"InsE5071C",
+            "make":"Keysight",
+            "model":"E5071C",
+            "writeterminator":"\n"
+    },
     "properties":[
         {
             "cmd":":CALCch:TRACtr:CORR:EDEL:TIME",
@@ -61,7 +68,14 @@ function insjson(file::AbstractString)
     # Prefer symbols as keys instead of strings
     j = convert(Dict{Symbol,Any}, j)
 
-    !haskey(j, :properties) && error("Unexpected format in JSON file.")
+    !haskey(j, :instrument) && error("Missing instrument information.")
+    !haskey(j, :properties) && error("Missing property information.")
+
+    # Tidy up (and validate?) the properties dictionary
+    j[:instrument] = convert(Dict{Symbol, Any}, j[:instrument])
+    for x in [:module, :type]
+        j[:instrument][x] = symbol(j[:instrument][x])
+    end
 
     # Tidy up (and validate?) the properties dictionary
     for i in eachindex(j[:properties])
@@ -85,89 +99,34 @@ function insjson(file::AbstractString)
     j
 end
 
-
 """
-`argtype(expr)`
+`generate_all(metadata)`
 
-Given function arguments, will return types:
+This function takes a dictionary of instrument metadata, typically obtained
+from a call to `JSON.parse`. It will go through the following steps, which
+invoke calls to `generate_instruments`, `generate_properties`, `generate_handlers`,
+`generate_inspect`, and `generate_configure`.
 
-- `:(x::Integer)` → `Integer`
-- `:(x::Integer=3)` → `Integer`
-- `:(x)` → `Any`
-- `:(x=3)` → `Any`
+1. If the module for this instrument does not already exist, generate it and
+import required modules and symbols.
+2. Define the `Instrument` subtype and the `make` and `model` methods. Export
+the subtype.
+3. Generate instrument properties.
+4. Generate "handler" methods to convert between symbols and SCPI string args.
+5. Generate `getindex` methods for instrument properties.
+6. Generate `setindex!` methods for instrument properties.
 
-Some package-specific cases:
-
-- `:(x in symbols)` → `Any`
-- `:(x::Symbol in symbols)` → `Symbol`
+This should be called near the start of an instrument's .jl file if one exists.
+It is not required to have a source file for each instrument if the automatically
+generated code is sufficient.
 """
-function argtype(expr)
-    if isa(expr, Symbol)
-        return Any
-    elseif expr.head == :(::)
-        if length(expr.args) == 1
-            return eval(expr.args[1])
-        else
-            return eval(expr.args[2])
-        end
-    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
-        return argtype(expr.args[1])
-    else
-        error("Cannot handle this argument.")
-    end
-end
+function generate_all(metadata)
+    generate_instruments(metadata)
+    md = eval(PainterQB, metadata[:instrument][:module])
+    ins = eval(md, metadata[:instrument][:type])
 
-"""
-`argsym(expr)`
-
-Given function arguments, will return symbols:
-
-- `:(x::Integer)` → `:x`
-- `:(x::Integer=3)` → `:x`
-- `:(x)` → `:x`
-- `:(x=3)` → `:x`
-
-Some package-specific syntax:
-
-- `:(x in symbols)` → `:x`
-- `:(x::Symbol in symbols)` → `:x`
-"""
-function argsym(expr)
-    if isa(expr, Symbol)
-        return expr
-    elseif expr.head == :(::)
-        if length(expr.args) == 1
-            return :_
-        else
-            return expr.args[1]
-        end
-    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
-        return argsym(expr.args[1])
-    else
-        error("Cannot handle this argument.")
-    end
-end
-
-"""
-`stripin(expr)`
-
-Return the same expression in most cases, except:
-
-- `:(x::Symbol in symbols)` → `:(x::Symbol)`
-- `:(x in symbols)` → `:x`
-"""
-function stripin(expr)
-    isa(expr, Symbol) && return expr
-    if expr.head == :(in)
-        return expr.args[1]
-    else
-        return expr
-    end
-end
-
-function generate_all{S<:Instrument}(ins::Type{S}, metadata)
     for p in metadata[:properties]
-        generate_types(ins, p)
+        generate_properties(ins, p)
         generate_handlers(ins, p)
         generate_inspect(ins, p)
         if p[:cmd][end] != '?'
@@ -177,7 +136,68 @@ function generate_all{S<:Instrument}(ins::Type{S}, metadata)
 end
 
 """
-`generate_types{S<:Instrument}(instype::Type{S}, p)`
+`generate_instruments(metadata)`
+
+This function takes a dictionary of metadata, typically obtained from
+a call to `JSON.parse`. It operates on the `:instrument` field of the dictionary
+which is expected to have the following structure:
+
+- `module`: The module name. Can already exist but is created if it does not.
+- `type`: The name of the type to create for the new instrument.
+- `make`: The make of the instrument, e.g. Keysight, Tektronix, etc.
+- `model`: The model of the instrument, e.g. E5071C, E8257D, etc.
+- `writeterminator`: Write termination string for sending SCPI commands.
+
+By convention we typically have the module name be the same as the model name,
+and the type is just the model prefixed by "Ins", e.g. `InsE5071C`. This is not
+required.
+"""
+function generate_instruments(metadata)
+    idata = metadata[:instrument]
+    mdname = idata[:module]
+    # The module may not be defined if there is no source .jl file.
+    if !isdefined(PainterQB, mdname)
+        # We must define the module and import necessary definitions
+        eval(PainterQB, quote
+            module $mdname
+            import Base: getindex, setindex!
+            import VISA
+            importall PainterQB
+            end
+        end)
+    end
+
+    # Now the module is defined. We evaluate the symbol and get the Module object
+    md = eval(PainterQB, mdname)
+    typsym = idata[:type]
+    term = idata[:writeterminator]
+    model = idata[:model]
+    make = idata[:make]
+
+    # Here we define the InstrumentVISA subtype.
+    eval(md, quote
+        export $typsym
+        type $typsym <: InstrumentVISA
+            vi::(VISA.ViSession)
+            writeTerminator::ASCIIString
+            ($typsym)(x) = begin
+                ins = new()
+                ins.vi = x
+                ins.writeTerminator = $term
+                VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
+                ins
+            end
+
+            ($typsym)() = new()
+        end
+        make(x::$typsym) = $make
+        model(x::$typsym) = $model
+    end)
+
+end
+
+"""
+`generate_properties{S<:Instrument}(instype::Type{S}, p)`
 
 This function takes an `Instrument` subtype `instype`, and a property dictionary
 `p`. The property dictionary is built out of an auxiliary JSON file described above.
@@ -190,7 +210,7 @@ then the `Format` subtype is defined in the `PainterQB.VNA` module. The defined
 subtype is then imported into the module where the `instype` is defined.
 
 """
-function generate_types{S<:Instrument}(instype::Type{S}, p)
+function generate_properties{S<:Instrument}(instype::Type{S}, p)
     md = instype.name.module
     if isa(p[:type], Symbol)
         # No module path; assume we define it in the base module
@@ -443,6 +463,87 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
 
     method  # = Expr(:call, :setindex!, :(::$S),
     #    map(typesig, p[:values])..., :(::Type{$T}), map(typesig, p[:infixes])...)
+end
+
+#### Helper functions ####
+
+"""
+`argtype(expr)`
+
+Given function arguments, will return types:
+
+- `:(x::Integer)` → `Integer`
+- `:(x::Integer=3)` → `Integer`
+- `:(x)` → `Any`
+- `:(x=3)` → `Any`
+
+Some package-specific cases:
+
+- `:(x in symbols)` → `Any`
+- `:(x::Symbol in symbols)` → `Symbol`
+"""
+function argtype(expr)
+    if isa(expr, Symbol)
+        return Any
+    elseif expr.head == :(::)
+        if length(expr.args) == 1
+            return eval(expr.args[1])
+        else
+            return eval(expr.args[2])
+        end
+    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
+        return argtype(expr.args[1])
+    else
+        error("Cannot handle this argument.")
+    end
+end
+
+"""
+`argsym(expr)`
+
+Given function arguments, will return symbols:
+
+- `:(x::Integer)` → `:x`
+- `:(x::Integer=3)` → `:x`
+- `:(x)` → `:x`
+- `:(x=3)` → `:x`
+
+Some package-specific syntax:
+
+- `:(x in symbols)` → `:x`
+- `:(x::Symbol in symbols)` → `:x`
+"""
+function argsym(expr)
+    if isa(expr, Symbol)
+        return expr
+    elseif expr.head == :(::)
+        if length(expr.args) == 1
+            return :_
+        else
+            return expr.args[1]
+        end
+    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
+        return argsym(expr.args[1])
+    else
+        error("Cannot handle this argument.")
+    end
+end
+
+"""
+`stripin(expr)`
+
+Return the same expression in most cases, except:
+
+- `:(x::Symbol in symbols)` → `:(x::Symbol)`
+- `:(x in symbols)` → `:x`
+"""
+function stripin(expr)
+    isa(expr, Symbol) && return expr
+    if expr.head == :(in)
+        return expr.args[1]
+    else
+        return expr
+    end
 end
 
 # If you want to generate method signatures explicitly in the docs...

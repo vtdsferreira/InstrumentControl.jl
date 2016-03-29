@@ -1,4 +1,11 @@
 {
+    "instrument":{
+            "module":"E5071C",
+            "type":"InsE5071C",
+            "make":"Keysight",
+            "model":"E5071C",
+            "writeterminator":"\n"
+    },
     "properties":[
         {
             "cmd":":SENSch:SWE:TIME",

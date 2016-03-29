@@ -50,10 +50,11 @@ module `eval` is run in.
 ### Metaprogramming
 
 The following methods are internal and do not need to be used explicitly.
-They are described here for completeness.
+They are described here for completeness, in the order of execution.
 
     {docs}
     insjson
+    generate_all
     generate_types
     generate_handlers
     generate_configure

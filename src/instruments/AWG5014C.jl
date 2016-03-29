@@ -1,18 +1,18 @@
-### Tektronix AWG5014C
 module AWG5014C
-
 import Base: getindex, setindex!
-
-## Import packages
 import VISA
-
-## Import our modules
 importall PainterQB                 # All the stuff in InstrumentDefs, etc.
+
+returntype(::Type{Bool}) = (Int, Bool)
+returntype(::Type{Real}) = (Float64, Float64)
+returntype(::Type{Integer}) = (Int, Int)
+fmt(v::Bool) = string(Int(v))
+fmt(v) = string(v)
+
 metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/AWG5014C.json"))
+generate_all(metadata)
 
 ## Exports
-export InsAWG5014C
-
 export allWaveforms
 
 export AWG5014CData
@@ -67,25 +67,6 @@ This represents the maximum value (register size?).
 """
 const maximumValue      = 0x3fff
 
-"Concrete type representing an AWG5014C."
-type InsAWG5014C <: InstrumentVISA
-    vi::(VISA.ViSession)
-    writeTerminator::ASCIIString
-    model::AbstractString
-    # wavelistArray::Array{ASCIIString,1}
-
-    InsAWG5014C(x) = begin
-        ins = new()
-        ins.vi = x
-        ins.writeTerminator = "\n"
-        ins.model = "AWG5014C"
-        VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
-        ins
-    end
-
-    InsAWG5014C() = new()
-end
-
 "Type for storing waveform data (including markers) in Float32 format."
 type AWG5014CData
     data::Array{Float32,1}
@@ -137,15 +118,6 @@ abstract WaitingForTrigger        <: InstrumentProperty
 
 "Name of a waveform loaded into a given channel."
 abstract Waveform                 <: InstrumentProperty
-
-
-returntype(::Type{Bool}) = (Int, Bool)
-returntype(::Type{Real}) = (Float64, Float64)
-returntype(::Type{Integer}) = (Int, Int)
-fmt(v::Bool) = string(Int(v))
-fmt(v) = string(v)
-
-generate_all(InsAWG5014C, metadata)
 
 "Configure the global analog output state of the AWG."
 function configure(ins::InsAWG5014C, ::Type{Output}, on::Bool)

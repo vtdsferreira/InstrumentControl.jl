@@ -8,6 +8,7 @@ export InstrumentException
 
 # Miscellaneous stuff
 export VNA
+export make, model
 export stimdata
 
 """
@@ -16,17 +17,18 @@ Abstract supertype representing an instrument.
 abstract Instrument
 
 "How to display an instrument, e.g. in an error."
-show(io::IO, x::Instrument) = print(io, x.model)
+show(io::IO, x::Instrument) = print(io, make(x), " ", model(x))
+
+"Returns the instrument's manufacturer."
+function make end
+
+"Returns the instrument's model."
+function model end
 
 """
-Abstract parametric supertype representing communications with an instrument.
-
-Each *abstract* subtype one level down should represent a logical state of the
-instrument configuration, e.g. `TriggerSource` may be have concrete
-subtypes `ExternalTrigger` or `InternalTrigger`.
-
-To retrieve what one has to send the AWG from the type signature, we have
-defined a function `code`.
+Abstract type representing communications with an instrument.
+Subtypes of `InstrumentProperty` can be configured or inspect using
+`setindex!` or `getindex`.
 """
 abstract InstrumentProperty
 

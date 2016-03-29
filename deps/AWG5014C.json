@@ -1,4 +1,11 @@
 {
+    "instrument":{
+            "module":"AWG5014C",
+            "type":"InsAWG5014C",
+            "make":"Tektronix",
+            "model":"AWG5014C",
+            "writeterminator":"\n"
+    },
     "properties":[
         {
             "cmd":"AWGC:CLOC:SLOP",

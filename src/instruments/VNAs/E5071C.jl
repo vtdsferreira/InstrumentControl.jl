@@ -1,24 +1,23 @@
-### Keysight / Agilent E5071C
 module E5071C
-
 import Base: getindex, setindex!
-
-## Import packages
 import VISA
+importall PainterQB
+
+returntype(::Type{Bool}) = (Int, Bool)
+returntype(::Type{Real}) = (Float64, Float64)
+returntype(::Type{Integer}) = (Int, Int)
+fmt(v::Bool) = string(Int(v))
+fmt(v) = string(v)
+
+metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
+generate_all(metadata)
+
 import FileIO
-
-## Import our modules
-importall PainterQB                 # All the stuff in InstrumentDefs, etc.
 import PainterQB: getdata
-
 importall PainterQB.VNA
 import PainterQB.VNA: datacmd, peaknotfound, window
 import FixedSizeArrays
 import FixedSizeArrays.Mat
-
-metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
-
-export InsE5071C
 
 export GraphLayout
 export SearchTracking
@@ -35,37 +34,12 @@ export mktrace, trig1
 # We will maintain an internal description of what names correspond to what
 # trace numbers.
 
-type InsE5071C <: InstrumentVNA
-    vi::(VISA.ViSession)
-    writeTerminator::ASCIIString
-    model::AbstractString
-    tracenames::Dict{AbstractString,Int}
-
-    InsE5071C(x) = begin
-        ins = new()
-        ins.vi = x
-        ins.writeTerminator = "\n"
-        ins.model = "E5071C"
-        VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
-        ins
-    end
-
-    InsE5071C() = new()
-end
-
 abstract GraphLayout          <: InstrumentProperty
 abstract SearchTracking       <: InstrumentProperty
 abstract WindowLayout         <: InstrumentProperty
 abstract SetActiveMarker      <: InstrumentProperty
 abstract SetActiveChannel     <: InstrumentProperty
 
-returntype(::Type{Bool}) = (Int, Bool)
-returntype(::Type{Real}) = (Float64, Float64)
-returntype(::Type{Integer}) = (Int, Int)
-fmt(v::Bool) = string(Int(v))
-fmt(v) = string(v)
-
-generate_all(InsE5071C, metadata)
 
 # """
 # [SENSe#:FREQuency:STARt][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_start.htm]
