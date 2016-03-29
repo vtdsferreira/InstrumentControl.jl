@@ -30,6 +30,7 @@ pages:
     - 'Design': design.md
     - 'Implementation': implementation.md
 - Instruments:
+    - 'Alazar digitizers': Alazar.md
     - 'AWG5014C': awg5014c/index.md
     - 'E5071C': e5071c/index.md
 - Miscellaneous:
