@@ -113,7 +113,7 @@
             ],
             "doc":"Hey"
         }, {
-            "cmd":":SENS#:AVER:COUN",
+            "cmd":":SENSch:AVER:COUN",
             "type":"AveragingFactor",
             "values":[
                 "v::Integer"
