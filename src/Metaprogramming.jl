@@ -32,7 +32,7 @@ Here is an example of a valid JSON file with valid schema for parsing:
             "type":"InsE5071C",
             "make":"Keysight",
             "model":"E5071C",
-            "writeterminator":"\n"
+            "writeterminator":"\\n"
     },
     "properties":[
         {
@@ -51,6 +51,11 @@ Here is an example of a valid JSON file with valid schema for parsing:
 }
 ```
 
+After loading with `JSON.parse`, all dictionary keys are converted to symbols.
+The `instrument` dictionary is described in the [`generate_instruments`]({ref})
+documentation. The `properties` array contains one or more dictionaries, each
+with keys:
+
 - `cmd`: Specifies what must be sent to the instrument (it should be
 terminated with "?" for query-only). The lower-case characters are replaced
 by infix arguments.
@@ -59,8 +64,14 @@ parsed and evaluated.
 - `values`: Specifies the required arguments for `setindex!` which will
 appear after `cmd` in the string sent to the instrument.
 - `infixes`: Specifies the infix arguments in `cmd`. Symbol names must match
-infix arguments.
-- `doc`: Specifies documentation for the generated Julia functions.
+infix arguments. This key is not required if there are no infixes.
+- `doc`: Specifies documentation for the generated Julia functions. This key
+is not required if there is no documentation. This is used not only for
+interactive help but also in generating the documentation you are reading.
+
+The value of the `properties.type` field and entries in the `properties.values`
+and `properties.infixes` arrays are parsed by Julia into expressions or symbols
+for further manipulation.
 """
 function insjson(file::AbstractString)
     j = JSON.parsefile(file)
@@ -87,10 +98,14 @@ function insjson(file::AbstractString)
         j[:properties][i] = convert(Dict{Symbol,Any}, j[:properties][i])
         p = j[:properties][i]
         p[:type] = parse(p[:type])
+        if !isa(p[:values], AbstractArray)
+            # Handle the case where p[:values] is just a string
+            p[:values] = (p[:values] != "" ? [p[:values]] : [])
+        end
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
 
         !haskey(p, :infixes) && (p[:infixes] = [])
-        !haskey(p, :doc) && (p[:doc] = "Undocumented.")
+        !haskey(p, :doc) && (p[:doc] = "")
         p[:infixes] = convert(Array{Expr,1}, map(parse, p[:infixes]))
         for k in p[:infixes]
             # `parse` doesn't recognize we want the equal sign to indicate
@@ -106,22 +121,23 @@ end
 `generate_all(metadata)`
 
 This function takes a dictionary of instrument metadata, typically obtained
-from a call to `JSON.parse`. It will go through the following steps, which
-invoke calls to `generate_instruments`, `generate_properties`, `generate_handlers`,
-`generate_inspect`, and `generate_configure`.
+from a call to [`insjson`]({ref}). It will go through the following steps:
 
-1. If the module for this instrument does not already exist, generate it and
-import required modules and symbols.
-2. Define the `Instrument` subtype and the `make` and `model` methods. Export
-the subtype.
-3. Generate instrument properties.
-4. Generate "handler" methods to convert between symbols and SCPI string args.
-5. Generate `getindex` methods for instrument properties.
-6. Generate `setindex!` methods for instrument properties.
+1. [`generate_instruments`]({ref}) part 1: If the module for this instrument does not
+already exist, generate it and import required modules and symbols.
+2. [`generate_instruments`]({ref}) part 2: Define the `Instrument` subtype and the `make`
+and `model` methods (`make` and `model` are defined in `src/Definitions.jl`).
+Export the subtype.
+3. [`generate_properties`]({ref}): Generate instrument properties if they do
+not exist already, and do any necessary importing and exporting.
+4. [`generate_handlers`]({ref}): Generate "handler" methods to convert between
+symbols and SCPI string args.
+5. [`generate_inspect`]({ref}): Generate `getindex` methods for instrument properties.
+6. [`generate_configure`]({ref}): Generate `setindex!` methods for instrument properties.
 
-This should be called near the start of an instrument's .jl file if one exists.
-It is not required to have a source file for each instrument if the automatically
-generated code is sufficient.
+`generate_all` should be called near the start of an instrument's .jl file,
+if one exists. It is not required to have a source file for each instrument if
+the automatically generated code is sufficient.
 """
 function generate_all(metadata)
     generate_instruments(metadata)
@@ -142,15 +158,18 @@ end
 `generate_instruments(metadata)`
 
 This function takes a dictionary of metadata, typically obtained from
-a call to `JSON.parse`. It operates on the `:instrument` field of the dictionary
+a call to [`insjson`]({ref}). It operates on the `:instrument` field of the dictionary
 which is expected to have the following structure:
 
 - `module`: The module name. Can already exist but is created if it does not.
+This field is converted from a string to a `Symbol` by [`insjson`]({ref}).
 - `type`: The name of the type to create for the new instrument.
+This field is converted from a string to a `Symbol` by [`insjson`]({ref}).
 - `super`: This field is optional. If provided it will be the supertype of
 the new instrument type, otherwise the supertype will be `InstrumentVISA`.
+This field is converted from a string to a `Symbol` by [`insjson`]({ref}).
 - `make`: The make of the instrument, e.g. Keysight, Tektronix, etc.
-- `model`: The model of the instrument, e.g. E5071C, E8257D, etc.
+- `model`: The model of the instrument, e.g. E5071C, AWG5014C, etc.
 - `writeterminator`: Write termination string for sending SCPI commands.
 
 By convention we typically have the module name be the same as the model name,
@@ -217,6 +236,10 @@ generic name is desired that makes sense for a class of instruments (e.g. `VNA.F
 then the `Format` subtype is defined in the `PainterQB.VNA` module. The defined
 subtype is then imported into the module where the `instype` is defined.
 
+If you an encounter an error where it appears like the subtypes were not
+defined, it may be that they are being referenced from a module that did an
+`import` statement too soon, before all relevant `InstrumentProperty` subtypes
+were defined and exported. Ordinarily this is not a problem.
 """
 function generate_properties{S<:Instrument}(instype::Type{S}, p)
     md = instype.name.module
@@ -257,9 +280,9 @@ This function takes an `Instrument` subtype `instype`, and a property dictionary
 `p`. The property dictionary is built out of an auxiliary JSON file described above.
 
 In some cases, an instrument command does not except numerical arguments but
-rather a small set of options. Here is an example of the JSON template for such
-a command, which sets/gets the format for a given channel and trace on the E5071C
-vector network analyzer:
+rather a small set of options. Here is an example of the property dictionary
+(prior to parsing) for such a command, which sets/gets the format for a given
+channel and trace on the E5071C vector network analyzer:
 
 ```json
 {
@@ -313,8 +336,9 @@ VNA.Format(ins::E5071C, ::Type{Val{symbol("MLOG")}}) = :LogMagnitude # ... etc. 
 ```
 
 The above methods will be defined in the E5071C module. Note that the function `symbols`
-has its name chosen based on the dictionary name in the JSON file. This was done
-for future flexibliity.
+has its name chosen based on the dictionary name in the JSON file. Since this function
+is not exported from the instrument's module there should be few namespace worries
+and we maintain future flexibliity.
 """
 function generate_handlers{S<:Instrument}(instype::Type{S}, p)
 

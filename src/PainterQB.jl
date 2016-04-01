@@ -19,6 +19,7 @@ include("instruments/VNAs/E5071C.jl")
 
 include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
+include("instruments/GS200.jl")
 # include("instruments/Alazar/Alazar.jl")
 
 # Not required but you can uncomment this to look for conflicting function
@@ -28,6 +29,7 @@ include("instruments/AWG5014C.jl")
 importall .AWG5014C
 importall .E5071C
 importall .E8257D
+importall .GS200
 # importall .ZNB20Module
 
 # Utility functions
@@ -44,6 +46,7 @@ using PainterQB.AWG5014C
 using PainterQB.VNA
 using PainterQB.E5071C
 using PainterQB.E8257D
+using PainterQB.GS200
 # using PainterQB.ZNB20Module
 
 const PARALLEL_PATH = joinpath(Pkg.dir("PainterQB"), "src", "ParallelUtils.jl")
