@@ -1,0 +1,287 @@
+{
+    "instrument": {
+        "make": "Yokogawa",
+        "model": "GS200",
+        "module": "GS200",
+        "type": "InsGS200",
+        "writeterminator": "\n"
+    },
+    "properties": [
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":OUTP",
+            "type": "Output"
+        },
+        {
+            "symbols": {
+                "Current": "CURR",
+                "Voltage": "VOLT"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":SOUR:FUNC",
+            "type": "SourceFunction"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SOUR:RANG",
+            "type": "SourceRange"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SOUR:LEV",
+            "type": "SourceLevel"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SOUR:LEV:AUTO",
+            "type": "SourceLevelAuto"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SOUR:PROT:VOLT",
+            "type": "SourceProtectionVoltage"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SOUR:PROT:CURR",
+            "type": "SourceProtectionCurrent"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":PROG:REP",
+            "type": "ProgramRepeat"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":PROG:INT",
+            "type": "ProgramInterval"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":PROG:SLOP",
+            "type": "ProgramSlope"
+        },
+        {
+            "symbols": {
+                "Mend": "MEND",
+                "Normal": "NORM"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":PROG:TRIG",
+            "type": "ProgramTrigger"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":PROG:SAVE",
+            "type": "ProgramSave"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":PROG:LOAD",
+            "type": "ProgramLoad"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":PROG:DEL",
+            "type": "ProgramDelete"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":PROG:MEM",
+            "type": "ProgramMemory"
+        },
+        {
+            "symbols": {},
+            "values": "v::Integer",
+            "cmd": ":PROG:COUN",
+            "type": "ProgramCount"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":SENS",
+            "type": "Sense"
+        },
+        {
+            "symbols": {},
+            "values": "v::Integer",
+            "cmd": ":SENS:NPLC",
+            "type": "SenseNplc"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SENS:DEL",
+            "type": "SenseDelay"
+        },
+        {
+            "symbols": {
+                "Communicate": "COMM",
+                "Timer": "TIM",
+                "Immediate": "IMM",
+                "Ready": "READ"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":SENS:TRIG",
+            "type": "SenseTrigger"
+        },
+        {
+            "symbols": {},
+            "values": "v::Real",
+            "cmd": ":SENS:INT",
+            "type": "SenseInterval"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":SENS:NULL",
+            "type": "SenseNull"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":SENS:GUAR",
+            "type": "SenseGuard"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":TRAC",
+            "type": "Trace"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":TRAC:FILE:CRE",
+            "type": "TraceFileCreate"
+        },
+        {
+            "symbols": {},
+            "values": "v::Integer",
+            "cmd": ":TRAC:POIN",
+            "type": "TracePoints"
+        },
+        {
+            "symbols": {
+                "Binary": "BIN",
+                "Ascii": "ASC"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":TRAC:DATA:FORM",
+            "type": "TraceDataFormat"
+        },
+        {
+            "symbols": {
+                "Little": "LITT",
+                "Big": "BIG"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":TRAC:DATA:END",
+            "type": "TraceDataEndian"
+        },
+        {
+            "symbols": {
+                "Ml": "ML",
+                "Mf": "MF",
+                "Sl": "SL",
+                "Tm": "TM",
+                "Sf": "SF"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":TRAC:DATA:READ?",
+            "type": "TraceDataRead"
+        },
+        {
+            "symbols": {
+                "Output": "OUTP",
+                "Trigger": "TRIG",
+                "Ready": "READ"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":ROUT:BNCO",
+            "type": "RouteBnco"
+        },
+        {
+            "symbols": {
+                "Output": "OUTP",
+                "Trigger": "TRIG"
+            },
+            "values": "v::Symbol in symbols",
+            "cmd": ":ROUT:BNCI",
+            "type": "RouteBnci"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:SET:SAVE",
+            "type": "SystemSetupSave"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:SET:LOAD",
+            "type": "SystemSetupLoad"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:SET:DEL",
+            "type": "SystemSetupDelete"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":SYST:DISP",
+            "type": "SystemDisplay"
+        },
+        {
+            "symbols": {},
+            "values": "v::Integer",
+            "cmd": ":SYST:DISP:BRIG",
+            "type": "SystemDisplayBright"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:DISP:TEXT",
+            "type": "SystemDisplayText"
+        },
+        {
+            "symbols": {},
+            "values": "v::Bool",
+            "cmd": ":SYST:BEEP",
+            "type": "SystemBeeper"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:CLOC:TZON",
+            "type": "SystemClockTzone"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:CLOC:DATE",
+            "type": "SystemClockDate"
+        },
+        {
+            "symbols": {},
+            "values": "s::ASCIIString",
+            "cmd": ":SYST:CLOC:TIME",
+            "type": "SystemClockTime"
+        }
+    ]
+}

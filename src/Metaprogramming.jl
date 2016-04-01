@@ -98,10 +98,14 @@ function insjson(file::AbstractString)
         j[:properties][i] = convert(Dict{Symbol,Any}, j[:properties][i])
         p = j[:properties][i]
         p[:type] = parse(p[:type])
+        if !isa(p[:values], AbstractArray)
+            # Handle the case where p[:values] is just a string
+            p[:values] = (p[:values] != "" ? [p[:values]] : [])
+        end
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
 
         !haskey(p, :infixes) && (p[:infixes] = [])
-        !haskey(p, :doc) && (p[:doc] = "Undocumented.")
+        !haskey(p, :doc) && (p[:doc] = "")
         p[:infixes] = convert(Array{Expr,1}, map(parse, p[:infixes]))
         for k in p[:infixes]
             # `parse` doesn't recognize we want the equal sign to indicate
