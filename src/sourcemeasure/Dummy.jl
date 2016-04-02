@@ -5,4 +5,4 @@ a physical instrument."
 immutable DummyStimulus <: Stimulus end
 
 "Returns a random number in the unit interval."
-source(ch::DummyStimulus) = nothing
+source(ch::DummyStimulus, x...) = nothing

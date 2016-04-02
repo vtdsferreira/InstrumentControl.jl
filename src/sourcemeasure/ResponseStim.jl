@@ -12,9 +12,9 @@ type ResponseStimulus{T} <: Stimulus
     val::T
 end
 
-ResponseStimulus(res::Response,name::Symbol) = begin
-    ourtype = fieldtype(typeof(res),name)
-    curval = getfield(res,name)
+ResponseStimulus(res::Response, name::Symbol) = begin
+    ourtype = fieldtype(typeof(res), name)
+    curval = getfield(res, name)
     PropertyStimulus{ourtype}(res,name,curval)
 end
 

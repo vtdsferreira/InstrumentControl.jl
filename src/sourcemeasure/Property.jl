@@ -17,5 +17,5 @@ end
 
 "Sourcing a PropertyStimulus configures an InstrumentProperty."
 function source(ch::PropertyStimulus, val::Real)
-    configure(ch.ins,ch.typ,val,ch.tuple...)
+    ch.ins[ch.typ, ch.tuple...] = val
 end
