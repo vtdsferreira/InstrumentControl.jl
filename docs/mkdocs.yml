@@ -29,10 +29,12 @@ pages:
 - Overview:
     - 'Design': design.md
     - 'Implementation': implementation.md
+    - 'To do': todo.md
 - Instruments:
     - 'Alazar digitizers': Alazar.md
     - 'AWG5014C': awg5014c/index.md
     - 'E5071C': e5071c/index.md
 - Miscellaneous:
+    - 'Documentation building': docbuild.md
     - 'Release notes': releases.md
     - 'License': LICENSE.md

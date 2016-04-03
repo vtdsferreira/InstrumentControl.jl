@@ -3,9 +3,6 @@ PainterQB.jl
 
 A [Julia](http://julialang.org) package for qubit measurement and analysis.
 
-Work in development, not ready for implementation. The documentation may assume some familiarity
-with Julia.
-
 Installation
 ------------
 
@@ -22,30 +19,11 @@ Quick start
 
 ```
 using PainterQB
-using PainterQB.AlazarModule
-using PainterQB.AWG5014CModule  # etc.
+using PainterQB.Alazar
+using PainterQB.AWG5014C  # etc.
 
-awg = AWG5014C(tcpip_socket("1.2.3.4",5000))
-ats = AlazarATS9360()
+awg = InsAWG5014C(tcpip_socket("1.2.3.4",5000))
+ats = InsAlazarATS9360()
 
 # do something with awg and ats
-```
-
-Building this documentation
----------------------------
-In a fresh instance of Julia:
-```
-include(joinpath(Pkg.dir("PainterQB"),"docs/make.jl"))
-```
-
-To process with mkdocs, run the following in the PainterQB/docs directory:
-```
-mkdocs build --clean
-```
-
-To serve locally or publish to GitHub, run either of the following in the
-PainterQB/docs directory:
-```
-mkdocs serve
-mkdocs gh-deploy --clean
 ```

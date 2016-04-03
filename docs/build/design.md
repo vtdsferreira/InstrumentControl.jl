@@ -12,18 +12,7 @@
 Anyone who has written code in MATLAB or something comparable (IGOR Pro, in the author's case) has undoubtedly seen spaghetti code. Often there are many copies of a measurement routine that differ only slightly, perhaps in the functionality of what happens inside some for loop, etc.
 
 
-We would like to have clear, reusable code to avoid redundancy and accidental errors, both of which consume precious time on the part of the experimenters. Consider an archetypal measurement scheme wherein we measure a device's response to various stimuli (perhaps we measure current as a function of applied bias). We should be able to write just one sweep function to do this:
-
-
-```julia
-function sweep(ch0::Stimulus, ch1::Response, x_itr, tstep)
-	map(x_itr) do x
-    	source(ch0, x)
-		sleep(tstep)
-		measure(ch1)
-	end
-end
-```
+We would like to have clear, reusable code to avoid redundancy and accidental errors, both of which consume precious time on the part of the experimenters. Consider an archetypal measurement scheme wherein we measure a device's response to various stimuli (perhaps we measure current as a function of applied bias). We should be able to write just one sweep function to do this.
 
 
 The idea of *multiple dispatch*, natively supported in Julia, permits writing such convenient and abstract code. This is just one example where the advantages of multiple dispatch are obvious. We hope it will more broadly simplify the extension of measurement code while ensuring continued reliability.
@@ -61,7 +50,7 @@ Stimuli could also be associated with several instruments. Maybe a stimulus that
 ### Responses
 
 
-All responses are objects, subtyped from the abstract parametric `Response{T}` type. We use a parametric type for responses so that the return type of the numerical data is clear. Usually a response is associated with a particular instrument.
+All responses are objects, subtyped from the abstract `Response` type. Usually a response is associated with a particular instrument.
 
 
 However, responses need not come from instruments. For test purposes, suppose we want to mimic a measurement by generating random numbers. `RandomResponse` produces a random number in the unit interval when it is measured. A `TimerResponse` will measure the time since creation of the `TimerResponse` object.

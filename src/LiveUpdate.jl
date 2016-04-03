@@ -60,13 +60,13 @@ end
 type EndOfPlot
 end
 
-function plotobj{T<:Real}(dep::Response{T},
+function plotobj(dep::Response,
     indep::NTuple{1,Tuple{Stimulus, AbstractArray}})
 
     ScatterPlot(plotlabel(indep[1]),plotlabel(dep))
 end
 
-function plotobj{T<:Real}(dep::Response{T},
+function plotobj(dep::Response,
     indep::NTuple{2,Tuple{Stimulus, AbstractArray}})
 
     HeatmapPlot(plotlabel(indep[1]),
@@ -105,7 +105,7 @@ function wsproducer()
 
         # Wait for a new measurement to start.
         # x will be a tuple of type
-        #   Tuple{Response{T}, NTuple{N,Tuple{Stimulus, AbstractArray}}}
+        #   Tuple{Response, NTuple{N,Tuple{Stimulus, AbstractArray}}}
         x = wait(LIVE_NEW_MEAS)
 
         # Based on the response and stimuli deduce a plot type.

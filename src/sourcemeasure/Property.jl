@@ -1,10 +1,12 @@
 export PropertyStimulus
 
 """
+`PropertyStimulus{T<:InstrumentProperty} <: Stimulus`
+
 Wraps any Number-valued `InstrumentProperty` into a `Stimulus`. Essentially,
-sourcing a PropertyStimulus does nothing more than calling `configure` with
+sourcing a PropertyStimulus does nothing more than calling `setindex!` with
 the associated property and value. Additional parameters to be passed to
-`configure` may be specified at the time the `PropertyStimulus` is constructed.
+`setindex!` may be specified at the time the `PropertyStimulus` is constructed.
 """
 type PropertyStimulus{T<:InstrumentProperty} <: Stimulus
     ins::Instrument

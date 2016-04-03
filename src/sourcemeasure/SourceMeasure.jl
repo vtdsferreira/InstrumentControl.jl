@@ -5,7 +5,7 @@ export source, measure, scaling
 global scaling
 
 abstract Stimulus
-abstract Response{T}
+abstract Response
 
 include("Averaging.jl")
 include("Dummy.jl")

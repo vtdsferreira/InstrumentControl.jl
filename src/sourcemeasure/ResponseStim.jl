@@ -15,11 +15,11 @@ end
 ResponseStimulus(res::Response, name::Symbol) = begin
     ourtype = fieldtype(typeof(res), name)
     curval = getfield(res, name)
-    PropertyStimulus{ourtype}(res,name,curval)
+    ResponseStimulus{ourtype}(res,name,curval)
 end
 
 "Sets the field named `:name` in the `Response` held by `ch` to `val`."
-function source{T}(ch::ResponseStimulus{T}, val)
+function source(ch::ResponseStimulus, val)
     ch.val = val
     setfield!(ch.res, ch.name, val)
 end

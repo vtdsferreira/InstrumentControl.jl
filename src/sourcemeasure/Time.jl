@@ -1,5 +1,5 @@
 import Base.reset
-export DelayStimulus, TimerResponse, TimeAResponse
+export DelayStimulus, TimerResponse
 
 """
 `type DelayStimulus <: Stimulus`
@@ -7,7 +7,7 @@ export DelayStimulus, TimerResponse, TimeAResponse
 Delays until time `t0` (seconds) has passed since a reference time.
 """
 type DelayStimulus <: Stimulus
-	t0::AbstractFloat
+	t0::Float64
 end
 DelayStimulus() = DelayStimulus(time())
 
@@ -18,31 +18,43 @@ Reset the `DelayStimulus` reference time to now.
 """
 reset(d::DelayStimulus) = (d.t0 = time())
 
-"Wait until `val` seconds have elapsed since `ch` was initialized or reset."
-function source(ch::DelayStimulus, val::Real)
+"""
+source(ch::DelayStimulus, val::Real)
+
+Wait until `val` seconds have elapsed since `ch` was initialized or reset.
+Optionally resets the `DelayStimulus` after the time has elapsed (default true).
+"""
+function source(ch::DelayStimulus, val::Real, reset::Bool=true)
 	if val < eps()
 		ch.t0 = time()
 	else
 		while val + ch.t0 > time()
 			sleep(0.01)
 		end
+        reset(ch)
 	end
 end
 
-"A response for measuring how much time has passed since a reference time t0."
-type TimerResponse{T<:AbstractFloat} <: Response{T}
-	t0::T
+"""
+`type TimerResponse <: Response`
+
+For measuring how much time has passed since a reference time `t0` (seconds).
+"""
+type TimerResponse <: Response
+	t0::Float64
 end
 TimerResponse() = TimerResponse(time())
 
 """
 `reset(d::TimerResponse)`
 
-Reset the `TimerResponse` reference time to now.
+Reset the reference time to now.
 """
 reset(d::TimerResponse) = (d.t0 = time())
 
 """
-Returns ho
+`measure(ch::TimerResponse)`
+
+Returns how much time has elapsed since the timer's reference time.
 """
-measure{T}(ch::TimerResponse{T}) = T(time()) - ch.t0
+measure(ch::TimerResponse) = time() - ch.t0
