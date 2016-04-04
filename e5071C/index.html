@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>E5071C - PainterQB.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="PainterQB.jl">
+    <meta property="og:image" content="None/../">
+    <meta name="apple-mobile-web-app-title" content="PainterQB.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../None">
+    <link rel="icon" type="image/x-icon" href="../None">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Instruments <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        E5071C
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/ajkeller34/PainterQB.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          PainterQB.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          ajkeller34/PainterQB.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/ajkeller34/PainterQB.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/ajkeller34/PainterQB.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Overview</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Design" href="../design/">
+      Design
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Implementation" href="../implementation/">
+      Implementation
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="To do" href="../todo/">
+      To do
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Instruments</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Alazar digitizers" href="../Alazar/">
+      Alazar digitizers
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="AWG5014C" href="../awg5014c/">
+      AWG5014C
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="E5071C" href="./">
+      E5071C
+    </a>
+    
+      
+      
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Miscellaneous</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Documentation building" href="../docbuild/">
+      Documentation building
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Release notes" href="../releases/">
+      Release notes
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="License" href="../LICENSE/">
+      License
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+            <h1>E5071C</h1>
+          
+          <p><a id='Base.getindex' href='#Base.getindex'>#</a>
+<strong><code>Base.getindex</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p>[:CALCulate#:TRACe#:MARKer#:FUNCtion:TRACking][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_function_tracking.htm]</p>
+<p>Set whether or not the marker search for marker <code>m</code> is repeated with trace updates.</p>
+<p>[CALCulate#:TRACe#:MARKer#:Y?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_y.htm]</p>
+<p>[CALCulate#:TRACe#:MARKer#:X][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]</p>
+<p>[CALCulate#:TRACe#:MARKer#:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_state.htm]</p>
+<p>Query whether marker <code>m</code> is displayed for channel <code>ch</code> and trace <code>tr</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerOutput</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:OUTP?</code></li>
+</ul>
+<p>[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]</p>
+<p>Turn on or off the external trigger output.</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerSource</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:SOUR?</code></li>
+</ul>
+<p>[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]</p>
+<p>Configure the trigger source: <code>InternalTrigger</code>, <code>ExternalTrigger</code>, <code>BusTrigger</code>, <code>ManualTrigger</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerSlope</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:SLOP?</code></li>
+</ul>
+<p>[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]</p>
+<p>Set slope of external trigger input port: <code>RisingTrigger</code>, <code>FallingTrigger</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TransferFormat</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:FORM:DATA?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TransferByteOrder</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:FORM:BORD?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YReferencePosition</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:Y:RPOS?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YReferenceLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:Y:RLEV?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YScalePerDivision</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:Y:PDIV?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YDivisions</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:Y:DIV?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">WaveguideCutoff</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:EDEL:WGC?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TraceMaximized</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:MAX?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">SmoothingAperture</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:SMO:APER?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">Smoothing</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:SMO?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TraceDisplay</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:STAT?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerSweepFrequency</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerSlopeLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:SLOP?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerSlope</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:SLOP:STAT?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerPortLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">port</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:PORTport?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerCoupled</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:PORT:COUP?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PointTrigger</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:POIN?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PhaseOffset</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:OFFS:PHAS?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">Output</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:OUTP?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">NumPoints</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:SWE:POIN?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">NumTraces</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:PAR:COUN?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">IFBandwidth</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:BAND?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencySpan</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:SPAN?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencyCenter</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:CENT?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencyStop</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:STOP?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencyStart</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:STAR?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ExtTriggerLowLatency</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:EXT:LLAT?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ExtTriggerDelay</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:EXT:DEL?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ElectricalDelay</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:EDEL:TIME?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">AveragingTrigger</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:AVER?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">AveragingFactor</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:AVER:COUN?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">Averaging</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:AVER?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerOutputTiming</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:OUTP:POS?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerOutputPolarity</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:OUTP:POL?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">VNA</span><span class="o">.</span><span class="n">Parameter</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:PARtr:DEF?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:FORM?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ElectricalMedium</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:EDEL:MED?</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">getindex</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">SweepTime</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:SWE:TIME?</code></li>
+</ul>
+<p>This command sets/gets the sweep time of selected channel (ch). Before using this object to set the sweep time, turns OFF the auto setting of the sweep time (specify False with the SCPI.SENSe(Ch).SWEep.TIME.AUTO object). When Port IFBW is turned ON, this command returns the sweep time for Port 1.</p>
+<p><a id='Base.setindex!' href='#Base.setindex!'>#</a>
+<strong><code>Base.setindex!</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p>DISPlay:SPLit [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_split.htm]</p>
+<p><code>setindex!(ins::InstrumentVNA, ::Type{Windows}, a::AbstractArray{Int})</code></p>
+<p>Configure the layout of graph windows using a matrix to abstract the layout. For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.</p>
+<p>:CALC#:TRAC#:MARK#:X [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_x.htm]</p>
+<p>[:CALC#:TRAC#:MARK#:STATe][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/calculate/scpi_calculate_ch_selected_marker_mk_state.htm]</p>
+<p>Turn on or off display of marker <code>m</code> for channel <code>ch</code> and trace <code>tr</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerOutput</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:OUTP</code></li>
+</ul>
+<p>[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]</p>
+<p>Turn on or off the external trigger output.</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerSource</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:SOUR</code></li>
+</ul>
+<p>[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]</p>
+<p>Configure the trigger source: <code>InternalTrigger</code>, <code>ExternalTrigger</code>, <code>BusTrigger</code>, <code>ManualTrigger</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerSlope</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:SLOP</code></li>
+</ul>
+<p>[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]</p>
+<p>Set slope of external trigger input port: <code>RisingTrigger</code>, <code>FallingTrigger</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TransferFormat</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:FORM:DATA</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TransferByteOrder</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:FORM:BORD</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Integer</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YReferencePosition</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:Y:RPOS</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YReferenceLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:Y:RLEV</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YScalePerDivision</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:Y:PDIV</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Integer</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">YDivisions</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:Y:DIV</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">WaveguideCutoff</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:EDEL:WGC</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TraceMaximized</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:MAX</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">SmoothingAperture</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:SMO:APER</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">Smoothing</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:SMO</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TraceDisplay</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:DISP:WINDch:TRACtr:STAT</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerSweepFrequency</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerSlopeLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:SLOP</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerSlope</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:SLOP:STAT</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerPortLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">port</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:PORTport</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerLevel</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PowerCoupled</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SOURch:POW:PORT:COUP</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PointTrigger</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:POIN</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">PhaseOffset</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:OFFS:PHAS</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">Output</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:OUTP</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Integer</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">NumPoints</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:SWE:POIN</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Integer</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">NumTraces</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:PAR:COUN</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">IFBandwidth</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:BAND</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencySpan</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:SPAN</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencyCenter</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:CENT</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencyStop</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:STOP</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">FrequencyStart</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:FREQ:STAR</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ExtTriggerLowLatency</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:EXT:LLAT</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ExtTriggerDelay</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:EXT:DEL</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ElectricalDelay</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:EDEL:TIME</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">AveragingTrigger</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:AVER</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Integer</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">AveragingFactor</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:AVER:COUN</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">Averaging</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:AVER</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerOutputTiming</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:OUTP:POS</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">TriggerOutputPolarity</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:TRIG:OUTP:POL</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">VNA</span><span class="o">.</span><span class="n">Parameter</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:PARtr:DEF</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:FORM</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Symbol</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">ElectricalMedium</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tr</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:CALCch:TRACtr:CORR:EDEL:MED</code></li>
+</ul>
+<p>Hey</p>
+<div class="codehilite"><pre><span></span><span class="n">setindex!</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">E5071C</span><span class="o">.</span><span class="n">InsE5071C</span><span class="p">,</span><span class="n">v</span><span class="p">::</span><span class="n">Real</span><span class="p">,::</span><span class="n">Type</span><span class="p">{</span><span class="n">PainterQB</span><span class="o">.</span><span class="n">SweepTime</span><span class="p">},</span><span class="n">ch</span><span class="p">::</span><span class="n">Integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>SCPI command: <code>:SENSch:SWE:TIME</code></li>
+</ul>
+<p>This command sets/gets the sweep time of selected channel (ch). Before using this object to set the sweep time, turns OFF the auto setting of the sweep time (specify False with the SCPI.SENSe(Ch).SWEep.TIME.AUTO object). When Port IFBW is turned ON, this command returns the sweep time for Port 1.</p>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../awg5014c/" title="AWG5014C">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                AWG5014C
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../docbuild/" title="Documentation building">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Documentation building
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'ajkeller34/PainterQB.jl';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>

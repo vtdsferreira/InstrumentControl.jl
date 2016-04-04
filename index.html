@@ -190,12 +190,6 @@
               </a>
             </li>
           
-            <li class="anchor">
-              <a title="Building this documentation" href="#building-this-documentation">
-                Building this documentation
-              </a>
-            </li>
-          
         </ul>
       
     
@@ -225,6 +219,15 @@
   </li>
 
       
+        
+  <li>
+    <a class="" title="To do" href="todo/">
+      To do
+    </a>
+    
+  </li>
+
+      
     </ul>
   </li>
 
@@ -233,6 +236,15 @@
   <li>
     <span class="section">Instruments</span>
     <ul>
+      
+        
+  <li>
+    <a class="" title="Alazar digitizers" href="Alazar/">
+      Alazar digitizers
+    </a>
+    
+  </li>
+
       
         
   <li>
@@ -260,6 +272,15 @@
   <li>
     <span class="section">Miscellaneous</span>
     <ul>
+      
+        
+  <li>
+    <a class="" title="Documentation building" href="docbuild/">
+      Documentation building
+    </a>
+    
+  </li>
+
       
         
   <li>
@@ -296,7 +317,6 @@
           <p><a id='PainterQB.jl-1'></a></p>
 <h1 id="painterqbjl">PainterQB.jl</h1>
 <p>A <a href="http://julialang.org">Julia</a> package for qubit measurement and analysis.</p>
-<p>Work in development, not ready for implementation. The documentation may assume some familiarity with Julia.</p>
 <p><a id='Installation-1'></a></p>
 <h2 id="installation">Installation</h2>
 <ul>
@@ -309,31 +329,13 @@
 <p><a id='Quick-start-1'></a></p>
 <h2 id="quick-start">Quick start</h2>
 <div class="codehilite"><pre><span></span>using PainterQB
-using PainterQB.AlazarModule
-using PainterQB.AWG5014CModule  # etc.
+using PainterQB.Alazar
+using PainterQB.AWG5014C  # etc.
 
-awg = AWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
-ats = AlazarATS9360()
+awg = InsAWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
+ats = InsAlazarATS9360()
 
 # do something with awg and ats
-</pre></div>
-
-
-<p><a id='Building-this-documentation-1'></a></p>
-<h2 id="building-this-documentation">Building this documentation</h2>
-<p>In a fresh instance of Julia:</p>
-<div class="codehilite"><pre><span></span>include(joinpath(Pkg.dir(&quot;PainterQB&quot;),&quot;docs/make.jl&quot;))
-</pre></div>
-
-
-<p>To process with mkdocs, run the following in the PainterQB/docs directory:</p>
-<div class="codehilite"><pre><span></span>mkdocs build --clean
-</pre></div>
-
-
-<p>To serve locally or publish to GitHub, run either of the following in the PainterQB/docs directory:</p>
-<div class="codehilite"><pre><span></span>mkdocs serve
-mkdocs gh-deploy --clean
 </pre></div>
           <aside class="copyright" role="note">
             

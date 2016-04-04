@@ -210,25 +210,22 @@
             </li>
           
             <li class="anchor">
-              <a title="VISA instruments" href="#visa-instruments">
-                VISA instruments
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Responses" href="#responses">
-                Responses
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Alazar instruments" href="#alazar-instruments">
-                Alazar instruments
+              <a title="Metaprogramming for VISA instruments" href="#metaprogramming-for-visa-instruments">
+                Metaprogramming for VISA instruments
               </a>
             </li>
           
         </ul>
       
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="To do" href="../todo/">
+      To do
+    </a>
     
   </li>
 
@@ -241,6 +238,15 @@
   <li>
     <span class="section">Instruments</span>
     <ul>
+      
+        
+  <li>
+    <a class="" title="Alazar digitizers" href="../Alazar/">
+      Alazar digitizers
+    </a>
+    
+  </li>
+
       
         
   <li>
@@ -268,6 +274,15 @@
   <li>
     <span class="section">Miscellaneous</span>
     <ul>
+      
+        
+  <li>
+    <a class="" title="Documentation building" href="../docbuild/">
+      Documentation building
+    </a>
+    
+  </li>
+
       
         
   <li>
@@ -305,20 +320,17 @@
 <h1 id="implementation-overview">Implementation overview</h1>
 <p><a id='Code-organization-1'></a></p>
 <h2 id="code-organization">Code organization</h2>
-<p><em>Organizing the code into Julia modules is tricky and the organization may change in future releases. It would not be surprising if the way Julia implements modules changes before Julia v1.0.</em></p>
 <ul>
-<li>With few exceptions, all code is kept inside a single package. For now the package is unregistered and must be retrieved from the repository with <code>Pkg.clone()</code> rather than <code>Pkg.add()</code>.     - Low-level wrappers for shared libraries are kept in their own packages     (e.g. VISA and Alazar calls). This way, at least some code can be reused if     someone else does not want to use our codebase.</li>
-<li>All code is kept inside a "main" <code>PainterQB</code> module, defined inside <code>src/PainterQB.jl</code>.     - Common instrument definitions and functions are defined in <code>src/Definitions.jl</code>.     - <code>InstrumentVISA</code> and associated functions are defined in <code>src/VISA.jl</code>.     - Code that should be loaded by Julia workers for parallel processing is     actually kept outside the module to avoid loading the whole module unnecessarily.     These are typically functions that are focused on number crunching and don't     need to know much about the internals of PainterQB.</li>
-<li>Each instrument is defined within its own module, a submodule of <code>PainterQB</code>.     - Each instrument has a corresponding .jl file in <code>src/instruments</code>.     - Instrument model numbers are used for type definitions (e.g. <code>AWG5014C</code>),     so module names have "Module" appended (e.g. <code>AWG5014CModule</code>). We put all     Alazar digitizers in <code>AlazarModule</code>; the feature set and API is so similar     for the various models that just one module makes sense.     - <code>export</code> statements from an instrument submodule are not currently exported     from <code>PainterQB</code>. The statement <code>using PainterQB.AWG5014CModule</code>     may be desired when using the AWG, for instance.</li>
-<li>To test for possible namespace conflicts when adding new instruments, uncomment the <code>importall</code> statements in <code>src/PainterQB.jl</code>.     - As functions from different instrument modules are imported, any functions     that are defined in different modules will be printed and warned about. The     solution is to define the shared function name in <code>src/Definitions.jl</code>     (<code>global</code> and <code>export</code>) such that the submodules can both import the function.</li>
+<li>Each instrument is defined within its own module, a submodule of <code>PainterQB</code>. Each instrument is a subtype of <code>InstrumentVISA &lt;: Instrument</code>. By convention, instrument model numbers are used for module definitions (e.g. <code>AWG5014C</code>), so type names have "Ins" prepended (e.g. <code>InsAWG5014</code>).</li>
+<li><code>InstrumentVISA</code> and associated functions are defined in <code>src/VISA.jl</code>.</li>
+<li>Low-level wrappers for shared libraries are kept in their own packages (e.g. <code>VISA</code> and <code>Alazar</code> calls). This way, at least some code can be reused if someone else does not want to use our codebase.</li>
+<li>Early instrument definitions and functions like <code>Instrument</code> and <code>InstrumentException</code> are defined in <code>src/Definitions.jl</code>. If there is ever trouble with <code>InstrumentProperty</code> subtypes not being defined by the time they are used in a function, they can be defined and exported manually here.</li>
+<li><code>export</code> statements from an instrument submodule are not currently exported from <code>PainterQB</code>. Therefore you may want to type <code>using PainterQB.AWG5014C</code> when using the AWG, for instance.</li>
 </ul>
-<p><a id='VISA-instruments-1'></a></p>
-<h2 id="visa-instruments">VISA instruments</h2>
-<p>Many commercial instruments support a common communications protocol and command syntax (VISA and SCPI respectively). For such instruments, many methods for <code>setindex!</code> and <code>getindex</code> can be generated with metaprogramming, rather than typing them out explicitly.</p>
-<p>The file <code>src/Metaprogramming.jl</code> is included in each VISA instrument's source file, and therefore in each instrument's own module. In the future this might be improved through more judicious choice of which module <code>eval</code> is run in.</p>
-<p><a id='Metaprogramming-1'></a></p>
-<h3 id="metaprogramming">Metaprogramming</h3>
-<p>The following methods are internal and do not need to be used explicitly. They are described here for completeness.</p>
+<p><a id='Metaprogramming-for-VISA-instruments-1'></a></p>
+<h2 id="metaprogramming-for-visa-instruments">Metaprogramming for VISA instruments</h2>
+<p>Many commercial instruments support a common communications protocol and command syntax (VISA and SCPI respectively). For such instruments, methods for <code>setindex!</code> and <code>getindex</code> can be generated with metaprogramming, rather than typing them out explicitly.</p>
+<p>The file <code>src/Metaprogramming.jl</code> is used heavily for code generation based on JSON template files. Since much of the logic for talking to instruments is the same between VISA instruments, in some cases no code needs to be written to control a new instrument provided an appropriate template file is prepared. The metaprogramming functions are described below although they are not intended to be used interactively.</p>
 <p><a id='PainterQB.insjson' href='#PainterQB.insjson'>#</a>
 <strong><code>PainterQB.insjson</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -326,6 +338,13 @@
 <p>Parses a JSON file with a standardized schema to describe how to control an instrument.</p>
 <p>Here is an example of a valid JSON file with valid schema for parsing:</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;instrument&quot;</span><span class="p">:{</span>
+            <span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="s2">&quot;E5071C&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;InsE5071C&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;make&quot;</span><span class="p">:</span><span class="s2">&quot;Keysight&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="s2">&quot;E5071C&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;writeterminator&quot;</span><span class="p">:</span><span class="s2">&quot;\n&quot;</span>
+    <span class="p">},</span>
     <span class="nt">&quot;properties&quot;</span><span class="p">:[</span>
         <span class="p">{</span>
             <span class="nt">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;:CALCch:TRACtr:CORR:EDEL:TIME&quot;</span><span class="p">,</span>
@@ -344,27 +363,58 @@
 </pre></div>
 
 
+<p>After loading with <code>JSON.parse</code>, all dictionary keys are converted to symbols. The <code>instrument</code> dictionary is described in the <a href="./#PainterQB.generate_instruments"><code>generate_instruments</code></a> documentation. The <code>properties</code> array contains one or more dictionaries, each with keys:</p>
 <ul>
 <li><code>cmd</code>: Specifies what must be sent to the instrument (it should be terminated with "?" for query-only). The lower-case characters are replaced by infix arguments.</li>
 <li><code>type</code>: Specifies the <code>InstrumentProperty</code> subtype to use this command. Will be parsed and evaluated.</li>
 <li><code>values</code>: Specifies the required arguments for <code>setindex!</code> which will appear after <code>cmd</code> in the string sent to the instrument.</li>
-<li><code>infixes</code>: Specifies the infix arguments in <code>cmd</code>. Symbol names must match infix arguments.</li>
-<li><code>doc</code>: Specifies documentation for the generated Julia functions.</li>
+<li><code>infixes</code>: Specifies the infix arguments in <code>cmd</code>. Symbol names must match infix arguments. This key is not required if there are no infixes.</li>
+<li><code>doc</code>: Specifies documentation for the generated Julia functions. This key is not required if there is no documentation. This is used not only for interactive help but also in generating the documentation you are reading.</li>
 </ul>
+<p>The value of the <code>properties.type</code> field and entries in the <code>properties.values</code> and <code>properties.infixes</code> arrays are parsed by Julia into expressions or symbols for further manipulation.</p>
 <p><code>insjson{T&lt;:Instrument}(::Type{T})</code></p>
 <p>Simple wrapper to call <code>insjson</code> on the appropriate file path for a given instrument type.</p>
-<p><a id='PainterQB.generate_types' href='#PainterQB.generate_types'>#</a>
-<strong><code>PainterQB.generate_types</code></strong> &mdash; <em>Function</em>.</p>
+<p><a id='PainterQB.generate_all' href='#PainterQB.generate_all'>#</a>
+<strong><code>PainterQB.generate_all</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
-<p><code>generate_types{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
+<p><code>generate_all(metadata)</code></p>
+<p>This function takes a dictionary of instrument metadata, typically obtained from a call to <a href="./#PainterQB.insjson"><code>insjson</code></a>. It will go through the following steps:</p>
+<ol>
+<li><a href="./#PainterQB.generate_instruments"><code>generate_instruments</code></a> part 1: If the module for this instrument does not already exist, generate it and import required modules and symbols.</li>
+<li><a href="./#PainterQB.generate_instruments"><code>generate_instruments</code></a> part 2: Define the <code>Instrument</code> subtype and the <code>make</code> and <code>model</code> methods (<code>make</code> and <code>model</code> are defined in <code>src/Definitions.jl</code>). Export the subtype.</li>
+<li><a href="./#PainterQB.generate_properties"><code>generate_properties</code></a>: Generate instrument properties if they do not exist already, and do any necessary importing and exporting.</li>
+<li><a href="./#PainterQB.generate_handlers"><code>generate_handlers</code></a>: Generate "handler" methods to convert between symbols and SCPI string args.</li>
+<li><a href="./#PainterQB.generate_inspect"><code>generate_inspect</code></a>: Generate <code>getindex</code> methods for instrument properties.</li>
+<li><a href="./#PainterQB.generate_configure"><code>generate_configure</code></a>: Generate <code>setindex!</code> methods for instrument properties.</li>
+</ol>
+<p><code>generate_all</code> should be called near the start of an instrument's .jl file, if one exists. It is not required to have a source file for each instrument if the automatically generated code is sufficient.</p>
+<p><a id='PainterQB.generate_instruments' href='#PainterQB.generate_instruments'>#</a>
+<strong><code>PainterQB.generate_instruments</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p><code>generate_instruments(metadata)</code></p>
+<p>This function takes a dictionary of metadata, typically obtained from a call to <a href="./#PainterQB.insjson"><code>insjson</code></a>. It operates on the <code>:instrument</code> field of the dictionary which is expected to have the following structure:</p>
+<ul>
+<li><code>module</code>: The module name. Can already exist but is created if it does not. This field is converted from a string to a <code>Symbol</code> by <a href="./#PainterQB.insjson"><code>insjson</code></a>.</li>
+<li><code>type</code>: The name of the type to create for the new instrument. This field is converted from a string to a <code>Symbol</code> by <a href="./#PainterQB.insjson"><code>insjson</code></a>.</li>
+<li><code>super</code>: This field is optional. If provided it will be the supertype of the new instrument type, otherwise the supertype will be <code>InstrumentVISA</code>. This field is converted from a string to a <code>Symbol</code> by <a href="./#PainterQB.insjson"><code>insjson</code></a>.</li>
+<li><code>make</code>: The make of the instrument, e.g. Keysight, Tektronix, etc.</li>
+<li><code>model</code>: The model of the instrument, e.g. E5071C, AWG5014C, etc.</li>
+<li><code>writeterminator</code>: Write termination string for sending SCPI commands.</li>
+</ul>
+<p>By convention we typically have the module name be the same as the model name, and the type is just the model prefixed by "Ins", e.g. <code>InsE5071C</code>. This is not required.</p>
+<p><a id='PainterQB.generate_properties' href='#PainterQB.generate_properties'>#</a>
+<strong><code>PainterQB.generate_properties</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p><code>generate_properties{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function is responsible for generating the <code>InstrumentProperty</code> subtypes to use with <code>getindex</code> and <code>setindex!</code> if they have not been defined already. Ordinarily these types are defined in the PainterQB module but if a really generic name is desired that makes sense for a class of instruments (e.g. <code>VNA.Format</code>) then the <code>Format</code> subtype is defined in the <code>PainterQB.VNA</code> module. The defined subtype is then imported into the module where the <code>instype</code> is defined.</p>
+<p>If you an encounter an error where it appears like the subtypes were not defined, it may be that they are being referenced from a module that did an <code>import</code> statement too soon, before all relevant <code>InstrumentProperty</code> subtypes were defined and exported. Ordinarily this is not a problem.</p>
 <p><a id='PainterQB.generate_handlers' href='#PainterQB.generate_handlers'>#</a>
 <strong><code>PainterQB.generate_handlers</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p><code>generate_handlers{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
-<p>In some cases, an instrument command does not except numerical arguments but rather a small set of options. Here is an example of the JSON template for such a command, which sets/gets the format for a given channel and trace on the E5071C vector network analyzer:</p>
+<p>In some cases, an instrument command does not except numerical arguments but rather a small set of options. Here is an example of the property dictionary (prior to parsing) for such a command, which sets/gets the format for a given channel and trace on the E5071C vector network analyzer:</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;cmd&quot;</span><span class="p">:</span><span class="s2">&quot;:CALCch:TRACtr:FORM&quot;</span><span class="p">,</span>
     <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;VNA.Format&quot;</span><span class="p">,</span>
@@ -409,7 +459,7 @@
 </pre></div>
 
 
-<p>The above methods will be defined in the E5071C module. Note that the function <code>symbols</code> has its name chosen based on the dictionary name in the JSON file. This was done for future flexibliity.</p>
+<p>The above methods will be defined in the E5071C module. Note that the function <code>symbols</code> has its name chosen based on the dictionary name in the JSON file. Since this function is not exported from the instrument's module there should be few namespace worries and we maintain future flexibliity.</p>
 <p><a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
 <strong><code>PainterQB.generate_configure</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -422,103 +472,6 @@
 <p><code>generate_inspect{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
-<p><a id='Responses-1'></a></p>
-<h2 id="responses">Responses</h2>
-<p>Unlike stimuli, all responses are subtypes of an abstract parametric type, <code>Response{T}</code>. Although it may seem unduly abstract to have it be both abstract and parametric, we use this functionality to distinguish between desired return types of a measurement. Suppose an instrument provides data in some kind of awkward format, like 12-bit unsigned integers. For reasons of convenience we may want the measurement to return the data in a machine-native <code>Int64</code> format, or we may want to specify a linear or 2D shape for the data, etc.</p>
-<p>An important consideration in writing fast Julia code is to ensure type stability. In other words, the type that is returned from a function should depend only on the method signature and not depend on some value at run-time. By parameterizing <code>Response</code> types with the return type, we can ensure that <code>measure</code> will be type stable. If we instead had the desired return type as some field in a <code>Response</code> object, then <code>measure</code> would not be type stable.</p>
-<p><a id='Alazar-digitizers-1'></a></p>
-<h4 id="alazar-digitizers">Alazar digitizers</h4>
-<p>A response type is given for each measurement mode: continuous streaming (<code>ContinuousStreamResponse</code>), triggered streaming ( <code>TriggeredStreamResponse</code>), NPT records (<code>NPTRecordResponse</code>), and FPGA-based FFT calculations (<code>FFTHardwareResponse</code>). Traditional record mode has not been implemented yet for lack of immediate need.</p>
-<p>Looking at the source code, it would seem that there is some redundancy in the types, for instance there is an <code>NPTRecordMode</code> and an <code>NPTRecordResponse</code> object. The difference is that the former is used internally in the code to denote a particular method of configuring the instrument, allocating buffers, etc., whereas the latter specifies what you actually want to do: retrieve NPT records from the digitizer, perhaps doing some post-processing or processing during acquisition along the way. Perhaps different responses would dictate different processing behavior, while the instrument is ultimately configured the same way.</p>
-<p><a id='Alazar-instruments-1'></a></p>
-<h2 id="alazar-instruments">Alazar instruments</h2>
-<p>In the following discussion, it is important to understand some Alazar terminology. Newer Alazar digitizers use direct memory access (DMA) to stream data into a computer's RAM. A single <em>acquisition</em> uses one or many <em>buffers</em>, which constitute preallocated regions in the computer's physical memory. Each buffer contains one or many <em>records</em>. Each <em>record</em> contains many <em>samples</em>, which are the voltages measured by the digitizer.</p>
-<p>In streaming mode, there is only one record per buffer, but in other modes there can be many records per buffer.</p>
-<p><a id='Buffer-allocation-1'></a></p>
-<h3 id="buffer-allocation">Buffer allocation</h3>
-<p><a id='Digitizer-requirements-1'></a></p>
-<h4 id="digitizer-requirements">Digitizer requirements</h4>
-<p>The Alazar digitizers expect buffers in physical memory which are page-aligned. The size of each buffer should also be chosen appropriately.</p>
-<p>The behavior of the digitizer is not specified when the buffer is made larger than 64 MB. On our computer, it seems like an <code>ApiWaitTimeout</code> error is thrown when the buffer is too large (for some unspecified definition of "large" greater than 64 MB). The digitizer will then throw <code>ApiInsufficientResources</code> errors whenever another acquisition is attempted, until the computer is restarted. Just restarting the Julia kernel, forcing a reload of the Alazar DLLs, does not appear to be enough to reset the digitizer fully.</p>
-<p>For performance reasons, a buffer should not be made much smaller than 1 MB if mulitple buffers are required. There is also a minimum record size for each model of digitizer. For the ATS9360, if a record has fewer than 256 samples (could be 128 from channel A + 128 from channel B) then the acquisition will proceed, but return garbage data. Allocating too small of a buffer is therefore still bad, but less fatal than allocating one that is too large.</p>
-<!– In our code a "sample" may be considered as a pair of values if two channels are being measured, which is probably inconsistent with the API's definition. We will clean this up eventually. –>
-
-<p><a id='How-to-allocate-appropriate-buffers-in-Julia-1'></a></p>
-<h4 id="how-to-allocate-appropriate-buffers-in-julia">How to allocate appropriate buffers in Julia</h4>
-<p>In Julia, just allocating a fixed-size array will not necessarily return a page-aligned block in memory. One approach would be to allocate our own page-aligned memory using <code>valloc</code> and <code>vfree</code> (or their Windows equivalents).</p>
-<div class="codehilite"><pre><span></span>function virtualalloc{T&lt;:Union{UInt8,UInt16}}(size_bytes::Integer, ::Type{T})
-    @windows? begin
-        MEM_COMMIT = U32(0x1000)
-        PAGE_READWRITE = U32(0x4)
-        addr = ccall((:VirtualAlloc, &quot;Kernel32&quot;), Ptr{T},
-                     (Ptr{Void}, Culonglong, Culong, Culong),
-                     C_NULL, size_bytes, MEM_COMMIT, PAGE_READWRITE)
-    end : (@linux? begin
-        addr = ccall((:valloc, libc), Ptr{T}, (Culonglong,), size_bytes)
-    end : throw(SystemError()))
-
-    addr == C_NULL &amp;&amp; throw(OutOfMemoryError())
-
-    addr::Ptr{T}
-end
-
-function virtualfree{T&lt;:Union{UInt16,UInt8}}(addr::Ptr{T})
-    @windows? begin
-        MEM_RELEASE = 0x8000
-        ccall((:VirtualFree, &quot;Kernel32&quot;), Cint, (Ptr{Void}, Culonglong, Culong),
-            addr, Culonglong(0), MEM_RELEASE)
-    end : (@linux? begin
-        ccall((:free, &quot;libc&quot;), Void, (Ptr{Void},), addr)
-    end : throw(SystemError()))
-    nothing
-end
-</pre></div>
-
-
-<p>In case it wasn't obvious, this was my original approach. Note that memory allocated in this way will not be visible to multiple processes without extra work, and moreover we will need to deallocate the memory ourselves at a later time, perhaps using <code>finalizer()</code> if the memory is made to be part of a Julia object.</p>
-<p>Fortunately, there is a special kind of array in Julia called the <code>SharedArray</code>. It can be viewed and modified from multiple processes, and the memory is page-aligned. Hopefully this continues to be the case in future Julia releases. We implement a type called the <code>DMABufferArray</code> whose definition is worth repeating here:</p>
-<div class="codehilite"><pre><span></span>type DMABufferArray{sample_type} &lt;:
-        AbstractArray{Ptr{sample_type},1}
-
-    bytes_buf::Int
-    n_buf::Int
-    backing::SharedArray{sample_type}
-
-    DMABufferArray(bytes_buf, n_buf) = begin
-        n_buf &gt; 1 &amp;&amp; bytes_buf % Base.Mmap.PAGESIZE != 0 &amp;&amp;
-            error(&quot;Bytes per buffer must be a multiple of Base.Mmap.PAGESIZE when &quot;,
-                  &quot;there is more than one buffer.&quot;)
-
-        backing = SharedArray(sample_type,
-                        Int((bytes_buf * n_buf) / sizeof(sample_type)))
-
-        dmabuf = new(bytes_buf,
-                     n_buf,
-                     backing)
-
-        return dmabuf
-    end
-
-end
-
-Base.size(dma::DMABufferArray) = (dma.n_buf,)
-Base.linearindexing(::Type{DMABufferArray}) = Base.LinearFast()
-Base.getindex(dma::DMABufferArray, i::Int) =
-    pointer(dma.backing) + (i-1) * dma.bytes_buf
-Base.length(dma::DMABufferArray) = dma.n_buf
-
-bytespersample{T}(buf_array::DMABufferArray{T}) = sizeof(T)
-sampletype{T}(buf_array::DMABufferArray{T}) = T
-</pre></div>
-
-
-<p>Some comments:</p>
-<ul>
-<li>A single SharedArray is used to back <em>all</em> DMA buffers. Memory is therefore contiguous and page-aligned.</li>
-<li>The memory for each DMA buffer is required to be a multiple of the page size when there is more than one buffer.</li>
-<li>The memory can be accessed by multiple processes.</li>
-<li>The elements of a <code>DMABufferArray</code> are pointers to the the different locations in memory which act as DMA buffers. The array is iterable and indexable as usual.</li>
-</ul>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -554,14 +507,14 @@ sampletype{T}(buf_array::DMABufferArray{T}) = T
     </div>
     <div class="next">
       
-        <a href="../awg5014c/" title="AWG5014C">
+        <a href="../todo/" title="To do">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                AWG5014C
+                To do
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">

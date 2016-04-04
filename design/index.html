@@ -239,6 +239,15 @@
   </li>
 
       
+        
+  <li>
+    <a class="" title="To do" href="../todo/">
+      To do
+    </a>
+    
+  </li>
+
+      
     </ul>
   </li>
 
@@ -247,6 +256,15 @@
   <li>
     <span class="section">Instruments</span>
     <ul>
+      
+        
+  <li>
+    <a class="" title="Alazar digitizers" href="../Alazar/">
+      Alazar digitizers
+    </a>
+    
+  </li>
+
       
         
   <li>
@@ -274,6 +292,15 @@
   <li>
     <span class="section">Miscellaneous</span>
     <ul>
+      
+        
+  <li>
+    <a class="" title="Documentation building" href="../docbuild/">
+      Documentation building
+    </a>
+    
+  </li>
+
       
         
   <li>
@@ -312,17 +339,7 @@
 <p><a id='What-should-good-measurement-code-do?-1'></a></p>
 <h2 id="what-should-good-measurement-code-do">What should good measurement code do?</h2>
 <p>Anyone who has written code in MATLAB or something comparable (IGOR Pro, in the author's case) has undoubtedly seen spaghetti code. Often there are many copies of a measurement routine that differ only slightly, perhaps in the functionality of what happens inside some for loop, etc.</p>
-<p>We would like to have clear, reusable code to avoid redundancy and accidental errors, both of which consume precious time on the part of the experimenters. Consider an archetypal measurement scheme wherein we measure a device's response to various stimuli (perhaps we measure current as a function of applied bias). We should be able to write just one sweep function to do this:</p>
-<div class="codehilite"><pre><span></span><span class="k">function</span><span class="nf"> sweep</span><span class="p">(</span><span class="n">ch0</span><span class="p">::</span><span class="n">Stimulus</span><span class="p">,</span> <span class="n">ch1</span><span class="p">::</span><span class="n">Response</span><span class="p">,</span> <span class="n">x_itr</span><span class="p">,</span> <span class="n">tstep</span><span class="p">)</span>
-    <span class="n">map</span><span class="p">(</span><span class="n">x_itr</span><span class="p">)</span> <span class="k">do</span> <span class="n">x</span>
-        <span class="n">source</span><span class="p">(</span><span class="n">ch0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="n">sleep</span><span class="p">(</span><span class="n">tstep</span><span class="p">)</span>
-        <span class="n">measure</span><span class="p">(</span><span class="n">ch1</span><span class="p">)</span>
-    <span class="k">end</span>
-<span class="k">end</span>
-</pre></div>
-
-
+<p>We would like to have clear, reusable code to avoid redundancy and accidental errors, both of which consume precious time on the part of the experimenters. Consider an archetypal measurement scheme wherein we measure a device's response to various stimuli (perhaps we measure current as a function of applied bias). We should be able to write just one sweep function to do this.</p>
 <p>The idea of <em>multiple dispatch</em>, natively supported in Julia, permits writing such convenient and abstract code. This is just one example where the advantages of multiple dispatch are obvious. We hope it will more broadly simplify the extension of measurement code while ensuring continued reliability.</p>
 <p><a id='How-do-we-take-measurements?-1'></a></p>
 <h2 id="how-do-we-take-measurements">How do we take measurements?</h2>
@@ -336,7 +353,7 @@
 <p>Stimuli could also be associated with several instruments. Maybe a stimulus that makes sense for a particular experiment would be to change all gate voltages at once. These gate voltages could of course be sourced by several physical instruments.</p>
 <p><a id='Responses-1'></a></p>
 <h3 id="responses">Responses</h3>
-<p>All responses are objects, subtyped from the abstract parametric <code>Response{T}</code> type. We use a parametric type for responses so that the return type of the numerical data is clear. Usually a response is associated with a particular instrument.</p>
+<p>All responses are objects, subtyped from the abstract <code>Response</code> type. Usually a response is associated with a particular instrument.</p>
 <p>However, responses need not come from instruments. For test purposes, suppose we want to mimic a measurement by generating random numbers. <code>RandomResponse</code> produces a random number in the unit interval when it is measured. A <code>TimerResponse</code> will measure the time since creation of the <code>TimerResponse</code> object.</p>
 <p><a id='What-is-an-instrument?-1'></a></p>
 <h2 id="what-is-an-instrument">What is an instrument?</h2>

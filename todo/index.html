@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Release notes - PainterQB.jl</title>
+        <title>To do - PainterQB.jl</title>
       
       
       
@@ -95,12 +95,12 @@
           <span class="path">
             
               
-                Miscellaneous <i class="icon icon-link"></i>
+                Overview <i class="icon icon-link"></i>
               
             
           </span>
         
-        Release notes
+        To do
       </div>
     </div>
     
@@ -202,9 +202,52 @@
       
         
   <li>
-    <a class="" title="To do" href="../todo/">
+    <a class="current" title="To do" href="./">
       To do
     </a>
+    
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="General" href="#general">
+                General
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Documentation" href="#documentation">
+                Documentation
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Units support" href="#units-support">
+                Units support
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Saving and loading data" href="#saving-and-loading-data">
+                Saving and loading data
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Plotting" href="#plotting">
+                Plotting
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Instrument-specific" href="#instrument-specific">
+                Instrument-specific
+              </a>
+            </li>
+          
+        </ul>
+      
     
   </li>
 
@@ -265,14 +308,9 @@
       
         
   <li>
-    <a class="current" title="Release notes" href="./">
+    <a class="" title="Release notes" href="../releases/">
       Release notes
     </a>
-    
-      
-        
-      
-      
     
   </li>
 
@@ -300,9 +338,67 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='Releases-1'></a></p>
-<h1 id="releases">Releases</h1>
-<p>v0.0.1      Currently under development</p>
+            <h1>To do</h1>
+          
+          <p><a id='General-1'></a></p>
+<h2 id="general">General</h2>
+<ul>
+<li>
+<p>How should we implement error-handling?</p>
+</li>
+<li>
+<p>How should we implement background tasks?</p>
+</li>
+<li>
+<p>Implement confirmation of changed instrument properties.</p>
+</li>
+</ul>
+<p><a id='Documentation-1'></a></p>
+<h2 id="documentation">Documentation</h2>
+<ul>
+<li>Improve documentation of this package. <a href="https://github.com/MichaelHatherly/Documenter.jl">Documenter.jl</a></li>
+</ul>
+<p><a id='Units-support-1'></a></p>
+<h2 id="units-support">Units support</h2>
+<ul>
+<li>Further work on <a href="https://github.com/ajkeller34/Unitful.jl">Unitful.jl</a></li>
+<li>Consider how to improve Julia Base to play nicely with Unitful.jl</li>
+<li>Should we start integrating support already?</li>
+</ul>
+<p><a id='Saving-and-loading-data-1'></a></p>
+<h2 id="saving-and-loading-data">Saving and loading data</h2>
+<ul>
+<li>Database for metadata?</li>
+<li>How to save / load configurations for instruments? Maybe JSON files?</li>
+<li>How to save / load data? Start with these packages: <a href="https://github.com/JuliaLang/HDF5.jl">HDF5.jl</a>, <a href="https://github.com/JuliaLang/JLD.jl">JLD.jl</a></li>
+</ul>
+<p><a id='Plotting-1'></a></p>
+<h2 id="plotting">Plotting</h2>
+<ul>
+<li>
+<p>Take a look at <a href="https://github.com/tbreloff/Plots.jl">Plots.jl</a></p>
+</li>
+<li>
+<p>Live plotting engine. Right now we are using the recently open-sourced <a href="https://plot.ly/javascript/">Plotly.js library</a>. The Julia process responsible for measurement dumps some JSON data into a web socket during a measurement. A web page connects to that web socket, parses the JSON data, and configures Plotly accordingly. It is not obvious that this is the best approach.</p>
+</li>
+<li>
+<p>There are two places where notifications could be emitted for plotting: in <code>measure</code> or in <code>sweep</code>. Some thought should be given to how best to do this.</p>
+</li>
+</ul>
+<p><a id='Instrument-specific-1'></a></p>
+<h2 id="instrument-specific">Instrument-specific</h2>
+<p><a id='AWG5014C-1'></a></p>
+<h3 id="awg5014c">AWG5014C</h3>
+<ul>
+<li>Sequencer support needed.</li>
+</ul>
+<p><a id='VNAs-1'></a></p>
+<h3 id="vnas">VNAs</h3>
+<p><a id='Alazar-1'></a></p>
+<h3 id="alazar">Alazar</h3>
+<ul>
+<li>A lot has changed since this code was written. Probably it does not work as is.</li>
+</ul>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -319,7 +415,7 @@
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../docbuild/" title="Documentation building">
+        <a href="../implementation/" title="Implementation">
           <span class="direction">
             Previous
           </span>
@@ -329,7 +425,7 @@
             </div>
             <div class="stretch">
               <div class="title">
-                Documentation building
+                Implementation
               </div>
             </div>
           </div>
@@ -338,14 +434,14 @@
     </div>
     <div class="next">
       
-        <a href="../LICENSE/" title="License">
+        <a href="../Alazar/" title="Alazar digitizers">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                License
+                Alazar digitizers
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
