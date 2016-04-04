@@ -29,6 +29,7 @@ export autoscale, bandwidth
 export screen, search
 export stimdata, data
 export mktrace, trig1
+export nummarkers
 
 # The E5071C has rather incomplete support for referring to traces by name.
 # We will maintain an internal description of what names correspond to what
@@ -225,6 +226,8 @@ end
 
 "Trigger a single sweep when TriggerSource is :Bus."
 trig1(ins::InsE5071C) = write(ins, ":TRIG:SING")
+
+nummarkers(ins::InsE5071C) = 9
 
 datacmd{T}(x::InsE5071C, ::Type{Val{T}})        = ":CALC#:TRAC#:DATA:FDAT?"
 datacmd(x::InsE5071C, ::Type{Val{:Calibrated}}) = ":CALC#:TRAC#:DATA:SDAT?"

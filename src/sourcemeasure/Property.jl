@@ -16,6 +16,10 @@ type PropertyStimulus{T<:InstrumentProperty} <: Stimulus
     PropertyStimulus(a,b,c) = new(a,b,c)
     PropertyStimulus(a,b) = new(a,b,())
 end
+PropertyStimulus{T<:InstrumentProperty}(ins::Instrument, t::Type{T}) =
+    PropertyStimulus{T}(ins, t)
+PropertyStimulus{T<:InstrumentProperty}(ins::Instrument, t::Type{T}, tup::Tuple) =
+    PropertyStimulus{T}(ins, t, tup)
 
 "Sourcing a PropertyStimulus configures an InstrumentProperty."
 function source(ch::PropertyStimulus, val::Real)

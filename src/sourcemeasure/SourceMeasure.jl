@@ -8,6 +8,7 @@ abstract Stimulus
 abstract Response
 
 include("Averaging.jl")
+include("Dependent.jl")
 include("Dummy.jl")
 include("Property.jl")
 include("Random.jl")
