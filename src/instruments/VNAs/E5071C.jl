@@ -125,7 +125,7 @@ end
 DISPlay:SPLit
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/display/scpi_display_split.htm]
 
-`setindex!(ins::InstrumentVNA, ::Type{Windows}, a::AbstractArray{Int})`
+`setindex!(ins::InsE5071C, a::AbstractArray{Int}, ::Type{VNA.Graphs}, ch::Integer=1)`
 
 Configure the layout of graph windows using a matrix to abstract the layout.
 For instance, passing [1 2; 3 3] makes two windows in one row and a third window below.
@@ -273,7 +273,9 @@ function search{T}(ins::InsE5071C, m::MarkerSearch{T}, exec::Bool=true)
     write(ins, _val(ins, m),  m.ch, m.tr, m.m, m.val)
     write(ins, _pol(ins, m),  m.ch, m.tr, m.m, code(ins, m.pol))
     errors(ins)
-    exec && _search(ins, m)
+    if exec
+        return _search(ins, m)
+    end
 end
 
 function _search(ins::InsE5071C, m::MarkerSearch)

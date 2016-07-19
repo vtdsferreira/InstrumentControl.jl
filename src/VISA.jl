@@ -2,6 +2,7 @@
 import VISA
 import Base: read, write, readavailable, reset, wait
 import Base: cp, mkdir, readdir, rm
+import Base: getindex, setindex!
 
 ## Get the resource manager
 "The default VISA resource manager."
@@ -10,6 +11,9 @@ export resourcemanager
 
 ## InstrumentVISA type
 export InstrumentVISA
+
+## VISA specific InstrumentProperty subtypes
+export WriteTermCharEnable
 
 ## Finding and obtaining resources
 export findresources
@@ -21,7 +25,7 @@ export binblockwrite, binblockreadavailable
 
 ## Common VISA commands
 export tst, rst, idn, cls
-export trg, abor, wait, opc, errors
+export trg, abor, wai, opc, errors
 
 ## Convenience
 export quoted, unquoted
@@ -44,6 +48,14 @@ Concrete types are expected to have fields:
 `writeTerminator::ASCIIString`
 """
 abstract InstrumentVISA <: Instrument
+
+"""
+`abstract WriteTermCharEnable <: InstrumentProperty`
+
+Write terminator character for VISA instruments.
+"""
+abstract WriteTermCharEnable <: InstrumentProperty
+
 
 ## Finding and obtaining resources
 
@@ -80,7 +92,7 @@ tcpip_socket(ip,port) = VISA.viOpen(resourcemanager,
 ## Reading and writing
 
 """Idiomatic "write and read available" function with optional delay."""
-function ask(ins::InstrumentVISA, msg::ASCIIString, infixes...; delay::Real=0)
+function ask(ins::InstrumentVISA, msg::AbstractString, infixes...; delay::Real=0)
     write(ins, msg, infixes...)
     sleep(delay)
     readavailable(ins)
@@ -97,11 +109,12 @@ read(ins::InstrumentVISA) =
 Write to an instrument.
 Replaces hash signs with infixes and appends the instrument's write terminator.
 """
-function write(ins::InstrumentVISA, msg::ASCIIString, infixes...)
+function write(ins::InstrumentVISA, msg::AbstractString, infixes...)
     for infix in infixes
         msg = replace(msg, "#", infix, 1)
     end
     msg == "" && return nothing
+    println(msg)
     VISA.viWrite(ins.vi, string(msg, ins.writeTerminator))
     return nothing
 end
@@ -114,7 +127,7 @@ readavailable(ins::InstrumentVISA) =
 Write an IEEE header block followed by an arbitary sequency of bytes and the terminator.
 """
 binblockwrite(ins::InstrumentVISA,
-    message::Union{ASCIIString, Vector{UInt8}}, data::Vector{UInt8}) =
+    message::Union{AbstractString, Vector{UInt8}}, data::Vector{UInt8}) =
     VISA.binBlockWrite(ins.vi, message, data, ins.writeTerminator)
 
 "Read an entire block of bytes with properly formatted IEEE header."
@@ -171,6 +184,44 @@ function errors(ins::InstrumentVISA, maxerrors=100)
     nothing
 end
 
+"""
+`getindex(ins::InstrumentVISA, ::Type{Timeout})`
+
+Get the VISA timeout time (in ms).
+"""
+function getindex(ins::InstrumentVISA, ::Type{Timeout})
+    Int64(VISA.viGetAttribute(ins.vi, VISA.VI_ATTR_TMO_VALUE))
+end
+
+"""
+`getindex(ins::InstrumentVISA, ::Type{WriteTermCharEnable})`
+
+Is the write termination character enabled?
+"""
+function getindex(ins::InstrumentVISA, ::Type{WriteTermCharEnable})
+    Bool(VISA.viGetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN))
+end
+
+"""
+`setindex!(ins::InstrumentVISA, x::Real, ::Type{Timeout})`
+
+Set the VISA timeout time (in ms).
+"""
+function setindex!(ins::InstrumentVISA, x::Real, ::Type{Timeout})
+    VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TMO_VALUE, UInt64(x))
+    nothing
+end
+
+"""
+`setindex!(ins::InstrumentVISA, x::Bool, ::Type{WriteTermCharEnable})`
+
+Set whether or not the write termination character is enabled.
+"""
+function setindex!(ins::InstrumentVISA, x::Bool, ::Type{WriteTermCharEnable})
+    VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(x))
+    nothing
+end
+
 ## Convenient functions for parsing and sending strings.
 
 "Surround a string in quotation marks."
@@ -181,7 +232,7 @@ unquoted(str::AbstractString) = strip(str,['"','\''])
 
 ## Convenient functions for querying arrays of numbers.
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function getdata(ins::InstrumentVISA, ::Type{Val{:ASCIIString}},
+function getdata(ins::InstrumentVISA, ::Type{Val{:AbstractString}},
         cmd, infixes...; delim=",")
     for infix in infixes
         cmd = replace(cmd, "#", infix, 1)

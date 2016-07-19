@@ -3,8 +3,12 @@ import Base: show, showerror
 export Instrument
 export InstrumentProperty
 
+export Averaging
+export AveragingFactor
+export AveragingTrigger
 export FrequencyStart, FrequencyStop
-export SampleRate
+export SampleRate, SweepTime
+export Timeout
 export InstrumentException
 
 # Miscellaneous stuff
@@ -33,11 +37,20 @@ Subtypes of `InstrumentProperty` can be configured or inspect using
 """
 abstract InstrumentProperty
 
+abstract Averaging <: InstrumentProperty
+abstract AveragingFactor <: InstrumentProperty
+abstract AveragingTrigger <: InstrumentProperty
+
 abstract FrequencyStart <: InstrumentProperty
 abstract FrequencyStop <: InstrumentProperty
 
 "The sample rate for digitizing, synthesizing, etc."
 abstract SampleRate <: InstrumentProperty
+
+abstract SweepTime <: InstrumentProperty
+
+"Time to wait for an instrument to reply before bailing out."
+abstract Timeout <: InstrumentProperty
 
 """
 Exception to be thrown by an instrument. Fields include the instrument in error

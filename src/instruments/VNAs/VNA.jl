@@ -9,15 +9,24 @@ export InstrumentVNA
 export MarkerSearch
 
 # export Format, Parameter
-export clearavg, data, search, shotgun
+export clearavg, data, search, shotgun, sweeptime
 
 "Assume that all VNAs support VISA."
 abstract InstrumentVNA  <: InstrumentVISA
 
-"Typical frequency sweep response."
+"""
+`type FSweep <: Response`
+
+Your standard frequency sweep.
+
+-`ins`: `InstrumentVNA` object.
+-`reject`: Number of traces to reject before keeping measurements.
+"""
 type FSweep <: Response
     ins::InstrumentVNA
+    reject::Int
 end
+FSweep(ins::InstrumentVNA) = FSweep(ins, 0)
 
 "Graph layout specified by a matrix."
 abstract Graphs <: InstrumentProperty
@@ -135,6 +144,18 @@ end
 
 shotgun(ins::InstrumentVNA, m::OrdinalRange=1:9, ch::Integer=1, tr::Integer=1) =
     shotgun(ins, collect(m), ch, tr)
+
+
+"""
+`sweeptime(ins::InstrumentVNA)`
+
+Returns the sweep time for a given VNA, including averaging.
+"""
+function sweeptime(ins::InstrumentVNA)
+    ti = ins[SweepTime]
+    ins[Averaging] && ins[AveragingTrigger] && (ti *= ins[AveragingFactor])
+    ti
+end
 
 "Determines if an error code reflects a peak search failure."
 function peaknotfound end

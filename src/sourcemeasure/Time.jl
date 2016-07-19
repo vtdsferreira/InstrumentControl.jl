@@ -16,22 +16,24 @@ DelayStimulus() = DelayStimulus(time())
 
 Reset the `DelayStimulus` reference time to now.
 """
-reset(d::DelayStimulus) = (d.t0 = time())
+function reset(d::DelayStimulus)
+    d.t0 = time()
+end
 
 """
-source(ch::DelayStimulus, val::Real)
+`source(ch::DelayStimulus, val::Real, shouldreset::Bool=true)`
 
 Wait until `val` seconds have elapsed since `ch` was initialized or reset.
 Optionally resets the `DelayStimulus` after the time has elapsed (default true).
 """
-function source(ch::DelayStimulus, val::Real, reset::Bool=true)
+function source(ch::DelayStimulus, val::Real, shouldreset::Bool=true)
 	if val < eps()
 		ch.t0 = time()
 	else
 		while val + ch.t0 > time()
 			sleep(0.01)
 		end
-        reset(ch)
+        shouldreset && reset(ch)
 	end
 end
 

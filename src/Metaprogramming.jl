@@ -211,7 +211,7 @@ function generate_instruments(metadata)
                 ins = new()
                 ins.vi = x
                 ins.writeTerminator = $term
-                VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(1))
+                ins[WriteTermCharEnable] = true
                 ins
             end
 
@@ -257,7 +257,7 @@ function generate_properties{S<:Instrument}(instype::Type{S}, p)
         sym = p[:type].args[2].value
         where = eval(p[:type].args[1])
         if !isdefined(where, sym)
-            # Define and export the InstrumentProperty subtype in PainterQB
+            # Define and export the InstrumentProperty subtype where appropriate
             eval(where, :(abstract $sym <: InstrumentProperty))
             eval(where, :(export $sym))
             # We need to take care with module paths. The following is
