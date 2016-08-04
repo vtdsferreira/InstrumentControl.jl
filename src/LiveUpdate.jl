@@ -10,16 +10,14 @@ export plotserver
 # export HeatmapPoint
 # export EndOfPlot
 
-"Condition indicating the start of a live update."
+# Condition indicating the start of a live update.
 const LIVE_NEW_MEAS = Condition()
 
-"Condition indicating more data for a live update."
+# Condition indicating more data for a live update.
 const LIVE_DATA = Condition()
 
-"""
-Condition indicating the end of a live update.
-Definition in the source code resembles a meditation on the human condition...
-"""
+# Condition indicating the end of a live update.
+# Definition in the source code resembles a meditation on the human condition...
 const LIVE_DIE = Condition()
 
 abstract Plottable
@@ -90,11 +88,11 @@ function dataobj(data, inds::NTuple{2,Int}, vals)
 end
 
 function plotlabel(dep::Response)
-    "Response"
+    return "Response"
 end
 
 function plotlabel(dep::Tuple{Stimulus, AbstractArray})
-    "Stimulus"
+    return "Stimulus"
 end
 
 function wsproducer()

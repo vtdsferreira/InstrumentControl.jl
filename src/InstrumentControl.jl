@@ -20,12 +20,12 @@ include("instruments/VNAs/E5071C.jl")
 include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
 include("instruments/GS200.jl")
-# include("instruments/Alazar/Alazar.jl")
 
+# include("instruments/Alazar/Alazar.jl")
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 
-# importall .AlazarModule
+# # importall .AlazarModule
 importall .AWG5014C
 importall .E5071C
 importall .E8257D
@@ -35,7 +35,7 @@ importall .GS200
 # Utility functions
 include("Reflection.jl")
 include("Sweep.jl")
-include("LiveUpdate.jl")
+# include("LiveUpdate.jl")    <--- causes Documenter to fail?
 # include("Trace3.jl")
 
 end

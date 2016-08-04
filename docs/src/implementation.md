@@ -31,7 +31,7 @@ the same between VISA instruments, in some cases no code needs to be written
 to control a new instrument provided an appropriate template file is prepared.
 The metaprogramming functions are described below although they are not intended
 to be used interactively.
-<!--
+
 ```@docs
     insjson
     generate_all
@@ -40,4 +40,4 @@ to be used interactively.
     generate_handlers
     generate_configure
     generate_inspect
-``` -->
+```

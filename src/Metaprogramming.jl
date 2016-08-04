@@ -52,7 +52,7 @@ Here is an example of a valid JSON file with valid schema for parsing:
 ```
 
 After loading with `JSON.parse`, all dictionary keys are converted to symbols.
-The `instrument` dictionary is described in the [`generate_instruments`]({ref})
+The `instrument` dictionary is described in the [`generate_instruments`](@ref)
 documentation. The `properties` array contains one or more dictionaries, each
 with keys:
 
@@ -121,19 +121,19 @@ end
 `generate_all(metadata)`
 
 This function takes a dictionary of instrument metadata, typically obtained
-from a call to [`insjson`]({ref}). It will go through the following steps:
+from a call to [`insjson`](@ref). It will go through the following steps:
 
-1. [`generate_instruments`]({ref}) part 1: If the module for this instrument does not
+1. [`generate_instruments`](@ref) part 1: If the module for this instrument does not
 already exist, generate it and import required modules and symbols.
-2. [`generate_instruments`]({ref}) part 2: Define the `Instrument` subtype and the `make`
+2. [`generate_instruments`](@ref) part 2: Define the `Instrument` subtype and the `make`
 and `model` methods (`make` and `model` are defined in `src/Definitions.jl`).
 Export the subtype.
-3. [`generate_properties`]({ref}): Generate instrument properties if they do
+3. [`generate_properties`](@ref): Generate instrument properties if they do
 not exist already, and do any necessary importing and exporting.
-4. [`generate_handlers`]({ref}): Generate "handler" methods to convert between
+4. [`generate_handlers`](@ref): Generate "handler" methods to convert between
 symbols and SCPI string args.
-5. [`generate_inspect`]({ref}): Generate `getindex` methods for instrument properties.
-6. [`generate_configure`]({ref}): Generate `setindex!` methods for instrument properties.
+5. [`generate_inspect`](@ref): Generate `getindex` methods for instrument properties.
+6. [`generate_configure`](@ref): Generate `setindex!` methods for instrument properties.
 
 `generate_all` should be called near the start of an instrument's .jl file,
 if one exists. It is not required to have a source file for each instrument if
@@ -158,16 +158,16 @@ end
 `generate_instruments(metadata)`
 
 This function takes a dictionary of metadata, typically obtained from
-a call to [`insjson`]({ref}). It operates on the `:instrument` field of the dictionary
+a call to [`insjson`](@ref). It operates on the `:instrument` field of the dictionary
 which is expected to have the following structure:
 
 - `module`: The module name. Can already exist but is created if it does not.
-This field is converted from a string to a `Symbol` by [`insjson`]({ref}).
+This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `type`: The name of the type to create for the new instrument.
-This field is converted from a string to a `Symbol` by [`insjson`]({ref}).
+This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `super`: This field is optional. If provided it will be the supertype of
 the new instrument type, otherwise the supertype will be `InstrumentVISA`.
-This field is converted from a string to a `Symbol` by [`insjson`]({ref}).
+This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `make`: The make of the instrument, e.g. Keysight, Tektronix, etc.
 - `model`: The model of the instrument, e.g. E5071C, AWG5014C, etc.
 - `writeterminator`: Write termination string for sending SCPI commands.
