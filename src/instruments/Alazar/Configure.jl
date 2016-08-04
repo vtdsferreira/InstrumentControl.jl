@@ -291,7 +291,7 @@ end
 Configure how many samples to wait after receiving a trigger event before capturing
 a record.
 """
-function configure(a::InstrumentAlazar, ::Type{TriggerDelaySamples}, delay_samples)
+function setindex!(a::InstrumentAlazar, delay_samples, ::Type{TriggerDelaySamples})
     @eh2 AlazarSetTriggerDelay(a.handle, delay_samples)
     a.triggerDelaySamples = delay_samples
     nothing
@@ -300,7 +300,7 @@ end
 """
 Wrapper for C function `AlazarSetTriggerTimeOut`.
 """
-function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutTicks}, ticks)
+function setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
     @eh2 AlazarSetTriggerTimeOut(a.handle, ticks)
     a.triggerTimeoutTicks = ticks
     nothing
@@ -310,6 +310,6 @@ end
 Wrapper for C function `AlazarSetTriggerTimeOut`, except we take seconds here
 instead of ticks (units of 10 us).
 """
-function configure(a::InstrumentAlazar, ::Type{TriggerTimeoutS}, timeout_s)
-    configure(a, TriggerTimeoutTicks, ceil(timeout_s * 1.e5))
+function setindex!(a::InstrumentAlazar, timeout_s, ::Type{TriggerTimeoutS})
+    a[TriggerTimeoutTicks] = ceil(timeout_s * 1.e5)
 end

@@ -232,7 +232,7 @@ unquoted(str::AbstractString) = strip(str,['"','\''])
 
 ## Convenient functions for querying arrays of numbers.
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function getdata(ins::InstrumentVISA, ::Type{Val{:AbstractString}},
+function getdata(ins::InstrumentVISA, ::Type{Val{:ASCIIString}},
         cmd, infixes...; delim=",")
     for infix in infixes
         cmd = replace(cmd, "#", infix, 1)

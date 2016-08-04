@@ -16,7 +16,11 @@ module AlazarModule
 lib_opened = false
 
 using Alazar
-import Base.show
+import Base:
+    show,
+    getindex,
+    setindex!
+
 importall PainterQB
 
 export InstrumentAlazar
@@ -49,5 +53,6 @@ include("ResponseFunctions.jl")
 # Model-specific type definitions and methods
 include("models/ATS9360.jl")
 include("models/ATS9440.jl")    # ~~not yet implemented~~
+include("models/ATS9860.jl")
 
 end
