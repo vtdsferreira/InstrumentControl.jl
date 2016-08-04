@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>PainterQB.jl - Package for instrument control and superconducting qubit measurement.</title>
+        <title>InstrumentControl.jl - Package for instrument control and superconducting qubit measurement.</title>
       
       
         <meta name="description" content="Package for instrument control and superconducting qubit measurement.">
@@ -20,15 +20,15 @@
       
     
     <meta property="og:url" content="None">
-    <meta property="og:title" content="PainterQB.jl">
+    <meta property="og:title" content="InstrumentControl.jl">
     <meta property="og:image" content="None/./">
-    <meta name="apple-mobile-web-app-title" content="PainterQB.jl">
+    <meta name="apple-mobile-web-app-title" content="InstrumentControl.jl">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="./None">
-    <link rel="icon" type="image/x-icon" href="./None">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon-e565ddfa3b.ico">
     <style>
       @font-face {
       	font-family: 'Icon';
@@ -45,7 +45,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="./assets/stylesheets/application-54f87043f3.css">
+    <link rel="stylesheet" href="./assets/stylesheets/application-a422ff04cc.css">
     
       <link rel="stylesheet" href="./assets/stylesheets/palettes-05ab2406df.css">
     
@@ -53,7 +53,7 @@
       
       
       
-      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
       <style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
@@ -98,7 +98,7 @@
             
           </span>
         
-        PainterQB.jl
+        InstrumentControl.jl
       </div>
     </div>
     
@@ -127,19 +127,19 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://github.com/ajkeller34/PainterQB.jl" class="project">
+  <a href="https://github.com/PainterQubits/InstrumentControl.jl" class="project">
     <div class="banner">
       
       <div class="name">
         <strong>
-          PainterQB.jl
+          InstrumentControl.jl
           <span class="version">
             
           </span>
         </strong>
         
           <br>
-          ajkeller34/PainterQB.jl
+          PainterQubits/InstrumentControl.jl
         
       </div>
     </div>
@@ -150,12 +150,12 @@
         <ul class="repo">
           <li class="repo-download">
             
-            <a href="https://github.com/ajkeller34/PainterQB.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+            <a href="https://github.com/PainterQubits/InstrumentControl.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
               <i class="icon icon-download"></i> Download
             </a>
           </li>
           <li class="repo-stars">
-            <a href="https://github.com/ajkeller34/PainterQB.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+            <a href="https://github.com/PainterQubits/InstrumentControl.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
               <i class="icon icon-star"></i> Stars
               <span class="count">&ndash;</span>
             </a>
@@ -314,23 +314,23 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='PainterQB.jl-1'></a></p>
-<h1 id="painterqbjl">PainterQB.jl</h1>
+          <p><a id='InstrumentControl.jl-1'></a></p>
+<h1 id="instrumentcontroljl">InstrumentControl.jl</h1>
 <p>A <a href="http://julialang.org">Julia</a> package for qubit measurement and analysis.</p>
 <p><a id='Installation-1'></a></p>
 <h2 id="installation">Installation</h2>
 <ul>
 <li>Install <a href="https://www.ni.com/visa/">National Instruments VISA libraries</a>  (tested with v15.0.1 on Windows 10)</li>
 <li>Install <a href="http://www.alazartech.com">AlazarTech</a> digitizer drivers and shared libraries  (may need to contact AlazarTech)</li>
-<li>Install <a href="http://www.github.com/ajkeller34/VISA.jl">VISA.jl</a></li>
-<li>Install <a href="http://www.github.com/ajkeller34/Alazar.jl">Alazar.jl</a></li>
-<li>Install <a href="http://www.github.com/ajkeller34/PainterQB.jl">PainterQB.jl</a></li>
+<li>Install <a href="http://www.github.com/painterqubits/VISA.jl">VISA.jl</a></li>
+<li>Install <a href="http://www.github.com/painterqubits/Alazar.jl">Alazar.jl</a></li>
+<li>Install <a href="http://www.github.com/painterqubits/InstrumentControl.jl">InstrumentControl.jl</a></li>
 </ul>
 <p><a id='Quick-start-1'></a></p>
 <h2 id="quick-start">Quick start</h2>
-<div class="codehilite"><pre><span></span>using PainterQB
-using PainterQB.Alazar
-using PainterQB.AWG5014C  # etc.
+<div class="codehilite"><pre><span></span>using InstrumentControl
+using InstrumentControl.Alazar
+using InstrumentControl.AWG5014C  # etc.
 
 awg = InsAWG5014C(tcpip_socket(&quot;1.2.3.4&quot;,5000))
 ats = InsAlazarATS9360()
@@ -390,7 +390,7 @@ ats = InsAlazarATS9360()
     </main>
     <script>
       var base_url = '.';
-      var repo_id  = 'ajkeller34/PainterQB.jl';
+      var repo_id  = 'PainterQubits/InstrumentControl.jl';
     </script>
     <script src="./assets/javascripts/application-997097ee0c.js"></script>
     

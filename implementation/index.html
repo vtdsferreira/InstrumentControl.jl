@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Implementation - PainterQB.jl</title>
+        <title>Implementation - InstrumentControl.jl</title>
       
       
       
@@ -18,15 +18,15 @@
       
     
     <meta property="og:url" content="None">
-    <meta property="og:title" content="PainterQB.jl">
+    <meta property="og:title" content="InstrumentControl.jl">
     <meta property="og:image" content="None/../">
-    <meta name="apple-mobile-web-app-title" content="PainterQB.jl">
+    <meta name="apple-mobile-web-app-title" content="InstrumentControl.jl">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="../None">
-    <link rel="icon" type="image/x-icon" href="../None">
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
     <style>
       @font-face {
       	font-family: 'Icon';
@@ -43,7 +43,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
     
       <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
     
@@ -51,7 +51,7 @@
       
       
       
-      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
       <style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
@@ -129,19 +129,19 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://github.com/ajkeller34/PainterQB.jl" class="project">
+  <a href="https://github.com/PainterQubits/InstrumentControl.jl" class="project">
     <div class="banner">
       
       <div class="name">
         <strong>
-          PainterQB.jl
+          InstrumentControl.jl
           <span class="version">
             
           </span>
         </strong>
         
           <br>
-          ajkeller34/PainterQB.jl
+          PainterQubits/InstrumentControl.jl
         
       </div>
     </div>
@@ -152,12 +152,12 @@
         <ul class="repo">
           <li class="repo-download">
             
-            <a href="https://github.com/ajkeller34/PainterQB.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+            <a href="https://github.com/PainterQubits/InstrumentControl.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
               <i class="icon icon-download"></i> Download
             </a>
           </li>
           <li class="repo-stars">
-            <a href="https://github.com/ajkeller34/PainterQB.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+            <a href="https://github.com/PainterQubits/InstrumentControl.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
               <i class="icon icon-star"></i> Stars
               <span class="count">&ndash;</span>
             </a>
@@ -321,19 +321,20 @@
 <p><a id='Code-organization-1'></a></p>
 <h2 id="code-organization">Code organization</h2>
 <ul>
-<li>Each instrument is defined within its own module, a submodule of <code>PainterQB</code>. Each instrument is a subtype of <code>InstrumentVISA &lt;: Instrument</code>. By convention, instrument model numbers are used for module definitions (e.g. <code>AWG5014C</code>), so type names have "Ins" prepended (e.g. <code>InsAWG5014</code>).</li>
+<li>Each instrument is defined within its own module, a submodule of <code>InstrumentControl</code>. Each instrument is a subtype of <code>InstrumentVISA &lt;: Instrument</code>. By convention, instrument model numbers are used for module definitions (e.g. <code>AWG5014C</code>), so type names have "Ins" prepended (e.g. <code>InsAWG5014</code>).</li>
 <li><code>InstrumentVISA</code> and associated functions are defined in <code>src/VISA.jl</code>.</li>
 <li>Low-level wrappers for shared libraries are kept in their own packages (e.g. <code>VISA</code> and <code>Alazar</code> calls). This way, at least some code can be reused if someone else does not want to use our codebase.</li>
 <li>Early instrument definitions and functions like <code>Instrument</code> and <code>InstrumentException</code> are defined in <code>src/Definitions.jl</code>. If there is ever trouble with <code>InstrumentProperty</code> subtypes not being defined by the time they are used in a function, they can be defined and exported manually here.</li>
-<li><code>export</code> statements from an instrument submodule are not currently exported from <code>PainterQB</code>. Therefore you may want to type <code>using PainterQB.AWG5014C</code> when using the AWG, for instance.</li>
+<li><code>export</code> statements from an instrument submodule are not currently exported from <code>InstrumentControl</code>. Therefore you may want to type <code>using InstrumentControl.AWG5014C</code> when using the AWG, for instance.</li>
 </ul>
 <p><a id='Metaprogramming-for-VISA-instruments-1'></a></p>
 <h2 id="metaprogramming-for-visa-instruments">Metaprogramming for VISA instruments</h2>
 <p>Many commercial instruments support a common communications protocol and command syntax (VISA and SCPI respectively). For such instruments, methods for <code>setindex!</code> and <code>getindex</code> can be generated with metaprogramming, rather than typing them out explicitly.</p>
-<p>The file <code>src/Metaprogramming.jl</code> is used heavily for code generation based on JSON template files. Since much of the logic for talking to instruments is the same between VISA instruments, in some cases no code needs to be written to control a new instrument provided an appropriate template file is prepared. The metaprogramming functions are described below although they are not intended to be used interactively.</p>
-<p><a id='PainterQB.insjson' href='#PainterQB.insjson'>#</a>
-<strong><code>PainterQB.insjson</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p>The file <code>src/Metaprogramming.jl</code> is used heavily for code generation based on JSON template files. Since much of the logic for talking to instruments is the same between VISA instruments, in some cases no code needs to be written to control a new instrument provided an appropriate template file is prepared. The metaprogramming functions are described below although they are not intended to be used interactively. &lt;!–</p>
+<p><a id='InstrumentControl.insjson' href='#InstrumentControl.insjson'>#</a>
+<strong><code>InstrumentControl.insjson</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>insjson{T&lt;:Instrument}(::Type{T})</code></p>
+<p>Simple wrapper to call <code>insjson</code> on the appropriate file path for a given instrument type.</p>
 <p><code>insjson(file::AbstractString)</code></p>
 <p>Parses a JSON file with a standardized schema to describe how to control an instrument.</p>
 <p>Here is an example of a valid JSON file with valid schema for parsing:</p>
@@ -363,7 +364,7 @@
 </pre></div>
 
 
-<p>After loading with <code>JSON.parse</code>, all dictionary keys are converted to symbols. The <code>instrument</code> dictionary is described in the <a href="./#PainterQB.generate_instruments"><code>generate_instruments</code></a> documentation. The <code>properties</code> array contains one or more dictionaries, each with keys:</p>
+<p>After loading with <code>JSON.parse</code>, all dictionary keys are converted to symbols. The <code>instrument</code> dictionary is described in the <a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> documentation. The <code>properties</code> array contains one or more dictionaries, each with keys:</p>
 <ul>
 <li><code>cmd</code>: Specifies what must be sent to the instrument (it should be terminated with "?" for query-only). The lower-case characters are replaced by infix arguments.</li>
 <li><code>type</code>: Specifies the <code>InstrumentProperty</code> subtype to use this command. Will be parsed and evaluated.</li>
@@ -372,46 +373,40 @@
 <li><code>doc</code>: Specifies documentation for the generated Julia functions. This key is not required if there is no documentation. This is used not only for interactive help but also in generating the documentation you are reading.</li>
 </ul>
 <p>The value of the <code>properties.type</code> field and entries in the <code>properties.values</code> and <code>properties.infixes</code> arrays are parsed by Julia into expressions or symbols for further manipulation.</p>
-<p><code>insjson{T&lt;:Instrument}(::Type{T})</code></p>
-<p>Simple wrapper to call <code>insjson</code> on the appropriate file path for a given instrument type.</p>
-<p><a id='PainterQB.generate_all' href='#PainterQB.generate_all'>#</a>
-<strong><code>PainterQB.generate_all</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p><a id='InstrumentControl.generate_all' href='#InstrumentControl.generate_all'>#</a>
+<strong><code>InstrumentControl.generate_all</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_all(metadata)</code></p>
-<p>This function takes a dictionary of instrument metadata, typically obtained from a call to <a href="./#PainterQB.insjson"><code>insjson</code></a>. It will go through the following steps:</p>
+<p>This function takes a dictionary of instrument metadata, typically obtained from a call to <a href="./#InstrumentControl.insjson"><code>insjson</code></a>. It will go through the following steps:</p>
 <ol>
-<li><a href="./#PainterQB.generate_instruments"><code>generate_instruments</code></a> part 1: If the module for this instrument does not already exist, generate it and import required modules and symbols.</li>
-<li><a href="./#PainterQB.generate_instruments"><code>generate_instruments</code></a> part 2: Define the <code>Instrument</code> subtype and the <code>make</code> and <code>model</code> methods (<code>make</code> and <code>model</code> are defined in <code>src/Definitions.jl</code>). Export the subtype.</li>
-<li><a href="./#PainterQB.generate_properties"><code>generate_properties</code></a>: Generate instrument properties if they do not exist already, and do any necessary importing and exporting.</li>
-<li><a href="./#PainterQB.generate_handlers"><code>generate_handlers</code></a>: Generate "handler" methods to convert between symbols and SCPI string args.</li>
-<li><a href="./#PainterQB.generate_inspect"><code>generate_inspect</code></a>: Generate <code>getindex</code> methods for instrument properties.</li>
-<li><a href="./#PainterQB.generate_configure"><code>generate_configure</code></a>: Generate <code>setindex!</code> methods for instrument properties.</li>
+<li><a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> part 1: If the module for this instrument does not already exist, generate it and import required modules and symbols.</li>
+<li><a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> part 2: Define the <code>Instrument</code> subtype and the <code>make</code> and <code>model</code> methods (<code>make</code> and <code>model</code> are defined in <code>src/Definitions.jl</code>). Export the subtype.</li>
+<li><a href="./#InstrumentControl.generate_properties"><code>generate_properties</code></a>: Generate instrument properties if they do not exist already, and do any necessary importing and exporting.</li>
+<li><a href="./#InstrumentControl.generate_handlers"><code>generate_handlers</code></a>: Generate "handler" methods to convert between symbols and SCPI string args.</li>
+<li><a href="./#InstrumentControl.generate_inspect"><code>generate_inspect</code></a>: Generate <code>getindex</code> methods for instrument properties.</li>
+<li><a href="./#InstrumentControl.generate_configure"><code>generate_configure</code></a>: Generate <code>setindex!</code> methods for instrument properties.</li>
 </ol>
 <p><code>generate_all</code> should be called near the start of an instrument's .jl file, if one exists. It is not required to have a source file for each instrument if the automatically generated code is sufficient.</p>
-<p><a id='PainterQB.generate_instruments' href='#PainterQB.generate_instruments'>#</a>
-<strong><code>PainterQB.generate_instruments</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p><a id='InstrumentControl.generate_instruments' href='#InstrumentControl.generate_instruments'>#</a>
+<strong><code>InstrumentControl.generate_instruments</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_instruments(metadata)</code></p>
-<p>This function takes a dictionary of metadata, typically obtained from a call to <a href="./#PainterQB.insjson"><code>insjson</code></a>. It operates on the <code>:instrument</code> field of the dictionary which is expected to have the following structure:</p>
+<p>This function takes a dictionary of metadata, typically obtained from a call to <a href="./#InstrumentControl.insjson"><code>insjson</code></a>. It operates on the <code>:instrument</code> field of the dictionary which is expected to have the following structure:</p>
 <ul>
-<li><code>module</code>: The module name. Can already exist but is created if it does not. This field is converted from a string to a <code>Symbol</code> by <a href="./#PainterQB.insjson"><code>insjson</code></a>.</li>
-<li><code>type</code>: The name of the type to create for the new instrument. This field is converted from a string to a <code>Symbol</code> by <a href="./#PainterQB.insjson"><code>insjson</code></a>.</li>
-<li><code>super</code>: This field is optional. If provided it will be the supertype of the new instrument type, otherwise the supertype will be <code>InstrumentVISA</code>. This field is converted from a string to a <code>Symbol</code> by <a href="./#PainterQB.insjson"><code>insjson</code></a>.</li>
+<li><code>module</code>: The module name. Can already exist but is created if it does not. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</li>
+<li><code>type</code>: The name of the type to create for the new instrument. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</li>
+<li><code>super</code>: This field is optional. If provided it will be the supertype of the new instrument type, otherwise the supertype will be <code>InstrumentVISA</code>. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</li>
 <li><code>make</code>: The make of the instrument, e.g. Keysight, Tektronix, etc.</li>
 <li><code>model</code>: The model of the instrument, e.g. E5071C, AWG5014C, etc.</li>
 <li><code>writeterminator</code>: Write termination string for sending SCPI commands.</li>
 </ul>
 <p>By convention we typically have the module name be the same as the model name, and the type is just the model prefixed by "Ins", e.g. <code>InsE5071C</code>. This is not required.</p>
-<p><a id='PainterQB.generate_properties' href='#PainterQB.generate_properties'>#</a>
-<strong><code>PainterQB.generate_properties</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p><a id='InstrumentControl.generate_properties' href='#InstrumentControl.generate_properties'>#</a>
+<strong><code>InstrumentControl.generate_properties</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_properties{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
-<p>This function is responsible for generating the <code>InstrumentProperty</code> subtypes to use with <code>getindex</code> and <code>setindex!</code> if they have not been defined already. Ordinarily these types are defined in the PainterQB module but if a really generic name is desired that makes sense for a class of instruments (e.g. <code>VNA.Format</code>) then the <code>Format</code> subtype is defined in the <code>PainterQB.VNA</code> module. The defined subtype is then imported into the module where the <code>instype</code> is defined.</p>
+<p>This function is responsible for generating the <code>InstrumentProperty</code> subtypes to use with <code>getindex</code> and <code>setindex!</code> if they have not been defined already. Ordinarily these types are defined in the InstrumentControl module but if a really generic name is desired that makes sense for a class of instruments (e.g. <code>VNA.Format</code>) then the <code>Format</code> subtype is defined in the <code>InstrumentControl.VNA</code> module. The defined subtype is then imported into the module where the <code>instype</code> is defined.</p>
 <p>If you an encounter an error where it appears like the subtypes were not defined, it may be that they are being referenced from a module that did an <code>import</code> statement too soon, before all relevant <code>InstrumentProperty</code> subtypes were defined and exported. Ordinarily this is not a problem.</p>
-<p><a id='PainterQB.generate_handlers' href='#PainterQB.generate_handlers'>#</a>
-<strong><code>PainterQB.generate_handlers</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p><a id='InstrumentControl.generate_handlers' href='#InstrumentControl.generate_handlers'>#</a>
+<strong><code>InstrumentControl.generate_handlers</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_handlers{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>In some cases, an instrument command does not except numerical arguments but rather a small set of options. Here is an example of the property dictionary (prior to parsing) for such a command, which sets/gets the format for a given channel and trace on the E5071C vector network analyzer:</p>
@@ -460,18 +455,17 @@
 
 
 <p>The above methods will be defined in the E5071C module. Note that the function <code>symbols</code> has its name chosen based on the dictionary name in the JSON file. Since this function is not exported from the instrument's module there should be few namespace worries and we maintain future flexibliity.</p>
-<p><a id='PainterQB.generate_configure' href='#PainterQB.generate_configure'>#</a>
-<strong><code>PainterQB.generate_configure</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p><a id='InstrumentControl.generate_configure' href='#InstrumentControl.generate_configure'>#</a>
+<strong><code>InstrumentControl.generate_configure</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_configure{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
-<p><a id='PainterQB.generate_inspect' href='#PainterQB.generate_inspect'>#</a>
-<strong><code>PainterQB.generate_inspect</code></strong> &mdash; <em>Function</em>.</p>
-<hr />
+<p><a id='InstrumentControl.generate_inspect' href='#InstrumentControl.generate_inspect'>#</a>
+<strong><code>InstrumentControl.generate_inspect</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_inspect{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
+<p>–&gt;</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -541,7 +535,7 @@
     </main>
     <script>
       var base_url = '..';
-      var repo_id  = 'ajkeller34/PainterQB.jl';
+      var repo_id  = 'PainterQubits/InstrumentControl.jl';
     </script>
     <script src="../assets/javascripts/application-997097ee0c.js"></script>
     
