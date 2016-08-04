@@ -1,4 +1,4 @@
-module PainterQB
+module InstrumentControl
 
 # Define common types and shared functions
 include("Definitions.jl")
@@ -40,16 +40,16 @@ include("LiveUpdate.jl")
 
 end
 
-using PainterQB
-using PainterQB.AWG5014C
-# using PainterQB.AlazarModule
-using PainterQB.VNA
-using PainterQB.E5071C
-using PainterQB.E8257D
-using PainterQB.GS200
-# using PainterQB.ZNB20Module
+using InstrumentControl
+using InstrumentControl.AWG5014C
+# using InstrumentControl.AlazarModule
+using InstrumentControl.VNA
+using InstrumentControl.E5071C
+using InstrumentControl.E8257D
+using InstrumentControl.GS200
+# using InstrumentControl.ZNB20Module
 
-const PARALLEL_PATH = joinpath(Pkg.dir("PainterQB"), "src", "ParallelUtils.jl")
+const PARALLEL_PATH = joinpath(Pkg.dir("InstrumentControl"), "src", "ParallelUtils.jl")
 
 reload_parallel() = eval(Main,:(@everywhere include($PARALLEL_PATH)))
 reload_parallel()

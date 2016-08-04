@@ -1,5 +1,5 @@
-site_name:        PainterQB.jl
-repo_url:         https://github.com/ajkeller34/PainterQB.jl
+site_name:        InstrumentControl.jl
+repo_url:         https://github.com/PainterQubits/InstrumentControl.jl
 site_description: Package for instrument control and superconducting qubit measurement.
 site_author:      Andrew Keller
 
@@ -26,15 +26,15 @@ docs_dir: 'build'
 
 pages:
 - Home: index.md
-- Overview:
-    - 'Design': design.md
-    - 'Implementation': implementation.md
-    - 'To do': todo.md
-- Instruments:
-    - 'Alazar digitizers': Alazar.md
-    - 'AWG5014C': awg5014c/index.md
-    - 'E5071C': e5071c/index.md
-- Miscellaneous:
-    - 'Documentation building': docbuild.md
-    - 'Release notes': releases.md
-    - 'License': LICENSE.md
+# - Overview:
+#     - 'Design': design.md
+#     - 'Implementation': implementation.md
+#     - 'To do': todo.md
+# - Instruments:
+#     - 'Alazar digitizers': Alazar.md
+#     - 'AWG5014C': awg5014c/index.md
+#     - 'E5071C': e5071c/index.md
+# - Miscellaneous:
+#     - 'Documentation building': docbuild.md
+#     - 'Release notes': releases.md
+#     - 'License': LICENSE.md

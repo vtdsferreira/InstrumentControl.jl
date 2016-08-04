@@ -2,7 +2,7 @@
 
 ## Code organization
 
-- Each instrument is defined within its own module, a submodule of `PainterQB`.
+- Each instrument is defined within its own module, a submodule of `InstrumentControl`.
 Each instrument is a subtype of `InstrumentVISA <: Instrument`. By convention,
 instrument model numbers are used for module definitions
 (e.g. `AWG5014C`), so type names have "Ins" prepended (e.g. `InsAWG5014`).
@@ -15,7 +15,7 @@ someone else does not want to use our codebase.
 trouble with `InstrumentProperty` subtypes not being defined by the time they
 are used in a function, they can be defined and exported manually here.
 - `export` statements from an instrument submodule are not currently exported
-from `PainterQB`. Therefore you may want to type `using PainterQB.AWG5014C`
+from `InstrumentControl`. Therefore you may want to type `using InstrumentControl.AWG5014C`
 when using the AWG, for instance.
 
 ## Metaprogramming for VISA instruments
@@ -31,8 +31,8 @@ the same between VISA instruments, in some cases no code needs to be written
 to control a new instrument provided an appropriate template file is prepared.
 The metaprogramming functions are described below although they are not intended
 to be used interactively.
-
-    {docs}
+<!--
+```@docs
     insjson
     generate_all
     generate_instruments
@@ -40,3 +40,4 @@ to be used interactively.
     generate_handlers
     generate_configure
     generate_inspect
+``` -->

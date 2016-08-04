@@ -141,7 +141,7 @@ the automatically generated code is sufficient.
 """
 function generate_all(metadata)
     generate_instruments(metadata)
-    md = eval(PainterQB, metadata[:instrument][:module])
+    md = eval(InstrumentControl, metadata[:instrument][:module])
     ins = eval(md, metadata[:instrument][:type])
 
     for p in metadata[:properties]
@@ -180,19 +180,19 @@ function generate_instruments(metadata)
     idata = metadata[:instrument]
     mdname = idata[:module]
     # The module may not be defined if there is no source .jl file.
-    if !isdefined(PainterQB, mdname)
+    if !isdefined(InstrumentControl, mdname)
         # We must define the module and import necessary definitions
-        eval(PainterQB, quote
+        eval(InstrumentControl, quote
             module $mdname
             import Base: getindex, setindex!
             import VISA
-            importall PainterQB
+            importall InstrumentControl
             end
         end)
     end
 
     # Now the module is defined. We evaluate the symbol and get the Module object
-    md = eval(PainterQB, mdname)
+    md = eval(InstrumentControl, mdname)
 
     # boring assignment for convenience
     typsym = idata[:type]
@@ -231,9 +231,9 @@ This function takes an `Instrument` subtype `instype`, and a property dictionary
 
 This function is responsible for generating the `InstrumentProperty` subtypes
 to use with `getindex` and `setindex!` if they have not been defined already.
-Ordinarily these types are defined in the PainterQB module but if a really
+Ordinarily these types are defined in the InstrumentControl module but if a really
 generic name is desired that makes sense for a class of instruments (e.g. `VNA.Format`)
-then the `Format` subtype is defined in the `PainterQB.VNA` module. The defined
+then the `Format` subtype is defined in the `InstrumentControl.VNA` module. The defined
 subtype is then imported into the module where the `instype` is defined.
 
 If you an encounter an error where it appears like the subtypes were not
@@ -245,12 +245,12 @@ function generate_properties{S<:Instrument}(instype::Type{S}, p)
     md = instype.name.module
     if isa(p[:type], Symbol)
         # No module path; assume we define it in the base module
-        if !isdefined(PainterQB, p[:type])
-            # Define and export the InstrumentProperty subtype in PainterQB
-            eval(PainterQB, :(abstract $(p[:type]) <: InstrumentProperty))
-            eval(PainterQB, :(export $(p[:type])))
+        if !isdefined(InstrumentControl, p[:type])
+            # Define and export the InstrumentProperty subtype in InstrumentControl
+            eval(InstrumentControl, :(abstract $(p[:type]) <: InstrumentProperty))
+            eval(InstrumentControl, :(export $(p[:type])))
             # Import the subtype in our instrument's module
-            eval(md, :(import PainterQB.$(p[:type])))
+            eval(md, :(import InstrumentControl.$(p[:type])))
         end
     elseif isa(p[:type], Expr)
         # Symbol is qualified by module path.
@@ -263,7 +263,7 @@ function generate_properties{S<:Instrument}(instype::Type{S}, p)
             # We need to take care with module paths. The following is
             # kind of crude but import doesn't accept modules, only symbols
             syms = map(symbol, split(string(p[:type]),"."))
-            syms[1] != :PainterQB && (insert!(syms, 1, :PainterQB))
+            syms[1] != :InstrumentControl && (insert!(syms, 1, :InstrumentControl))
             # Import the subtype in our instrument's module
             eval(md, Expr(:import, syms...))
         end
@@ -603,7 +603,7 @@ end
 #
 # function generate_docs_template{S<:Instrument}(ins::Type{S})
 #     name = lowercase(split(string(ins.name),".")[end])
-#     base = joinpath(Pkg.dir("PainterQB"),"docs","src",name)
+#     base = joinpath(Pkg.dir("InstrumentControl"),"docs","src",name)
 #     gpath = joinpath(base, "getindex.md")
 #     spath = joinpath(base, "setindex.md")
 #     bpath = joinpath(base, "body.md")

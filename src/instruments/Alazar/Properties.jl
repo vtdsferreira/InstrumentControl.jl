@@ -1,4 +1,4 @@
-include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
+include(joinpath(Pkg.dir("InstrumentControl"),"src/meta/Metaprogramming.jl"))
 
 export AlazarAux
 export AlazarChannel

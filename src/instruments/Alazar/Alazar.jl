@@ -21,10 +21,9 @@ import Base:
     getindex,
     setindex!
 
-importall PainterQB
+importall InstrumentControl
 
 export InstrumentAlazar
-
 export inf_records
 
 "Alazar API representation of an infinite number of records."

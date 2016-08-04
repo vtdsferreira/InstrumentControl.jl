@@ -1,7 +1,7 @@
 "Definitions specific to VNAs."
 module VNA
 
-importall PainterQB
+importall InstrumentControl
 import FixedSizeArrays
 import Base: search
 

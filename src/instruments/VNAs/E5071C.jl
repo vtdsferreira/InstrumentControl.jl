@@ -1,9 +1,9 @@
 module E5071C
 import Base: getindex, setindex!
 import VISA
-importall PainterQB
-importall PainterQB.VNA
-import PainterQB.VNA: datacmd, peaknotfound, window
+importall InstrumentControl
+importall InstrumentControl.VNA
+import InstrumentControl.VNA: datacmd, peaknotfound, window
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
@@ -11,11 +11,11 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("PainterQB"),"deps/E5071C.json"))
+metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps/E5071C.json"))
 generate_all(metadata)
 
 import FileIO
-import PainterQB: getdata
+import InstrumentControl: getdata
 import FixedSizeArrays
 import FixedSizeArrays.Mat
 

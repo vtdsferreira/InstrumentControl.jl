@@ -12,7 +12,7 @@ Markdown files.
 Starting from the home directory at the shell:
 
 ```
-cd .julia/v0.4/PainterQB/docs
+cd .julia/v0.4/InstrumentControl/docs
 julia make.jl
 ```
 

@@ -1,4 +1,4 @@
-using PainterQB
+using InstrumentControl
 using Base.Test
 
 # ░░░░░░░░░░ WARNING ░░░░░░░░░░░

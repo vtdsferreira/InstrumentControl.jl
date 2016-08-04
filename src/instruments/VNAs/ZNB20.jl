@@ -5,13 +5,13 @@ import VISA
 import Base: cd, pwd
 
 ## Import our modules
-importall PainterQB                 # All the stuff in InstrumentDefs, etc.
-import PainterQB: getdata
+importall InstrumentControl                 # All the stuff in InstrumentDefs, etc.
+import InstrumentControl: getdata
 
-importall PainterQB.VNA
-import PainterQB.VNA: datacmd
+importall InstrumentControl.VNA
+import InstrumentControl.VNA: datacmd
 
-include(joinpath(Pkg.dir("PainterQB"),"src/meta/Metaprogramming.jl"))
+include(joinpath(Pkg.dir("InstrumentControl"),"src/meta/Metaprogramming.jl"))
 
 export ZNB20
 

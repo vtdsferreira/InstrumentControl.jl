@@ -6,7 +6,7 @@ export IQSoftwareResponse
 export AlternatingRealImagResponse
 
 export measure
-import PainterQB.scaling
+import InstrumentControl.scaling
 
 "Abstract `Response` from an Alazar digitizer instrument."
 abstract AlazarResponse{T} <: Response{T}

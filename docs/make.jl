@@ -1,4 +1,4 @@
-using Documenter, PainterQB
+using Documenter, InstrumentControl
 
 makedocs()
 
