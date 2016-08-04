@@ -330,7 +330,7 @@
 <p><a id='Metaprogramming-for-VISA-instruments-1'></a></p>
 <h2 id="metaprogramming-for-visa-instruments">Metaprogramming for VISA instruments</h2>
 <p>Many commercial instruments support a common communications protocol and command syntax (VISA and SCPI respectively). For such instruments, methods for <code>setindex!</code> and <code>getindex</code> can be generated with metaprogramming, rather than typing them out explicitly.</p>
-<p>The file <code>src/Metaprogramming.jl</code> is used heavily for code generation based on JSON template files. Since much of the logic for talking to instruments is the same between VISA instruments, in some cases no code needs to be written to control a new instrument provided an appropriate template file is prepared. The metaprogramming functions are described below although they are not intended to be used interactively. &lt;!–</p>
+<p>The file <code>src/Metaprogramming.jl</code> is used heavily for code generation based on JSON template files. Since much of the logic for talking to instruments is the same between VISA instruments, in some cases no code needs to be written to control a new instrument provided an appropriate template file is prepared. The metaprogramming functions are described below although they are not intended to be used interactively.</p>
 <p><a id='InstrumentControl.insjson' href='#InstrumentControl.insjson'>#</a>
 <strong><code>InstrumentControl.insjson</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>insjson{T&lt;:Instrument}(::Type{T})</code></p>
@@ -465,7 +465,6 @@
 <p><code>generate_inspect{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
-<p>–&gt;</p>
           <aside class="copyright" role="note">
             
             Documentation built with
