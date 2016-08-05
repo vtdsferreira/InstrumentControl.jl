@@ -3,8 +3,6 @@ export AlazarChannel
 export AlazarDataPacking
 export AlazarLSB
 export AlazarTimestampReset
-export AlazarTriggerEngine
-export AlazarTriggerRange
 
 export AuxSoftwareTriggerEnable
 export BitsPerSample
@@ -21,11 +19,12 @@ export PretriggerAlignment
 export RecordCount
 export SampleMemoryPerChannel
 export Sleep
+export TriggerCoupling
+export TriggerEngine
 export TriggerDelaySamples
+export TriggerRange
 export TriggerTimeoutS
 export TriggerTimeoutTicks
-
-export Rate1GSps
 
 "An InstrumentProperty specific to AlazarTech digitizers."
 abstract AlazarProperty       <: InstrumentProperty
@@ -36,8 +35,6 @@ abstract AlazarDataPacking    <: AlazarProperty
 abstract AlazarLSB            <: AlazarProperty
 abstract AlazarOutputTTLLevel <: AlazarProperty
 abstract AlazarTimestampReset <: AlazarProperty
-abstract AlazarTriggerEngine  <: AlazarProperty
-abstract AlazarTriggerRange   <: AlazarProperty
 
 subtypesArray = [
 
@@ -49,21 +46,6 @@ subtypesArray = [
     (:TTLHigh,                   AlazarOutputTTLLevel),
     (:TTLLow,                    AlazarOutputTTLLevel),
 
-    (:TimestampResetOnce,        AlazarTimestampReset),
-    (:TimestampResetAlways,      AlazarTimestampReset),
-
-    (:TriggerOnJ,                AlazarTriggerEngine),
-    (:TriggerOnK,                AlazarTriggerEngine),
-    (:TriggerOnJOrK,             AlazarTriggerEngine),
-    (:TriggerOnJAndK,            AlazarTriggerEngine),
-    (:TriggerOnJXorK,            AlazarTriggerEngine),
-    (:TriggerOnJAndNotK,         AlazarTriggerEngine),
-    (:TriggerOnNotJAndK,         AlazarTriggerEngine),
-
-    (:ChannelATrigger,           TriggerSource),
-    (:ChannelBTrigger,           TriggerSource),
-    (:DisableTrigger,            TriggerSource)
-
 ]::Array{Tuple{Symbol,DataType},1}
 
 # Create all the concrete types we need using the generate_properties function.
@@ -72,35 +54,8 @@ subtypesArray = [
 # end
 
 responses = Dict(
-    :ClockSlope     => Dict(Alazar.CLOCK_EDGE_RISING        => :RisingClock,
-                            Alazar.CLOCK_EDGE_FALLING       => :FallingClock),
-
-    :ClockSource    => Dict(Alazar.INTERNAL_CLOCK           => :InternalClock,
-                            Alazar.EXTERNAL_CLOCK_10MHz_REF => :ExternalClock),
-
-    :TriggerSlope   => Dict(Alazar.TRIGGER_SLOPE_POSITIVE   => :RisingTrigger,
-                            Alazar.TRIGGER_SLOPE_NEGATIVE   => :FallingTrigger),
-
-    :TriggerSource  => Dict(Alazar.TRIG_EXTERNAL            => :ExternalTrigger,
-                            Alazar.TRIG_DISABLE             => :DisableTrigger,
-                            Alazar.TRIG_CHAN_A              => :ChannelATrigger,
-                            Alazar.TRIG_CHAN_B              => :ChannelBTrigger),
-
     :AlazarOutputTTLLevel => Dict(U32(0) => :TTLLow,
                                   U32(1) => :TTLHigh),
-
-    :AlazarTimestampReset =>
-            Dict(Alazar.TIMESTAMP_RESET_ALWAYS         => :TimestampResetAlways,
-                 Alazar.TIMESTAMP_RESET_FIRSTTIME_ONLY => :TimestampResetOnce),
-
-    :AlazarTriggerEngine =>
-            Dict(Alazar.TRIG_ENGINE_OP_J           => :TriggerOnJ,
-                 Alazar.TRIG_ENGINE_OP_K           => :TriggerOnK,
-                 Alazar.TRIG_ENGINE_OP_J_OR_K      => :TriggerOnJOrK,
-                 Alazar.TRIG_ENGINE_OP_J_AND_K     => :TriggerOnJAndK,
-                 Alazar.TRIG_ENGINE_OP_J_XOR_K     => :TriggerOnJXorK,
-                 Alazar.TRIG_ENGINE_OP_J_AND_NOT_K => :TriggerOnJAndNotK,
-                 Alazar.TRIG_ENGINE_OP_NOT_J_AND_K => :TriggerOnNotJAndK),
 )
 
 # generate_handlers(InstrumentAlazar, responses)
@@ -120,7 +75,10 @@ abstract PretriggerAlignment       <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
 abstract Sleep                     <: AlazarProperty
+abstract TriggerCoupling           <: AlazarProperty
 abstract TriggerDelaySamples       <: AlazarProperty
+abstract TriggerEngine             <: AlazarProperty
+abstract TriggerRange              <: AlazarProperty
 abstract TriggerTimeoutS           <: AlazarProperty
 abstract TriggerTimeoutTicks       <: AlazarProperty
 
@@ -152,6 +110,48 @@ function symbol_to_channel_code(s)
     end
 end
 
+function symbol_to_clock_slope(s)
+    if s == :Rising
+        Alazar.CLOCK_EDGE_RISING
+    elseif s == :Falling
+        Alazar.CLOCK_EDGE_FALLING
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_clock_source(s)
+    if s == :Internal
+        Alazar.INTERNAL_CLOCK
+    elseif s == :External
+        Alazar.EXTERNAL_CLOCK_10MHz_REF
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_coupling(s)
+    if s == :DC
+        Alazar.DC_COUPLING
+    elseif s == :AC
+        Alazar.AC_COUPLING
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_pack(p)
+    if p == :DefaultPacking
+        Alazar.PACK_DEFAULT
+    elseif p == :Pack8Bits
+        Alazar.PACK_8_BITS_PER_SAMPLE
+    elseif p == :Pack12Bits
+        Alazar.PACK_12_BITS_PER_SAMPLE
+    else
+        error("Unexpected symbol.")
+    end
+end
+
 function symbol_to_ext_trig_range(s)
     if s == :Range5V
         Alazar.ETR_5V
@@ -159,6 +159,60 @@ function symbol_to_ext_trig_range(s)
         Alazar.ETR_2V5
     elseif s == :RangeTTL
         Alazar.ETR_TTL
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_trig_engine(s)
+    if s == :TriggerOnJ
+        Alazar.TRIG_ENGINE_OP_J
+    elseif s == :TriggerOnK
+        Alazar.TRIG_ENGINE_OP_K
+    elseif s == :TriggerOnJOrK
+        Alazar.TRIG_ENGINE_OP_J_OR_K
+    elseif s == :TriggerOnJAndK
+        Alazar.TRIG_ENGINE_OP_J_AND_K
+    elseif s == :TriggerOnJXorK
+        Alazar.TRIG_ENGINE_OP_J_XOR_K
+    elseif s == :TriggerOnJAndNotK
+        Alazar.TRIG_ENGINE_OP_J_AND_NOT_K
+    elseif s == :TriggerOnNotJAndK
+        Alazar.TRIG_ENGINE_OP_NOT_J_AND_K
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_trig_slope(s)
+    if s == :Rising
+        Alazar.TRIGGER_SLOPE_POSITIVE
+    elseif s == :Falling
+        Alazar.TRIGGER_SLOPE_NEGATIVE
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_trig_source(s)
+    if s == :External
+        Alazar.TRIG_EXTERNAL
+    elseif s == :Disabled
+        Alazar.TRIG_DISABLE
+    elseif s == :ChannelA
+        Alazar.TRIG_CHAN_A
+    elseif s == :ChannelB
+        Alazar.TRIG_CHAN_B
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_ts_reset(s)
+    if s == :Once
+        Alazar.TIMESTAMP_RESET_FIRSTTIME_ONLY
+    elseif s == :Always
+        Alazar.TIMESTAMP_RESET_ALWAYS
     else
         error("Unexpected symbol.")
     end

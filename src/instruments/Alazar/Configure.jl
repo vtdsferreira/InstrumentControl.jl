@@ -123,8 +123,8 @@ end
 "Configures one of the preset sample rates derived from the internal clock."
 function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
     val = symbol_to_clock_code(rate)
-    @eh2 AlazarSetCaptureClock(a.handle,
-                               Alazar.INTERNAL_CLOCK, val, a.clockSlope, 0)
+    @eh2 AlazarSetCaptureClock(a.handle, Alazar.INTERNAL_CLOCK, val,
+        symbol_to_clock_slope(a.clockSlope), 0)
 
     a.clockSource = Alazar.INTERNAL_CLOCK
     a.sampleRate = val
@@ -133,17 +133,13 @@ function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
 end
 
 "Configures whether the clock ticks on a rising or falling slope."
-function configure{T<:ClockSlope}(a::InstrumentAlazar, slope::Type{T}, ::Type{})
-    slope == ClockSlope && error("Choose a clock slope.")
-
-    val = code(a,slope)
-
+function setindex!(a::InstrumentAlazar, slope::Symbol, ::Type{ClockSlope})
     @eh2 AlazarSetCaptureClock(a.handle,
-                               a.clockSource,
+                               symbol_to_clock_source(a.clockSource),
                                a.sampleRate,
-                               val,
+                               symbol_to_clock_slope(slope),
                                a.decimation)
-    a.clockSlope = val
+    a.clockSlope = slope
     nothing
 end
 
@@ -153,65 +149,69 @@ end
 function setindex!(a::InstrumentAlazar, pack::Symbol, ::Type{AlazarDataPacking},
         ch::Symbol)
 
-    chcode = if ch == :ChannelA
-        Alazar.CHANNEL_A
-    elseif ch == :ChannelB
-        Alazar.CHANNEL_B
-    elseif ch == :BothChannels
-        Alazar.CHANNEL_A | Alazar.CHANNEL_B
-    else
-        error("Unexpected symbol.")
-    end
-
-    pk = if ch == :DefaultPacking
-        Alazar.PACK_DEFAULT
-    elseif ch == :Pack8Bits
-        Alazar.PACK_8_BITS_PER_SAMPLE
-    elseif ch == :Pack12Bits
-        Alazar.PACK_12_BITS_PER_SAMPLE
-    else
-        error("Unexpected symbol.")
-    end
-
-    @eh2 AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, pk)
-    a.packingA = pk
+    @eh2 AlazarSetParameter(a.handle, symbol_to_channel_code(ch),
+        Alazar.PACK_MODE, symbol_to_pack(pack))
+    a.packingA = pack
     nothing
 end
 
 ## Miscellaneous ######
 
-"Configures the LED on the digitizer card chassis."
-function setindex!(a::InstrumentAlazar, ledState::Bool, ::Type{LED})
+"""
+```
+setindex!(a::InstrumentAlazar, ledState::Bool, ::Type{LED})
+```
+
+Configures the LED on the digitizer card chassis.
+"""
+function setindex!(a::InstrumentAlazar, ledState, ::Type{LED})
     @eh2 AlazarSetLED(a.handle, ledState)
     nothing
 end
 
-"Configures the sleep state of the digitizer card."
+"""
+```
+setindex!(a::InstrumentAlazar, sleepState, ::Type{Sleep})
+```
+
+Configures the sleep state of the digitizer card.
+"""
 function setindex!(a::InstrumentAlazar, sleepState, ::Type{Sleep})
     @eh2 AlazarSleepDevice(a.handle, sleepState)
     nothing
 end
 
-# not supported by ATS310, 330, 850.
+#
 """
-Configures timestamp reset. From the Alazar API, the choices are
-`TimestampResetOnce`
-(Reset the timestamp counter to zero on the next call to `AlazarStartCapture`,
-but not thereafter.) or `TimestampResetAlways` (Reset the timestamp counter to
-zero on each call to AlazarStartCapture. This is the default operation.)
+```
+setindex!(a::InstrumentAlazar, s::Symbol, ::Type{AlazarTimestampReset})
+```
+
+Configures timestamp reset.
+- `:Always`: Reset the timestamp counter to zero on each call to
+`AlazarStartCapture`. This is the default operation.
+- `:Once`: Reset the timestamp counter to zero on the next call to
+`AlazarStartCapture`, but not thereafter.
+
+Not supported by ATS310, 330, 850.
 """
-function configure{T<:AlazarTimestampReset}(a::InstrumentAlazar, t::Type{T})
-    (t == AlazarTimestampReset) && error("Choose TimestampReset[Once|Always]")
-    option = code(a,t)
-    @eh2 AlazarResetTimeStamp(a.handle, option)
+function setindex!(a::InstrumentAlazar, s::Symbol, ::Type{AlazarTimestampReset})
+    @eh2 AlazarResetTimeStamp(a.handle, symbol_to_ts_reset(s))
     nothing
 end
 
 ## Trigger engine ###########
 
-"Configures the trigger engines, e.g. TriggerOnJ, TriggerOnJAndNotK, etc."
-function configure{T<:AlazarTriggerEngine}(a::InstrumentAlazar, engine::Type{T})
-    eng = code(a,engine)
+"""
+```
+setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
+```
+
+Configures the trigger engines J and K. Available arguments are `:TriggerOnJ`,
+`:TriggerOnK`, `:TriggerOnJOrK`, `:TriggerOnJAndK`, `:TriggerOnJXorK`,
+`:TriggerOnJAndNotK`, `:TriggerOnNotJAndK`.
+"""
+function setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
     set_triggeroperation(a, eng,
         a.channelJ, a.slopeJ, a.levelJ,
         a.channelK, a.slopeK, a.levelK)
@@ -219,11 +219,9 @@ function configure{T<:AlazarTriggerEngine}(a::InstrumentAlazar, engine::Type{T})
 end
 
 "Configures whether to trigger on a rising or falling slope, for engine J and K."
-function configure{S<:TriggerSlope,T<:TriggerSlope}(
-    a::InstrumentAlazar, slopeJ::Type{S}, slopeK::Type{T})
-
-    sJ = code(a,slopeJ)
-    sK = code(a,slopeK)
+function setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol},
+        ::Type{TriggerSlope})
+    sJ,sK = slope
     set_triggeroperation(a, a.engine,
         a.channelJ, sJ, a.levelJ,
         a.channelK, sK, a.levelK)
@@ -233,11 +231,9 @@ end
 """
 Configure the trigger source for trigger engine J and K.
 """
-function configure{S<:TriggerSource,T<:TriggerSource}(a::InstrumentAlazar,
-        sourceJ::Type{S}, sourceK::Type{T})
-
-    sJ = code(a,sourceJ)
-    sK = code(a,sourceK)
+function setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol},
+        ::Type{TriggerSource})
+    sJ,sK = source
     set_triggeroperation(a, a.engine,
         sJ, a.slopeJ, a.levelJ,
         sK, a.slopeK, a.levelK)
@@ -245,10 +241,11 @@ function configure{S<:TriggerSource,T<:TriggerSource}(a::InstrumentAlazar,
 end
 
 """
-Configure the trigger level for trigger engine J and K. This should be an
-unsigned 8 bit integer (0--255) corresponding to the full range of the digitizer.
+Configure the trigger level for trigger engine J and K, in Volts.
 """
-function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
+function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
+        ::Type{TriggerLevel})
+    levelJ, levelK = l
     set_triggeroperation(a.handle, a.engine,
         a.channelJ, a.slopeJ, levelJ,
         a.channelK, a.slopeK, levelK)
@@ -256,23 +253,27 @@ function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
 end
 
 "Configure the external trigger coupling."
-function configure(a::InstrumentAlazar, coupling, ::Type{Coupling})
-    c = if coupling == :AC
-        Alazar.AC_COUPLING
-    elseif coupling == :DC
-        Alazar.DC_COUPLING
+function setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
+    if :triggerCoupling in fieldnames(a) && :triggerRange in fieldnames(a)
+        a.triggerCoupling = c
+        @eh2 AlazarSetExternalTrigger(a.handle, symbol_to_coupling(c),
+            symbol_to_ext_trig_range(a.triggerRange))
     else
-        error("Unexpected symbol.")
+        warn("Cannot configure trigger coupling for $a.")
     end
-
-    @eh2 AlazarSetExternalTrigger(a.handle, c, symbol_to_ext_trig_range(a.triggerRange))
     nothing
 end
 
 "Configure the external trigger range."
-function configure{T<:AlazarTriggerRange}(a::InstrumentAlazar, range::Type{T})
-    rang = code(a,range)
-    @eh2 AlazarSetExternalTrigger(a.handle, a.coupling, rang)
+function setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
+    if :triggerCoupling in fieldnames(a) && :triggerRange in fieldnames(a)
+        a.triggerRange = range
+        @eh2 AlazarSetExternalTrigger(a.handle,
+            symbol_to_coupling(a.triggerCoupling),
+            symbol_to_ext_trig_range(range))
+    else
+        warn("Cannot configure trigger range for $a.")
+    end
     nothing
 end
 

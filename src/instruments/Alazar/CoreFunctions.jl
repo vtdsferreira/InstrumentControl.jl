@@ -730,19 +730,12 @@ Configure the trigger operation. Usually not called directly.
 Args should be, in the following order:
 
 a::InstrumentAlazar
-
 engine:  one of the trigger engine operation IDs in the Alazar API.
-
 source1: one of `TRIG_CHAN_A`, `TRIG_CHAN_B`, or `TRIG_DISABLE`
-
 slope1:  `TRIGGER_SLOPE_POSITIVE` or `TRIGGER_SLOPE_NEGATIVE`
-
 level1:  a voltage (V).
-
 source2: one of `TRIG_CHAN_A`, `TRIG_CHAN_B`, or `TRIG_DISABLE`
-
 slope2:  `TRIGGER_SLOPE_POSITIVE` or `TRIGGER_SLOPE_NEGATIVE`
-
 level2:  a voltage (V).
 """
 function set_triggeroperation(a::InstrumentAlazar, args...)
@@ -750,9 +743,11 @@ function set_triggeroperation(a::InstrumentAlazar, args...)
         error("Need 7 arguments beside the instrument: engine, source1, ",
             "slope1, level1, source2, slope2, level2.")
     end
-    @eh2 AlazarSetTriggerOperation(a.handle, args[1],
-        Alazar.TRIG_ENGINE_J, args[2], args[3], triglevel(a,args[4]),
-        Alazar.TRIG_ENGINE_K, args[5], args[6], triglevel(a,args[7]))
+    @eh2 AlazarSetTriggerOperation(a.handle, symbol_to_trig_engine(args[1]),
+        Alazar.TRIG_ENGINE_J, symbol_to_trig_source(args[2]),
+            symbol_to_trig_slope(args[3]), triglevel(a,args[4]),
+        Alazar.TRIG_ENGINE_K, symbol_to_trig_source(args[5]),
+            symbol_to_trig_slope(args[6]), triglevel(a,args[7]))
     (a.engine,
         a.channelJ, a.slopeJ, a.levelJ,
         a.channelK, a.slopeK, a.levelK) = (args...)
