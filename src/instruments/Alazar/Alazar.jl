@@ -47,11 +47,11 @@ include("CoreFunctions.jl")
 include("Configure.jl")
 include("Inspect.jl")
 include("ResponseTypes.jl")
-include("ResponseFunctions.jl")
+# include("ResponseFunctions.jl")
 
 # Model-specific type definitions and methods
 include("models/ATS9360.jl")
 include("models/ATS9440.jl")    # ~~not yet implemented~~
-include("models/ATS9860.jl")
+include("models/ATS9870.jl")
 
 end

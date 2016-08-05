@@ -76,7 +76,7 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
     println("Records per buffer: $(records_per_buffer(a,m))")
     sleep(0.1)
     @eh2 AlazarBeforeAsyncRead(a.handle,
-                               a.acquisitionChannel,
+                               symbol_to_channel_code(a.acquisitionChannel),
                                pretrig,
                                sam_rec_ch,
                                records_per_buffer(a,m),

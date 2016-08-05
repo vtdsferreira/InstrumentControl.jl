@@ -12,60 +12,54 @@ auxmode(m::U32, b::Bool) = begin
 end
 
 "Configure a digitizer's AUX IO to output a trigger signal synced to the sample clock."
-function configure(a::InstrumentAlazar, aux::Type{AuxOutputTrigger})
-    val = code(a,aux)
-    val = auxmode(val, a.auxOutTriggerEnable)
+function setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AlazarAux})
+    val = symbol_to_aux_mode(aux)
+    if aux == :AuxOutputTrigger
+        val = auxmode(val, a.auxOutTriggerEnable)
+    end
 
     @eh2 AlazarConfigureAuxIO(a.handle, val, U32(0))
     a.auxIOMode = val
     nothing
 end
-
-"Configure a digitizer's AUX IO to act as a digital input."
-function configure(a::InstrumentAlazar, aux::Type{AuxDigitalInput})
-    val = code(a,aux)
-
-    @eh2 AlazarConfigureAuxIO(a.handle, val, U32(0))
-    a.auxIOMode = val
-    nothing
-end
+#
+# """
+# Configure a digitizer's AUX IO port to use the edge of a pulse as an AutoDMA
+# trigger signal.
+# """
+# function configure{T<:TriggerSlope}(a::InstrumentAlazar,
+#         aux::Type{AuxInputTriggerEnable}, trigSlope::Type{T})
+#     val = code(a,aux)
+#     val2 = code(a,trigSlope)
+#
+#     @eh2 AlazarConfigureAuxIO(a.handle, val, val2)
+#     a.auxIOMode = val
+#     a.auxInTriggerSlope = val2
+#     nothing
+# end
 
 """
-Configure a digitizer's AUX IO port to use the edge of a pulse as an AutoDMA
-trigger signal.
+- `:AuxOutputPacer` Configure a digitizer's AUX IO port to output the sample clock, divided by an integer.
+- `:AuxDigitalOutput` Configure a digitizer's AUX IO port to act as a general purpose digital output.
 """
-function configure{T<:TriggerSlope}(a::InstrumentAlazar,
-        aux::Type{AuxInputTriggerEnable}, trigSlope::Type{T})
-    val = code(a,aux)
-    val2 = code(a,trigSlope)
-
-    @eh2 AlazarConfigureAuxIO(a.handle, val, val2)
-    a.auxIOMode = val
-    a.auxInTriggerSlope = val2
-    nothing
-end
-
-"Configure a digitizer's AUX IO port to output the sample clock, divided by an integer."
-function configure(a::InstrumentAlazar,
-        aux::Type{AuxOutputPacer}, divider::Integer)
+function setindex!(a::InstrumentAlazar,
+        v::Tuple{Symbol,Integer}, ::Type{AlazarAux})
+    aux,d = v
     val = code(a,aux)
     val = auxmode(val, a.auxOutTriggerEnable)
 
-    @assert divider > 2 "Divider needs to be > 2."
-    @eh2 AlazarConfigureAuxIO(a.handle, val, U32(divider))
-    a.auxIOMode = val
-    a.auxOutDivider = divider
-    nothing
-end
-
-"Configure a digitizer's AUX IO port to act as a general purpose digital output."
-function configure(a::InstrumentAlazar,
-        aux::Type{AuxDigitalOutput}, level::Integer)
-    val = code(a,aux)
-    val = auxmode(val, a.auxOutTriggerEnable)
-    @eh2 AlazarConfigureAuxIO(a.handle, val, U32(level))
-    a.auxIOMode = val
-    a.auxOutTTLLevel = level
+    if aux == :AuxOutputPacer
+        @assert d > 2 "Divider needs to be > 2."
+        @eh2 AlazarConfigureAuxIO(a.handle, val, U32(d))
+        a.auxIOMode = val
+        a.auxOutDivider = d
+    elseif aux == :AuxDigitalOutput
+        @eh2 AlazarConfigureAuxIO(a.handle, val, U32(d))
+        a.auxIOMode = val
+        a.auxOutTTLLevel = d
+    else
+        error("Unexpected symbol.")
+    end
     nothing
 end
 
@@ -78,8 +72,8 @@ When this flag is set, the board will wait for software to call
 sufficient trigger events to capture the records in an AutoDMA buffer; then wait
 for the next trigger enable event and repeat.
 """
-function configure(a::InstrumentAlazar,
-                    ::Type{AuxSoftwareTriggerEnable}, b::Bool)
+function setindex!(a::InstrumentAlazar, b::Bool,
+        ::Type{AuxSoftwareTriggerEnable})
     m = auxmode(a.auxIOMode,b)
     a.auxOutTriggerEnable = b
 
@@ -101,38 +95,34 @@ end
 ## Buffers ##########
 
 "Wrapper for C function `AlazarSetRecordCount`. See the Alazar API."
-function configure(a::InstrumentAlazar, ::Type{RecordCount}, count)
+function setindex!(a::InstrumentAlazar, count, ::Type{RecordCount})
     @eh2 AlazarSetRecordCount(a.handle, count)
     nothing
 end
 
 ## Channels ##########
 
-# Some logic for the following is a bit specialized to the ATS9360
+# Logic for the following is a bit specialized to two-channel devices
 
 "Configures the acquisition channel."
-function configure{T<:AlazarChannel}(a::InstrumentAlazar, ch::Type{T})
-    ch == AlazarChannel && error("You must choose a channel.")
-    a.acquisitionChannel = U32(code(a,ch))
-    a.channelCount = 1
-    nothing
-end
+function setindex!(a::InstrumentAlazar, v::Symbol, ::Type{AlazarChannel})
+    if v == :ChannelA || v == :ChannelB
+        a.channelCount = 1
+    elseif v == :BothChannels
+        a.channelCount = 2
+    else
+        error("Unexpected symbol.")
+    end
+    a.acquisitionChannel = v
 
-"Configures acquisition from both channels, simultaneously."
-function configure(a::InstrumentAlazar, ch::Type{BothChannels})
-    a.acquisitionChannel = U32(code(a,ch))
-    a.channelCount = 2
     nothing
 end
 
 ## Clocks ############
 
 "Configures one of the preset sample rates derived from the internal clock."
-function configure{T<:SampleRate}(a::InstrumentAlazar, rate::Type{T})
-    rate == SampleRate && error("Choose a sample rate.")
-
-    val = code(a,rate)
-
+function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
+    val = symbol_to_clock_code(rate)
     @eh2 AlazarSetCaptureClock(a.handle,
                                Alazar.INTERNAL_CLOCK, val, a.clockSlope, 0)
 
@@ -143,7 +133,7 @@ function configure{T<:SampleRate}(a::InstrumentAlazar, rate::Type{T})
 end
 
 "Configures whether the clock ticks on a rising or falling slope."
-function configure{T<:ClockSlope}(a::InstrumentAlazar, slope::Type{T})
+function configure{T<:ClockSlope}(a::InstrumentAlazar, slope::Type{T}, ::Type{})
     slope == ClockSlope && error("Choose a clock slope.")
 
     val = code(a,slope)
@@ -159,53 +149,45 @@ end
 
 ## Data packing #########
 
-"Configures the data packing mode for channel A."
-function configure{S<:AlazarDataPacking}(
-        a::InstrumentAlazar, ::Type{AlazarDataPacking},
-        pack::Type{S}, ch::Type{ChannelA})
+"Configures the data packing mode for a channel."
+function setindex!(a::InstrumentAlazar, pack::Symbol, ::Type{AlazarDataPacking},
+        ch::Symbol)
 
-    chcode = Alazar.CHANNEL_A
+    chcode = if ch == :ChannelA
+        Alazar.CHANNEL_A
+    elseif ch == :ChannelB
+        Alazar.CHANNEL_B
+    elseif ch == :BothChannels
+        Alazar.CHANNEL_A | Alazar.CHANNEL_B
+    else
+        error("Unexpected symbol.")
+    end
 
-    pk = code(a,pack)
+    pk = if ch == :DefaultPacking
+        Alazar.PACK_DEFAULT
+    elseif ch == :Pack8Bits
+        Alazar.PACK_8_BITS_PER_SAMPLE
+    elseif ch == :Pack12Bits
+        Alazar.PACK_12_BITS_PER_SAMPLE
+    else
+        error("Unexpected symbol.")
+    end
 
     @eh2 AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, pk)
     a.packingA = pk
     nothing
 end
 
-"Configures the data packing mode for channel B."
-function configure{S<:AlazarDataPacking}(
-        a::InstrumentAlazar, ::Type{AlazarDataPacking},
-        pack::Type{S}, ch::Type{ChannelB})
-
-    chcode = Alazar.CHANNEL_B
-
-    pk = code(a,pack)
-
-    @eh2 AlazarSetParameter(a.handle, chcode, Alazar.PACK_MODE, pk)
-    a.packingB = pk
-    nothing
-end
-
-"Configures the data packing mode for both channels."
-function configure{S<:AlazarDataPacking}(
-        a::InstrumentAlazar, ::Type{AlazarDataPacking},
-        pack::Type{S}, ch::Type{BothChannels})
-
-    map((c)->configure(a,AlazarDataPacking,pack,c), (ChannelA, ChannelB))
-    nothing
-end
-
 ## Miscellaneous ######
 
 "Configures the LED on the digitizer card chassis."
-function configure(a::InstrumentAlazar, ::Type{LED}, ledState::Bool)
+function setindex!(a::InstrumentAlazar, ledState::Bool, ::Type{LED})
     @eh2 AlazarSetLED(a.handle, ledState)
     nothing
 end
 
 "Configures the sleep state of the digitizer card."
-function configure(a::InstrumentAlazar, ::Type{Sleep}, sleepState)
+function setindex!(a::InstrumentAlazar, sleepState, ::Type{Sleep})
     @eh2 AlazarSleepDevice(a.handle, sleepState)
     nothing
 end
@@ -274,9 +256,16 @@ function configure(a::InstrumentAlazar, ::Type{TriggerLevel}, levelJ, levelK)
 end
 
 "Configure the external trigger coupling."
-function configure{T<:Coupling}(a::InstrumentAlazar, coupling::Type{T})
-    coup = code(a,coupling)
-    @eh2 AlazarSetExternalTrigger(a.handle, coup, a.triggerRange)
+function configure(a::InstrumentAlazar, coupling, ::Type{Coupling})
+    c = if coupling == :AC
+        Alazar.AC_COUPLING
+    elseif coupling == :DC
+        Alazar.DC_COUPLING
+    else
+        error("Unexpected symbol.")
+    end
+
+    @eh2 AlazarSetExternalTrigger(a.handle, c, symbol_to_ext_trig_range(a.triggerRange))
     nothing
 end
 

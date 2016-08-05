@@ -9,21 +9,21 @@ export measure
 import InstrumentControl.scaling
 
 "Abstract `Response` from an Alazar digitizer instrument."
-abstract AlazarResponse{T} <: Response{T}
+abstract AlazarResponse <: Response
 
 "Abstract time-domain streaming `Response` from an Alazar digitizer instrument."
-abstract StreamResponse{T} <: AlazarResponse{T}
+abstract StreamResponse <: AlazarResponse
 
 "Abstract time-domain record `Response` from an Alazar digitizer instrument."
-abstract RecordResponse{T} <: AlazarResponse{T}
+abstract RecordResponse <: AlazarResponse
 
 "Abstract FFT `Response` from an Alazar digitizer instrument."
-abstract FFTResponse{T}    <: AlazarResponse{T}
+abstract FFTResponse    <: AlazarResponse
 
 """
 Response type implementing the "continuous streaming mode" of the Alazar API.
 """
-type ContinuousStreamResponse{T} <: StreamResponse{T}
+type ContinuousStreamResponse <: StreamResponse
     ins::InstrumentAlazar
     samples_per_ch::Int
 
@@ -37,13 +37,11 @@ type ContinuousStreamResponse{T} <: StreamResponse{T}
         r
     end
 end
-ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
-    ContinuousStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
 """
 Response type implementing the "triggered streaming mode" of the Alazar API.
 """
-type TriggeredStreamResponse{T} <: StreamResponse{T}
+type TriggeredStreamResponse <: StreamResponse
     ins::InstrumentAlazar
     samples_per_ch::Int
 
@@ -57,13 +55,11 @@ type TriggeredStreamResponse{T} <: StreamResponse{T}
         r
     end
 end
-TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
-    TriggeredStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
 
 """
 Response type implementing the "NPT record mode" of the Alazar API.
 """
-type NPTRecordResponse{T} <: RecordResponse{T}
+type NPTRecordResponse <: RecordResponse
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
     total_recs::Int
@@ -79,13 +75,11 @@ type NPTRecordResponse{T} <: RecordResponse{T}
         r
     end
 end
-NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
-    NPTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
 
 """
 Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
 """
-type FFTHardwareResponse{T} <: FFTResponse{T}
+type FFTHardwareResponse <: FFTResponse
     ins::InstrumentAlazar
     sam_per_rec::Int
     sam_per_fft::Int
@@ -94,7 +88,7 @@ type FFTHardwareResponse{T} <: FFTResponse{T}
 
     m::AlazarMode
 
-    FFTHardwareResponse(a,b,c,d,e) = begin
+    FFTHardwareResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) = begin
         b <= 0 && error("Need at least one sample.")
         c == 0 && error("FFT length (samples) too short.")
         !ispow2(c) && error("FFT length (samples) not a power of 2.")
@@ -106,15 +100,13 @@ type FFTHardwareResponse{T} <: FFTResponse{T}
         r
     end
 end
-FFTHardwareResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) =
-    FFTHardwareResponse{SharedArray{S,2}}(a,b,c,d,e)
 
 """
 Response type for measuring with NPT record mode, then using Julia's FFTW to
 return the FFT. Slower than doing it with the FPGA, but ultimately necessary if
 we want to use both channels as inputs to the FFT.
 """
-type IQSoftwareResponse{T} <: RecordResponse{T}
+type IQSoftwareResponse <: RecordResponse
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
     total_recs::Int
@@ -130,10 +122,8 @@ type IQSoftwareResponse{T} <: RecordResponse{T}
         r
     end
 end
-IQSoftwareResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
-    IQSoftwareResponse{SharedArray{Float32,2}}(a, sam_per_rec_per_ch, total_recs)
 
-type AlternatingRealImagResponse{T} <: FFTResponse{T}
+type AlternatingRealImagResponse <: FFTResponse
     ins::InstrumentAlazar
     sam_per_rec::Int
     sam_per_fft::Int

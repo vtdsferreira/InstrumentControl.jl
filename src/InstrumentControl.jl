@@ -21,11 +21,11 @@ include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
 include("instruments/GS200.jl")
 
-# include("instruments/Alazar/Alazar.jl")
+include("instruments/Alazar/Alazar.jl")
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 
-# # importall .AlazarModule
+importall .AlazarModule
 importall .AWG5014C
 importall .E5071C
 importall .E8257D
@@ -42,7 +42,7 @@ end
 
 using InstrumentControl
 using InstrumentControl.AWG5014C
-# using InstrumentControl.AlazarModule
+using InstrumentControl.AlazarModule
 using InstrumentControl.VNA
 using InstrumentControl.E5071C
 using InstrumentControl.E8257D

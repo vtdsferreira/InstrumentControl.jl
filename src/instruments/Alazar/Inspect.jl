@@ -2,15 +2,12 @@
 ## Auxiliary IO
 
 "Inspect the AUX IO mode."
-function getindex(a::InstrumentAlazar, ::Type{AlazarAux})
-    AlazarAux(a,a.auxIOMode)
-end
+getindex(a::InstrumentAlazar, ::Type{AlazarAux}) = a.auxIOMode
 
 ## Channels ########
 
 "Returns which channel(s) will be acquired."
-getindex(a::InstrumentAlazar, ::Type{AlazarChannel}) =
-    AlazarChannel(a,a.acquisitionChannel)
+getindex(a::InstrumentAlazar, ::Type{AlazarChannel}) = a.acquisitionChannel
 
 "Returns the number of channels to acquire."
 getindex(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
@@ -33,7 +30,7 @@ end
 between the internal preset clock rates and otherwise."
 function getindex(a::InstrumentAlazar, ::Type{SampleRate})
     a.sampleRate > 0x80 ? float(a.sampleRate) :
-        float(samplerate(SampleRate(a,a.sampleRate)))
+        float(clock_code_to_rate(a.sampleRate))
 end
 
 "Returns the memory per channel in units of samples."

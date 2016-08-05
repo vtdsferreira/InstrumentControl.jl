@@ -1,12 +1,12 @@
-export AlazarATS9360
+export AlazarATS9870
 
 """
-Concrete InstrumentAlazar subtype representing an ATS9360 digitizer.
+Concrete InstrumentAlazar subtype representing an ATS9870 digitizer.
 
 Defaults are selected as:
 
-- DC coupling (all). Cannot be changed for the ATS9360.
-- Input range +/- 0.4V for channel A, B. Cannot be changed for the ATS9360.
+- DC coupling for channels A, B and external trigger input.
+- Input range +/- 0.4V for channel A, B.
 - External trigger range: 5 V. Cannot be changed for the ATS9360 (?)
 - All impedances 50 Ohm. Cannot be changed for the ATS9360.
 - Internal clock, 1 GSps, rising edge.
@@ -15,11 +15,16 @@ Defaults are selected as:
 - Acquire with both channels
 - AUX IO outputs a trigger signal synced to the sample clock.
 """
-type AlazarATS9360 <: InstrumentAlazar
+type AlazarATS9870 <: InstrumentAlazar
 
     systemId::Culong
     boardId::Culong
     handle::Culong
+
+    couplingA::Symbol
+    couplingB::Symbol
+    rangeA::Symbol
+    rangeB::Symbol
 
     clockSource::U32
     sampleRate::U32
@@ -57,9 +62,11 @@ type AlazarATS9360 <: InstrumentAlazar
     imWindowType::DataType
 
     # defaults
-    inputcontrol_defaults(a::AlazarATS9360) = begin
-        # There are no internal variables in the AlazarATS9360 type because
-        # these are the only possible options for this particular instrument!
+    inputcontrol_defaults(a::AlazarATS9870) = begin
+        a.couplingA = :DC
+        a.couplingB = :DC
+        a.rangeA = :Range400mV
+        a.rangeB = :Range400mV
         @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_A, Alazar.DC_COUPLING,
             Alazar.INPUT_RANGE_PM_400_MV, Alazar.IMPEDANCE_50_OHM)
         @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_B, Alazar.DC_COUPLING,
@@ -67,7 +74,7 @@ type AlazarATS9360 <: InstrumentAlazar
         nothing
     end
 
-    captureclock_defaults(a::AlazarATS9360) = begin
+    captureclock_defaults(a::AlazarATS9870) = begin
         a.clockSource = Alazar.INTERNAL_CLOCK
         a.sampleRate = Alazar.SAMPLE_RATE_1000MSPS
         a.clockSlope = Alazar.CLOCK_EDGE_RISING
@@ -77,29 +84,22 @@ type AlazarATS9360 <: InstrumentAlazar
         nothing
     end
 
-    trigger_defaults(a::AlazarATS9360) = begin
+    trigger_defaults(a::AlazarATS9870) = begin
         set_triggeroperation(a,  Alazar.TRIG_ENGINE_OP_J,
             Alazar.TRIG_CHAN_A,  Alazar.TRIGGER_SLOPE_POSITIVE, 0.0,
             Alazar.TRIG_DISABLE, Alazar.TRIGGER_SLOPE_POSITIVE, 0.0)
         nothing
     end
 
-    externaltrigger_defaults(a::AlazarATS9360) = begin
+    externaltrigger_defaults(a::AlazarATS9870) = begin
         a.coupling = Alazar.DC_COUPLING
         a.triggerRange = :Range5V
-        @eh2 AlazarSetExternalTrigger(a.handle, a.coupling,
-            symbol_to_ext_trig_range(a.triggerRange))
+        @eh2 AlazarSetExternalTrigger(a.handle, a.coupling, Alazar.ETR_5V)
         nothing
     end
 
-    dsp_populate(a::AlazarATS9360) = begin
-        dspModuleHandles = dsp_getmodulehandles(a)
-        a.dspModules = map(x->DSPModule(a,x),dspModuleHandles)
-        nothing
-    end
-
-    AlazarATS9360() = AlazarATS9360(1,1)
-    AlazarATS9360(a,b) = begin
+    AlazarATS9870() = AlazarATS9870(1,1)
+    AlazarATS9870(a,b) = begin
         if (AlazarModule.lib_opened == false)
             Alazar.alazaropen()
         end
@@ -109,8 +109,8 @@ type AlazarATS9360 <: InstrumentAlazar
         end
 
         btype = boardkind(handle)
-        if (btype != Alazar.ATS9360)
-            error("Board at $a.$b is not an ATS9360.")
+        if (btype != Alazar.ATS9870)
+            error("Board at $a.$b is not an ATS9870.")
         end
 
         at = new()
@@ -131,9 +131,7 @@ type AlazarATS9360 <: InstrumentAlazar
         at.auxOutTTLLevel = 0
         at[AlazarAux] = :AuxOutputTrigger
         at[AlazarChannel] = :BothChannels
-        dsp_populate(at)
 
-        configure(at, WindowOnes, WindowZeroes)
         return at
     end
 end
@@ -142,7 +140,7 @@ end
 Configure the sample rate to any multiple of 1 MHz (within 300 MHz and 1.8 GHz)
 using the external clock.
 """
-function configure(a::AlazarATS9360, ::Type{SampleRate}, rate::Real)
+function configure(a::AlazarATS9870, ::Type{SampleRate}, rate::Real)
     actualRate = U32(fld(rate,1e6)*1e6)
     if (rate != actualRate)
         warning("Rate must be in increments of 1 MHz. Setting ",actualRate," Hz")
@@ -161,7 +159,7 @@ end
 Does nothing but display info telling you that this parameter cannot be changed
 from DC coupling on the ATS9360.
 """
-function configure{T<:Coupling}(a::AlazarATS9360, coupling::Type{T})
+function configure{T<:Coupling}(a::AlazarATS9870, coupling::Type{T})
     info("Only DC coupling is available on the ATS9360.")
 end
 
@@ -169,7 +167,7 @@ end
 Does nothing but display info telling you that this parameter cannot be changed
 from 5V range on the ATS9360.
 """
-function configure{T<:AlazarTriggerRange}(a::AlazarATS9360, range::Type{T})
+function configure{T<:AlazarTriggerRange}(a::AlazarATS9870, range::Type{T})
     info("Only 5V range is available on the ATS9360.")
 end
 
@@ -178,7 +176,7 @@ Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
 the start of `measure` rather than here.
 """
 function configure{S<:DSPWindow, T<:DSPWindow}(
-        a::AlazarATS9360, re::Type{S}, im::Type{T})
+        a::AlazarATS9870, re::Type{S}, im::Type{T})
     a.reWindowType = S
     a.imWindowType = T
     nothing
@@ -193,52 +191,52 @@ end
 Minimum samples per record. Observed behavior deviates from Table 8 of the
 Alazar API.
 """
-inspect(a::AlazarATS9360, ::Type{MinSamplesPerRecord}) =
+inspect(a::AlazarATS9870, ::Type{MinSamplesPerRecord}) =
     Int(512 / inspect(a, ChannelCount))
 
 """
 Maximum number of bytes for a given DMA buffer.
 """
-inspect(a::AlazarATS9360, ::Type{MaxBufferBytes}) = 64*1024*1024  # 64 MB
+inspect(a::AlazarATS9870, ::Type{MaxBufferBytes}) = 64*1024*1024  # 64 MB
 
 """
 Minimum number of samples in an FPGA-based FFT. Set by the minimum record size.
 """
-inspect(a::AlazarATS9360, ::Type{MinFFTSamples}) = 128
+inspect(a::AlazarATS9870, ::Type{MinFFTSamples}) = 128
 
 """
 Maximum number of samples in an FPGA-based FFT. Can be obtained from `dsp_getinfo`
 but we have hardcoded since it should not change for this model of digitizer.
 """
-inspect(a::AlazarATS9360, ::Type{MaxFFTSamples}) = 4096
+inspect(a::AlazarATS9870, ::Type{MaxFFTSamples}) = 4096
 
 """
 Returns the buffer alignment requirement (samples / record / channel).
 Note that buffers must also be page-aligned.
 From Table 8 of the Alazar API.
 """
-inspect(a::AlazarATS9360, ::Type{BufferAlignment}) =
+inspect(a::AlazarATS9870, ::Type{BufferAlignment}) =
     128 * inspect(a, ChannelCount)
 
 """
 Returns the pretrigger alignment requirement (samples / record / channel).
 From Table 8 of the Alazar API.
 """
-inspect(a::AlazarATS9360, ::Type{PretriggerAlignment}) =
+inspect(a::AlazarATS9870, ::Type{PretriggerAlignment}) =
     128 * inspect(a, ChannelCount)
 
 # How does this change with data packing?
 """
 Hard coded to return 0x0c. May need to change if we want to play with data packing.
 """
-bits_per_sample(a::AlazarATS9360) = 0x0c
+bits_per_sample(a::AlazarATS9870) = 0x0c
 
 """
 Hard coded to return 2. May need to change if we want to play with data packing.
 """
-bytes_per_sample(a::AlazarATS9360) = 2
+bytes_per_sample(a::AlazarATS9870) = 2
 
 """
 Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 """
-triglevel(a::AlazarATS9360, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))
+triglevel(a::AlazarATS9870, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))
