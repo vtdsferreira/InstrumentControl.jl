@@ -110,6 +110,78 @@ function symbol_to_channel_code(s)
     end
 end
 
+function symbol_to_clock_code(s::Symbol)
+    if s == :Rate1kSps
+        Alazar.SAMPLE_RATE_1KSPS
+    elseif s == :Rate2kSps
+        Alazar.SAMPLE_RATE_2KSPS
+    elseif s == :Rate5kSps
+        Alazar.SAMPLE_RATE_5KSPS
+    elseif s == :Rate10kSps
+        Alazar.SAMPLE_RATE_10KSPS
+    elseif s == :Rate20kSps
+        Alazar.SAMPLE_RATE_20KSPS
+    elseif s == :Rate50kSps
+        Alazar.SAMPLE_RATE_50KSPS
+    elseif s == :Rate100kSps
+        Alazar.SAMPLE_RATE_100KSPS
+    elseif s == :Rate200kSps
+        Alazar.SAMPLE_RATE_200KSPS
+    elseif s == :Rate500kSps
+        Alazar.SAMPLE_RATE_500KSPS
+    elseif s == :Rate1MSps
+        Alazar.SAMPLE_RATE_1MSPS
+    elseif s == :Rate2MSps
+        Alazar.SAMPLE_RATE_2MSPS
+    elseif s == :Rate5MSps
+        Alazar.SAMPLE_RATE_5MSPS
+    elseif s == :Rate10MSps
+        Alazar.SAMPLE_RATE_10MSPS
+    elseif s == :Rate20MSps
+        Alazar.SAMPLE_RATE_20MSPS
+    elseif s == :Rate25MSps
+        Alazar.SAMPLE_RATE_25MSPS
+    elseif s == :Rate50MSps
+        Alazar.SAMPLE_RATE_50MSPS
+    elseif s == :Rate100MSps
+        Alazar.SAMPLE_RATE_100MSPS
+    elseif s == :Rate125MSps
+        Alazar.SAMPLE_RATE_125MSPS
+    elseif s == :Rate160MSps
+        Alazar.SAMPLE_RATE_160MSPS
+    elseif s == :Rate180MSps
+        Alazar.SAMPLE_RATE_180MSPS
+    elseif s == :Rate200MSps
+        Alazar.SAMPLE_RATE_200MSPS
+    elseif s == :Rate250MSps
+        Alazar.SAMPLE_RATE_250MSPS
+    elseif s == :Rate500MSps
+        Alazar.SAMPLE_RATE_500MSPS
+    elseif s == :Rate800MSps
+        Alazar.SAMPLE_RATE_800MSPS
+    elseif s == :Rate1000MSps || s == :Rate1GSps
+        Alazar.SAMPLE_RATE_1000MSPS
+    elseif s == :Rate1200MSps
+        Alazar.SAMPLE_RATE_1200MSPS
+    elseif s == :Rate1500MSps
+        Alazar.SAMPLE_RATE_1500MSPS
+    elseif s == :Rate1800MSps
+        Alazar.SAMPLE_RATE_1800MSPS
+    elseif s == :Rate2000MSps
+        Alazar.SAMPLE_RATE_2000MSPS
+    elseif s == :Rate2400MSps
+        Alazar.SAMPLE_RATE_2400MSPS
+    elseif s == :Rate3000MSps
+        Alazar.SAMPLE_RATE_3000MSPS
+    elseif s == :Rate3600MSps
+        Alazar.SAMPLE_RATE_3600MSPS
+    elseif s == :Rate4000MSps
+        Alazar.SAMPLE_RATE_4000MSPS
+    else
+        error("Unexpected symbol.")
+    end
+end
+
 function symbol_to_clock_slope(s)
     if s == :Rising
         Alazar.CLOCK_EDGE_RISING
@@ -165,19 +237,19 @@ function symbol_to_ext_trig_range(s)
 end
 
 function symbol_to_trig_engine(s)
-    if s == :TriggerOnJ
+    if s == :J
         Alazar.TRIG_ENGINE_OP_J
-    elseif s == :TriggerOnK
+    elseif s == :K
         Alazar.TRIG_ENGINE_OP_K
-    elseif s == :TriggerOnJOrK
+    elseif s == :JOrK
         Alazar.TRIG_ENGINE_OP_J_OR_K
-    elseif s == :TriggerOnJAndK
+    elseif s == :JAndK
         Alazar.TRIG_ENGINE_OP_J_AND_K
-    elseif s == :TriggerOnJXorK
+    elseif s == :JXorK
         Alazar.TRIG_ENGINE_OP_J_XOR_K
-    elseif s == :TriggerOnJAndNotK
+    elseif s == :JAndNotK
         Alazar.TRIG_ENGINE_OP_J_AND_NOT_K
-    elseif s == :TriggerOnNotJAndK
+    elseif s == :NotJAndK
         Alazar.TRIG_ENGINE_OP_NOT_J_AND_K
     else
         error("Unexpected symbol.")
@@ -247,12 +319,22 @@ function clock_code_to_rate(s)
         1e7
     elseif s == Alazar.SAMPLE_RATE_20MSPS
         2e7
+    elseif s == Alazar.SAMPLE_RATE_25MSPS
+        25e6
     elseif s == Alazar.SAMPLE_RATE_50MSPS
         5e7
     elseif s == Alazar.SAMPLE_RATE_100MSPS
         1e8
+    elseif s == Alazar.SAMPLE_RATE_125MSPS
+        125e6
+    elseif s == Alazar.SAMPLE_RATE_160MSPS
+        16e7
+    elseif s == Alazar.SAMPLE_RATE_180MSPS
+        18e7
     elseif s == Alazar.SAMPLE_RATE_200MSPS
         2e8
+    elseif s == Alazar.SAMPLE_RATE_250MSPS
+        25e7
     elseif s == Alazar.SAMPLE_RATE_500MSPS
         5e8
     elseif s == Alazar.SAMPLE_RATE_800MSPS
@@ -265,55 +347,15 @@ function clock_code_to_rate(s)
         15e8
     elseif s == Alazar.SAMPLE_RATE_1800MSPS
         18e8
-    end
-end
-
-function symbol_to_clock_code(s::Symbol)
-    if s == :Rate1kSps
-        Alazar.SAMPLE_RATE_1KSPS
-    elseif s == :Rate2kSps
-        Alazar.SAMPLE_RATE_2KSPS
-    elseif s == :Rate5kSps
-        Alazar.SAMPLE_RATE_5KSPS
-    elseif s == :Rate10kSps
-        Alazar.SAMPLE_RATE_10KSPS
-    elseif s == :Rate20kSps
-        Alazar.SAMPLE_RATE_20KSPS
-    elseif s == :Rate50kSps
-        Alazar.SAMPLE_RATE_50KSPS
-    elseif s == :Rate100kSps
-        Alazar.SAMPLE_RATE_100KSPS
-    elseif s == :Rate200kSps
-        Alazar.SAMPLE_RATE_200KSPS
-    elseif s == :Rate500kSps
-        Alazar.SAMPLE_RATE_500KSPS
-    elseif s == :Rate1MSps
-        Alazar.SAMPLE_RATE_1MSPS
-    elseif s == :Rate2MSps
-        Alazar.SAMPLE_RATE_2MSPS
-    elseif s == :Rate5MSps
-        Alazar.SAMPLE_RATE_5MSPS
-    elseif s == :Rate10MSps
-        Alazar.SAMPLE_RATE_10MSPS
-    elseif s == :Rate20MSps
-        Alazar.SAMPLE_RATE_20MSPS
-    elseif s == :Rate50MSps
-        Alazar.SAMPLE_RATE_50MSPS
-    elseif s == :Rate100MSps
-        Alazar.SAMPLE_RATE_100MSPS
-    elseif s == :Rate200MSps
-        Alazar.SAMPLE_RATE_200MSPS
-    elseif s == :Rate500MSps
-        Alazar.SAMPLE_RATE_500MSPS
-    elseif s == :Rate800MSps
-        Alazar.SAMPLE_RATE_800MSPS
-    elseif s == :Rate1000MSps || s == :Rate1GSps
-        Alazar.SAMPLE_RATE_1000MSPS
-    elseif s == :Rate1200MSps
-        Alazar.SAMPLE_RATE_1200MSPS
-    elseif s == :Rate1500MSps
-        Alazar.SAMPLE_RATE_1500MSPS
-    elseif s == :Rate1800MSps
-        Alazar.SAMPLE_RATE_1800MSPS
+    elseif s == Alazar.SAMPLE_RATE_2000MSPS
+        20e8
+    elseif s == Alazar.SAMPLE_RATE_2400MSPS
+        24e8
+    elseif s == Alazar.SAMPLE_RATE_3000MSPS
+        30e8
+    elseif s == Alazar.SAMPLE_RATE_3600MSPS
+        36e8
+    elseif s == Alazar.SAMPLE_RATE_4000MSPS
+        40e8
     end
 end

@@ -30,10 +30,10 @@ type AlazarATS9360 <: InstrumentAlazar
     triggerRange::Symbol
 
     engine::Symbol
-    channelJ::Symbol
+    sourceJ::Symbol
     slopeJ::Symbol
     levelJ::AbstractFloat
-    channelK::Symbol
+    sourceK::Symbol
     slopeK::Symbol
     levelK::AbstractFloat
 
@@ -81,7 +81,7 @@ type AlazarATS9360 <: InstrumentAlazar
     end
 
     trigger_defaults(a::AlazarATS9360) = begin
-        set_triggeroperation(a, :TriggerOnJ,
+        set_triggeroperation(a, :J,
             :ChannelA, :Rising, 0.0,
             :Disabled, :Rising, 0.0)
         nothing
@@ -245,3 +245,4 @@ bytes_per_sample(a::AlazarATS9360) = 2
 Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 """
 triglevel(a::AlazarATS9360, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))
+# Incorrect if using external trigger in

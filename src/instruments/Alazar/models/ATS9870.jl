@@ -35,10 +35,10 @@ type AlazarATS9870 <: InstrumentAlazar
     triggerRange::Symbol
 
     engine::Symbol
-    channelJ::Symbol
+    sourceJ::Symbol
     slopeJ::Symbol
     levelJ::AbstractFloat
-    channelK::Symbol
+    sourceK::Symbol
     slopeK::Symbol
     levelK::AbstractFloat
 
@@ -81,7 +81,7 @@ type AlazarATS9870 <: InstrumentAlazar
     end
 
     trigger_defaults(a::AlazarATS9870) = begin
-        set_triggeroperation(a, :TriggerOnJ,
+        set_triggeroperation(a, :J,
             :ChannelA, :Rising, 0.0,
             :Disabled, :Rising, 0.0)
         nothing

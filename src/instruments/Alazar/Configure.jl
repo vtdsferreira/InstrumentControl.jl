@@ -122,12 +122,13 @@ end
 
 "Configures one of the preset sample rates derived from the internal clock."
 function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
-    val = symbol_to_clock_code(rate)
-    @eh2 AlazarSetCaptureClock(a.handle, Alazar.INTERNAL_CLOCK, val,
+    @eh2 AlazarSetCaptureClock(a.handle,
+        Alazar.INTERNAL_CLOCK,
+        symbol_to_clock_code(rate),
         symbol_to_clock_slope(a.clockSlope), 0)
 
-    a.clockSource = Alazar.INTERNAL_CLOCK
-    a.sampleRate = val
+    a.clockSource = :Internal
+    a.sampleRate = symbol_to_clock_code(rate)
     a.decimation = 0
     nothing
 end
@@ -155,7 +156,7 @@ function setindex!(a::InstrumentAlazar, pack::Symbol, ::Type{AlazarDataPacking},
     nothing
 end
 
-## Miscellaneous ######
+## Miscellaneous #####
 
 """
 ```
@@ -207,14 +208,13 @@ end
 setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
 ```
 
-Configures the trigger engines J and K. Available arguments are `:TriggerOnJ`,
-`:TriggerOnK`, `:TriggerOnJOrK`, `:TriggerOnJAndK`, `:TriggerOnJXorK`,
-`:TriggerOnJAndNotK`, `:TriggerOnNotJAndK`.
+Configures the trigger engines J and K. Available arguments are `:J`, `:K`,
+`:JOrK`, `:JAndK`, `:JXorK`, `:JAndNotK`, `:NotJAndK`.
 """
 function setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
     set_triggeroperation(a, eng,
-        a.channelJ, a.slopeJ, a.levelJ,
-        a.channelK, a.slopeK, a.levelK)
+        a.sourceJ, a.slopeJ, a.levelJ,
+        a.sourceK, a.slopeK, a.levelK)
     nothing
 end
 
@@ -223,8 +223,8 @@ function setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol},
         ::Type{TriggerSlope})
     sJ,sK = slope
     set_triggeroperation(a, a.engine,
-        a.channelJ, sJ, a.levelJ,
-        a.channelK, sK, a.levelK)
+        a.sourceJ, sJ, a.levelJ,
+        a.sourceK, sK, a.levelK)
     nothing
 end
 
@@ -247,8 +247,8 @@ function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
         ::Type{TriggerLevel})
     levelJ, levelK = l
     set_triggeroperation(a.handle, a.engine,
-        a.channelJ, a.slopeJ, levelJ,
-        a.channelK, a.slopeK, levelK)
+        a.sourceJ, a.slopeJ, levelJ,
+        a.sourceK, a.slopeK, levelK)
     nothing
 end
 

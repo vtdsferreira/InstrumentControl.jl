@@ -481,7 +481,11 @@ end
 
 "Returns an array of `DSPModule`."
 function dsp_modules(a::InstrumentAlazar)
-    a.dspModules
+    if :dspModules in fieldnames(a)
+        a.dspModules
+    else
+        Array{DSPModule,1}(0)
+    end
 end
 
 "Returns the number of `DSPModule`."
@@ -749,8 +753,8 @@ function set_triggeroperation(a::InstrumentAlazar, args...)
         Alazar.TRIG_ENGINE_K, symbol_to_trig_source(args[5]),
             symbol_to_trig_slope(args[6]), triglevel(a,args[7]))
     (a.engine,
-        a.channelJ, a.slopeJ, a.levelJ,
-        a.channelK, a.slopeK, a.levelK) = (args...)
+        a.sourceJ, a.slopeJ, a.levelJ,
+        a.sourceK, a.slopeK, a.levelK) = (args...)
     nothing
 end
 
