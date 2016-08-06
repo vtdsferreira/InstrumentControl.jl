@@ -94,7 +94,9 @@ end
 
 ## Buffers ##########
 
-"Wrapper for C function `AlazarSetRecordCount`. See the Alazar API."
+"""
+Wrapper for C function `AlazarSetRecordCount`. See the Alazar API.
+"""
 function setindex!(a::InstrumentAlazar, count, ::Type{RecordCount})
     @eh2 AlazarSetRecordCount(a.handle, count)
     nothing
@@ -103,7 +105,6 @@ end
 ## Channels ##########
 
 # Logic for the following is a bit specialized to two-channel devices
-
 "Configures the acquisition channel."
 function setindex!(a::InstrumentAlazar, v::Symbol, ::Type{AlazarChannel})
     if v == :ChannelA || v == :ChannelB
@@ -120,7 +121,13 @@ end
 
 ## Clocks ############
 
-"Configures one of the preset sample rates derived from the internal clock."
+"""
+```
+setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
+```
+
+Configures one of the preset sample rates derived from the internal clock.
+"""
 function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
     @eh2 AlazarSetCaptureClock(a.handle,
         Alazar.INTERNAL_CLOCK,
@@ -133,7 +140,13 @@ function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
     nothing
 end
 
-"Configures whether the clock ticks on a rising or falling slope."
+"""
+```
+setindex!(a::InstrumentAlazar, slope::Symbol, ::Type{ClockSlope})
+```
+
+Configures whether the clock ticks on a rising or falling slope.
+"""
 function setindex!(a::InstrumentAlazar, slope::Symbol, ::Type{ClockSlope})
     @eh2 AlazarSetCaptureClock(a.handle,
                                symbol_to_clock_source(a.clockSource),
@@ -146,7 +159,8 @@ end
 
 ## Data packing #########
 
-"Configures the data packing mode for a channel."
+# TODO: Rewrite this method
+# "Configures the data packing mode for a channel."
 function setindex!(a::InstrumentAlazar, pack::Symbol, ::Type{AlazarDataPacking},
         ch::Symbol)
 
@@ -218,7 +232,13 @@ function setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
     nothing
 end
 
-"Configures whether to trigger on a rising or falling slope, for engine J and K."
+"""
+```
+setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol}, ::Type{TriggerSlope})
+```
+
+Configures whether to trigger on a rising or falling slope, for engine J and K.
+"""
 function setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol},
         ::Type{TriggerSlope})
     sJ,sK = slope
@@ -229,6 +249,10 @@ function setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol},
 end
 
 """
+```
+setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol}, ::Type{TriggerSource})
+```
+
 Configure the trigger source for trigger engine J and K.
 """
 function setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol},
@@ -241,6 +265,10 @@ function setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol},
 end
 
 """
+```
+setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer}, ::Type{TriggerLevel})
+```
+
 Configure the trigger level for trigger engine J and K, in Volts.
 """
 function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
@@ -252,7 +280,13 @@ function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
     nothing
 end
 
-"Configure the external trigger coupling."
+"""
+```
+setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
+```
+
+Configure the external trigger coupling.
+"""
 function setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
     if :triggerCoupling in fieldnames(a) && :triggerRange in fieldnames(a)
         a.triggerCoupling = c
@@ -264,7 +298,13 @@ function setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
     nothing
 end
 
-"Configure the external trigger range."
+"""
+```
+setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
+```
+
+Configure the external trigger range.
+"""
 function setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
     if :triggerCoupling in fieldnames(a) && :triggerRange in fieldnames(a)
         a.triggerRange = range
@@ -278,6 +318,10 @@ function setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
 end
 
 """
+```
+setindex!(a::InstrumentAlazar, delay_samples, ::Type{TriggerDelaySamples})
+```
+
 Configure how many samples to wait after receiving a trigger event before capturing
 a record.
 """
@@ -288,6 +332,10 @@ function setindex!(a::InstrumentAlazar, delay_samples, ::Type{TriggerDelaySample
 end
 
 """
+```
+setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
+```
+
 Wrapper for C function `AlazarSetTriggerTimeOut`.
 """
 function setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
@@ -297,6 +345,10 @@ function setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
 end
 
 """
+```
+setindex!(a::InstrumentAlazar, timeout_s, ::Type{TriggerTimeoutS})
+```
+
 Wrapper for C function `AlazarSetTriggerTimeOut`, except we take seconds here
 instead of ticks (units of 10 us).
 """

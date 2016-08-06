@@ -1,5 +1,7 @@
 using Base.Test
 
+info("Tests are starting.")
+info("Tests assume a 10 MHz reference clock is connected to ECLK.")
 # Acquisition channel selection
 ats[AlazarChannel] = :ChannelA
 @test ats[AlazarChannel] == :ChannelA
@@ -89,4 +91,19 @@ ats[SampleRate] = :Rate1GSps
 @test_throws InstrumentException ats[SampleRate] = :Rate3600MSps
 @test_throws InstrumentException ats[SampleRate] = :Rate4000MSps
 
+# Test valid rates when using external 10 MHz reference clock
+# These tests will fail if the 10 MHz reference is not connected to ECLK.
+info("Warnings are expected to be emitted. Please do not be alarmed.")
+ats[SampleRate] = 1.1e9
+@test ats[SampleRate] == 1e9
+ats[SampleRate] = 1.0e9
+@test ats[SampleRate] == 1e9
+ats[SampleRate] = 0.9e9
+@test ats[SampleRate] == 1e9
+ats[SampleRate] = 5e8
+@test ats[SampleRate] == 5e8
+ats[SampleRate] = 9999
+@test ats[SampleRate] == 1e4
+info("No further warnings are expected.")
+info("Testing complete.")
 nothing

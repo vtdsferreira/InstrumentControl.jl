@@ -246,3 +246,15 @@ Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 """
 triglevel(a::AlazarATS9360, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))
 # Incorrect if using external trigger in
+
+adma(::AlazarATS9360, ::NPTRecordMode) = Alazar.ADMA_NPT |
+                                         Alazar.ADMA_FIFO_ONLY_STREAMING |
+                                         Alazar.ADMA_EXTERNAL_STARTCAPTURE
+
+adma(::AlazarATS9360, ::TriggeredStreamMode) = Alazar.ADMA_TRIGGERED_STREAMING |
+                                               Alazar.ADMA_FIFO_ONLY_STREAMING |
+                                               Alazar.ADMA_EXTERNAL_STARTCAPTURE
+
+adma(::AlazarATS9360, ::ContinuousStreamMode) = Alazar.ADMA_CONTINUOUS_MODE |
+                                                Alazar.ADMA_FIFO_ONLY_STREAMING |
+                                                Alazar.ADMA_EXTERNAL_STARTCAPTURE

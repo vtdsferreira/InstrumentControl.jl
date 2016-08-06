@@ -41,25 +41,12 @@ less fatal otherwise. Should be automatically taken care of in a well-written
 """
 abort
 
-adma(::ContinuousStreamMode)   = Alazar.ADMA_CONTINUOUS_MODE |
-                                 Alazar.ADMA_FIFO_ONLY_STREAMING |
-                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
+adma(::InstrumentAlazar, ::TraditionalRecordMode) =
+    Alazar.ADMA_TRADITIONAL_MODE | Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
-adma(::TriggeredStreamMode)    = Alazar.ADMA_TRIGGERED_STREAMING |
-                                 Alazar.ADMA_FIFO_ONLY_STREAMING |
-                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
-
-adma(::NPTRecordMode)          = Alazar.ADMA_NPT |
-                                 Alazar.ADMA_FIFO_ONLY_STREAMING |
-                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
-
-adma(::TraditionalRecordMode)  = Alazar.ADMA_TRADITIONAL_MODE |
-                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
-                                 # other flags?
-
-adma(::FFTRecordMode)          = Alazar.ADMA_NPT |
-                                 Alazar.ADMA_DSP |
-                                 Alazar.ADMA_EXTERNAL_STARTCAPTURE
+adma(::InstrumentAlazar, ::FFTRecordMode) = Alazar.ADMA_NPT |
+                                            Alazar.ADMA_DSP |
+                                            Alazar.ADMA_EXTERNAL_STARTCAPTURE
 
 "Returns the asynchronous DMA flags for a given `AlazarMode`. These are
 passed as the final parameter to the C function `AlazarBeforeAsyncRead`."

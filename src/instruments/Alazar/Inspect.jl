@@ -32,7 +32,8 @@ getindex(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
 
 ## Data packing #####
 
-"Inspect the data packing mode for a given channel."
+# "Inspect the data packing mode for a given channel."
+# Needs to be rewritten.
 function getindex{T<:AlazarChannel}(a::InstrumentAlazar,
         ::Type{AlazarDataPacking}, ch::Type{T})
     ch == AlazarChannel && error("Specify a particular channel.")
@@ -76,7 +77,39 @@ function getindex(a::InstrumentAlazar, ::Type{SampleMemoryPerChannel})
     return memorysize_samples[1]
 end
 
+
+"""
+```
+getindex(a::InstrumentAlazar, ::Type{TriggerEngine})
+```
+
+Returns which trigger engines cause a trigger event.
+"""
 getindex(a::InstrumentAlazar, ::Type{TriggerEngine}) = a.engine
+
+"""
+```
+getindex(a::InstrumentAlazar, ::Type{TriggerSource})
+```
+
+Returns the trigger source for engines J and K.
+"""
 getindex(a::InstrumentAlazar, ::Type{TriggerSource}) = a.sourceJ, a.sourceK
+
+"""
+```
+getindex(a::InstrumentAlazar, ::Type{TriggerSlope})
+```
+
+Returns the trigger slope for engines J and K
+"""
 getindex(a::InstrumentAlazar, ::Type{TriggerSlope}) = a.slopeJ, a.slopeK
+
+"""
+```
+getindex(a::InstrumentAlazar, ::Type{TriggerLevel})
+```
+
+Returns the trigger levels for engines J and K.
+"""
 getindex(a::InstrumentAlazar, ::Type{TriggerLevel}) = a.levelJ, a.levelK
