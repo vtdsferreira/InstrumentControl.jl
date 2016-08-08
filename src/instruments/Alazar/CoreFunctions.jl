@@ -55,8 +55,8 @@ adma
 function before_async_read(a::InstrumentAlazar, m::AlazarMode)
 
     # retrigger(a)
-    pretrig = -pretriggersamples(m) / inspect(a, ChannelCount)
-    sam_rec_ch = samples_per_record_measured(a,m) / inspect(a, ChannelCount)
+    pretrig = -pretriggersamples(m) / a[ChannelCount]
+    sam_rec_ch = samples_per_record_measured(a,m) / a[ChannelCount]
 
     println("Pretrigger samples: $(pretriggersamples(m))")
     println("Samples per record: $(samples_per_record_measured(a,m))")
@@ -68,7 +68,7 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
                                sam_rec_ch,
                                records_per_buffer(a,m),
                                rec_acq_param(m),
-                               adma(m))
+                               adma(a,m))
     nothing
 end
 
@@ -87,7 +87,7 @@ function before_async_read(a::InstrumentAlazar, m::FFTRecordMode)
                                m.by_rec,
                                m.buf_size / m.by_rec, # will be an int
                                rec_acq_param(m),
-                               adma(m))
+                               adma(a,m))
     nothing
 end
 
@@ -152,19 +152,19 @@ function buffersizing(a::InstrumentAlazar, m::RecordMode)
     sr = m.sam_per_rec
     tr = m.total_recs
 
-    chans = inspect(a, ChannelCount)
-    min_sam = inspect(a, MinSamplesPerRecord)
+    chans = a[ChannelCount]
+    min_sam = a[MinSamplesPerRecord]
     pagesize = Base.Mmap.PAGESIZE
     by_sam = bytes_per_sample(a)
 
     # rec_align is the alignment needed for the start of each buffer, in bytes
-    rec_align = inspect(a, BufferAlignment) * by_sam
+    rec_align = a[BufferAlignment] * by_sam
 
     # buf_grain is the granularity of buffer allocation in bytes
     buf_grain = lcm(by_sam*chans, pagesize, rec_align)
 
     # max_buf_size will contain the largest acceptable buffer (in bytes)
-    max_size_buf = inspect(a, MaxBufferBytes)
+    max_size_buf = a[MaxBufferBytes]
     max_size_buf = fld(max_size_buf, buf_grain) * buf_grain
 
     if sr * by_sam > max_size_buf
@@ -229,8 +229,8 @@ function buffersizing(a::InstrumentAlazar, m::StreamMode)
 
     ts = m.total_samples
 
-    chans = inspect(a, ChannelCount)
-    min_sam = inspect(a, MinSamplesPerRecord)
+    chans = a[ChannelCount]
+    min_sam = a[MinSamplesPerRecord]
     pagesize = Base.Mmap.PAGESIZE
     by_sam = bytes_per_sample(a)
 
@@ -239,7 +239,7 @@ function buffersizing(a::InstrumentAlazar, m::StreamMode)
     # a contiguous allocation of memory. Choose biggest buffer <= the digitizer's
     # max size that is commensurate with *both* the page size and
     # (bytes/sample * channels)
-    max_size_buf = inspect(a, MaxBufferBytes)    # from the digitizer's perspective.
+    max_size_buf = a[MaxBufferBytes]    # from the digitizer's perspective.
     buf_grain = lcm(by_sam*chans, pagesize)
     max_size_buf = fld(max_size_buf, buf_grain) * buf_grain # from our requirements
 
@@ -275,13 +275,13 @@ function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
     sr = m.sam_per_rec
     tr = m.total_recs
     sf = m.sam_per_fft
-    max_sam_fft = inspect(a, MaxFFTSamples)
-    min_sam_fft = inspect(a, MinFFTSamples)
+    max_sam_fft = a[MaxFFTSamples]
+    min_sam_fft = a[MinFFTSamples]
     !ispow2(sf) && error("FFT length (samples) not a power of 2!")
     sf < min_sam_fft && error("FFT length (samples) too short!")
     sf > max_sam_fft && error("FFT length (samples) too long!")
 
-    min_sam = inspect(a, MinSamplesPerRecord)
+    min_sam = a[MinSamplesPerRecord]
     pagesize = Base.Mmap.PAGESIZE
 
     by_raw_sam = bytes_per_sample(a)   # Bytes per raw (not FFT) sample
@@ -290,15 +290,15 @@ function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
     by_fft_rec = m.by_rec                       # Bytes per FFT record
 
     # rec_align is the alignment needed for the start of each buffer, in bytes
-    rec_fft_align = inspect(a, BufferAlignment) * by_fft_sam
-    rec_raw_align = inspect(a, BufferAlignment) * by_raw_sam
+    rec_fft_align = a[BufferAlignment] * by_fft_sam
+    rec_raw_align = a[BufferAlignment] * by_raw_sam
 
     # buf_grain is the granularity of buffer allocation in bytes
     buf_grain = lcm(pagesize, rec_fft_align, rec_raw_align)
                  #, by_fft_sam, by_raw_sam) implicit.
 
     # max_buf_size will contain the largest acceptable buffer (in bytes)
-    max_size_buf = inspect(a, MaxBufferBytes)
+    max_size_buf = a[MaxBufferBytes]
     max_size_buf = fld(max_size_buf, buf_grain) * buf_grain
 
     size_raw_rec = cld(by_raw_sam * sr, rec_raw_align) * rec_raw_align
@@ -603,13 +603,13 @@ pretriggersamples
 function recordsizing(a::InstrumentAlazar, m::RecordMode)
     @eh2 AlazarSetRecordSize(a.handle,
                              0,
-                             m.sam_per_rec / inspect(a,ChannelCount))
+                             m.sam_per_rec / a[ChannelCount])
 end
 
 function recordsizing(a::InstrumentAlazar, m::TraditionalRecordMode)
     @eh2 AlazarSetRecordSize(a.handle,
-                             m.pre_sam_pre_rec / inspect(a,ChannelCount),
-                             m.post_sam_per_rec / inspect(a,ChannelCount))
+                             m.pre_sam_pre_rec / a[ChannelCount],
+                             m.post_sam_per_rec / a[ChannelCount])
 end
 
 recordsizing(a::InstrumentAlazar, m::FFTRecordMode) = nothing

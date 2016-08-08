@@ -33,7 +33,7 @@ type ContinuousStreamResponse{T} <: StreamResponse
         b <= 0 && error("Need at least one sample.")
         r = new(a,b)
         r.m = ContinuousStreamMode(r.samples_per_ch *
-                                   inspect(r.ins, ChannelCount))
+                                   r.ins[ChannelCount])
         r
     end
 end
@@ -53,7 +53,7 @@ type TriggeredStreamResponse{T} <: StreamResponse{T}
         b <= 0 && error("Need at least one sample.")
         r = new(a,b)
         r.m = TriggeredStreamMode(r.samples_per_ch *
-                                  inspect(r.ins, ChannelCount))
+                                  r.ins[ChannelCount])
         r
     end
 end
@@ -74,7 +74,7 @@ type NPTRecordResponse{T} <: RecordResponse{T}
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
         r = new(a,b,c)
-        r.m = NPTRecordMode(r.sam_per_rec_per_ch * inspect(r.ins, ChannelCount),
+        r.m = NPTRecordMode(r.sam_per_rec_per_ch * r.ins[ChannelCount],
                             r.total_recs)
         r
     end
@@ -125,7 +125,7 @@ type IQSoftwareResponse{T} <: RecordResponse{T}
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
         r = new(a,b,c)
-        r.m = NPTRecordMode(r.sam_per_rec_per_ch * inspect(r.ins, ChannelCount),
+        r.m = NPTRecordMode(r.sam_per_rec_per_ch * (r.ins)[ChannelCount],
                             r.total_recs)
         r
     end

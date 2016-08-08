@@ -1,6 +1,6 @@
 
 function initmodes(r::StreamResponse)
-    r.m.total_samples = r.samples_per_ch * inspect(r.ins, ChannelCount)
+    r.m.total_samples = r.samples_per_ch * (r.ins)[ChannelCount]
 end
 
 function initmodes(r::FFTResponse)
@@ -11,7 +11,7 @@ function initmodes(r::FFTResponse)
 end
 
 function initmodes(r::RecordResponse)
-    r.m.sam_per_rec = r.sam_per_rec_per_ch * inspect(r.ins, ChannelCount)
+    r.m.sam_per_rec = r.sam_per_rec_per_ch * (r.ins)[ChannelCount]
     r.m.total_recs = r.total_recs
 end
 
@@ -312,14 +312,14 @@ Specifies what to do with the buffers during measurement based on the response t
 """
 processing
 
-# Triangular dispatch would be nice here (waiting for Julia 0.5)
+# Triangular dispatch would be nice here (waiting for Julia 0.6)
 # scaling{T, S<:AbstractArray{T,2}}(resp::FFTRecordResponse{S}, ...
 
 "Returns the axis scaling for an FFT response."
 function scaling{T<:AbstractArray}(resp::FFTResponse{T},
         whichaxis::Integer=1)
 
-    rate = inspect(resp.ins, SampleRate)
+    rate = (resp.ins)[SampleRate]
     npts = resp.m.sam_per_fft # single-sided
     dims = T.parameters[2]::Int
     if (dims == 1)
