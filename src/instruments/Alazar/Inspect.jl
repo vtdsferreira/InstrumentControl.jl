@@ -3,23 +3,23 @@
 
 """
 ```
-getindex(a::InstrumentAlazar, ::Type{AlazarAux})
+getindex(a::InstrumentAlazar, ::Type{AuxIOMode})
 ```
 
 Inspect the AUX IO mode.
 """
-getindex(a::InstrumentAlazar, ::Type{AlazarAux}) = a.auxIOMode
+getindex(a::InstrumentAlazar, ::Type{AuxIOMode}) = a.auxIOMode
 
 ## Channels ########
 
 """
 ```
-getindex(a::InstrumentAlazar, ::Type{AlazarChannel})
+getindex(a::InstrumentAlazar, ::Type{AcquisitionChannel})
 ```
 
 Returns which channel(s) will be acquired.
 """
-getindex(a::InstrumentAlazar, ::Type{AlazarChannel}) = a.acquisitionChannel
+getindex(a::InstrumentAlazar, ::Type{AcquisitionChannel}) = a.acquisitionChannel
 
 """
 ```
@@ -34,9 +34,9 @@ getindex(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
 
 # "Inspect the data packing mode for a given channel."
 # Needs to be rewritten.
-function getindex{T<:AlazarChannel}(a::InstrumentAlazar,
+function getindex{T<:AcquisitionChannel}(a::InstrumentAlazar,
         ::Type{AlazarDataPacking}, ch::Type{T})
-    ch == AlazarChannel && error("Specify a particular channel.")
+    ch == AcquisitionChannel && error("Specify a particular channel.")
 
     arr = Array{Clong}(1)
     arr[1] = 0

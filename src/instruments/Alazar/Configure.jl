@@ -1,9 +1,7 @@
 export configure
 
 ## Auxiliary IO
-
-"Masks an AUX IO mode parameter to specify AUX IO software trigger enable."
-auxmode(m::U32, b::Bool) = begin
+function auxmode(m::U32, b::Bool)
     if b
         m | Alazar.AUX_OUT_TRIGGER_ENABLE
     else
@@ -11,60 +9,80 @@ auxmode(m::U32, b::Bool) = begin
     end
 end
 
-"Configure a digitizer's AUX IO to output a trigger signal synced to the sample clock."
-function setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AlazarAux})
-    val = symbol_to_aux_mode(aux)
+function auxparam(a::InstrumentAlazar, aux::Symbol)
     if aux == :AuxOutputTrigger
-        val = auxmode(val, a.auxOutTriggerEnable)
+        U32(0)
+    elseif aux == :AuxInputTriggerEnable
+        symbol_to_trig_slope(a.auxInTriggerSlope)
+    elseif aux == :AuxOutputPacer
+        a.auxOutDivider
+    elseif aux == :AuxDigitalInput
+        U32(0)  # not really specified what this should be in ATS-SDK guide
+    else#if aux == :AuxDigitalOutput
+        symbol_to_ttl(a.auxOutTTLLevel)
     end
-
-    @eh2 AlazarConfigureAuxIO(a.handle, val, U32(0))
-    a.auxIOMode = val
-    nothing
 end
-#
-# """
-# Configure a digitizer's AUX IO port to use the edge of a pulse as an AutoDMA
-# trigger signal.
-# """
-# function configure{T<:TriggerSlope}(a::InstrumentAlazar,
-#         aux::Type{AuxInputTriggerEnable}, trigSlope::Type{T})
-#     val = code(a,aux)
-#     val2 = code(a,trigSlope)
-#
-#     @eh2 AlazarConfigureAuxIO(a.handle, val, val2)
-#     a.auxIOMode = val
-#     a.auxInTriggerSlope = val2
-#     nothing
-# end
 
 """
-- `:AuxOutputPacer` Configure a digitizer's AUX IO port to output the sample clock, divided by an integer.
-- `:AuxDigitalOutput` Configure a digitizer's AUX IO port to act as a general purpose digital output.
-"""
-function setindex!(a::InstrumentAlazar,
-        v::Tuple{Symbol,Integer}, ::Type{AlazarAux})
-    aux,d = v
-    val = code(a,aux)
-    val = auxmode(val, a.auxOutTriggerEnable)
+```
+setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AuxIOMode})
+```
 
-    if aux == :AuxOutputPacer
-        @assert d > 2 "Divider needs to be > 2."
-        @eh2 AlazarConfigureAuxIO(a.handle, val, U32(d))
-        a.auxIOMode = val
-        a.auxOutDivider = d
-    elseif aux == :AuxDigitalOutput
-        @eh2 AlazarConfigureAuxIO(a.handle, val, U32(d))
-        a.auxIOMode = val
-        a.auxOutTTLLevel = d
-    else
-        error("Unexpected symbol.")
+Configure a digitizer's AUX I/O mode. Available choices include:
+
+- `:AuxOutputTrigger`
+- `:AuxOutputPacer`
+- `:AuxDigitalOutput`
+- `:AuxDigitalInput`
+- `:AuxInputTriggerEnable`
+"""
+function setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AuxIOMode})
+    m = symbol_to_aux_mode(aux)
+    if aux == :AuxOutputTrigger || :AuxOutputPacer || :AuxDigitalOutput
+        m = auxmode(m, a.auxOutTriggerEnable)
     end
+    p = auxparam(a,aux)
+
+    @eh2 AlazarConfigureAuxIO(a.handle, m, p)
+    a.auxIOMode = aux
     nothing
 end
 
 """
-If an AUX IO output mode has been configured, then this will configure
+```
+setindex!(a::InstrumentAlazar, trigSlope::Symbol, ::Type{AuxInputTriggerSlope})
+```
+
+Trigger enable is on the [`:Rising` / `:Falling`] edge of a TTL pulse to the
+AUX I/O connector. This does nothing immediately unless the AUX I/O
+mode is `:AuxInTriggerEnable`.
+"""
+function setindex!(a::InstrumentAlazar, trigSlope::Symbol,
+        ::Type{AuxInputTriggerSlope})
+    a.auxInTriggerSlope = trigSlope
+    a[AuxIOMode] = a.auxIOMode
+    nothing
+end
+
+function setindex!(a::InstrumentAlazar, v::Integer, ::Type{AuxOutputPacerDivider})
+    @assert d > 2 "Divider needs to be > 2."
+    a.auxOutDivider = v
+    a[AuxIOMode] = a.auxIOMode
+    nothing
+end
+
+function setindex!(a::InstrumentAlazar, s::Symbol, ::Type{AuxOutputTTL})
+    a.auxOutTTLLevel = s
+    a[AuxIOMode] = a.auxIOMode
+    nothing
+end
+
+
+"""
+```
+function setindex!(a::InstrumentAlazar, b::Bool, ::Type{AuxSoftwareTriggerEnable})
+```
+If an AUX I/O output mode has been configured, then this will configure
 software trigger enable. From the Alazar API:
 
 When this flag is set, the board will wait for software to call
@@ -72,23 +90,9 @@ When this flag is set, the board will wait for software to call
 sufficient trigger events to capture the records in an AutoDMA buffer; then wait
 for the next trigger enable event and repeat.
 """
-function setindex!(a::InstrumentAlazar, b::Bool,
-        ::Type{AuxSoftwareTriggerEnable})
-    m = auxmode(a.auxIOMode,b)
+function setindex!(a::InstrumentAlazar, b::Bool, ::Type{AuxSoftwareTriggerEnable})
     a.auxOutTriggerEnable = b
-
-    if a.auxIOMode == AUX_OUT_TRIGGER
-        p = U32(0)
-    elseif a.auxIOMode == AUX_OUT_PACER
-        p = a.auxOutDivider
-    elseif a.auxIOMode == AUX_OUT_SERIAL_DATA
-        p = a.auxOutTTLLevel
-    else
-        warn("Inoperative unless an aux output mode is configured.")
-        return nothing
-    end
-
-    @eh2 AlazarConfigureAuxIO(a.handle, m, p)
+    a[AuxIOMode] = a.auxIOMode
     nothing
 end
 
@@ -106,7 +110,7 @@ end
 
 # Logic for the following is a bit specialized to two-channel devices
 "Configures the acquisition channel."
-function setindex!(a::InstrumentAlazar, v::Symbol, ::Type{AlazarChannel})
+function setindex!(a::InstrumentAlazar, v::Symbol, ::Type{AcquisitionChannel})
     if v == :ChannelA || v == :ChannelB
         a.channelCount = 1
     elseif v == :BothChannels

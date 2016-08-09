@@ -130,11 +130,11 @@ type AlazarATS9360 <: InstrumentAlazar
         at[TriggerTimeoutTicks] = 0
 
         at.auxOutTriggerEnable = false
-        at.auxInTriggerSlope = Alazar.TRIGGER_SLOPE_POSITIVE
+        at.auxInTriggerSlope = :Rising
         at.auxOutDivider = 4
-        at.auxOutTTLLevel = 0
-        at[AlazarAux] = :AuxOutputTrigger
-        at[AlazarChannel] = :BothChannels
+        at.auxOutTTLLevel = :Low
+        at[AuxIOMode] = :AuxOutputTrigger
+        at[AcqusitionChannel] = :BothChannels
         dsp_populate(at)
 
         configure(at, WindowOnes, WindowZeroes)

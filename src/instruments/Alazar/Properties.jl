@@ -1,9 +1,11 @@
-export AlazarAux
-export AlazarChannel
 export AlazarDataPacking
 export AlazarLSB
 export AlazarTimestampReset
-
+export AcquisitionChannel
+export AuxInputTriggerSlope
+export AuxIOMode
+export AuxOutputPacerDivider
+export AuxOutputTTL
 export AuxSoftwareTriggerEnable
 export BitsPerSample
 export BytesPerSample
@@ -30,37 +32,24 @@ export TriggerTimeoutTicks
 "An InstrumentProperty specific to AlazarTech digitizers."
 abstract AlazarProperty       <: InstrumentProperty
 
-abstract AlazarAux            <: AlazarProperty
-abstract AlazarChannel        <: AlazarProperty
 abstract AlazarDataPacking    <: AlazarProperty
 abstract AlazarLSB            <: AlazarProperty
-abstract AlazarOutputTTLLevel <: AlazarProperty
 abstract AlazarTimestampReset <: AlazarProperty
 
-subtypesArray = [
+# subtypesArray = [
+#
+#     (:LSBDefault,                AlazarLSB),
+#     (:LSBExtTrigger,             AlazarLSB),
+#     (:LSBAuxIn0,                 AlazarLSB),
+#     (:LSBAuxIn1,                 AlazarLSB),
+#
+# ]::Array{Tuple{Symbol,DataType},1}
 
-    (:LSBDefault,                AlazarLSB),
-    (:LSBExtTrigger,             AlazarLSB),
-    (:LSBAuxIn0,                 AlazarLSB),
-    (:LSBAuxIn1,                 AlazarLSB),
-
-    (:TTLHigh,                   AlazarOutputTTLLevel),
-    (:TTLLow,                    AlazarOutputTTLLevel),
-
-]::Array{Tuple{Symbol,DataType},1}
-
-# Create all the concrete types we need using the generate_properties function.
-# for ((subtypeSymb,supertype) in subtypesArray)
-#     generate_properties(subtypeSymb, supertype)
-# end
-
-responses = Dict(
-    :AlazarOutputTTLLevel => Dict(U32(0) => :TTLLow,
-                                  U32(1) => :TTLHigh),
-)
-
-# generate_handlers(InstrumentAlazar, responses)
-
+abstract AcquisitionChannel        <: AlazarProperty
+abstract AuxInputTriggerSlope      <: AlazarProperty
+abstract AuxIOMode                 <: AlazarProperty
+abstract AuxOutputPacerDivider     <: AlazarProperty
+abstract AuxOutputTTL              <: AlazarProperty
 abstract AuxSoftwareTriggerEnable  <: AlazarProperty
 abstract BitsPerSample             <: AlazarProperty
 abstract BytesPerSample            <: AlazarProperty
@@ -73,6 +62,7 @@ abstract MinSamplesPerRecord       <: AlazarProperty
 abstract MaxBufferBytes            <: AlazarProperty
 abstract MinFFTSamples             <: AlazarProperty
 abstract MaxFFTSamples             <: AlazarProperty
+abstract OutputTTLLevel            <: AlazarProperty
 abstract PretriggerAlignment       <: AlazarProperty
 abstract RecordCount               <: AlazarProperty
 abstract SampleMemoryPerChannel    <: AlazarProperty
@@ -95,6 +85,16 @@ function symbol_to_aux_mode(s)
         Alazar.AUX_IN_AUXILIARY
     elseif s == :AuxDigitalOutput
         Alazar.AUX_OUT_SERIAL_DATA
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_ttl(s)
+    if s == :Low
+        U32(0)
+    elseif s == :High
+        U32(1)
     else
         error("Unexpected symbol.")
     end

@@ -45,10 +45,10 @@ type AlazarATS9870 <: InstrumentAlazar
     triggerDelaySamples::U32
     triggerTimeoutTicks::U32
 
-    auxIOMode::U32
-    auxInTriggerSlope::U32
+    auxIOMode::Symbol
+    auxInTriggerSlope::Symbol
     auxOutDivider::U32
-    auxOutTTLLevel::U32
+    auxOutTTLLevel::Symbol
     auxOutTriggerEnable::Bool
 
     acquisitionChannel::Symbol
@@ -124,11 +124,11 @@ type AlazarATS9870 <: InstrumentAlazar
         at[TriggerTimeoutTicks] = 0
 
         at.auxOutTriggerEnable = false
-        at.auxInTriggerSlope = Alazar.TRIGGER_SLOPE_POSITIVE
+        at.auxInTriggerSlope = :Rising
         at.auxOutDivider = 4
-        at.auxOutTTLLevel = 0
-        at[AlazarAux] = :AuxOutputTrigger
-        at[AlazarChannel] = :BothChannels
+        at.auxOutTTLLevel = :Low
+        at[AuxIOMode] = :AuxOutputTrigger
+        at[AcquisitionChannel] = :BothChannels
 
         return at
     end

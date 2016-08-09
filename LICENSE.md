@@ -4,7 +4,7 @@ Large majority of code in VISA.jl package:
 Random.jl, Time.jl, and a few other snippets here and there:
 > Copyright (c) 2014: Menyoung Lee.
 
-Everything else:
+Alll other code:
 > Copyright (c) 2015: Andrew Keller.
 
 All of the code is licensed under the MIT "Expat" License by the respective

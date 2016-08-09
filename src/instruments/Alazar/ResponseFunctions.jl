@@ -119,7 +119,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
 
     # Initial preparations.
     # This is for sure a two channel measurement; let's make it so.
-    a[AlazarChannel] = :BothChannels
+    a[AcquisitionChannel] = :BothChannels
 
     initmodes(ch)
     buffersizing(a,m)
