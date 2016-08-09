@@ -1,33 +1,23 @@
-import Alazar: Alazar12Bit
+import Alazar: AlazarBits
 import Base: range_1dim
 import Base: localindexes
 
-function worker_tofloat!(a::SharedArray{Alazar12Bit,1})
-    for i in localindexes(a)
-        a[i] = Alazar12Bit(
-                reinterpret(UInt16,Float16(
-                    0.8*(ltoh(convert(UInt16,a[i]))/0xFFF0)-0.4)))
+# src is assumed to be a big shared array you are indexing into;
+# dest can either be the same size as the big shared array, or have
+# the same size as the subrange.
+function worker_tofloat!{S<:AlazarBits,T<:AbstractFloat}(src::SharedArray{S,1},
+        subrange::UnitRange, dest::SharedArray{T,1})
+    local st
+    if size(dest) == size(subrange)
+        st = start(subrange) - 1
+    elseif size(dest) == size(src)
+        st = 0
+    else
+        error("Unexpected size for `dest`.")
     end
-    nothing
-end
-
-function worker_tofloat!(a::SharedArray{Alazar12Bit,1}, subrange::UnitRange)
-    for i in localindexes(a, subrange)
-        a[i] = Alazar12Bit(
-                reinterpret(UInt16,Float16(
-                    0.8*(ltoh(convert(UInt16,a[i]))/0xFFF0)-0.4)))
+    for i in localindexes(src, subrange)
+        dest[i - st] = convert(T, src[i])
     end
-    nothing
-end
-
-function worker_iqfft{T<:Union{Float32,Float64}}(
-        from::SharedArray{Alazar12Bit,1}, subrange::UnitRange,
-        to::SharedArray{T,2})
-
-    for i in localindexes(from, subrange)
-        to[i] = T( 0.8*(ltoh(convert(UInt16,from[i]))/0xFFF0)-0.4 )
-    end
-
     nothing
 end
 
@@ -38,16 +28,16 @@ function range_1dim(S::SharedArray, subrange::UnitRange, pidx)
     l = length(subrange)
     nw = length(S.pids)
     partlen = div(l, nw)
-
+    off = start(subrange) - 1
     if l < nw
         if pidx <= l
-            return (pidx:pidx) + (subrange.start - 1)
+            return (pidx:pidx) + off
         else
             return 1:0
         end
     elseif pidx == nw
-        return ((((pidx-1) * partlen) + 1):l) + (subrange.start - 1)
+        return ((((pidx-1) * partlen) + 1):l) + off
     else
-        return ((((pidx-1) * partlen) + 1):(pidx*partlen)) + (subrange.start - 1)
+        return ((((pidx-1) * partlen) + 1):(pidx*partlen)) + off
     end
 end

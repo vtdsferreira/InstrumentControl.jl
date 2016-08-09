@@ -10,6 +10,7 @@ export BytesPerSample
 export BufferAlignment
 export ChannelCount
 export Coupling
+export InputRange
 export LED
 export MaxBufferBytes
 export MinFFTSamples
@@ -66,6 +67,7 @@ abstract BytesPerSample            <: AlazarProperty
 abstract BufferAlignment           <: AlazarProperty
 abstract ChannelCount              <: AlazarProperty
 abstract Coupling                  <: AlazarProperty
+abstract InputRange                <: AlazarProperty
 abstract LED                       <: AlazarProperty
 abstract MinSamplesPerRecord       <: AlazarProperty
 abstract MaxBufferBytes            <: AlazarProperty
@@ -207,6 +209,54 @@ function symbol_to_coupling(s)
         Alazar.DC_COUPLING
     elseif s == :AC
         Alazar.AC_COUPLING
+    else
+        error("Unexpected symbol.")
+    end
+end
+
+function symbol_to_input_range(s)
+    if s == :Range20mV
+        Alazar.INPUT_RANGE_PM_20_MV
+    elseif s == :Range40mV
+        Alazar.INPUT_RANGE_PM_40_MV
+    elseif s == :Range50mV
+        Alazar.INPUT_RANGE_PM_50_MV
+    elseif s == :Range80mV
+        Alazar.INPUT_RANGE_PM_80_MV
+    elseif s == :Range100mV
+        Alazar.INPUT_RANGE_PM_100_MV
+    elseif s == :Range125mV
+        Alazar.INPUT_RANGE_PM_125_MV
+    elseif s == :Range200mV
+        Alazar.INPUT_RANGE_PM_200_MV
+    elseif s == :Range250mV
+        Alazar.INPUT_RANGE_PM_250_MV
+    elseif s == :Range400mV
+        Alazar.INPUT_RANGE_PM_400_MV
+    elseif s == :Range500mV
+        Alazar.INPUT_RANGE_PM_500_MV
+    elseif s == :Range800mV
+        Alazar.INPUT_RANGE_PM_800_MV
+    elseif s == :Range1V
+        Alazar.INPUT_RANGE_PM_1_V
+    elseif s == :Range2V
+        Alazar.INPUT_RANGE_PM_2_V
+    elseif s == :Range4V
+        Alazar.INPUT_RANGE_PM_4_V
+    elseif s == :Range5V
+        Alazar.INPUT_RANGE_PM_5_V
+    elseif s == :Range8V
+        Alazar.INPUT_RANGE_PM_8_V
+    elseif s == :Range10V
+        Alazar.INPUT_RANGE_PM_10_V
+    elseif s == :Range20V
+        Alazar.INPUT_RANGE_PM_20_V
+    elseif s == :Range40V
+        Alazar.INPUT_RANGE_PM_40_V
+    elseif s == :Range16V
+        Alazar.INPUT_RANGE_PM_16_V
+    elseif s == :Range1V25
+        Alazar.INPUT_RANGE_PM_1_V_25
     else
         error("Unexpected symbol.")
     end

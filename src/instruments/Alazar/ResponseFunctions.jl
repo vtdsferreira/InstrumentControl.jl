@@ -15,82 +15,11 @@ function initmodes(r::RecordResponse)
     r.m.total_recs = r.total_recs
 end
 
-function initmodes(r::AlternatingRealImagResponse)
-    error("not yet implemented")
-end
-
 """
 Should be called at the beginning of a measure method to initialize the
 AlazarMode objects.
 """
 initmodes
-
-function measure(ch::AlternatingRealImagResponse; diagnostic::Bool=false)
-    a = ch.ins
-    m = ch.m
-    mIm = ch.mIm
-
-    # Calculate and adjust record and buffer sizes.
-    initmodes(ch)
-    buffersizing(a,m)
-    buffersizing(a,mIm)
-    m.buf_count = 1
-    mIm.buf_count = 1
-
-    windowing(a,m)
-
-    timeout_ms = 5000
-    buf_completed = 0
-    by_transferred = 0
-    transfertime_s = 0
-
-    re_buf = bufferarray(a,m)
-    im_buf = bufferarray(a,mIm)
-
-    # Assumes both are 32-bit integers
-    final_buf = Alazar.DMABufferArray{Int32}(
-                    4 * ch.total_recs * ch.sam_per_fft * 2, 1)
-
-    # We are going to alternate between real and imaginary FFTs
-    buf_iter = cycle((re_buf, im_buf))
-    bis = start(buf_iter)
-
-    mode_iter = cycle((m, mIm))
-    mis = start(mode_iter)
-
-    j = 1
-    for i = 1:(ch.total_recs*2)
-        println(i," ",j)
-
-        (m, mis) = next(mode_iter, mis)
-        (buf, bis) = next(buf_iter, bis)
-
-        println(buf[1])
-        println(m.buf_size)
-
-        before_async_read(a, m)
-        post_async_buffer(a, buf[1], m.buf_size)
-
-        try
-            # Arm the board system to wait for a trigger event to begin the acquisition
-            startcapture(a)
-            wait_buffer(a, m, buf[1], timeout_ms)
-            for k = 1:div(m.sam_per_fft,2)
-                final_buf.backing[j] = convert(Int32, buf.backing[k])
-                j+=1
-            end
-
-            buf_completed += 1
-        finally
-            # Gracefully stop the acquisition, even if it failed.
-            # Strictly required when doing DSP, like FFTs.
-            abort(a,m)
-        end
-    end
-
-    postprocess(ch, final_buf)
-
-end
 
 "Largely generic method for measuring `AlazarResponse`. Can be considered a
 prototype for more complicated user-defined methods."
@@ -112,8 +41,6 @@ function measure(ch::AlazarResponse; diagnostic::Bool=false)
     # Buffers/acquisition is not the same as buffer count, in general.
     # Buffer count determines how many buffers are allocated; a greater numbers
     # of buffers/acquisition may result in reuse of the allocated buffers.
-    # In applications where we don't want indefinite acquisition time,
-    # we choose *not* to reuse buffers.
     m.buf_count = buffers_per_acquisition(a,m)
 
     # Initialize some parameters
@@ -149,7 +76,7 @@ function measure(ch::AlazarResponse; diagnostic::Bool=false)
             wait_buffer(a, m, dmaptr, timeout_ms)
             # Take care if this ever does something for FFTRecordResponse since
             # sam_per_buf is probably not the relevant number
-            processing(ch, sam_per_buf, buf_completed, backing)
+            # processing(ch, sam_per_buf, buf_completed, backing)
             buf_completed += 1
         end
 
@@ -190,13 +117,31 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     a = ch.ins
     m = ch.m
 
-    configure(a, BothChannels)
+    # Initial preparations.
+    # This is for sure a two channel measurement; let's make it so.
+    a[AlazarChannel] = :BothChannels
 
-    # Initial prep
     initmodes(ch)
     buffersizing(a,m)
     recordsizing(a,m)
     before_async_read(a,m)
+
+    # Generate the cosine and sine waves
+    tstep = 1/a[SampleRate]
+    ftbase = ch.f*linspace(0., tstep*(m.sam_per_rec/2-1), m.sam_per_rec/2)
+
+    imix0 = Array{Float32}(2, Int(m.sam_per_rec/2))
+    imix0[1,:] = cos(2pi*ftbase)
+    imix0[2,:] = sin(2pi*ftbase)
+
+    qmix0 = Array{Float32}(2, Int(m.sam_per_rec/2))
+    qmix0[1,:] = imix0[2,:] .* -1
+    qmix0[2,:] = imix0[1,:]
+
+    # `imix` and `qmix` are now interleaved with cos,sin and -sin,cos, respectively.
+    # These will be multiplied with the digitizer records to get I and Q.
+    imix = reshape(imix0, (m.sam_per_rec,))
+    qmix = reshape(qmix0, (m.sam_per_rec,))
 
     # Buffers/acquisition is not the same as buffer count, in general.
     # Buffer count determines how many buffers are allocated; a greater numbers
@@ -216,10 +161,6 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     buf_array = bufferarray(a,m)
     backing = buf_array.backing
 
-    # We will need an array to store the complex 32-bit floats.
-    # / 2 comes from 2 channels.
-    fft_array = SharedArray(Float32, (m.sam_per_rec, m.total_recs))
-
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array
         post_async_buffer(a, dmaptr, buf_size)
@@ -229,15 +170,21 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     sam_per_buf = samples_per_buffer_returned(a,m)
     rec_per_buf = records_per_buffer(a,m)
 
-    try
+    # We will need an array to store the 32-bit floats.
+    fft_buffer = SharedArray(Float32, sam_per_buf)
 
+    # We also preallocate the output array.
+    iqout = Array{Complex{Float32}}(m.total_recs)
+
+    try
         # Arm the board system to wait for a trigger event to begin the acquisition
         startcapture(a)
 
         for dmaptr in buf_array
             wait_buffer(a, m, dmaptr, timeout_ms)
-            processing(ch, sam_per_buf, buf_completed,
-                rec_per_buf, backing, fft_array)
+            tofloat!(backing, fft_buffer, sam_per_buf, buf_completed)
+            iqfft(fft_buffer, imix, qmix, iqout,
+                sam_per_buf, rec_per_buf, buf_completed)
 
             buf_completed += 1
         end
@@ -247,74 +194,75 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
         # Strictly required when doing DSP, like FFTs.
         abort(a,m)
     end
-
-    postprocess(ch, fft_array)
+    iqout
 end
 
-function postprocess{T}(ch::AlazarResponse{SharedArray{T,1}}, buf_array::Alazar.DMABufferArray)
-    backing = buf_array.backing
-    if sizeof(T) == sizeof(eltype(backing))
-        convert(SharedArray, reinterpret(T, sdata(backing)))::SharedArray{T,1}
-    else
-        convert(SharedArray, convert(T, sdata(backing)))::SharedArray{T,1}
+"""
+Arrange multithreaded conversion of the Alazar formats to the usual IEEE
+floating-point format.
+"""
+function tofloat!(backing::SharedArray, fft_buffer::SharedArray,
+    sam_per_buf, buf_completed)
+    @sync begin
+        samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
+        for p in procs(backing)
+            @async begin
+                remotecall_wait(p, Main.worker_tofloat!,
+                    backing, samplerange, fft_buffer)
+            end
+        end
     end
 end
 
-function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
-    backing = buf_array.backing
-    if sizeof(T) == sizeof(eltype(backing))
-        array = reinterpret(T, sdata(backing))  # now it has els of type T
-        # Get 2D dimensions
-    else
-        array = convert(T, sdata(backing))
+"""
+Multiply the measurement with imix
+"""
+function iqfft(fft_buffer::SharedArray, imix, qmix, iqout,
+    sam_per_buf, rec_per_buf, buf_completed)
+
+    sam_per_rec = Int(sam_per_buf/rec_per_buf)
+    rng = 1:sam_per_rec
+
+    k = rec_per_buf*buf_completed
+    for j in 1:rec_per_buf
+        k += 1
+        I = sum(fft_buffer[rng] .* imix)
+        Q = sum(fft_buffer[rng] .* qmix)
+        iqout[k] = Complex(I,Q)
+        rng += sam_per_rec
     end
-    sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
-    rec_per_acq = records_per_acquisition(ch.ins, ch.m)
-    array = reshape(array, sam_per_rec, rec_per_acq)
-    convert(SharedArray, array)::SharedArray{T,2}
-end
-
-# function postprocess{T}(ch::FFTResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
-#     backing = buf_array.backing
-#     if sizeof(T) == sizeof(eltype(backing))
-#         array = reinterpret(T, sdata(backing))  # now it has els of type T
-#         # Get 2D dimensions
-#     else
-#         array = convert(T, sdata(backing))
-#     end
-#     sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
-#     rec_per_acq = records_per_acquisition(ch.ins, ch.m)
-#     array = reshape(array, sam_per_rec, rec_per_acq)
-#     convert(SharedArray, array)::SharedArray{T,2}
-# end
-
-function postprocess{T<:Union{Float32,Float64}}(
-        ch::IQSoftwareResponse, fft_array::SharedArray{T,2})
-
-    data = sdata(fft_array)
-    array = reinterpret(Complex{T}, data, (Int(size(data)[1]/2), size(data)[2]))
-
 end
 
 """
 Arrange for reinterpretation or conversion of the data stored in the
 DMABuffers (backed by SharedArrays) to the desired return type.
 """
-postprocess
+function postprocess end
 
-processing(::StreamResponse,args...) = tofloat!(args...)
-processing(::RecordResponse,args...) = tofloat!(args...)
-processing(::FFTResponse,args...) = nothing
-processing(::IQSoftwareResponse,args...) = iqfft(args...)
+function postprocess{T}(ch::AlazarResponse{SharedArray{T,1}}, buf_array::Alazar.DMABufferArray)
+    backing = buf_array.backing
+    SharedArray{T,1}(sdata(backing))
+end
 
-"""
-Specifies what to do with the buffers during measurement based on the response type.
-"""
-processing
+function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
+    backing = buf_array.backing
+    array = Array{T}(sdata(backing))
+
+    sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
+    rec_per_acq = records_per_acquisition(ch.ins, ch.m)
+    array = reshape(array, sam_per_rec, rec_per_acq)
+    convert(SharedArray, array)::SharedArray{T,2}
+end
+
+function postprocess{T<:Union{Float32,Float64}}(
+        ch::IQSoftwareResponse, fft_array::SharedArray{T,2})
+
+    data = sdata(fft_array)
+    array = reinterpret(Complex{T}, data, (Int(size(data)[1]/2), size(data)[2]))
+end
 
 # Triangular dispatch would be nice here (waiting for Julia 0.6)
 # scaling{T, S<:AbstractArray{T,2}}(resp::FFTRecordResponse{S}, ...
-
 "Returns the axis scaling for an FFT response."
 function scaling{T<:AbstractArray}(resp::FFTResponse{T},
         whichaxis::Integer=1)
@@ -335,35 +283,4 @@ function scaling{T<:AbstractArray}(resp::FFTResponse{T},
         end
     end
 
-end
-
-"""
-Arrange multithreaded conversion of the Alazar 12-bit integer format to 16-bit
-floating point format.
-"""
-function tofloat!(sam_per_buf::Int, buf_completed::Int, backing::SharedArray)
-    @sync begin
-        samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
-        for p in procs(backing)
-            @async begin
-                remotecall_wait(p, Main.worker_tofloat!, backing, samplerange)
-            end
-        end
-    end
-end
-
-"""
-Convert and copy
-"""
-function iqfft(sam_per_buf::Int, buf_completed::Int, rec_per_buf::Int,
-    backing::SharedArray, fft_array::SharedArray)
-
-    @sync begin
-        samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
-        for p in procs(backing)
-            @async begin
-                remotecall_wait(p, Main.worker_iqfft, backing, samplerange, fft_array)
-            end
-        end
-    end
 end

@@ -174,6 +174,24 @@ end
 
 """
 ```
+setindex!(a::InstrumentAlazar, rng::Tuple{Symbol,Symbol}, ::Type{InputRange}
+```
+
+Configure the input range for each channel of the digitizer.
+"""
+function setindex!(a::InstrumentAlazar, rng::Tuple{Symbol,Symbol},
+        ::Type{InputRange})
+    @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_A,
+        symbol_to_coupling(a.couplingA),
+        symbol_to_input_range(rng[1]), Alazar.IMPEDANCE_50_OHM)
+    @eh2 AlazarInputControl(a.handle, Alazar.CHANNEL_B,
+        symbol_to_coupling(a.couplingB),
+        symbol_to_input_range(rng[2]), Alazar.IMPEDANCE_50_OHM)
+    a.rangeA, a.rangeB = rng
+    nothing
+end
+"""
+```
 setindex!(a::InstrumentAlazar, ledState::Bool, ::Type{LED})
 ```
 
