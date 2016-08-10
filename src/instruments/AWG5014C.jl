@@ -21,6 +21,7 @@ export Normalization, WaveformType
 
 export Amplitude
 export ExtInputAddsToOutput
+export SequenceWaveform
 export WaitingForTrigger
 export Waveform
 
@@ -113,6 +114,8 @@ Add the signal from an external input to the given channel output.
 """
 abstract ExtInputAddsToOutput     <: InstrumentProperty
 
+abstract SequenceWaveform         <: InstrumentProperty
+
 "When inspected, will report if the instrument is waiting for a trigger."
 abstract WaitingForTrigger        <: InstrumentProperty
 
@@ -120,17 +123,17 @@ abstract WaitingForTrigger        <: InstrumentProperty
 abstract Waveform                 <: InstrumentProperty
 
 "Configure the global analog output state of the AWG."
-function configure(ins::InsAWG5014C, ::Type{Output}, on::Bool)
+function setindex!(ins::InsAWG5014C, on::Bool, ::Type{Output})
     on ? write(ins, "AWGC:RUN") : write(ins, "AWGC:STOP")
 end
 
 "Inspect the global analog output state of the AWG."
-function inspect(ins::InsAWG5014C, ::Type{Output})
+function getindex(ins::InsAWG5014C, ::Type{Output})
     parse(ask(ins,"AWGC:RSTATE?")) > 0 ? true : false
 end
 
 "Inspect whether or not the instrument is waiting for a trigger."
-function inspect(ins::InsAWG5014C, ::Type{WaitingForTrigger})
+function getindex(ins::InsAWG5014C, ::Type{WaitingForTrigger})
     parse(ask(ins,"AWGC:RSTATE?")) == 1 ? true : false
 end
 
@@ -138,14 +141,14 @@ end
 Macro for performing an operation on every channel,
 provided the channel is the last argument of the function to be called.
 
-Example: `@allch configure(awg,Waveform,"*Sine10")`
+Example: `@allch awg[Waveform] = "*Sine10"`
 """
 macro allch(x::Expr)
     myargs = []
 
     for ch in 1:4
         n = copy(x)
-        push!(n.args,Int(ch))
+        push!(n.args[1].args,Int(ch))
         push!(myargs,n)
     end
 
@@ -153,28 +156,48 @@ macro allch(x::Expr)
     esc(Expr(:block,myargs...))
 end
 
+function setindex!(ins::InsAWG5014C, name::ASCIIString,
+        ::Type{SequenceWaveform}, el::Integer, ch::Integer)
+
+    length = ins[SequenceLength]
+    @assert (1 <= ch <= 4) "Channel out of range."
+    @assert (1 <= el <= length) "Element out of range."
+
+    write(ins,string("SEQ:ELEM",el,":WAV",ch," ",quoted(name)))
+end
+
+function getindex(ins::InsAWG5014C, ::Type{SequenceWaveform},
+        el::Integer, ch::Integer)
+
+    length = ins[SequenceLength]
+    @assert (1 <= ch <= 4) "Channel out of range."
+    @assert (1 <= el <= length) "Element out of range."
+
+    unquoted(ask(ins,string("SEQ:ELEM$(el):WAV$(ch)?")))
+end
+
 "Configure the waveform by name for a given channel."
-function configure(ins::InsAWG5014C, ::Type{Waveform}, name::ASCIIString, ch::Integer)
+function setindex!(ins::InsAWG5014C, name::ASCIIString, ::Type{Waveform}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":WAV ",quoted(name)))
 end
 
 "Inspect the waveform name for a given channel."
-function inspect(ins::InsAWG5014C, ::Type{Waveform}, ch::Integer)
+function getindex(ins::InsAWG5014C, ::Type{Waveform}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     unquoted(ask(ins,string("SOUR",ch,":WAV?")))
 end
 
 # Set Vpp for a given channel between 0.05 V and 2 V.
 "Configure Vpp for a given channel, between 0.05 V and 2 V."
-function configure(ins::InsAWG5014C, ::Type{Amplitude}, ampl::Real, ch::Integer)
+function setindex!(ins::InsAWG5014C, ampl::Real, ::Type{Amplitude}, ch::Integer)
     @assert (0.05 <= ampl <= 2) "Amplitude out of range."
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":VOLT ",ampl))
 end
 
 "Inspect Vpp for a given channel."
-function inspect(ins::InsAWG5014C, ::Type{Amplitude}, ch::Integer)
+function getindex(ins::InsAWG5014C, ::Type{Amplitude}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     parse(ask(ins,string("SOUR",ch,":VOLT?")))
 end
@@ -183,13 +206,13 @@ end
 Configure the sample rate in Hz between 10 MHz and 10 GHz.
 Output rate = sample rate / number of points.
 """
-function configure(ins::InsAWG5014C, ::Type{SampleRate}, rate::Real)
+function setindex!(ins::InsAWG5014C, rate::Real, ::Type{SampleRate})
     @assert (10e6 <= rate <= 10e9) "Sample rate out of range."
     write(ins,string("SOUR:FREQ ",rate))
 end
 
 "Get the sample rate in Hz. Output rate = sample rate / number of points."
-function inspect(ins::InsAWG5014C, ::Type{SampleRate})
+function getindex(ins::InsAWG5014C, ::Type{SampleRate})
     parse(ask(ins,"SOUR:FREQ?"))
 end
 
@@ -261,9 +284,10 @@ end
 "Resample a waveform."
 resamplewaveform
 
+"Does a waveform identified by `name` exist?"
 function waveformexists(ins::InsAWG5014C, name::ASCIIString)
-    for (i = 1:inspect(ins,WavelistLength))
-        if (name == waveform(ins,i))
+    for i in 1:ins[WavelistLength]
+        if (name == waveformname(ins,i))
             return true
         end
     end
@@ -271,49 +295,36 @@ function waveformexists(ins::InsAWG5014C, name::ASCIIString)
     return false
 end
 
-"Does a waveform identified by `name` exist?"
-waveformexists
-
+"Returns whether or not a waveform is predefined (comes with instrument)."
 function waveformispredefined(ins::InsAWG5014C, name::ASCIIString)
     Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
 end
 
-"Returns whether or not a waveform is predefined (comes with instrument)."
-waveformispredefined
-
+"Returns the length of a waveform."
 function waveformlength(ins::InsAWG5014C, name::ASCIIString)
     parse(ask(ins, "WLIST:WAV:LENG? "*quoted(name)))
-end
-
-"Returns the length of a waveform."
-waveformlength
-
-function waveform(ins::InsAWG5014C, num::Integer)
-    strip(ask(ins, "WLIST:NAME? "*string(num-1)),'"')
 end
 
 """
 Uses Julia style indexing (begins at 1) to retrieve the name of a waveform
 from the waveform list.
 """
-waveform
-
-function waveformtimestamp(ins::InsAWG5014C, name::ASCIIString)
-    unquoted(ask(ins,"WLIS:WAV:TST? "*quoted(name)))
+function waveformname(ins::InsAWG5014C, num::Integer)
+    strip(ask(ins, "WLIST:NAME? "*string(num-1)),'"')
 end
 
 "Return the timestamp for when a waveform was last updated."
-waveformtimestamp
-
-function waveformtype(ins::InsAWG5014C, name::ASCIIString)
-    WaveformType(ins, ask(ins,"WLIS:WAV:TYPE? "*quoted(name)))
+function waveformtimestamp(ins::InsAWG5014C, name::ASCIIString)
+    unquoted(ask(ins,"WLIS:WAV:TST? "*quoted(name)))
 end
 
 """
 Returns the type of the waveform. The AWG hardware
 ultimately uses an `IntWaveform` but `RealWaveform` is more convenient.
 """
-waveformtype
+function waveformtype(ins::InsAWG5014C, name::ASCIIString)
+    WaveformType(ins, ask(ins,"WLIS:WAV:TYPE? "*quoted(name)))
+end
 
 function pushto_awg(ins::InsAWG5014C, name::ASCIIString,
         awgData::AWG5014CData, wvType::Symbol, resampleOk::Bool=false)

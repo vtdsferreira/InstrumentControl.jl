@@ -85,7 +85,7 @@
             "doc":"Hey"
         }, {
             "cmd":"AWGC:RMOD",
-            "type":"TriggerMode",
+            "type":"RunMode",
             "values":[
                 "v::Symbol in symbols"
             ],
@@ -109,6 +109,17 @@
             "doc":"Hey"
         }, {
             "cmd":"TRIG:POL",
+            "type":"TriggerPolarity",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Positive":"POS",
+                "Negative":"NEG"
+            },
+            "doc":"Trigger input polarity in gated mode."
+        }, {
+            "cmd":"TRIG:SLOP",
             "type":"TriggerSlope",
             "values":[
                 "v::Symbol in symbols"
@@ -128,7 +139,7 @@
                 "Internal":"INT",
                 "External":"EXT"
             },
-            "doc":"Hey"
+            "doc":"Internal or external clock as trigger source."
         }, {
             "cmd":"SOURch:DELAY",
             "type":"AnalogOutputDelay",
@@ -221,7 +232,7 @@
             "doc":"Hey"
         }, {
             "cmd":"SEQ:ELEMel:JTAR:IND",
-            "type":"SequencerEventJumpTarget",
+            "type":"SequenceEventJumpTarget",
             "values":[
                 "v::Integer"
             ],
@@ -231,7 +242,7 @@
             "doc":"Hey"
         }, {
             "cmd":"SEQ:ELEMel:GOTO:STAT",
-            "type":"SequencerGOTOState",
+            "type":"SequenceGOTOState",
             "values":[
                 "v::Bool"
             ],
@@ -241,7 +252,7 @@
             "doc":"Hey"
         }, {
             "cmd":"SEQ:ELEMel:GOTO:IND",
-            "type":"SequencerGOTOTarget",
+            "type":"SequenceGOTOTarget",
             "values":[
                 "v::Integer"
             ],
@@ -251,7 +262,7 @@
             "doc":"Hey"
         }, {
             "cmd":"SEQ:ELEMel:LOOP:INF",
-            "type":"SequencerInfiniteLoop",
+            "type":"SequenceInfiniteLoop",
             "values":[
                 "v::Bool"
             ],
@@ -261,14 +272,14 @@
             "doc":"Hey"
         }, {
             "cmd":"SEQ:LENG",
-            "type":"SequencerLength",
+            "type":"SequenceLength",
             "values":[
                 "v::Integer"
             ],
             "doc":"Hey"
         }, {
             "cmd":"SEQ:ELEMel:LOOP:COUN",
-            "type":"SequencerLoopCount",
+            "type":"SequenceLoopCount",
             "values":[
                 "v::Integer"
             ],
@@ -278,7 +289,7 @@
             "doc":"Hey"
         }, {
             "cmd":"AWGC:SEQ:POS?",
-            "type":"SequencerPosition",
+            "type":"SequencePosition",
             "values":[
                 "v::Integer"
             ],
@@ -303,11 +314,11 @@
             "doc":"Hey"
         }, {
             "cmd":"TRIG:TIM",
-            "type":"TriggerTimer",
+            "type":"TriggerInterval",
             "values":[
                 "v::Real"
             ],
-            "doc":"Hey"
+            "doc":"Internal trigger interval (time)."
         }, {
             "cmd":"WLIST:SIZE?",
             "type":"WavelistLength",
