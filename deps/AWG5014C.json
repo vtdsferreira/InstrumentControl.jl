@@ -193,6 +193,26 @@
             ],
             "doc":"Hey"
         }, {
+            "cmd":"SOURch:MARKm:VOLT:HIGH",
+            "type":"MarkerHigh",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "m::Integer=1"
+            ]
+        }, {
+            "cmd":"SOURch:MARKm:VOLT:LOW",
+            "type":"MarkerLow",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1",
+                "m::Integer=1"
+            ]
+        }, {
             "cmd":"OUTPch:FILT:FREQ",
             "type":"OutputFilterFrequency",
             "values":[

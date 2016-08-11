@@ -251,7 +251,7 @@ bytes_per_sample(a::AlazarATS9870) = 1
 """
 Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 """
-triglevel(a::AlazarATS9870, x) = U32(round((x+0.4)/0.8 * 255 + 0.5))
+triglevel(a::AlazarATS9870, x) = x #U32(round((x+0.4)/0.8 * 255 + 0.5))
 
 adma(::AlazarATS9870, ::NPTRecordMode) = Alazar.ADMA_NPT |
                                          Alazar.ADMA_INTERLEAVE_SAMPLES |

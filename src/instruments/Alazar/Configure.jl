@@ -296,7 +296,7 @@ Configure the trigger level for trigger engine J and K, in Volts.
 function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
         ::Type{TriggerLevel})
     levelJ, levelK = l
-    set_triggeroperation(a.handle, a.engine,
+    set_triggeroperation(a, a.engine,
         a.sourceJ, a.slopeJ, levelJ,
         a.sourceK, a.slopeK, levelK)
     nothing
