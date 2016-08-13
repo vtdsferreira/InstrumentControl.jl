@@ -58,10 +58,10 @@ function before_async_read(a::InstrumentAlazar, m::AlazarMode)
     pretrig = -pretriggersamples(m) / a[ChannelCount]
     sam_rec_ch = samples_per_record_measured(a,m) / a[ChannelCount]
 
-    println("Pretrigger samples: $(pretriggersamples(m))")
-    println("Samples per record: $(samples_per_record_measured(a,m))")
-    println("Records per buffer: $(records_per_buffer(a,m))")
-    sleep(0.1)
+    # println("Pretrigger samples: $(pretriggersamples(m))")
+    # println("Samples per record: $(samples_per_record_measured(a,m))")
+    # println("Records per buffer: $(records_per_buffer(a,m))")
+    # sleep(0.1)
     @eh2 AlazarBeforeAsyncRead(a.handle,
                                symbol_to_channel_code(a.acquisitionChannel),
                                pretrig,
@@ -77,10 +77,10 @@ function before_async_read(a::InstrumentAlazar, m::FFTRecordMode)
     # retrigger(a)
     pretrig = -pretriggersamples(m)
 
-    println("Pretrigger samples: $(pretriggersamples(m))")
-    println("  Bytes per record: $(m.by_rec)")
-    println("Records per buffer: $(Int(m.buf_size / m.by_rec))")
-    sleep(0.1)
+    # println("Pretrigger samples: $(pretriggersamples(m))")
+    # println("  Bytes per record: $(m.by_rec)")
+    # println("Records per buffer: $(Int(m.buf_size / m.by_rec))")
+    # sleep(0.1)
     @eh2 AlazarBeforeAsyncRead(a.handle,
                                Alazar.CHANNEL_A,
                                pretrig,
@@ -222,7 +222,7 @@ function buffersizing(a::InstrumentAlazar, m::RecordMode)
     end
 
     m.buf_size = size_buf
-    println("Buffer size: $size_buf")
+    # println("Buffer size: $size_buf")
 end
 
 function buffersizing(a::InstrumentAlazar, m::StreamMode)
@@ -357,7 +357,7 @@ function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
     end
 
     m.buf_size = size_buf
-    println("Buffer size: $size_buf")
+    # println("Buffer size: $size_buf")
 
 end
 

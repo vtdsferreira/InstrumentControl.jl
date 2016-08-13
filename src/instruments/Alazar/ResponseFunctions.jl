@@ -177,8 +177,19 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     iqout = Array{Complex{Float32}}(m.total_recs)
 
     try
-        # Arm the board system to wait for a trigger event to begin the acquisition
+        # FIRST turn off output to AUX I/O
+        a[AuxIOMode] = :AuxDigitalOutput
+        a[AuxOutputTTL] = :Low
+        sleep(0.001)  # wait for any sequence to finish
+
+        # NEXT arm the board to measure when receiving a trigger input
         startcapture(a)
+
+        # THEN turn on the output pacer, which repeatedly triggers the AWG
+        # This ensures the first trigger to the digitizer is the first trigger
+        # sent by the AWG.
+        a[AuxIOMode] = :AuxOutputPacer
+        a[AuxOutputPacerDivider] = 10
 
         for dmaptr in buf_array
             wait_buffer(a, m, dmaptr, timeout_ms)

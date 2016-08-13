@@ -114,7 +114,7 @@ function write(ins::InstrumentVISA, msg::AbstractString, infixes...)
         msg = replace(msg, "#", infix, 1)
     end
     msg == "" && return nothing
-    println(msg)
+    # println(msg)
     VISA.viWrite(ins.vi, string(msg, ins.writeTerminator))
     return nothing
 end

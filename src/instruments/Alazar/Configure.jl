@@ -38,7 +38,9 @@ Configure a digitizer's AUX I/O mode. Available choices include:
 """
 function setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AuxIOMode})
     m = symbol_to_aux_mode(aux)
-    if aux == :AuxOutputTrigger || :AuxOutputPacer || :AuxDigitalOutput
+    if aux == :AuxOutputTrigger ||
+       aux == :AuxOutputPacer ||
+       aux == :AuxDigitalOutput
         m = auxmode(m, a.auxOutTriggerEnable)
     end
     p = auxparam(a,aux)
@@ -65,7 +67,7 @@ function setindex!(a::InstrumentAlazar, trigSlope::Symbol,
 end
 
 function setindex!(a::InstrumentAlazar, v::Integer, ::Type{AuxOutputPacerDivider})
-    @assert d > 2 "Divider needs to be > 2."
+    @assert v > 2 "Divider needs to be > 2."
     a.auxOutDivider = v
     a[AuxIOMode] = a.auxIOMode
     nothing

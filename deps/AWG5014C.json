@@ -261,6 +261,31 @@
             ],
             "doc":"Hey"
         }, {
+            "cmd":"SEQ:ELEMel:JTAR:TYPE",
+            "type":"SequenceEventJumpType",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Index":"IND",
+                "Next":"NEXT",
+                "Off":"OFF"
+            },
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
+            "cmd":"SEQ:ELEMel:TWA",
+            "type":"SequenceWaitTrigger",
+            "values":[
+                "v::Bool"
+            ],
+            "infixes":[
+                "el::Integer=1"
+            ],
+            "doc":"Hey"
+        }, {
             "cmd":"SEQ:ELEMel:GOTO:STAT",
             "type":"SequenceGOTOState",
             "values":[
