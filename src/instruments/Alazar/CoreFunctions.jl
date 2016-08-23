@@ -597,9 +597,6 @@ pretriggersamples(m::AlazarMode) = 0
 "Returns the number of pretrigger samples for an `AlazarMode` (usually 0)."
 pretriggersamples
 
-"Given an `AlazarMode`, returns the number of pre-trigger samples."
-pretriggersamples
-
 function recordsizing(a::InstrumentAlazar, m::RecordMode)
     @eh2 AlazarSetRecordSize(a.handle,
                              0,
