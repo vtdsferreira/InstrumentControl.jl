@@ -81,25 +81,25 @@
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":PROG:SAVE",
             "type": "ProgramSave"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":PROG:LOAD",
             "type": "ProgramLoad"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":PROG:DEL",
             "type": "ProgramDelete"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":PROG:MEM",
             "type": "ProgramMemory"
         },
@@ -225,19 +225,19 @@
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:SET:SAVE",
             "type": "SystemSetupSave"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:SET:LOAD",
             "type": "SystemSetupLoad"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:SET:DEL",
             "type": "SystemSetupDelete"
         },
@@ -255,7 +255,7 @@
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:DISP:TEXT",
             "type": "SystemDisplayText"
         },
@@ -267,19 +267,19 @@
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:CLOC:TZON",
             "type": "SystemClockTzone"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:CLOC:DATE",
             "type": "SystemClockDate"
         },
         {
             "symbols": {},
-            "values": "s::ASCIIString",
+            "values": "s::AbstractString",
             "cmd": ":SYST:CLOC:TIME",
             "type": "SystemClockTime"
         }

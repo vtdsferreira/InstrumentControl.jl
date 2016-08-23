@@ -8,8 +8,8 @@ using JSON
 
 export ScatterMeasurement
 type ScatterMeasurement
-    message::ASCIIString
-    dataType::ASCIIString
+    message::AbstractString
+    dataType::AbstractString
     xlabel::AbstractString
     ylabel::AbstractString
     ScatterMeasurement(a,b) = new("start","scatter",a,b)
@@ -17,7 +17,7 @@ end
 
 export ScatterPoint
 type ScatterPoint
-    message::ASCIIString
+    message::AbstractString
     x::Number
     y::Number
     ScatterPoint(a,b) = new("data",a,b)
@@ -25,8 +25,8 @@ end
 
 export HeatmapMeasurement
 type HeatmapMeasurement
-    message::ASCIIString
-    dataType::ASCIIString
+    message::AbstractString
+    dataType::AbstractString
     xlabel::AbstractString
     ylabel::AbstractString
     xpoints::Array{Float64,1}
@@ -36,7 +36,7 @@ end
 
 export HeatmapPoint
 type HeatmapPoint
-    message::ASCIIString
+    message::AbstractString
     i::Number
     j::Number
     z::Number

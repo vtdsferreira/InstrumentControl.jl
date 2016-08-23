@@ -34,7 +34,7 @@ znbool(a) = (Bool(a) ? "ON" : "OFF")
 
 type ZNB20 <: InstrumentVNA
     vi::(VISA.ViSession)
-    writeTerminator::ASCIIString
+    writeTerminator::AbstractString
     model::AbstractString
 
     ZNB20(x) = begin
@@ -126,7 +126,7 @@ abstract Window        <: InstrumentProperty
 
 Select an active trace. Channel `ch` defaults to 1.
 """
-function configure(ins::ZNB20, ::Type{ActiveTrace}, name::AbstractString, ch::Int=1)
+function setindex!(ins::ZNB20, name::AbstractString, ::Type{ActiveTrace}, ch::Int=1)
     write(ins, "CALCulate"*string(ch)":PARameter:SELect "*quoted(name))
 end
 
@@ -136,7 +136,7 @@ end
 Determines whether or not the instrument chooses the minimum sweep time,
 including all partial measurements. Channel `ch` defaults to 1.
 """
-function configure(ins::ZNB20, ::Type{AutoSweepTime}, b::Bool, ch::Int=1)
+function setindex!(ins::ZNB20, b::Bool, ::Type{AutoSweepTime}, ch::Int=1)
     write(ins, "SENSe"*string(ch)*":SWEep:TIME:AUTO "*znbool(b))
 end
 
@@ -147,7 +147,7 @@ Set the measurement bandwidth between 1 Hz and 1 MHz
 (option ZNBT-K17 up to 10 MHz).
 Channel `ch` defaults to 1.
 """
-function configure(ins::ZNB20, ::Type{Bandwidth}, bw::Float64, ch::Int=1)
+function setindex!(ins::ZNB20, bw::Float64, ::Type{Bandwidth}, ch::Int=1)
     write(ins, "SENSe"*string(ch)*":BWIDth:RESolution "*string(bw))
 end
 
@@ -156,7 +156,7 @@ end
 
 Switches display update on / off.
 """
-function configure(ins::ZNB20, ::Type{DisplayUpdate}, b::Bool)
+function setindex!(ins::ZNB20, b::Bool, ::Type{DisplayUpdate})
     write(ins, "SYSTem:DISPlay:UPDate "*znbool(b))
 end
 
@@ -165,7 +165,7 @@ end
 
 Define measurement points per sweep. Channel `ch` defaults to 1.
 """
-function configure(ins::ZNB20, ::Type{NumPoints}, n::Int, ch::Int=1)
+function setindex!(ins::ZNB20, n::Int, ::Type{NumPoints}, ch::Int=1)
     write(ins, "SENSe"*string(ch)*":SWEep:POINts "*string(n))
 end
 
@@ -174,7 +174,7 @@ end
 
 Select oscillator source: `InternalOscillator`, `ExternalOscillator`
 """
-function configure{T<:OscillatorSource}(ins::ZNB20, ::Type{T})
+function setindex!{T<:OscillatorSource}(ins::ZNB20, ::Type{T})
     write(ins, "SENSe1:ROSCillator:SOURce "*code(ins,T))
 end
 
@@ -184,7 +184,7 @@ end
 Define the time to complete a sweep, including all partial measurements.
 Channel `ch` defaults to 1.
 """
-function configure(ins::ZNB20, ::Type{SweepTime}, time::Real, ch::Int=1)
+function setindex!(ins::ZNB20, time, ::Type{SweepTime}, ch::Int=1)
     write(ins, "SENSe"*string(ch)*":SWEep:TIME "*string(time))
 end
 
@@ -225,7 +225,7 @@ end
 
 Turn a window on or off.
 """
-function configure(ins::ZNB20, ::Type{Window}, b::Bool, win::Int)
+function setindex!(ins::ZNB20, b::Bool, ::Type{Window}, win::Int)
     write(ins,"DISPlay:WINDow"*string(win)*":STATe "*znbool(b))
 end
 
@@ -234,7 +234,7 @@ end
 
 Query an active trace. Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{ActiveTrace}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{ActiveTrace}, ch::Int=1)
     unquoted(ask(ins, "CALCulate"*string(ch)":PARameter:SELect "*quoted(name)))
 end
 
@@ -244,7 +244,7 @@ end
 Does the instrument choose the minimum sweep time,
 including all partial measurements? Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{AutoSweepTime}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{AutoSweepTime}, ch::Int=1)
     Bool(parse(ask(ins, "SENSe"*string(ch)*":SWEep:TIME:AUTO?")))
 end
 
@@ -254,7 +254,7 @@ end
 Inspect the measurement bandwidth.
 Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{Bandwidth}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{Bandwidth}, ch::Int=1)
     parse(write(ins, "SENSe"*string(ch)*":BWIDth:RESolution?"))
 end
 
@@ -263,7 +263,7 @@ end
 
 Is the display updating?
 """
-function inspect(ins::ZNB20, ::Type{DisplayUpdate})
+function getindex(ins::ZNB20, ::Type{DisplayUpdate})
     Bool(parse(ask(ins, "SYSTem:DISPlay:UPDate?")))
 end
 
@@ -272,7 +272,7 @@ end
 
 How many measurement points per sweep? Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{NumPoints}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{NumPoints}, ch::Int=1)
     parse(ask(ins, "SENSe"*string(ch)*":SWEep:POINts?"))
 end
 
@@ -281,7 +281,7 @@ end
 
 Inspect oscillator source: `InternalOscillator`.
 """
-function inspect(ins::ZNB20, ::Type{OscillatorSource})
+function getindex(ins::ZNB20, ::Type{OscillatorSource})
     OscillatorSource(ins,ask(ins, "SENSe1:ROSCillator:SOURce?"))
 end
 
@@ -291,7 +291,7 @@ end
 Define the time to complete a sweep, including all partial measurements.
 Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{SweepTime}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{SweepTime}, ch::Int=1)
     parse(ask(ins, "SENSe"*string(ch)*":SWEep:TIME?"))
 end
 
@@ -300,7 +300,7 @@ end
 
 Inspect the trigger slope. Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{TriggerSlope}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{TriggerSlope}, ch::Int=1)
     TriggerSlope(ins, write(ins, "TRIGger"*string(ch)*":SLOPe?"))
 end
 
@@ -309,7 +309,7 @@ end
 
 Inspect the trigger source. Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{TriggerSource}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{TriggerSource}, ch::Int=1)
     TriggerSource(ins, ask(ins, "TRIGger"*string(ch)*":SOURce?"))
 end
 
@@ -318,14 +318,14 @@ end
 
 Inspect the format of the active trace. Channel `ch` defaults to 1.
 """
-function inspect(ins::ZNB20, ::Type{Format}, ch::Int=1)
+function getindex(ins::ZNB20, ::Type{Format}, ch::Int=1)
     Format(unquoted(ask(ins, "CALCulate"*string(ch)*":FORMat?")))
 end
 
 """
 Determines if a window exists, by window number. See `lswindow`.
 """
-function inspect(ins::ZNB20, ::Type{Window}, win::Int)
+function getindex(ins::ZNB20, ::Type{Window}, win::Int)
     nums = lswindows(ins)[1]
     findfirst(nums,win) != 0
 end
@@ -333,7 +333,7 @@ end
 """
 Determines if a window exists, by window name. See `lswindow`.
 """
-function inspect(ins::ZNB20, ::Type{Window}, wname::AbstractString)
+function getindex(ins::ZNB20, ::Type{Window}, wname::AbstractString)
     names = lswindows(ins)[2]
     findfirst(names,wname) != 0
 end
@@ -452,7 +452,7 @@ end
 Read the stimulus values for the given channel (default ch. 1).
 """
 function stimdata(ins::ZNB20, ch::Int=1)
-    xfer = inspect(ins, TransferFormat)
+    xfer = ins[TransferFormat]
     getdata(ins, xfer, "CALCulate"*string(ch)*":DATA:STIMulus?")
 end
 
@@ -466,7 +466,7 @@ formatted trace data. See the link above for details.
 Channel `ch` defaults to 1.
 """
 function data(ins::ZNB20, ch::Integer=1; format::VNA.Processing=VNA.Formatted)
-    xfer = inspect(ins, TransferFormat)
+    xfer = ins[TransferFormat]
     array = getdata(ins, xfer, "CALCulate"*string(ch)*":DATA? "*datacmd(ins,format))
     _reformat(array, Val{format})
 end

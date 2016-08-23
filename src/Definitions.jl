@@ -1,5 +1,4 @@
 import Base: show, showerror
-
 export Instrument
 export InstrumentProperty
 
@@ -60,12 +59,12 @@ string.
 immutable InstrumentException <: Exception
     ins::Instrument
     val::Array{Int,1}
-    humanReadable::Array{UTF8String,1}
+    humanReadable::Array{AbstractString,1}
 end
 
 "Simple method for when there is just one error."
 InstrumentException(ins::Instrument, val::Integer, hr::AbstractString) =
-    InstrumentException(ins, Int[val], UTF8String[hr])
+    InstrumentException(ins, Int[val], AbstractString[hr])
 
 function showerror(io::IO, e::InstrumentException)
     if length(e.val) != length(e.humanReadable)

@@ -89,7 +89,7 @@ function insjson(file::AbstractString)
     !haskey(j[:instrument], :super) && (j[:instrument][:super] = :InstrumentVISA)
 
     for x in [:module, :type, :super]
-        j[:instrument][x] = symbol(j[:instrument][x])
+        j[:instrument][x] = Symbol(j[:instrument][x])
     end
 
     # Tidy up (and validate?) the properties dictionary
@@ -206,7 +206,7 @@ function generate_instruments(metadata)
         export $typsym
         type $typsym <: $sup
             vi::(VISA.ViSession)
-            writeTerminator::ASCIIString
+            writeTerminator::AbstractString
             ($typsym)(x) = begin
                 ins = new()
                 ins.vi = x
@@ -262,7 +262,7 @@ function generate_properties{S<:Instrument}(instype::Type{S}, p)
             eval(where, :(export $sym))
             # We need to take care with module paths. The following is
             # kind of crude but import doesn't accept modules, only symbols
-            syms = map(symbol, split(string(p[:type]),"."))
+            syms = map(Symbol, split(string(p[:type]),"."))
             syms[1] != :InstrumentControl && (insert!(syms, 1, :InstrumentControl))
             # Import the subtype in our instrument's module
             eval(md, Expr(:import, syms...))
@@ -421,16 +421,30 @@ function generate_inspect{S<:Instrument}(instype::Type{S}, p)
         push!(fbody, :(cmd = replace(cmd, $name, $sym)))
     end
 
-    if p[:values][1].head != :(in)
-        vtyp = argtype(p[:values][1])
-        if vtyp <: Number
-            P,C = md.returntype(vtyp)
-            push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
+    if VERSION < v"0.5.0-pre"
+        if p[:values][1].head != :(in)
+            vtyp = argtype(p[:values][1])
+            if vtyp <: Number
+                P,C = md.returntype(vtyp)
+                push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
+            else
+                push!(fbody, :(ask(ins, cmd)) )
+            end
         else
-            push!(fbody, :(ask(ins, cmd)) )
+            push!(fbody, :(($T)(ins, ask(ins, cmd))))
         end
     else
-        push!(fbody, :(($T)(ins, ask(ins, cmd))))
+        if !(p[:values][1].head == :(call) && p[:values][1].args[1] == :(in))
+            vtyp = argtype(p[:values][1])
+            if vtyp <: Number
+                P,C = md.returntype(vtyp)
+                push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
+            else
+                push!(fbody, :(ask(ins, cmd)) )
+            end
+        else
+            push!(fbody, :(($T)(ins, ask(ins, cmd))))
+        end
     end
 
     # Define the method in the current module.
@@ -441,7 +455,7 @@ function generate_inspect{S<:Instrument}(instype::Type{S}, p)
     eval(md, :(@doc $(p[:doc]) $method))             # ...and document it.
 
     # Return a method signature without variable names, optional argument defaults, etc.
-    method # = Expr(:call, :getindex, map(typesig, fargs)...)
+    method
 end
 
 """
@@ -478,12 +492,22 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
         push!(fbody, :(cmd = replace(cmd, $name, $sym)))
     end
 
-    if p[:values][1].head == :(in)
-        dictname = p[:values][1].args[2]
-        push!(fbody, :(write(ins, cmd, ($dictname)(ins, $T, $(argsym(p[:values][1]))))))
+    if VERSION < v"0.5.0-pre"
+        if p[:values][1].head == :(in)
+            dictname = p[:values][1].args[2]
+            push!(fbody, :(write(ins, cmd, ($dictname)(ins, $T, $(argsym(p[:values][1]))))))
+        else
+            vsym = argsym(p[:values][1])
+            push!(fbody, :(write(ins, cmd, fmt($vsym))))
+        end
     else
-        vsym = argsym(p[:values][1])
-        push!(fbody, :(write(ins, cmd, fmt($vsym))))
+        if p[:values][1].head == :(call) && p[:values][1].args[1] == :(in)
+            dictname = p[:values][1].args[3]
+            push!(fbody, :(write(ins, cmd, ($dictname)(ins, $T, $(argsym(p[:values][1]))))))
+        else
+            vsym = argsym(p[:values][1])
+            push!(fbody, :(write(ins, cmd, fmt($vsym))))
+        end
     end
 
     # Define the method in the current module.
@@ -493,8 +517,7 @@ function generate_configure{S<:Instrument}(instype::Type{S}, p)
     p[:doc] = string("```jl\n",method,"\n```\n\n") * "\n\n" * p[:doc]  # Prepend with method signature
     eval(md, :(@doc $(p[:doc]) $method))             # ...and document it.
 
-    method  # = Expr(:call, :setindex!, :(::$S),
-    #    map(typesig, p[:values])..., :(::Type{$T}), map(typesig, p[:infixes])...)
+    method
 end
 
 #### Helper functions ####
@@ -515,18 +538,36 @@ Some package-specific cases:
 - `:(x::Symbol in symbols)` → `Symbol`
 """
 function argtype(expr)
-    if isa(expr, Symbol)
-        return Any
-    elseif expr.head == :(::)
-        if length(expr.args) == 1
-            return eval(expr.args[1])
+    if VERSION < v"0.5.0-pre"
+        if isa(expr, Symbol)
+            return Any
+        elseif expr.head == :(::)
+            if length(expr.args) == 1
+                return eval(expr.args[1])
+            else
+                return eval(expr.args[2])
+            end
+        elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
+            return argtype(expr.args[1])
         else
-            return eval(expr.args[2])
+            error("Cannot handle this argument.")
         end
-    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
-        return argtype(expr.args[1])
     else
-        error("Cannot handle this argument.")
+        if isa(expr, Symbol)
+            return Any
+        elseif expr.head == :(::)
+            if length(expr.args) == 1
+                return eval(expr.args[1])
+            else
+                return eval(expr.args[2])
+            end
+        elseif expr.head == :(=) || expr.head == :(kw)
+            return argtype(expr.args[1])
+        elseif expr.head == :call && expr.args[1] == :in
+            return argtype(expr.args[2])
+        else
+            error("Cannot handle this argument.")
+        end
     end
 end
 
@@ -546,18 +587,36 @@ Some package-specific syntax:
 - `:(x::Symbol in symbols)` → `:x`
 """
 function argsym(expr)
-    if isa(expr, Symbol)
-        return expr
-    elseif expr.head == :(::)
-        if length(expr.args) == 1
-            return :_
+    if VERSION < v"0.5.0-pre"
+        if isa(expr, Symbol)
+            return expr
+        elseif expr.head == :(::)
+            if length(expr.args) == 1
+                return :_
+            else
+                return expr.args[1]
+            end
+        elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
+            return argsym(expr.args[1])
         else
-            return expr.args[1]
+            error("Cannot handle this argument.")
         end
-    elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
-        return argsym(expr.args[1])
     else
-        error("Cannot handle this argument.")
+        if isa(expr, Symbol)
+            return expr
+        elseif expr.head == :(::)
+            if length(expr.args) == 1
+                return :_
+            else
+                return expr.args[1]
+            end
+        elseif expr.head == :(=) || expr.head == :(kw)
+            return argsym(expr.args[1])
+        elseif expr.head == :call && expr.args[1] == :in
+            return argsym(expr.args[2])
+        else
+            error("Cannot handle this argument.")
+        end
     end
 end
 
@@ -571,10 +630,18 @@ Return the same expression in most cases, except:
 """
 function stripin(expr)
     isa(expr, Symbol) && return expr
-    if expr.head == :(in)
-        return expr.args[1]
+    if VERSION < v"0.5.0-pre"
+        if expr.head == :(in)
+            return expr.args[1]
+        else
+            return expr
+        end
     else
-        return expr
+        if expr.head == :call && expr.args[1] == :(in)
+            return expr.args[2]
+        else
+            return expr
+        end
     end
 end
 

@@ -23,23 +23,23 @@ const LIVE_DIE = Condition()
 abstract Plottable
 
 type ScatterPlot <: Plottable
-    message::ASCIIString
-    dataType::ASCIIString
+    message::AbstractString
+    dataType::AbstractString
     xlabel::AbstractString
     ylabel::AbstractString
     ScatterPlot(a,b) = new("start","scatter",a,b)
 end
 
 type ScatterPoint
-    message::ASCIIString
+    message::AbstractString
     x::Number
     y::Number
     ScatterPoint(a,b) = new("data",a,b)
 end
 
 type HeatmapPlot <: Plottable
-    message::ASCIIString
-    dataType::ASCIIString
+    message::AbstractString
+    dataType::AbstractString
     xlabel::AbstractString
     ylabel::AbstractString
     xpoints::Array{Float64,1}
@@ -48,7 +48,7 @@ type HeatmapPlot <: Plottable
 end
 
 type HeatmapPoint
-    message::ASCIIString
+    message::AbstractString
     i::Number
     j::Number
     z::Number

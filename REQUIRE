@@ -5,3 +5,4 @@ BinDeps
 FileIO
 FixedSizeArrays
 JSON
+Compat
