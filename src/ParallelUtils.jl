@@ -21,6 +21,12 @@ function worker_tofloat!{S<:AlazarBits,T<:AbstractFloat}(src::SharedArray{S,1},
     nothing
 end
 
+function worker_dotminus!(src::SharedArray, num)
+    for i in localindexes(src)
+        src[i] -= num
+    end
+end
+
 localindexes(S::SharedArray, subrange::UnitRange) =
     S.pidx > 0 ? range_1dim(S, subrange, S.pidx) : 1:0
 

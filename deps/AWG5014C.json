@@ -381,6 +381,15 @@
                 "ch::Integer=1"
             ],
             "doc":"Hey"
+        }, {
+            "cmd":"SOURch:VOLT",
+            "type":"SourceLevel",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+                "ch::Integer=1"
+            ]
         }
     ]
 }

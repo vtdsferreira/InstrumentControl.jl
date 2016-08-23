@@ -127,21 +127,26 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     before_async_read(a,m)
 
     # Generate the cosine and sine waves
+    N = Int(m.sam_per_rec/2)
     tstep = 1/a[SampleRate]
-    ftbase = ch.f*linspace(0., tstep*(m.sam_per_rec/2-1), m.sam_per_rec/2)
+    ftbase = ch.f*linspace(0., tstep*(N-1), N)
 
-    imix0 = Array{Float32}(2, Int(m.sam_per_rec/2))
+    imix0 = Array{Float32}(2, N)
     imix0[1,:] = cos(2pi*ftbase)
     imix0[2,:] = sin(2pi*ftbase)
 
-    qmix0 = Array{Float32}(2, Int(m.sam_per_rec/2))
+    # Multiply by a Hann window function
+    hann = Float32[(0.5*(1-cos(2π*i/N))) for i in 1:N]'
+    imix0 = broadcast(.*, imix0, hann)::Array{Float32,2}
+
+    qmix0 = Array{Float32}(2, N)
     qmix0[1,:] = imix0[2,:] .* -1
     qmix0[2,:] = imix0[1,:]
 
     # `imix` and `qmix` are now interleaved with cos,sin and -sin,cos, respectively.
     # These will be multiplied with the digitizer records to get I and Q.
-    imix = reshape(imix0, (m.sam_per_rec,))
-    qmix = reshape(qmix0, (m.sam_per_rec,))
+    imix = reshape(imix0, (2N,))
+    qmix = reshape(qmix0, (2N,))
 
     # Buffers/acquisition is not the same as buffer count, in general.
     # Buffer count determines how many buffers are allocated; a greater numbers
@@ -194,6 +199,14 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
         for dmaptr in buf_array
             wait_buffer(a, m, dmaptr, timeout_ms)
             tofloat!(backing, fft_buffer, sam_per_buf, buf_completed)
+            @sync begin
+                for p in procs(fft_buffer)
+                    @async begin
+                        remotecall_wait(p, Main.worker_dotminus!,
+                            fft_buffer, mean(fft_buffer))
+                    end
+                end
+            end
             iqfft(fft_buffer, imix, qmix, iqout,
                 sam_per_buf, rec_per_buf, buf_completed)
 

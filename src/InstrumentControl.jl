@@ -17,6 +17,7 @@ include("instruments/VNAs/VNA.jl")
 include("instruments/VNAs/E5071C.jl")
 # include("instruments/VNAs/ZNB20.jl")
 
+include("instruments/SMB100A.jl")
 include("instruments/E8257D.jl")
 include("instruments/AWG5014C.jl")
 include("instruments/GS200.jl")
@@ -30,6 +31,7 @@ importall .AWG5014C
 importall .E5071C
 importall .E8257D
 importall .GS200
+importall .SMB100A
 # importall .ZNB20Module
 
 # Utility functions
@@ -47,6 +49,7 @@ using InstrumentControl.VNA
 using InstrumentControl.E5071C
 using InstrumentControl.E8257D
 using InstrumentControl.GS200
+using InstrumentControl.SMB100A
 # using InstrumentControl.ZNB20Module
 
 const PARALLEL_PATH = joinpath(Pkg.dir("InstrumentControl"), "src", "ParallelUtils.jl")
