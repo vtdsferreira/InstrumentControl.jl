@@ -136,13 +136,6 @@
             ],
             "doc":"Hey"
         }, {
-            "cmd":":OUTP",
-            "type":"Output",
-            "values":[
-                "v::Bool"
-            ],
-            "doc":"Hey"
-        }, {
             "cmd":"SOUR:OUTP:BLAN:STAT",
             "type":"OutputBlanking",
             "values":[

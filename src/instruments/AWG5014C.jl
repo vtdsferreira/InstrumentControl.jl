@@ -60,8 +60,7 @@ export pullfrom_awg, pushto_awg
 export @allch
 
 # We also export from the generate_properties statement.
-
-const allWaveforms      = ASCIIString("ALL")
+const allWaveforms      = "ALL"
 
 # Maximum number of bytes that may be sent using WLIS:WAV:DATA
 "Maximum number of bytes that may be sent using the SCPI command WLIS:WAV:DATA."
@@ -180,7 +179,7 @@ macro allch(x::Expr)
     esc(Expr(:block,myargs...))
 end
 
-function setindex!(ins::InsAWG5014C, name::ASCIIString,
+function setindex!(ins::InsAWG5014C, name::AbstractString,
         ::Type{SequenceWaveform}, el::Integer, ch::Integer)
 
     length = ins[SequenceLength]
@@ -201,7 +200,7 @@ function getindex(ins::InsAWG5014C, ::Type{SequenceWaveform},
 end
 
 "Configure the waveform by name for a given channel."
-function setindex!(ins::InsAWG5014C, name::ASCIIString, ::Type{Waveform}, ch::Integer)
+function setindex!(ins::InsAWG5014C, name::AbstractString, ::Type{Waveform}, ch::Integer)
     @assert (1 <= ch <= 4) "Channel out of range."
     write(ins,string("SOUR",ch,":WAV ",quoted(name)))
 end
@@ -240,28 +239,28 @@ function getindex(ins::InsAWG5014C, ::Type{SampleRate})
     parse(ask(ins,"SOUR:FREQ?"))
 end
 
-function runapplication(ins::InsAWG5014C, app::ASCIIString)
+function runapplication(ins::InsAWG5014C, app::AbstractString)
     write(ins,"AWGC:APPL:RUN \""+app+"\"")
 end
 
 "Run an application, e.g. SerialXpress"
 runapplication
 
-function applicationstate(ins::InsAWG5014C, app::ASCIIString)
+function applicationstate(ins::InsAWG5014C, app::AbstractString)
     ask(ins,"AWGC:APPL:STAT? \""+app+"\"") == 0 ? false : true
 end
 
 "Is an application running?"
 applicationstate
 
-function load_awg_settings(ins::InsAWG5014C,filePath::ASCIIString)
+function load_awg_settings(ins::InsAWG5014C,filePath::AbstractString)
     write(ins,string("AWGC:SRES \"",filePath,"\""))
 end
 
 "Load an AWG settings file."
 load_awg_settings
 
-function save_awg_settings(ins::InsAWG5014C,filePath::ASCIIString)
+function save_awg_settings(ins::InsAWG5014C,filePath::AbstractString)
     write(ins,string("AWGC:SSAV \"",filePath,"\""))
 end
 
@@ -299,14 +298,14 @@ end
 "Create a new waveform by name, number of points, and waveform type."
 newwaveform
 
-function normalizewaveform(ins::InsAWG5014C, name::ASCIIString, norm::Symbol)
+function normalizewaveform(ins::InsAWG5014C, name::AbstractString, norm::Symbol)
     write(ins, "WLIS:WAV:NORM "*quoted(name)*","*code(ins, Normalization, Val{norm}))
 end
 
 "Normalize a waveform."
 normalizewaveform
 
-function resamplewaveform(ins::InsAWG5014C, name::ASCIIString, points::Integer)
+function resamplewaveform(ins::InsAWG5014C, name::AbstractString, points::Integer)
     write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
     ins.cache[name].length = points
 end
@@ -353,7 +352,7 @@ function waveformname(ins::InsAWG5014C, num::Integer)
 end
 
 "Return the timestamp for when a waveform was last updated."
-function waveformtimestamp(ins::InsAWG5014C, name::ASCIIString)
+function waveformtimestamp(ins::InsAWG5014C, name::AbstractString)
     unquoted(ask(ins,"WLIS:WAV:TST? "*quoted(name)))
 end
 
@@ -408,10 +407,10 @@ end
 "Push waveform data to the AWG, performing checks and generating errors as appropriate."
 pushto_awg
 
-function pushlowlevel(ins::InsAWG5014C, name::ASCIIString,
+function pushlowlevel(ins::InsAWG5014C, name::AbstractString,
         awgData::AWG5014CData, wvType::Type{Val{:RealWaveform}})
     buf = IOBuffer()
-    for (i in 1:length(awgData.data))
+    for i in 1:length(awgData.data)
         # AWG wants little endian data
         write(buf, htol(awgData.data[i]))
         # Write marker bits
@@ -420,10 +419,10 @@ function pushlowlevel(ins::InsAWG5014C, name::ASCIIString,
     binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
 end
 
-function pushlowlevel(ins::InsAWG5014C, name::ASCIIString,
+function pushlowlevel(ins::InsAWG5014C, name::AbstractString,
         awgData::AWG5014CData, wvType::Type{Val{:IntWaveform}})
     buf = IOBuffer()
-    for (i in 1:length(awgData.data))
+    for i in 1:length(awgData.data)
         value = (awgData.data)[i]
         value = (value+1.0)/2.0         # now it is in the range [0.0, 1.0]
         value = UInt16(round(value*offsetPlusPPOver2))  # now it is in the valid integer range
@@ -468,7 +467,7 @@ nbytes(::Type{Val{:IntWaveform}})  = 2
 "Returns the number of bytes per sample for a a given waveform type."
 nbytes
 
-function pullfrom_awg(ins::InsAWG5014C, name::ASCIIString)
+function pullfrom_awg(ins::InsAWG5014C, name::AbstractString)
 
     if !waveformexists(ins,name)
         error("Waveform does not exist.")
@@ -482,7 +481,7 @@ end
 "Pull data from the AWG, performing checks and generating errors as appropriate."
 pullfrom_awg
 
-function pulllowlevel(ins::InsAWG5014C, name::ASCIIString, ::Type{Val{:RealWaveform}})
+function pulllowlevel(ins::InsAWG5014C, name::AbstractString, ::Type{Val{:RealWaveform}})
 
     len = waveformlength(ins, name)
 
@@ -505,7 +504,7 @@ function pulllowlevel(ins::InsAWG5014C, name::ASCIIString, ::Type{Val{:RealWavef
     AWG5014CData(amp,marker1,marker2)
 end
 
-function pulllowlevel(ins::InsAWG5014C, name::ASCIIString, ::Type{Val{:IntWaveform}})
+function pulllowlevel(ins::InsAWG5014C, name::AbstractString, ::Type{Val{:IntWaveform}})
 
     len = waveformlength(ins, name)
 
@@ -534,7 +533,7 @@ function pulllowlevel(ins::InsAWG5014C, name::ASCIIString, ::Type{Val{:IntWavefo
     marker1 = Vector{Bool}(samples)
     marker2 = Vector{Bool}(samples)
 
-    for (i=1:samples)
+    for i = 1:samples
         sample = ltoh(read(io,UInt16))
         marker1[i] = Bool((sample >> 14) & UInt16(1))
         marker2[i] = Bool((sample >> 15) & UInt16(1))

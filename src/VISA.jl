@@ -45,7 +45,7 @@ Concrete types are expected to have fields:
 
 `vi::ViSession`
 
-`writeTerminator::ASCIIString`
+`writeTerminator::AbstractString`
 """
 abstract InstrumentVISA <: Instrument
 

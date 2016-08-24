@@ -132,7 +132,7 @@ The first marker begins at the start frequency but the last marker is
 positioned before the stop frequency, such that each marker has the same
 frequency span to the right of it within the stimulus window.
 """
-function shotgun(ins::InstrumentVNA, m::AbstractArray=collect(1:9),
+function shotgun(ins::InstrumentVNA, m::AbstractArray=1:9,
         ch::Integer=1, tr::Integer=1)
     f1, f2 = (ins[FrequencyStart, ch], ins[FrequencyStop, ch])
     fs = linspace(f1,f2,length(m)+1)
@@ -141,10 +141,6 @@ function shotgun(ins::InstrumentVNA, m::AbstractArray=collect(1:9),
         ins[MarkerX, m[marker], ch, tr] = fs[marker]
     end
 end
-
-shotgun(ins::InstrumentVNA, m::OrdinalRange=1:9, ch::Integer=1, tr::Integer=1) =
-    shotgun(ins, collect(m), ch, tr)
-
 
 """
 `sweeptime(ins::InstrumentVNA)`
