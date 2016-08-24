@@ -3,6 +3,30 @@ import Base: getindex, setindex!
 import VISA
 importall InstrumentControl         # All the stuff in InstrumentDefs, etc.
 
+export InsAWG5014C
+
+type WaveformInfo
+    index::Int
+    wvtype::Symbol
+    length::Int
+end
+
+type InsAWG5014C <: InstrumentVISA
+    vi::VISA.ViSession
+    writeTerminator::AbstractString
+    cache::Dict{AbstractString,WaveformInfo}
+
+    InsAWG5014C(x) = begin
+        ins = new()
+        ins.vi = x
+        ins.writeTerminator = "\n"
+        ins[WriteTermCharEnable] = true
+        cachewaveforms!(ins)
+        ins
+    end
+
+end
+
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
 returntype(::Type{Integer}) = (Int, Int)
@@ -29,7 +53,7 @@ export runapplication, applicationstate, validate
 export load_awg_settings, save_awg_settings
 export clearwaveforms, deletewaveform, newwaveform
 export normalizewaveform, resamplewaveform
-export waveformexists, waveformispredefined
+export waveformexists, waveformispredefined, cachewaveforms!
 export waveform, waveformlength, waveformtimestamp, waveformtype
 export pullfrom_awg, pushto_awg
 
@@ -244,26 +268,31 @@ end
 "Save an AWG settings file."
 save_awg_settings
 
-function clearwaveforms(ins::InsAWG5014C)
+function clearwaveforms(ins::InsAWG5014C, defercache=false)
     write(ins,"SOUR1:FUNC:USER \"\"")
     write(ins,"SOUR2:FUNC:USER \"\"")
     write(ins,"SOUR3:FUNC:USER \"\"")
     write(ins,"SOUR4:FUNC:USER \"\"")
+    defercache || cachewaveforms!(ins)
 end
 
 "Clear waveforms from all channels."
 clearwaveforms
 
-function deletewaveform(ins::InsAWG5014C, name::ASCIIString)
+function deletewaveform(ins::InsAWG5014C, name::ASCIIString, defercache=false)
     write(ins, "WLIS:WAV:DEL "*quoted(name))
+    defercache || cachewaveforms!(ins)
+    nothing
 end
 
 "Delete a waveform by name."
 deletewaveform
 
-function newwaveform(ins::InsAWG5014C, name::ASCIIString, numPoints::Integer, wvtype::Symbol)
+function newwaveform(ins::InsAWG5014C, name::ASCIIString, numPoints::Integer,
+    wvtype::Symbol; defercache=false)
     write(ins, "WLIS:WAV:NEW #,#,#",quoted(name),
         string(numPoints), code(ins, WaveformType, Val{wvtype}))
+    defercache || cachewaveforms!(ins)
     nothing
 end
 
@@ -279,30 +308,40 @@ normalizewaveform
 
 function resamplewaveform(ins::InsAWG5014C, name::ASCIIString, points::Integer)
     write(ins, "WLIS:WAV:RESA "*quoted(name)*","*string(points))
+    ins.cache[name].length = points
 end
 
 "Resample a waveform."
 resamplewaveform
 
 "Does a waveform identified by `name` exist?"
-function waveformexists(ins::InsAWG5014C, name::ASCIIString)
-    for i in 1:ins[WavelistLength]
-        if (name == waveformname(ins,i))
-            return true
-        end
-    end
+waveformexists(ins::InsAWG5014C, name::ASCIIString) = name in keys(ins.cache)
 
-    return false
+function cachewaveforms!(ins::InsAWG5014C)
+    names = [waveformname(ins,i) for i in 1:ins[WavelistLength]]
+    ins.cache = Dict(
+        map(x->(x[2],
+                WaveformInfo(x[1],
+                             waveformtype(ins,x[2],usecache=false),
+                             waveformlength(ins,x[2],usecache=false))
+                ),
+        enumerate(names)))
+    nothing
 end
 
 "Returns whether or not a waveform is predefined (comes with instrument)."
 function waveformispredefined(ins::InsAWG5014C, name::ASCIIString)
-    Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
+    # Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
+    name[1] == '*'
 end
 
 "Returns the length of a waveform."
-function waveformlength(ins::InsAWG5014C, name::ASCIIString)
-    parse(ask(ins, "WLIST:WAV:LENG? "*quoted(name)))
+function waveformlength(ins::InsAWG5014C, name::ASCIIString; usecache=true)
+    if usecache
+        ins.cache[name].length
+    else
+        parse(ask(ins, "WLIST:WAV:LENG? "*quoted(name)))::Int
+    end
 end
 
 """
@@ -322,23 +361,27 @@ end
 Returns the type of the waveform. The AWG hardware
 ultimately uses an `IntWaveform` but `RealWaveform` is more convenient.
 """
-function waveformtype(ins::InsAWG5014C, name::ASCIIString)
-    WaveformType(ins, ask(ins,"WLIS:WAV:TYPE? "*quoted(name)))
+function waveformtype(ins::InsAWG5014C, name::ASCIIString; usecache=true)
+    if usecache
+        ins.cache[name].wvtype
+    else
+        WaveformType(ins, ask(ins,"WLIS:WAV:TYPE? "*quoted(name)))
+    end
 end
 
 function pushto_awg(ins::InsAWG5014C, name::ASCIIString,
-        awgData::AWG5014CData, wvType::Symbol, resampleOk::Bool=false)
+        awgData::AWG5014CData, wvType::Symbol; resampleOk::Bool=true)
 
     # First validate the awgData
     validate(awgData, wvType)
 
     # If the waveform does not exist, create it
-    if (!waveformexists(ins,name))
+    if !waveformexists(ins,name)
         newwaveform(ins,name,length(awgData.data),wvType)
     else
         # Otherwise, do some checks.
         # First, is it predefined?
-        if (waveformispredefined(ins,name))
+        if waveformispredefined(ins,name)
             error("Cannot overwrite predefined waveform.")
         end
 
@@ -349,11 +392,11 @@ function pushto_awg(ins::InsAWG5014C, name::ASCIIString,
         end
 
         # Is the waveform the wrong length?
-        if (length(awgData.data) != waveformlength(ins,name))
-            if (resampleOk)
-                resamplewaveform(awg,name,length(awgData.data))
+        if length(awgData.data) != waveformlength(ins,name)
+            if resampleOk
+                resamplewaveform(ins, name, length(awgData.data))
             else
-                error("Existing waveform length differs. Pass `true` as the final argument to override; adjust sample rate if needed.")
+                error("Existing waveform length differs.")
             end
         end
     end
@@ -427,7 +470,7 @@ nbytes
 
 function pullfrom_awg(ins::InsAWG5014C, name::ASCIIString)
 
-    if (!waveformexists(ins,name))
+    if !waveformexists(ins,name)
         error("Waveform does not exist.")
     end
 

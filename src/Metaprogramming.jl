@@ -202,24 +202,32 @@ function generate_instruments(metadata)
     make = idata[:make]
 
     # Here we define the InstrumentVISA subtype.
-    eval(md, quote
-        export $typsym
-        type $typsym <: $sup
-            vi::(VISA.ViSession)
-            writeTerminator::ASCIIString
-            ($typsym)(x) = begin
-                ins = new()
-                ins.vi = x
-                ins.writeTerminator = $term
-                ins[WriteTermCharEnable] = true
-                ins
-            end
+    if !isdefined(md, typsym)
+        eval(md, quote
+            export $typsym
+            type $typsym <: $sup
+                vi::(VISA.ViSession)
+                writeTerminator::AbstractString
+                ($typsym)(x) = begin
+                    ins = new()
+                    ins.vi = x
+                    ins.writeTerminator = $term
+                    ins[WriteTermCharEnable] = true
+                    ins
+                end
 
-            ($typsym)() = new()
-        end
-        make(x::$typsym) = $make
-        model(x::$typsym) = $model
-    end)
+                ($typsym)() = new()
+            end
+        end)
+    end
+
+    if !method_exists(md.make, (eval(md, typsym),))
+        eval(md, quote make(x::$typsym) = $make end)
+    end
+
+    if !method_exists(md.model, (eval(md, typsym),))
+        eval(md, quote model(x::$typsym) = $model end)
+    end
 
 end
 
