@@ -9,6 +9,8 @@ ats[AlazarChannel] = :ChannelB
 @test ats[AlazarChannel] == :ChannelB
 ats[AlazarChannel] = :BothChannels
 @test ats[AlazarChannel] == :BothChannels
+ats[BufferTimeout] = 10000.
+@test ats[BufferTimeout] == 10000.
 
 @test ats[SampleMemoryPerChannel] /1024/1024 == 256 #MB
 @test dsp_num_modules(ats) == 0

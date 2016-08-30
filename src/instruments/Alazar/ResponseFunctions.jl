@@ -47,7 +47,7 @@ function measure(ch::AlazarResponse; diagnostic::Bool=false)
     buf_size = m.buf_size
     buf_count = m.buf_count
     #println(buf_size," ",buf_count)
-    timeout_ms = 5000
+    timeout_ms = a[BufferTimeout]
     buf_completed = 0
     by_transferred = 0
     transfertime_s = 0
@@ -159,7 +159,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     buf_size = m.buf_size
     buf_count = m.buf_count
 
-    timeout_ms = 5000
+    timeout_ms = a[BufferTimeout]
     buf_completed = 0
 
     # Allocate memory for DMA buffers.
@@ -185,7 +185,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
         # FIRST turn off output to AUX I/O
         a[AuxIOMode] = :AuxDigitalOutput
         a[AuxOutputTTL] = :Low
-        sleep(0.001)  # wait for any sequence to finish
+        sleep(0.01)  # wait for any sequence to finish
 
         # NEXT arm the board to measure when receiving a trigger input
         startcapture(a)

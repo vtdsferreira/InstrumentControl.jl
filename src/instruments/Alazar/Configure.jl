@@ -125,6 +125,10 @@ function setindex!(a::InstrumentAlazar, v::Symbol, ::Type{AcquisitionChannel})
     nothing
 end
 
+function setindex!(a::InstrumentAlazar, timeout_ms, ::Type{BufferTimeout})
+    a.bufferTimeout = timeout_ms
+end
+
 ## Clocks ############
 
 """

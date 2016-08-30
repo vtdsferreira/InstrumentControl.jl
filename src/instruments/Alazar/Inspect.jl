@@ -23,6 +23,16 @@ getindex(a::InstrumentAlazar, ::Type{AcquisitionChannel}) = a.acquisitionChannel
 
 """
 ```
+getindex(a::InstrumentAlazar, ::Type{BufferTimeout})
+```
+
+Returns the timeout (ms) for waiting for a buffer to be filled. See the
+Alazar API documentation for `AlazarWaitAsyncBufferComplete`.
+"""
+getindex(a::InstrumentAlazar, ::Type{BufferTimeout}) = a.bufferTimeout
+
+"""
+```
 getindex(a::InstrumentAlazar, ::Type{ChannelCount})
 ```
 

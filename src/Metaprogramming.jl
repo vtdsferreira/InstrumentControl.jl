@@ -86,7 +86,7 @@ function insjson(file::AbstractString)
     j[:instrument] = convert(Dict{Symbol, Any}, j[:instrument])
 
     # Define a supertype if one is not specified
-    !haskey(j[:instrument], :super) && (j[:instrument][:super] = :InstrumentVISA)
+    !haskey(j[:instrument], :super) && (j[:instrument][:super] = :Instrument)
 
     for x in [:module, :type, :super]
         j[:instrument][x] = Symbol(j[:instrument][x])
@@ -166,7 +166,7 @@ This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `type`: The name of the type to create for the new instrument.
 This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `super`: This field is optional. If provided it will be the supertype of
-the new instrument type, otherwise the supertype will be `InstrumentVISA`.
+the new instrument type, otherwise the supertype will be `Instrument`.
 This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `make`: The make of the instrument, e.g. Keysight, Tektronix, etc.
 - `model`: The model of the instrument, e.g. E5071C, AWG5014C, etc.
@@ -201,7 +201,7 @@ function generate_instruments(metadata)
     model = idata[:model]
     make = idata[:make]
 
-    # Here we define the InstrumentVISA subtype.
+    # Here we define the Instrument subtype.
     if !isdefined(md, typsym)
         eval(md, quote
             export $typsym

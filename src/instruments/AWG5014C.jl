@@ -11,7 +11,7 @@ type WaveformInfo
     length::Int
 end
 
-type InsAWG5014C <: InstrumentVISA
+type InsAWG5014C <: Instrument
     vi::VISA.ViSession
     writeTerminator::AbstractString
     cache::Dict{AbstractString,WaveformInfo}

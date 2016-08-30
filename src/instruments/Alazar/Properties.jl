@@ -10,6 +10,7 @@ export AuxSoftwareTriggerEnable
 export BitsPerSample
 export BytesPerSample
 export BufferAlignment
+export BufferTimeout
 export ChannelCount
 export Coupling
 export InputRange
@@ -54,6 +55,7 @@ abstract AuxSoftwareTriggerEnable  <: AlazarProperty
 abstract BitsPerSample             <: AlazarProperty
 abstract BytesPerSample            <: AlazarProperty
 abstract BufferAlignment           <: AlazarProperty
+abstract BufferTimeout             <: AlazarProperty
 abstract ChannelCount              <: AlazarProperty
 abstract Coupling                  <: AlazarProperty
 abstract InputRange                <: AlazarProperty

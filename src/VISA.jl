@@ -5,12 +5,15 @@ import Base: cp, mkdir, readdir, rm
 import Base: getindex, setindex!
 
 ## Get the resource manager
-"The default VISA resource manager."
+"""
+```
+const resourcemanager
+```
+
+The default VISA resource manager as returned by `VISA.viOpenDefaultRM()`.
+"""
 const  resourcemanager = VISA.viOpenDefaultRM()
 export resourcemanager
-
-## InstrumentVISA type
-export InstrumentVISA
 
 ## VISA specific InstrumentProperty subtypes
 export WriteTermCharEnable
@@ -39,15 +42,10 @@ export readdir
 export rm
 export savestate
 
-"""
-Abstract supertype of all Instruments addressable using a VISA library.
-Concrete types are expected to have fields:
+# Instruments supporting VISA are expected to have fields:
+# `vi::ViSession`
+# `writeTerminator::AbstractString`
 
-`vi::ViSession`
-
-`writeTerminator::AbstractString`
-"""
-abstract InstrumentVISA <: Instrument
 
 """
 `abstract WriteTermCharEnable <: InstrumentProperty`
@@ -92,7 +90,7 @@ tcpip_socket(ip,port) = VISA.viOpen(resourcemanager,
 ## Reading and writing
 
 """Idiomatic "write and read available" function with optional delay."""
-function ask(ins::InstrumentVISA, msg::AbstractString, infixes...; delay::Real=0)
+function ask(ins::Instrument, msg::AbstractString, infixes...; delay::Real=0)
     write(ins, msg, infixes...)
     sleep(delay)
     readavailable(ins)
@@ -102,14 +100,14 @@ end
 Read from an instrument. Strips trailing carriage returns and new lines.
 Note that this function will only read so many characters (buffered).
 """
-read(ins::InstrumentVISA) =
+read(ins::Instrument) =
     rstrip(bytestring(VISA.viRead(ins.vi)), ['\r', '\n'])
 
 """
 Write to an instrument.
 Replaces hash signs with infixes and appends the instrument's write terminator.
 """
-function write(ins::InstrumentVISA, msg::AbstractString, infixes...)
+function write(ins::Instrument, msg::AbstractString, infixes...)
     for infix in infixes
         msg = replace(msg, "#", infix, 1)
     end
@@ -120,46 +118,82 @@ function write(ins::InstrumentVISA, msg::AbstractString, infixes...)
 end
 
 "Keep reading from an instrument until the instrument says we are done."
-readavailable(ins::InstrumentVISA) =
+readavailable(ins::Instrument) =
     rstrip(bytestring(VISA.readAvailable(ins.vi)), ['\r','\n'])
 
 """
 Write an IEEE header block followed by an arbitary sequency of bytes and the terminator.
 """
-binblockwrite(ins::InstrumentVISA,
+binblockwrite(ins::Instrument,
     message::Union{AbstractString, Vector{UInt8}}, data::Vector{UInt8}) =
     VISA.binBlockWrite(ins.vi, message, data, ins.writeTerminator)
 
 "Read an entire block of bytes with properly formatted IEEE header."
-binblockreadavailable(ins::InstrumentVISA) = VISA.binBlockReadAvailable(ins.vi)
+binblockreadavailable(ins::Instrument) = VISA.binBlockReadAvailable(ins.vi)
 
 ## IEEE standard commands
 
 "Test with the *TST? command."
-tst(ins::InstrumentVISA)    = write(ins, "*TST?")
+tst(ins::Instrument) = write(ins, "*TST?")
 
-"Reset with the *RST command."
-rst(ins::InstrumentVISA)    = write(ins, "*RST")
+"""
+```
+rst(ins::Instrument)
+```
 
-"Ask the *IDN? command."
-idn(ins::InstrumentVISA)    = ask(ins, "*IDN?")
+Reset with the \*RST command.
+"""
+rst(ins::Instrument) = write(ins, "*RST")
 
-"Clear registers with *CLS."
-cls(ins::InstrumentVISA)    = write(ins, "*CLS")
+"""
+```
+idn(ins::Instrument)
+```
 
-"Bus trigger with *TRG."
-trg(ins::InstrumentVISA)    = write(ins, "*TRG")
+Ask the \*IDN? command.
+"""
+idn(ins::Instrument) = ask(ins, "*IDN?")
 
-"Wait for completion of a sweep with *WAI."
-wai(ins::InstrumentVISA)    = write(ins, "*WAI")
+"""
+```
+cls(ins::Instrument)
+```
 
-"Wait for completion of a sweep with *OPC?."
-opc(ins::InstrumentVISA)    = ask(ins, "*OPC?")
+Clear registers with \*CLS.
+"""
+cls(ins::Instrument) = write(ins, "*CLS")
+
+"""
+```
+trg(ins::Instrument)
+```
+
+Bus trigger with \*TRG.
+"""
+trg(ins::Instrument) = write(ins, "*TRG")
+
+"""
+```
+wai(ins::Instrument)
+```
+
+Wait for completion of a sweep with \*WAI.
+"""
+wai(ins::Instrument) = write(ins, "*WAI")
+
+"""
+```
+opc(ins::Instrument)
+```
+
+Wait for completion of a sweep with \*OPC?.
+"""
+opc(ins::Instrument) = ask(ins, "*OPC?")
 
 # Useful common commands
 
 "Abort triggering with ABOR."
-abor(ins::InstrumentVISA)   = write(ins, "ABOR")
+abor(ins::Instrument)   = write(ins, "ABOR")
 
 """
 Interrogate errors using `:SYST:ERR?` and raise an `InstrumentException`
@@ -168,7 +202,7 @@ if appropriate. Otherwise, return `nothing`.
 The `maxerrors` optional argument prevents this function from querying
 the instrument forever if there is some unexpected trouble.
 """
-function errors(ins::InstrumentVISA, maxerrors=100)
+function errors(ins::Instrument, maxerrors=100)
     i, res = 0, split(ask(ins, ":SYST:ERR?"), ",")
     if parse(res[1])::Int != 0
         codes = Int64[]
@@ -185,39 +219,39 @@ function errors(ins::InstrumentVISA, maxerrors=100)
 end
 
 """
-`getindex(ins::InstrumentVISA, ::Type{Timeout})`
+`getindex(ins::Instrument, ::Type{Timeout})`
 
 Get the VISA timeout time (in ms).
 """
-function getindex(ins::InstrumentVISA, ::Type{Timeout})
+function getindex(ins::Instrument, ::Type{Timeout})
     Int64(VISA.viGetAttribute(ins.vi, VISA.VI_ATTR_TMO_VALUE))
 end
 
 """
-`getindex(ins::InstrumentVISA, ::Type{WriteTermCharEnable})`
+`getindex(ins::Instrument, ::Type{WriteTermCharEnable})`
 
 Is the write termination character enabled?
 """
-function getindex(ins::InstrumentVISA, ::Type{WriteTermCharEnable})
+function getindex(ins::Instrument, ::Type{WriteTermCharEnable})
     Bool(VISA.viGetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN))
 end
 
 """
-`setindex!(ins::InstrumentVISA, x::Real, ::Type{Timeout})`
+`setindex!(ins::Instrument, x::Real, ::Type{Timeout})`
 
 Set the VISA timeout time (in ms).
 """
-function setindex!(ins::InstrumentVISA, x::Real, ::Type{Timeout})
+function setindex!(ins::Instrument, x::Real, ::Type{Timeout})
     VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TMO_VALUE, UInt64(x))
     nothing
 end
 
 """
-`setindex!(ins::InstrumentVISA, x::Bool, ::Type{WriteTermCharEnable})`
+`setindex!(ins::Instrument, x::Bool, ::Type{WriteTermCharEnable})`
 
 Set whether or not the write termination character is enabled.
 """
-function setindex!(ins::InstrumentVISA, x::Bool, ::Type{WriteTermCharEnable})
+function setindex!(ins::Instrument, x::Bool, ::Type{WriteTermCharEnable})
     VISA.viSetAttribute(ins.vi, VISA.VI_ATTR_TERMCHAR_EN, UInt64(x))
     nothing
 end
@@ -232,7 +266,7 @@ unquoted(str::AbstractString) = strip(str,['"','\''])
 
 ## Convenient functions for querying arrays of numbers.
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function getdata(ins::InstrumentVISA, ::Type{Val{:ASCIIString}},
+function getdata(ins::Instrument, ::Type{Val{:ASCIIString}},
         cmd, infixes...; delim=",")
     for infix in infixes
         cmd = replace(cmd, "#", infix, 1)
@@ -245,7 +279,7 @@ end
 Parse a binary block, taking care of float size and byte ordering.
 Return type is always `Array{Float64,1}` regardless of transfer format.
 """
-function getdata{T}(ins::InstrumentVISA, ::Type{Val{T}}, cmd, infixes...)
+function getdata{T}(ins::Instrument, ::Type{Val{T}}, cmd, infixes...)
     for infix in infixes
         cmd = replace(cmd, "#", infix, 1)
     end
@@ -275,7 +309,7 @@ MMEMory:COPY
 
 Copy a file from path `src` to `dest`, both on the instrument.
 """
-function cp(ins::InstrumentVISA, src::AbstractString, dest::AbstractString)
+function cp(ins::Instrument, src::AbstractString, dest::AbstractString)
     write(ins, "MMEMory:COPY "*quoted(src)*","*quoted(dest))
 end
 
@@ -286,7 +320,7 @@ MMEMory:TRANsfer
 Copy a file from path `src` on the instrument, to path `dest` on the computer.
 There may be size limits for transfer via this protocol.
 """
-function getfile(ins::InstrumentVISA, src::AbstractString, dest::AbstractString)
+function getfile(ins::Instrument, src::AbstractString, dest::AbstractString)
     write(ins, ":MMEM:TRAN? #", quoted(src))
     io = binblockreadavailable(ins)
     byt = readbytes(io)
@@ -301,7 +335,7 @@ MMEMory:LOAD:STATe
 
 Load the settings of the instrument, and possibly other info (e.g. calibration).
 """
-function loadstate(ins::InstrumentVISA, file::AbstractString)
+function loadstate(ins::Instrument, file::AbstractString)
     write(ins, ":MMEM:LOAD:STAT #", quoted(file))
 end
 
@@ -312,7 +346,7 @@ MMEMory:MDIRectory
 
 Make a directory.
 """
-function mkdir(ins::InstrumentVISA, dir::AbstractString)
+function mkdir(ins::Instrument, dir::AbstractString)
     write(ins, "MMEMory:MDIRectory "*quoted(dir))
 end
 
@@ -323,7 +357,7 @@ MMEMory:CATalog?
 
 Read the directory contents.
 """
-function readdir(ins::InstrumentVISA, dir::AbstractString="")
+function readdir(ins::Instrument, dir::AbstractString="")
     cmd = "MMEMory:CATalog?"
     if dir != ""
         cmd = cmd*" "*quoted(dir)
@@ -333,7 +367,7 @@ function readdir(ins::InstrumentVISA, dir::AbstractString="")
 end
 
 "Helper function to process `readdir` response."
-_readdir(ins::InstrumentVISA, res::AbstractString) = split(res,",")[3:3:end]
+_readdir(ins::Instrument, res::AbstractString) = split(res,",")[3:3:end]
 
 """
 MMEMory:DELete
@@ -342,7 +376,7 @@ MMEMory:DELete
 
 Remove a file.
 """
-function rm(ins::InstrumentVISA, file::AbstractString)
+function rm(ins::Instrument, file::AbstractString)
     write(ins, "MMEM:DEL #", quoted(file))
 end
 
@@ -352,7 +386,7 @@ MMEMory:STORe:STATe
 
 Save the settings of the instrument, and possibly other info (e.g. calibration).
 """
-function savestate(ins::InstrumentVISA, file::AbstractString)
+function savestate(ins::Instrument, file::AbstractString)
     write(ins, ":MMEM:STOR:STAT #", quoted(file))
 end
 

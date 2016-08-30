@@ -53,6 +53,7 @@ type AlazarATS9870 <: InstrumentAlazar
 
     acquisitionChannel::Symbol
     channelCount::U32
+    bufferTimeout::Number
 
     # defaults
     inputcontrol_defaults(a::AlazarATS9870) = begin
@@ -122,7 +123,8 @@ type AlazarATS9870 <: InstrumentAlazar
         externaltrigger_defaults(at)
         at[TriggerDelaySamples] = 0
         at[TriggerTimeoutTicks] = 0
-
+        at[BufferTimeout] = 5000.
+        
         at.auxOutTriggerEnable = false
         at.auxInTriggerSlope = :Rising
         at.auxOutDivider = 4

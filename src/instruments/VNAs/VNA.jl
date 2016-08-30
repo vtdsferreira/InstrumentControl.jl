@@ -10,9 +10,7 @@ export MarkerSearch
 
 # export Format, Parameter
 export clearavg, data, search, shotgun, sweeptime
-
-"Assume that all VNAs support VISA."
-abstract InstrumentVNA  <: InstrumentVISA
+abstract InstrumentVNA  <: Instrument
 
 """
 `type FSweep <: Response`
