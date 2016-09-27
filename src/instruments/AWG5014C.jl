@@ -1,4 +1,5 @@
 module AWG5014C
+import Compat.ASCIIString
 import Base: getindex, setindex!
 import VISA
 importall InstrumentControl         # All the stuff in InstrumentDefs, etc.
@@ -33,7 +34,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps/AWG5014C.json"))
+metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps","AWG5014C.json"))
 generate_all(metadata)
 
 ## Exports
@@ -278,7 +279,7 @@ end
 "Clear waveforms from all channels."
 clearwaveforms
 
-function deletewaveform(ins::InsAWG5014C, name::ASCIIString, defercache=false)
+function deletewaveform(ins::InsAWG5014C, name::String, defercache=false)
     write(ins, "WLIS:WAV:DEL "*quoted(name))
     defercache || cachewaveforms!(ins)
     nothing

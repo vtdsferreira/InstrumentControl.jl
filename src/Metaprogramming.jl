@@ -340,7 +340,7 @@ symbols(ins::E5071C, ::Type{VNA.Format}, v::Symbol) = symbols(ins, VNA.Format, V
 symbols(ins::E5071C, ::Type{VNA.Format}, ::Type{Val{:LogMagnitude}}) = "MLOG" # ... etc. for each symbol.
 
 VNA.Format(ins::E5071C, s::AbstractString) = VNA.Format(ins, Val{symbol(s)})
-VNA.Format(ins::E5071C, ::Type{Val{symbol("MLOG")}}) = :LogMagnitude # ... etc. for each symbol.
+VNA.Format(ins::E5071C, ::Type{Val{Symbol("MLOG")}}) = :LogMagnitude # ... etc. for each symbol.
 ```
 
 The above methods will be defined in the E5071C module. Note that the function `symbols`
@@ -355,9 +355,16 @@ function generate_handlers{S<:Instrument}(instype::Type{S}, p)
 
     # Look for symbol dictionaries
     for v in p[:values]
-        if v.head == :(in)
+        if VERSION < v"0.5.0-pre"
+            cond = (v.head == :(in))
+            idxadj = 0
+        else
+            cond = (v.head == :(call) && v.args[1] == :(in))
+            idxadj = 1
+        end
+        if cond
             # Looks like we have a dictionary of symbols
-            sym = v.args[2]     # name of dictionary
+            sym = v.args[2+idxadj]     # name of dictionary
             !haskey(p, sym) && error("Property $p lacking some information.")
             dict = p[sym]       # the dictionary
 
@@ -366,17 +373,17 @@ function generate_handlers{S<:Instrument}(instype::Type{S}, p)
             #       symbols(ins, ClockSource, Val{v})
             # and  ClockSource(ins::AWG5014C, s::AbstractString) =
             #       ClockSource(ins, Val{symbol(s)})
-            eval(md, :(($sym)(ins::$instype, ::Type{$T}, $(v.args[1])) =
+            eval(md, :(($sym)(ins::$instype, ::Type{$T}, $(v.args[1+idxadj])) =
                 ($sym)(ins, $T, Val{$(argsym(v))})))
             eval(md, :(($(p[:type]))(ins::$instype, s::AbstractString) =
-                ($(p[:type]))(ins, Val{symbol(s)})))
+                ($(p[:type]))(ins, Val{Symbol(s)})))
 
             # Now define the methods that use the Val types
             # e.g. symbols(ins::AWG5014C, ::Type{ClockSource}, Val{:Internal}) = "INT"
             # and  ClockSource(ins::AWG5014C, Val{:INT}) = :Internal
             for (a,b) in dict
                 eval(md, :(($sym)(ins::$instype, ::Type{$T}, ::Type{Val{parse($a)}}) = $b))
-                eval(md, :(($(p[:type]))(ins::$instype, ::Type{Val{symbol($b)}}) = parse($a)))
+                eval(md, :(($(p[:type]))(ins::$instype, ::Type{Val{Symbol($b)}}) = parse($a)))
             end
         end
     end

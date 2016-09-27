@@ -11,7 +11,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps/E5071C.json"))
+metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps","E5071C.json"))
 generate_all(metadata)
 
 import FileIO

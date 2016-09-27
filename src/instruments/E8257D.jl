@@ -9,7 +9,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps/E8257D.json"))
+metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps","E8257D.json"))
 generate_all(metadata)
 
 export OutputSettled
