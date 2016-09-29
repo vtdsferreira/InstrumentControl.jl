@@ -37,7 +37,7 @@ importall .SMB100A
 # Utility functions
 include("Reflection.jl")
 include("Sweep.jl")
-# include("LiveUpdate.jl")    <--- causes Documenter to fail?
+# include("LiveUpdate.jl")   # <--- causes Documenter to fail?
 # include("Trace3.jl")
 
 end
