@@ -5,4 +5,5 @@ BinDeps
 FileIO
 FixedSizeArrays
 JSON
+ZMQ
 Compat
