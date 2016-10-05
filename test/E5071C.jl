@@ -11,12 +11,12 @@ using Base.Test
 # Start from a clean slate by resetting the instrument configuration.
 rst(e5071c)
 
-for x in [Averaging, Smoothing]
+for x in (Averaging, Smoothing, AutoSweepTime)
     e5071c[x] = true
     @test e5071c[x] == e5071c[x,1]  === true
 end
 
-for x in [TriggerOutput, Output]
+for x in (TriggerOutput, Output)
     e5071c[x] = true
     @test e5071c[x] === true
 end

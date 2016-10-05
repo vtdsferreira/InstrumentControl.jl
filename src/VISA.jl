@@ -4,6 +4,7 @@ import Base: read, write, readavailable, reset, wait
 import Base: cp, mkdir, readdir, rm
 import Base: getindex, setindex!
 import Compat
+import Compat.@compat
 
 ## Get the resource manager
 """
@@ -326,7 +327,7 @@ There may be size limits for transfer via this protocol.
 function getfile(ins::Instrument, src::AbstractString, dest::AbstractString)
     write(ins, ":MMEM:TRAN? #", quoted(src))
     io = binblockreadavailable(ins)
-    byt = readbytes(io)
+    byt = @compat read(io)
     fi = open(dest, "w+")   # Overwrites...
     write(fi, byt)
     close(fi)
