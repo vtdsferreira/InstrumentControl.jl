@@ -1,4 +1,4 @@
-export sweep, status, progress, abort!, prune!, jobs
+export sweep, eta, status, progress, abort!, prune!, jobs
 using Base.Cartesian
 using Common
 import Compat.view
@@ -106,7 +106,7 @@ function isless(a::Sweep, b::Sweep)
 end
 
 function show(io::IO, s::Sweep)
-    progstr = @sprintf "%0.2f" fetch(s.progress)*100
+    progstr = @sprintf "%0.2f" progress(s)*100
     progstr *= "%"
     progstr = repeat(" ", 7-length(progstr))*progstr
 
