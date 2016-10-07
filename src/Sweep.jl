@@ -1,6 +1,6 @@
 export sweep, eta, status, progress, abort!, prune!, jobs
 using Base.Cartesian
-using Common
+using ICCommon
 import Compat.view
 import Base: show, isless, getindex, push!, length
 import Base.Collections: PriorityQueue, enqueue!, dequeue!, peek
