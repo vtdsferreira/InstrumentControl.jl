@@ -333,7 +333,6 @@ function sweep(dep::Response, indep::Tuple{Stimulus, AbstractVector}...;
 
     T = returntype(measure, (typeof(dep),))
     array = Array{T}([length(a) for (stim, a) in indep]...)
-    array[:] = zero(eltype(array))
 
     sw = Sweep(dep, indep; priority = priority)
     sw.result = array
