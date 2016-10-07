@@ -3,6 +3,8 @@ import VISA
 import Base: read, write, readavailable, reset, wait
 import Base: cp, mkdir, readdir, rm
 import Base: getindex, setindex!
+import Compat
+import Compat.@compat
 
 ## Get the resource manager
 """
@@ -42,13 +44,15 @@ export readdir
 export rm
 export savestate
 
-# Instruments supporting VISA are expected to have fields:
+# Instruments supporting VISA are expected to have fields, at minimum:
 # `vi::ViSession`
 # `writeTerminator::AbstractString`
 
 
 """
-`abstract WriteTermCharEnable <: InstrumentProperty`
+```
+abstract WriteTermCharEnable <: InstrumentProperty
+```
 
 Write terminator character for VISA instruments.
 """
@@ -101,7 +105,7 @@ Read from an instrument. Strips trailing carriage returns and new lines.
 Note that this function will only read so many characters (buffered).
 """
 read(ins::Instrument) =
-    rstrip(bytestring(VISA.viRead(ins.vi)), ['\r', '\n'])
+    rstrip(Compat.String(VISA.viRead(ins.vi)), ['\r', '\n'])
 
 """
 Write to an instrument.
@@ -119,7 +123,7 @@ end
 
 "Keep reading from an instrument until the instrument says we are done."
 readavailable(ins::Instrument) =
-    rstrip(bytestring(VISA.readAvailable(ins.vi)), ['\r','\n'])
+    rstrip(Compat.String(VISA.readAvailable(ins.vi)), ['\r','\n'])
 
 """
 Write an IEEE header block followed by an arbitary sequency of bytes and the terminator.
@@ -323,7 +327,7 @@ There may be size limits for transfer via this protocol.
 function getfile(ins::Instrument, src::AbstractString, dest::AbstractString)
     write(ins, ":MMEM:TRAN? #", quoted(src))
     io = binblockreadavailable(ins)
-    byt = readbytes(io)
+    byt = @compat read(io)
     fi = open(dest, "w+")   # Overwrites...
     write(fi, byt)
     close(fi)

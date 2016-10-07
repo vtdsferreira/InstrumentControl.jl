@@ -11,7 +11,7 @@ import InstrumentControl: getdata
 importall InstrumentControl.VNA
 import InstrumentControl.VNA: datacmd
 
-include(joinpath(Pkg.dir("InstrumentControl"),"src/meta/Metaprogramming.jl"))
+include(joinpath(Pkg.dir("InstrumentControl"),"src","meta","Metaprogramming.jl"))
 
 export ZNB20
 

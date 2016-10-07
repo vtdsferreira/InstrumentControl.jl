@@ -1,466 +1,518 @@
 {
-    "instrument":{
-            "module":"E5071C",
-            "type":"InsE5071C",
-            "super":"InstrumentVNA",
-            "make":"Keysight",
-            "model":"E5071C",
-            "writeterminator":"\n"
+    "instrument": {
+        "module": "E5071C",
+        "type": "InsE5071C",
+        "super": "InstrumentVNA",
+        "make": "Keysight",
+        "model": "E5071C",
+        "writeterminator": "\n"
     },
-    "properties":[
+    "properties": [
         {
-            "cmd":":SENSch:SWE:TIME",
-            "type":"SweepTime",
-            "values":[
-                "v::Real"
-            ],
-            "infixes":[
-                "ch::Integer=1"
-            ],
-            "doc":"This command sets/gets the sweep time of selected channel (ch). Before using this object to set the sweep time, turns OFF the auto setting of the sweep time (specify False with the SCPI.SENSe(Ch).SWEep.TIME.AUTO object). When Port IFBW is turned ON, this command returns the sweep time for Port 1."
-        }, {
-            "cmd":":CALCch:TRACtr:CORR:EDEL:MED",
-            "type":"ElectricalMedium",
-            "values":[
-                "v::Symbol in symbols"
-            ],
-            "symbols":{
-                "Coaxial":"COAX",
-                "Waveguide":"WAV"
-            },
-            "infixes":[
-                "ch::Integer=1",
-                "tr::Integer=1"
-            ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:TRACtr:FORM",
-            "type":"VNA.Format",
-            "values":[
-                "v::Symbol in symbols"
-            ],
-            "symbols":{
-                "LogMagnitude":"MLOG",
-                "Phase":"PHAS",
-                "GroupDelay":"GDEL",
-                "SmithLinear":"SLIN",
-                "SmithLog":"SLOG",
-                "SmithComplex":"SCOM",
-                "Smith":"SMIT",
-                "SmithAdmittance":"SADM",
-                "PolarLinear":"PLIN",
-                "PolarLog":"PLOG",
-                "PolarComplex":"POL",
-                "LinearMagnitude":"MLIN",
-                "SWR":"SWR",
-                "RealPart":"REAL",
-                "ImagPart":"IMAG",
-                "ExpandedPhase":"UPH",
-                "PositivePhase":"PPH"
-            },
-            "infixes":[
-                "ch::Integer=1",
-                "tr::Integer=1"
-            ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:PARtr:DEF",
-            "type":"VNA.Parameter",
-            "values":[
-                "v::Symbol in symbols"
-            ],
-            "symbols":{
-                "S11":"S11",
-                "S12":"S12",
-                "S21":"S21",
-                "S22":"S22"
-            },
-            "infixes":[
-                "ch::Integer=1",
-                "tr::Integer=1"
-            ],
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:OUTP:POL",
-            "type":"TriggerOutputPolarity",
-            "values":[
-                "v::Symbol in symbols"
-            ],
-            "symbols":{
-                "Positive":"POS",
-                "Negative":"NEG"
-            },
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:OUTP:POS",
-            "type":"TriggerOutputTiming",
-            "values":[
-                "v::Symbol in symbols"
-            ],
-            "symbols":{
-                "Before":"BEF",
-                "After":"AFT"
-            },
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:AVER",
-            "type":"Averaging",
-            "values":[
+            "cmd": ":SENSch:SWE:TIME:AUTO",
+            "type": "AutoSweepTime",
+            "values": [
                 "v::Bool"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:AVER:COUN",
-            "type":"AveragingFactor",
-            "values":[
+            "doc": "This command sets/gets whether to automatically set the sweep time of selected channel."
+        },
+        {
+            "cmd": ":SENSch:SWE:TIME",
+            "type": "SweepTime",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ],
+            "doc": "This command sets/gets the sweep time of selected channel (ch). Before using this object to set the sweep time, turns OFF the auto setting of the sweep time (specify False with the SCPI.SENSe(Ch).SWEep.TIME.AUTO object). When Port IFBW is turned ON, this command returns the sweep time for Port 1."
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:EDEL:MED",
+            "type": "ElectricalMedium",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Coaxial": "COAX",
+                "Waveguide": "WAV"
+            },
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:TRACtr:FORM",
+            "type": "VNA.Format",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "LogMagnitude": "MLOG",
+                "Phase": "PHAS",
+                "GroupDelay": "GDEL",
+                "SmithLinear": "SLIN",
+                "SmithLog": "SLOG",
+                "SmithComplex": "SCOM",
+                "Smith": "SMIT",
+                "SmithAdmittance": "SADM",
+                "PolarLinear": "PLIN",
+                "PolarLog": "PLOG",
+                "PolarComplex": "POL",
+                "LinearMagnitude": "MLIN",
+                "SWR": "SWR",
+                "RealPart": "REAL",
+                "ImagPart": "IMAG",
+                "ExpandedPhase": "UPH",
+                "PositivePhase": "PPH"
+            },
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:PARtr:DEF",
+            "type": "VNA.Parameter",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "S11": "S11",
+                "S12": "S12",
+                "S21": "S21",
+                "S22": "S22"
+            },
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ],
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:OUTP:POL",
+            "type": "TriggerOutputPolarity",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Positive": "POS",
+                "Negative": "NEG"
+            },
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:OUTP:POS",
+            "type": "TriggerOutputTiming",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Before": "BEF",
+                "After": "AFT"
+            },
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:AVER",
+            "type": "Averaging",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ],
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:AVER:COUN",
+            "type": "AveragingFactor",
+            "values": [
                 "v::Integer"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:AVER",
-            "type":"AveragingTrigger",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:AVER",
+            "type": "AveragingTrigger",
+            "values": [
                 "v::Bool"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:TRACtr:CORR:EDEL:TIME",
-            "type":"ElectricalDelay",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:EDEL:TIME",
+            "type": "ElectricalDelay",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:EXT:DEL",
-            "type":"ExtTriggerDelay",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:EXT:DEL",
+            "type": "ExtTriggerDelay",
+            "values": [
                 "v::Real"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:EXT:LLAT",
-            "type":"ExtTriggerLowLatency",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:EXT:LLAT",
+            "type": "ExtTriggerLowLatency",
+            "values": [
                 "v::Bool"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:FREQ:STAR",
-            "type":"FrequencyStart",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:FREQ:STAR",
+            "type": "FrequencyStart",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:FREQ:STOP",
-            "type":"FrequencyStop",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:FREQ:STOP",
+            "type": "FrequencyStop",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:FREQ:CENT",
-            "type":"FrequencyCenter",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:FREQ:CENT",
+            "type": "FrequencyCenter",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:FREQ:SPAN",
-            "type":"FrequencySpan",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:FREQ:SPAN",
+            "type": "FrequencySpan",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:BAND",
-            "type":"IFBandwidth",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:BAND",
+            "type": "IFBandwidth",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:PAR:COUN",
-            "type":"NumTraces",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:PAR:COUN",
+            "type": "NumTraces",
+            "values": [
                 "v::Integer"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:SWE:POIN",
-            "type":"NumPoints",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:SWE:POIN",
+            "type": "NumPoints",
+            "values": [
                 "v::Integer"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":OUTP",
-            "type":"Output",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":OUTP",
+            "type": "Output",
+            "values": [
                 "v::Bool"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:TRACtr:CORR:OFFS:PHAS",
-            "type":"PhaseOffset",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:OFFS:PHAS",
+            "type": "PhaseOffset",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:POIN",
-            "type":"PointTrigger",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:POIN",
+            "type": "PointTrigger",
+            "values": [
                 "v::Bool"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SOURch:POW:PORT:COUP",
-            "type":"PowerCoupled",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SOURch:POW:PORT:COUP",
+            "type": "PowerCoupled",
+            "values": [
                 "v::Bool"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SOURch:POW",
-            "type":"PowerLevel",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SOURch:POW",
+            "type": "PowerLevel",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SOURch:POW:PORTport",
-            "type":"PowerPortLevel",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SOURch:POW:PORTport",
+            "type": "PowerPortLevel",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "port::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SOURch:POW:SLOP:STAT",
-            "type":"PowerSlope",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SOURch:POW:SLOP:STAT",
+            "type": "PowerSlope",
+            "values": [
                 "v::Bool"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SOURch:POW:SLOP",
-            "type":"PowerSlopeLevel",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SOURch:POW:SLOP",
+            "type": "PowerSlopeLevel",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":SENSch:FREQ",
-            "type":"PowerSweepFrequency",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":SENSch:FREQ",
+            "type": "PowerSweepFrequency",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":DISP:WINDch:TRACtr:STAT",
-            "type":"TraceDisplay",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:STAT",
+            "type": "TraceDisplay",
+            "values": [
                 "v::Bool"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:TRACtr:SMO",
-            "type":"Smoothing",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:TRACtr:SMO",
+            "type": "Smoothing",
+            "values": [
                 "v::Bool"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:TRACtr:SMO:APER",
-            "type":"SmoothingAperture",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:TRACtr:SMO:APER",
+            "type": "SmoothingAperture",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":DISP:WINDch:MAX",
-            "type":"TraceMaximized",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":DISP:WINDch:MAX",
+            "type": "TraceMaximized",
+            "values": [
                 "v::Bool"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":CALCch:TRACtr:CORR:EDEL:WGC",
-            "type":"WaveguideCutoff",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:EDEL:WGC",
+            "type": "WaveguideCutoff",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":DISP:WINDch:Y:DIV",
-            "type":"YDivisions",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":DISP:WINDch:Y:DIV",
+            "type": "YDivisions",
+            "values": [
                 "v::Integer"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":DISP:WINDch:TRACtr:Y:PDIV",
-            "type":"YScalePerDivision",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:Y:PDIV",
+            "type": "YScalePerDivision",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":DISP:WINDch:TRACtr:Y:RLEV",
-            "type":"YReferenceLevel",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:Y:RLEV",
+            "type": "YReferenceLevel",
+            "values": [
                 "v::Real"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":DISP:WINDch:TRACtr:Y:RPOS",
-            "type":"YReferencePosition",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:Y:RPOS",
+            "type": "YReferencePosition",
+            "values": [
                 "v::Integer"
             ],
-            "infixes":[
+            "infixes": [
                 "ch::Integer=1",
                 "tr::Integer=1"
             ],
-            "doc":"Hey"
-        }, {
-            "cmd":":FORM:BORD",
-            "type":"TransferByteOrder",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":FORM:BORD",
+            "type": "TransferByteOrder",
+            "values": [
                 "v::Symbol in symbols"
             ],
-            "symbols":{
-                "BigEndianTransfer":"NORM",
-                "LittleEndianTransfer":"SWAP"
+            "symbols": {
+                "BigEndianTransfer": "NORM",
+                "LittleEndianTransfer": "SWAP"
             },
-            "doc":"Hey"
-        }, {
-            "cmd":":FORM:DATA",
-            "type":"TransferFormat",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":FORM:DATA",
+            "type": "TransferFormat",
+            "values": [
                 "v::Symbol in symbols"
             ],
-            "symbols":{
-                "ASCIIString":"ASC",
-                "Float32":"REAL32",
-                "Float64":"REAL"
+            "symbols": {
+                "ASCIIString": "ASC",
+                "Float32": "REAL32",
+                "Float64": "REAL"
             },
-            "doc":"Hey"
-        }, {
-            "cmd":":TRIG:SLOP",
-            "type":"TriggerSlope",
-            "values":[
+            "doc": "Hey"
+        },
+        {
+            "cmd": ":TRIG:SLOP",
+            "type": "TriggerSlope",
+            "values": [
                 "v::Symbol in symbols"
             ],
-            "symbols":{
-                "Rising":"POS",
-                "Falling":"NEG"
+            "symbols": {
+                "Rising": "POS",
+                "Falling": "NEG"
             },
-            "doc":"[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]\n\nSet slope of external trigger input port: `RisingTrigger`, `FallingTrigger`."
-        }, {
-            "cmd":":TRIG:SOUR",
-            "type":"TriggerSource",
-            "values":[
+            "doc": "[:TRIG:SEQ:EXT:SLOP][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_external_slope.htm]\n\nSet slope of external trigger input port: `RisingTrigger`, `FallingTrigger`."
+        },
+        {
+            "cmd": ":TRIG:SOUR",
+            "type": "TriggerSource",
+            "values": [
                 "v::Symbol in symbols"
             ],
-            "symbols":{
-                "InternalTrigger":"INT",
-                "ExternalTrigger":"EXT",
-                "ManualTrigger":"MAN",
-                "BusTrigger":"BUS"
+            "symbols": {
+                "InternalTrigger": "INT",
+                "ExternalTrigger": "EXT",
+                "ManualTrigger": "MAN",
+                "BusTrigger": "BUS"
             },
-            "doc":"[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]\n\nConfigure the trigger source: `InternalTrigger`, `ExternalTrigger`, `BusTrigger`, `ManualTrigger`."
-        }, {
-            "cmd":":TRIG:OUTP",
-            "type":"TriggerOutput",
-            "values":[
+            "doc": "[TRIGger:SEQuence:SOURce][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_sequence_source.htm]\n\nConfigure the trigger source: `InternalTrigger`, `ExternalTrigger`, `BusTrigger`, `ManualTrigger`."
+        },
+        {
+            "cmd": ":TRIG:OUTP",
+            "type": "TriggerOutput",
+            "values": [
                 "v::Bool"
             ],
-            "doc":"[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]\n\nTurn on or off the external trigger output."
+            "doc": "[TRIGger:OUTPut][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/trigger/scpi_trigger_output_state.htm]\n\nTurn on or off the external trigger output."
         }
     ]
 }

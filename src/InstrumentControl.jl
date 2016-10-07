@@ -7,22 +7,22 @@ include("Definitions.jl")
 include("VISA.jl")
 
 # Stimuli, responses, source, measure...
-include("sourcemeasure/SourceMeasure.jl")
+include(joinpath("sourcemeasure","SourceMeasure.jl"))
 
 # Parsing JSON files for easy instrument onboarding
 include("Metaprogramming.jl")
 
 # Various instruments
-include("instruments/VNAs/VNA.jl")
-include("instruments/VNAs/E5071C.jl")
-# include("instruments/VNAs/ZNB20.jl")
+include(joinpath("instruments","VNAs","VNA.jl"))
+include(joinpath("instruments","VNAs","E5071C.jl"))
+# include(joinpath("instruments","VNAs","ZNB20.jl"))
 
-include("instruments/SMB100A.jl")
-include("instruments/E8257D.jl")
-include("instruments/AWG5014C.jl")
-include("instruments/GS200.jl")
+include(joinpath("instruments","SMB100A.jl"))
+include(joinpath("instruments","E8257D.jl"))
+include(joinpath("instruments","AWG5014C.jl"))
+include(joinpath("instruments","GS200.jl"))
 
-include("instruments/Alazar/Alazar.jl")
+include(joinpath("instruments","Alazar","Alazar.jl"))
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 
