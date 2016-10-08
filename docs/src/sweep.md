@@ -1,11 +1,18 @@
-## Sweep
+```@meta
+DocTestSetup = quote
+    using InstrumentControl
+end
+```
+
+## Sweeps
 
 ```@docs
 sweep
+InstrumentControl._sweep!
 abort!
 status
 progress
-eta
+eta(::InstrumentControl.Sweep)
 InstrumentControl.Sweep
 InstrumentControl.SweepStatus
 ```
@@ -19,4 +26,5 @@ date.
 ```@docs
 jobs
 prune!
+InstrumentControl.SweepQueue
 ```

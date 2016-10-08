@@ -124,8 +124,21 @@ sampletype{T}(buf_array::DMABufferArray{T}) = T
 Some comments:
 
 
-  * A single SharedArray is used to back *all* DMA buffers. Memory is therefore contiguous and page-aligned.
-  * The memory for each DMA buffer is required to be a multiple of the page size when there is more than one buffer.
+  * A single SharedArray is used to back *all* DMA buffers. Memory is therefore
+
+
+contiguous and page-aligned.
+
+
+  * The memory for each DMA buffer is required to be a multiple of the page size
+
+
+when there is more than one buffer.
+
+
   * The memory can be accessed by multiple processes.
-  * The elements of a `DMABufferArray` are pointers to the the different locations in memory which act as DMA buffers. The array is iterable and indexable as usual.
+  * The elements of a `DMABufferArray` are pointers to the the different
+
+
+locations in memory which act as DMA buffers. The array is iterable and indexable as usual.
 

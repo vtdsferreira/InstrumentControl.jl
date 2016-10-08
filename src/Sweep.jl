@@ -2,7 +2,7 @@ export sweep, eta, status, progress, abort!, prune!, jobs
 using Base.Cartesian
 using ICCommon
 import Compat.view
-import Base: show, isless, getindex, push!, length
+import Base: show, isless, getindex, push!, length, eta
 import Base.Collections: PriorityQueue, enqueue!, dequeue!, peek
 
 # Priorities for sweep jobs
@@ -129,8 +129,7 @@ end
 eta(x::Sweep)
 ```
 
-Return the estimated time of completion for sweep `x`. WIP; will not return
-correct time if job has been paused.
+Return the estimated time of completion for sweep `x`.
 """
 function eta(x::Sweep)
     # Check if job has started
@@ -173,8 +172,10 @@ abort!(x::Sweep)
 
 Abort a sweep. Guaranteed to bail out of the sweep in such a way that the
 data has been measured for most recent sourcing of a stimulus, i.e. at the very
-start of a for loop in [`_sweep`](@ref). You can also abort a sweep before it
-even begins.
+start of a for loop in [`InstrumentControl._sweep!`](@ref). You can also abort a
+sweep before it even begins. Presently this function does not interrupt
+[`measure`](@ref), so if a single measurement takes a long time then the sweep
+is only aborted after that finishes.
 """
 function abort!(x::Sweep)
     isready(x.status) || error("status unavailable.")
@@ -254,7 +255,24 @@ function push!(q::SweepQueue, sw::Sweep)
     notify(q.update_condition, sw)
 end
 
+"""
+```
+jobs()
+```
+
+Returns the default job queue object. Typically you call this to see what
+jobs are waiting, aborted, or finished, and what job is running.
+"""
 jobs() = sweepqueue
+
+"""
+```
+jobs(job_id)
+```
+
+Return the job associated with `job_id`.
+"""
+jobs(job_id) = jobs()[job_id]
 
 # Make SweepQueues callable
 function (sq::SweepQueue)()
@@ -297,7 +315,7 @@ const sweepqueue = SweepQueue()
 prune!(q::SweepQueue)
 ```
 
-Prunes a [`SweepQueue`](@ref) of all [`Sweep`](@ref)s with a status of
+Prunes a [`SweepQueue`](@ref) of all [`InstrumentControl.Sweep`](@ref)s with a status of
 `Done` or `Aborted`.
 """
 function prune!(q::SweepQueue)
@@ -317,16 +335,17 @@ sweep(dep::Response, indep::Tuple{Stimulus, AbstractVector}...;
 ```
 
 Measures a response as a function of an arbitrary number of stimuli, and returns
-an appropriately-sized and typed Array object. The implementation uses
-`@generated` and macros from
-[Base.Cartesian](http://docs.julialang.org/en/release-0.5/devdocs/cartesian/).
-The stimuli are sourced only when they need to be, at the start of each
-`for` loop level.
+a handle to the sweep job. This can be used to access the results while the
+sweep is being measured.
 
-The `priority` keyword may be `LOW`, `NORMAL`, or `HIGH`.
+This function is responsible for initializing an appropriate array, preparing
+a [`InstrumentControl.Sweep`](@ref) object, and launching an asynchronous sweep
+job. The actual `source` and `measure` loops are in a private function
+[`InstrumentControl._sweep!`](@ref).
 
-You should not provide the `queue` keyword argument unless you know what you
-are doing.
+The `priority` keyword may be `LOW`, `NORMAL`, or `HIGH`, or any
+integer greater than or equal to zero. You should not provide the `queue`
+keyword argument unless you know what you are doing.
 """
 function sweep(dep::Response, indep::Tuple{Stimulus, AbstractVector}...;
         priority = NORMAL, queue = sweepqueue)
@@ -349,6 +368,20 @@ function sweep(dep::Response, indep::Tuple{Stimulus, AbstractVector}...;
     sw
 end
 
+
+"""
+```
+@generated function _sweep!(updated_status_of, sw, dep::Response,
+        indep::Tuple{Stimulus, AbstractVector}...)
+```
+
+This is a private function which should not be called directly by the user.
+It is launched asynchronously by [`sweep`](@ref).
+The implementation uses `@generated` and macros from
+[Base.Cartesian](http://docs.julialang.org/en/release-0.5/devdocs/cartesian/).
+The stimuli are sourced only when they need to be, at the start of each
+`for` loop level.
+"""
 # ⚠ If the argument names are changed, change @respond_to_status also.
 @generated function _sweep!(updated_status_of, sw, dep::Response,
         indep::Tuple{Stimulus, AbstractVector}...)

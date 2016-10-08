@@ -7,9 +7,9 @@ Installation
 ------------
 
 + Install [National Instruments VISA libraries](https://www.ni.com/visa/)
- (tested with v15.0.1 on Windows 10)
+  (tested with v15.0.1 on Windows 10)
 + Install [AlazarTech](http://www.alazartech.com) digitizer drivers and shared libraries
- (may need to contact AlazarTech)
+  (may need to contact AlazarTech)
 + Install [VISA.jl](http://www.github.com/painterqubits/VISA.jl)
 + Install [Alazar.jl](http://www.github.com/painterqubits/Alazar.jl)
 + Install [InstrumentControl.jl](http://www.github.com/painterqubits/InstrumentControl.jl)

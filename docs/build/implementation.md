@@ -9,11 +9,29 @@
 ## Code organization
 
 
-  * Each instrument is defined within its own module, a submodule of `InstrumentControl`. Each instrument is a subtype of `InstrumentVISA <: Instrument`. By convention, instrument model numbers are used for module definitions (e.g. `AWG5014C`), so type names have "Ins" prepended (e.g. `InsAWG5014`).
+  * Each instrument is defined within its own module, a submodule of `InstrumentControl`.
+
+
+Each instrument is a subtype of `InstrumentVISA <: Instrument`. By convention, instrument model numbers are used for module definitions (e.g. `AWG5014C`), so type names have "Ins" prepended (e.g. `InsAWG5014`).
+
+
   * `InstrumentVISA` and associated functions are defined in `src/VISA.jl`.
-  * Low-level wrappers for shared libraries are kept in their own packages (e.g. `VISA` and `Alazar` calls). This way, at least some code can be reused if someone else does not want to use our codebase.
-  * Early instrument definitions and functions like `Instrument` and `InstrumentException` are defined in `src/Definitions.jl`. If there is ever trouble with `InstrumentProperty` subtypes not being defined by the time they are used in a function, they can be defined and exported manually here.
-  * `export` statements from an instrument submodule are not currently exported from `InstrumentControl`. Therefore you may want to type `using InstrumentControl.AWG5014C` when using the AWG, for instance.
+  * Low-level wrappers for shared libraries are kept in their own packages
+
+
+(e.g. `VISA` and `Alazar` calls). This way, at least some code can be reused if someone else does not want to use our codebase.
+
+
+  * Early instrument definitions and functions like `Instrument` and
+
+
+`InstrumentException` are defined in `src/Definitions.jl`. If there is ever trouble with `InstrumentProperty` subtypes not being defined by the time they are used in a function, they can be defined and exported manually here.
+
+
+  * `export` statements from an instrument submodule are not currently exported
+
+
+from `InstrumentControl`. Therefore you may want to type `using InstrumentControl.AWG5014C` when using the AWG, for instance.
 
 
 <a id='Metaprogramming-for-VISA-instruments-1'></a>
@@ -34,6 +52,9 @@ The file `src/Metaprogramming.jl` is used heavily for code generation based on J
 `insjson{T<:Instrument}(::Type{T})`
 
 Simple wrapper to call `insjson` on the appropriate file path for a given instrument type.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L8-L13' class='documenter-source'>source</a><br>
 
 
 `insjson(file::AbstractString)`
@@ -70,13 +91,30 @@ Here is an example of a valid JSON file with valid schema for parsing:
 
 After loading with `JSON.parse`, all dictionary keys are converted to symbols. The `instrument` dictionary is described in the [`generate_instruments`](implementation.md#InstrumentControl.generate_instruments) documentation. The `properties` array contains one or more dictionaries, each with keys:
 
-  * `cmd`: Specifies what must be sent to the instrument (it should be terminated with "?" for query-only). The lower-case characters are replaced by infix arguments.
-  * `type`: Specifies the `InstrumentProperty` subtype to use this command. Will be parsed and evaluated.
-  * `values`: Specifies the required arguments for `setindex!` which will appear after `cmd` in the string sent to the instrument.
-  * `infixes`: Specifies the infix arguments in `cmd`. Symbol names must match infix arguments. This key is not required if there are no infixes.
-  * `doc`: Specifies documentation for the generated Julia functions. This key is not required if there is no documentation. This is used not only for interactive help but also in generating the documentation you are reading.
+  * `cmd`: Specifies what must be sent to the instrument (it should be
+
+terminated with "?" for query-only). The lower-case characters are replaced by infix arguments.
+
+  * `type`: Specifies the `InstrumentProperty` subtype to use this command. Will be
+
+parsed and evaluated.
+
+  * `values`: Specifies the required arguments for `setindex!` which will
+
+appear after `cmd` in the string sent to the instrument.
+
+  * `infixes`: Specifies the infix arguments in `cmd`. Symbol names must match
+
+infix arguments. This key is not required if there are no infixes.
+
+  * `doc`: Specifies documentation for the generated Julia functions. This key
+
+is not required if there is no documentation. This is used not only for interactive help but also in generating the documentation you are reading.
 
 The value of the `properties.type` field and entries in the `properties.values` and `properties.infixes` arrays are parsed by Julia into expressions or symbols for further manipulation.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L20-L75' class='documenter-source'>source</a><br>
 
 <a id='InstrumentControl.generate_all' href='#InstrumentControl.generate_all'>#</a>
 **`InstrumentControl.generate_all`** &mdash; *Function*.
@@ -87,14 +125,29 @@ The value of the `properties.type` field and entries in the `properties.values` 
 
 This function takes a dictionary of instrument metadata, typically obtained from a call to [`insjson`](implementation.md#InstrumentControl.insjson). It will go through the following steps:
 
-1. [`generate_instruments`](implementation.md#InstrumentControl.generate_instruments) part 1: If the module for this instrument does not already exist, generate it and import required modules and symbols.
-2. [`generate_instruments`](implementation.md#InstrumentControl.generate_instruments) part 2: Define the `Instrument` subtype and the `make` and `model` methods (`make` and `model` are defined in `src/Definitions.jl`). Export the subtype.
-3. [`generate_properties`](implementation.md#InstrumentControl.generate_properties): Generate instrument properties if they do not exist already, and do any necessary importing and exporting.
-4. [`generate_handlers`](implementation.md#InstrumentControl.generate_handlers): Generate "handler" methods to convert between symbols and SCPI string args.
+1. [`generate_instruments`](implementation.md#InstrumentControl.generate_instruments) part 1: If the module for this instrument does not
+
+already exist, generate it and import required modules and symbols.
+
+2. [`generate_instruments`](implementation.md#InstrumentControl.generate_instruments) part 2: Define the `Instrument` subtype and the `make`
+
+and `model` methods (`make` and `model` are defined in `src/Definitions.jl`). Export the subtype.
+
+3. [`generate_properties`](implementation.md#InstrumentControl.generate_properties): Generate instrument properties if they do
+
+not exist already, and do any necessary importing and exporting.
+
+4. [`generate_handlers`](implementation.md#InstrumentControl.generate_handlers): Generate "handler" methods to convert between
+
+symbols and SCPI string args.
+
 5. [`generate_inspect`](implementation.md#InstrumentControl.generate_inspect): Generate `getindex` methods for instrument properties.
 6. [`generate_configure`](implementation.md#InstrumentControl.generate_configure): Generate `setindex!` methods for instrument properties.
 
 `generate_all` should be called near the start of an instrument's .jl file, if one exists. It is not required to have a source file for each instrument if the automatically generated code is sufficient.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L120-L141' class='documenter-source'>source</a><br>
 
 <a id='InstrumentControl.generate_instruments' href='#InstrumentControl.generate_instruments'>#</a>
 **`InstrumentControl.generate_instruments`** &mdash; *Function*.
@@ -105,14 +158,26 @@ This function takes a dictionary of instrument metadata, typically obtained from
 
 This function takes a dictionary of metadata, typically obtained from a call to [`insjson`](implementation.md#InstrumentControl.insjson). It operates on the `:instrument` field of the dictionary which is expected to have the following structure:
 
-  * `module`: The module name. Can already exist but is created if it does not. This field is converted from a string to a `Symbol` by [`insjson`](implementation.md#InstrumentControl.insjson).
-  * `type`: The name of the type to create for the new instrument. This field is converted from a string to a `Symbol` by [`insjson`](implementation.md#InstrumentControl.insjson).
-  * `super`: This field is optional. If provided it will be the supertype of the new instrument type, otherwise the supertype will be `InstrumentVISA`. This field is converted from a string to a `Symbol` by [`insjson`](implementation.md#InstrumentControl.insjson).
+  * `module`: The module name. Can already exist but is created if it does not.
+
+This field is converted from a string to a `Symbol` by [`insjson`](implementation.md#InstrumentControl.insjson).
+
+  * `type`: The name of the type to create for the new instrument.
+
+This field is converted from a string to a `Symbol` by [`insjson`](implementation.md#InstrumentControl.insjson).
+
+  * `super`: This field is optional. If provided it will be the supertype of
+
+the new instrument type, otherwise the supertype will be `Instrument`. This field is converted from a string to a `Symbol` by [`insjson`](implementation.md#InstrumentControl.insjson).
+
   * `make`: The make of the instrument, e.g. Keysight, Tektronix, etc.
   * `model`: The model of the instrument, e.g. E5071C, AWG5014C, etc.
   * `writeterminator`: Write termination string for sending SCPI commands.
 
 By convention we typically have the module name be the same as the model name, and the type is just the model prefixed by "Ins", e.g. `InsE5071C`. This is not required.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L157-L178' class='documenter-source'>source</a><br>
 
 <a id='InstrumentControl.generate_properties' href='#InstrumentControl.generate_properties'>#</a>
 **`InstrumentControl.generate_properties`** &mdash; *Function*.
@@ -126,6 +191,9 @@ This function takes an `Instrument` subtype `instype`, and a property dictionary
 This function is responsible for generating the `InstrumentProperty` subtypes to use with `getindex` and `setindex!` if they have not been defined already. Ordinarily these types are defined in the InstrumentControl module but if a really generic name is desired that makes sense for a class of instruments (e.g. `VNA.Format`) then the `Format` subtype is defined in the `InstrumentControl.VNA` module. The defined subtype is then imported into the module where the `instype` is defined.
 
 If you an encounter an error where it appears like the subtypes were not defined, it may be that they are being referenced from a module that did an `import` statement too soon, before all relevant `InstrumentProperty` subtypes were defined and exported. Ordinarily this is not a problem.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L234-L251' class='documenter-source'>source</a><br>
 
 <a id='InstrumentControl.generate_handlers' href='#InstrumentControl.generate_handlers'>#</a>
 **`InstrumentControl.generate_handlers`** &mdash; *Function*.
@@ -181,10 +249,13 @@ symbols(ins::E5071C, ::Type{VNA.Format}, v::Symbol) = symbols(ins, VNA.Format, V
 symbols(ins::E5071C, ::Type{VNA.Format}, ::Type{Val{:LogMagnitude}}) = "MLOG" # ... etc. for each symbol.
 
 VNA.Format(ins::E5071C, s::AbstractString) = VNA.Format(ins, Val{symbol(s)})
-VNA.Format(ins::E5071C, ::Type{Val{symbol("MLOG")}}) = :LogMagnitude # ... etc. for each symbol.
+VNA.Format(ins::E5071C, ::Type{Val{Symbol("MLOG")}}) = :LogMagnitude # ... etc. for each symbol.
 ```
 
 The above methods will be defined in the E5071C module. Note that the function `symbols` has its name chosen based on the dictionary name in the JSON file. Since this function is not exported from the instrument's module there should be few namespace worries and we maintain future flexibliity.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L284-L350' class='documenter-source'>source</a><br>
 
 <a id='InstrumentControl.generate_configure' href='#InstrumentControl.generate_configure'>#</a>
 **`InstrumentControl.generate_configure`** &mdash; *Function*.
@@ -197,6 +268,9 @@ This function takes an `Instrument` subtype `instype`, and a property dictionary
 
 This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
 
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L476-L484' class='documenter-source'>source</a><br>
+
 <a id='InstrumentControl.generate_inspect' href='#InstrumentControl.generate_inspect'>#</a>
 **`InstrumentControl.generate_inspect`** &mdash; *Function*.
 
@@ -207,4 +281,7 @@ This function generates and documents a method for `getindex`. The method is def
 This function takes an `Instrument` subtype `instype`, and a property dictionary `p`. The property dictionary is built out of an auxiliary JSON file described above.
 
 This function generates and documents a method for `getindex`. The method is defined in the module where the instrument type was defined.
+
+
+<a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L394-L402' class='documenter-source'>source</a><br>
 
