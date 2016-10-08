@@ -25,8 +25,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="../None">
+    <link rel="icon" type="image/x-icon" href="../None">
     <style>
       @font-face {
       	font-family: 'Icon';
@@ -43,7 +43,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
     
       <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
     
@@ -51,7 +51,7 @@
       
       
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
       <style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
@@ -223,8 +223,8 @@
       
         
   <li>
-    <a class="" title="To do" href="../todo/">
-      To do
+    <a class="" title="Sweep" href="../sweep/">
+      Sweep
     </a>
     
   </li>
@@ -321,12 +321,22 @@
 <p><a id='Code-organization-1'></a></p>
 <h2 id="code-organization">Code organization</h2>
 <ul>
-<li>Each instrument is defined within its own module, a submodule of <code>InstrumentControl</code>. Each instrument is a subtype of <code>InstrumentVISA &lt;: Instrument</code>. By convention, instrument model numbers are used for module definitions (e.g. <code>AWG5014C</code>), so type names have "Ins" prepended (e.g. <code>InsAWG5014</code>).</li>
-<li><code>InstrumentVISA</code> and associated functions are defined in <code>src/VISA.jl</code>.</li>
-<li>Low-level wrappers for shared libraries are kept in their own packages (e.g. <code>VISA</code> and <code>Alazar</code> calls). This way, at least some code can be reused if someone else does not want to use our codebase.</li>
-<li>Early instrument definitions and functions like <code>Instrument</code> and <code>InstrumentException</code> are defined in <code>src/Definitions.jl</code>. If there is ever trouble with <code>InstrumentProperty</code> subtypes not being defined by the time they are used in a function, they can be defined and exported manually here.</li>
-<li><code>export</code> statements from an instrument submodule are not currently exported from <code>InstrumentControl</code>. Therefore you may want to type <code>using InstrumentControl.AWG5014C</code> when using the AWG, for instance.</li>
+<li>Each instrument is defined within its own module, a submodule of <code>InstrumentControl</code>.</li>
 </ul>
+<p>Each instrument is a subtype of <code>InstrumentVISA &lt;: Instrument</code>. By convention, instrument model numbers are used for module definitions (e.g. <code>AWG5014C</code>), so type names have "Ins" prepended (e.g. <code>InsAWG5014</code>).</p>
+<ul>
+<li><code>InstrumentVISA</code> and associated functions are defined in <code>src/VISA.jl</code>.</li>
+<li>Low-level wrappers for shared libraries are kept in their own packages</li>
+</ul>
+<p>(e.g. <code>VISA</code> and <code>Alazar</code> calls). This way, at least some code can be reused if someone else does not want to use our codebase.</p>
+<ul>
+<li>Early instrument definitions and functions like <code>Instrument</code> and</li>
+</ul>
+<p><code>InstrumentException</code> are defined in <code>src/Definitions.jl</code>. If there is ever trouble with <code>InstrumentProperty</code> subtypes not being defined by the time they are used in a function, they can be defined and exported manually here.</p>
+<ul>
+<li><code>export</code> statements from an instrument submodule are not currently exported</li>
+</ul>
+<p>from <code>InstrumentControl</code>. Therefore you may want to type <code>using InstrumentControl.AWG5014C</code> when using the AWG, for instance.</p>
 <p><a id='Metaprogramming-for-VISA-instruments-1'></a></p>
 <h2 id="metaprogramming-for-visa-instruments">Metaprogramming for VISA instruments</h2>
 <p>Many commercial instruments support a common communications protocol and command syntax (VISA and SCPI respectively). For such instruments, methods for <code>setindex!</code> and <code>getindex</code> can be generated with metaprogramming, rather than typing them out explicitly.</p>
@@ -335,6 +345,7 @@
 <strong><code>InstrumentControl.insjson</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>insjson{T&lt;:Instrument}(::Type{T})</code></p>
 <p>Simple wrapper to call <code>insjson</code> on the appropriate file path for a given instrument type.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L8-L13' class='documenter-source'>source</a><br></p>
 <p><code>insjson(file::AbstractString)</code></p>
 <p>Parses a JSON file with a standardized schema to describe how to control an instrument.</p>
 <p>Here is an example of a valid JSON file with valid schema for parsing:</p>
@@ -366,45 +377,83 @@
 
 <p>After loading with <code>JSON.parse</code>, all dictionary keys are converted to symbols. The <code>instrument</code> dictionary is described in the <a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> documentation. The <code>properties</code> array contains one or more dictionaries, each with keys:</p>
 <ul>
-<li><code>cmd</code>: Specifies what must be sent to the instrument (it should be terminated with "?" for query-only). The lower-case characters are replaced by infix arguments.</li>
-<li><code>type</code>: Specifies the <code>InstrumentProperty</code> subtype to use this command. Will be parsed and evaluated.</li>
-<li><code>values</code>: Specifies the required arguments for <code>setindex!</code> which will appear after <code>cmd</code> in the string sent to the instrument.</li>
-<li><code>infixes</code>: Specifies the infix arguments in <code>cmd</code>. Symbol names must match infix arguments. This key is not required if there are no infixes.</li>
-<li><code>doc</code>: Specifies documentation for the generated Julia functions. This key is not required if there is no documentation. This is used not only for interactive help but also in generating the documentation you are reading.</li>
+<li><code>cmd</code>: Specifies what must be sent to the instrument (it should be</li>
 </ul>
+<p>terminated with "?" for query-only). The lower-case characters are replaced by infix arguments.</p>
+<ul>
+<li><code>type</code>: Specifies the <code>InstrumentProperty</code> subtype to use this command. Will be</li>
+</ul>
+<p>parsed and evaluated.</p>
+<ul>
+<li><code>values</code>: Specifies the required arguments for <code>setindex!</code> which will</li>
+</ul>
+<p>appear after <code>cmd</code> in the string sent to the instrument.</p>
+<ul>
+<li><code>infixes</code>: Specifies the infix arguments in <code>cmd</code>. Symbol names must match</li>
+</ul>
+<p>infix arguments. This key is not required if there are no infixes.</p>
+<ul>
+<li><code>doc</code>: Specifies documentation for the generated Julia functions. This key</li>
+</ul>
+<p>is not required if there is no documentation. This is used not only for interactive help but also in generating the documentation you are reading.</p>
 <p>The value of the <code>properties.type</code> field and entries in the <code>properties.values</code> and <code>properties.infixes</code> arrays are parsed by Julia into expressions or symbols for further manipulation.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L20-L75' class='documenter-source'>source</a><br></p>
 <p><a id='InstrumentControl.generate_all' href='#InstrumentControl.generate_all'>#</a>
 <strong><code>InstrumentControl.generate_all</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_all(metadata)</code></p>
 <p>This function takes a dictionary of instrument metadata, typically obtained from a call to <a href="./#InstrumentControl.insjson"><code>insjson</code></a>. It will go through the following steps:</p>
 <ol>
-<li><a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> part 1: If the module for this instrument does not already exist, generate it and import required modules and symbols.</li>
-<li><a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> part 2: Define the <code>Instrument</code> subtype and the <code>make</code> and <code>model</code> methods (<code>make</code> and <code>model</code> are defined in <code>src/Definitions.jl</code>). Export the subtype.</li>
-<li><a href="./#InstrumentControl.generate_properties"><code>generate_properties</code></a>: Generate instrument properties if they do not exist already, and do any necessary importing and exporting.</li>
-<li><a href="./#InstrumentControl.generate_handlers"><code>generate_handlers</code></a>: Generate "handler" methods to convert between symbols and SCPI string args.</li>
+<li><a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> part 1: If the module for this instrument does not</li>
+</ol>
+<p>already exist, generate it and import required modules and symbols.</p>
+<ol>
+<li><a href="./#InstrumentControl.generate_instruments"><code>generate_instruments</code></a> part 2: Define the <code>Instrument</code> subtype and the <code>make</code></li>
+</ol>
+<p>and <code>model</code> methods (<code>make</code> and <code>model</code> are defined in <code>src/Definitions.jl</code>). Export the subtype.</p>
+<ol>
+<li><a href="./#InstrumentControl.generate_properties"><code>generate_properties</code></a>: Generate instrument properties if they do</li>
+</ol>
+<p>not exist already, and do any necessary importing and exporting.</p>
+<ol>
+<li><a href="./#InstrumentControl.generate_handlers"><code>generate_handlers</code></a>: Generate "handler" methods to convert between</li>
+</ol>
+<p>symbols and SCPI string args.</p>
+<ol>
 <li><a href="./#InstrumentControl.generate_inspect"><code>generate_inspect</code></a>: Generate <code>getindex</code> methods for instrument properties.</li>
 <li><a href="./#InstrumentControl.generate_configure"><code>generate_configure</code></a>: Generate <code>setindex!</code> methods for instrument properties.</li>
 </ol>
 <p><code>generate_all</code> should be called near the start of an instrument's .jl file, if one exists. It is not required to have a source file for each instrument if the automatically generated code is sufficient.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L120-L141' class='documenter-source'>source</a><br></p>
 <p><a id='InstrumentControl.generate_instruments' href='#InstrumentControl.generate_instruments'>#</a>
 <strong><code>InstrumentControl.generate_instruments</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_instruments(metadata)</code></p>
 <p>This function takes a dictionary of metadata, typically obtained from a call to <a href="./#InstrumentControl.insjson"><code>insjson</code></a>. It operates on the <code>:instrument</code> field of the dictionary which is expected to have the following structure:</p>
 <ul>
-<li><code>module</code>: The module name. Can already exist but is created if it does not. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</li>
-<li><code>type</code>: The name of the type to create for the new instrument. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</li>
-<li><code>super</code>: This field is optional. If provided it will be the supertype of the new instrument type, otherwise the supertype will be <code>InstrumentVISA</code>. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</li>
+<li><code>module</code>: The module name. Can already exist but is created if it does not.</li>
+</ul>
+<p>This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</p>
+<ul>
+<li><code>type</code>: The name of the type to create for the new instrument.</li>
+</ul>
+<p>This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</p>
+<ul>
+<li><code>super</code>: This field is optional. If provided it will be the supertype of</li>
+</ul>
+<p>the new instrument type, otherwise the supertype will be <code>Instrument</code>. This field is converted from a string to a <code>Symbol</code> by <a href="./#InstrumentControl.insjson"><code>insjson</code></a>.</p>
+<ul>
 <li><code>make</code>: The make of the instrument, e.g. Keysight, Tektronix, etc.</li>
 <li><code>model</code>: The model of the instrument, e.g. E5071C, AWG5014C, etc.</li>
 <li><code>writeterminator</code>: Write termination string for sending SCPI commands.</li>
 </ul>
 <p>By convention we typically have the module name be the same as the model name, and the type is just the model prefixed by "Ins", e.g. <code>InsE5071C</code>. This is not required.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L157-L178' class='documenter-source'>source</a><br></p>
 <p><a id='InstrumentControl.generate_properties' href='#InstrumentControl.generate_properties'>#</a>
 <strong><code>InstrumentControl.generate_properties</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_properties{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function is responsible for generating the <code>InstrumentProperty</code> subtypes to use with <code>getindex</code> and <code>setindex!</code> if they have not been defined already. Ordinarily these types are defined in the InstrumentControl module but if a really generic name is desired that makes sense for a class of instruments (e.g. <code>VNA.Format</code>) then the <code>Format</code> subtype is defined in the <code>InstrumentControl.VNA</code> module. The defined subtype is then imported into the module where the <code>instype</code> is defined.</p>
 <p>If you an encounter an error where it appears like the subtypes were not defined, it may be that they are being referenced from a module that did an <code>import</code> statement too soon, before all relevant <code>InstrumentProperty</code> subtypes were defined and exported. Ordinarily this is not a problem.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L234-L251' class='documenter-source'>source</a><br></p>
 <p><a id='InstrumentControl.generate_handlers' href='#InstrumentControl.generate_handlers'>#</a>
 <strong><code>InstrumentControl.generate_handlers</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_handlers{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
@@ -450,21 +499,24 @@
 <span class="n">symbols</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">E5071C</span><span class="p">,</span> <span class="p">::</span><span class="n">Type</span><span class="p">{</span><span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">},</span> <span class="p">::</span><span class="n">Type</span><span class="p">{</span><span class="n">Val</span><span class="p">{:</span><span class="n">LogMagnitude</span><span class="p">}})</span> <span class="o">=</span> <span class="s">&quot;MLOG&quot;</span> <span class="c"># ... etc. for each symbol.</span>
 
 <span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">E5071C</span><span class="p">,</span> <span class="n">s</span><span class="p">::</span><span class="n">AbstractString</span><span class="p">)</span> <span class="o">=</span> <span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">Val</span><span class="p">{</span><span class="n">symbol</span><span class="p">(</span><span class="n">s</span><span class="p">)})</span>
-<span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">E5071C</span><span class="p">,</span> <span class="p">::</span><span class="n">Type</span><span class="p">{</span><span class="n">Val</span><span class="p">{</span><span class="n">symbol</span><span class="p">(</span><span class="s">&quot;MLOG&quot;</span><span class="p">)}})</span> <span class="o">=</span> <span class="p">:</span><span class="n">LogMagnitude</span> <span class="c"># ... etc. for each symbol.</span>
+<span class="n">VNA</span><span class="o">.</span><span class="n">Format</span><span class="p">(</span><span class="n">ins</span><span class="p">::</span><span class="n">E5071C</span><span class="p">,</span> <span class="p">::</span><span class="n">Type</span><span class="p">{</span><span class="n">Val</span><span class="p">{</span><span class="n">Symbol</span><span class="p">(</span><span class="s">&quot;MLOG&quot;</span><span class="p">)}})</span> <span class="o">=</span> <span class="p">:</span><span class="n">LogMagnitude</span> <span class="c"># ... etc. for each symbol.</span>
 </pre></div>
 
 
 <p>The above methods will be defined in the E5071C module. Note that the function <code>symbols</code> has its name chosen based on the dictionary name in the JSON file. Since this function is not exported from the instrument's module there should be few namespace worries and we maintain future flexibliity.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L284-L350' class='documenter-source'>source</a><br></p>
 <p><a id='InstrumentControl.generate_configure' href='#InstrumentControl.generate_configure'>#</a>
 <strong><code>InstrumentControl.generate_configure</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_configure{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L476-L484' class='documenter-source'>source</a><br></p>
 <p><a id='InstrumentControl.generate_inspect' href='#InstrumentControl.generate_inspect'>#</a>
 <strong><code>InstrumentControl.generate_inspect</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>generate_inspect{S&lt;:Instrument}(instype::Type{S}, p)</code></p>
 <p>This function takes an <code>Instrument</code> subtype <code>instype</code>, and a property dictionary <code>p</code>. The property dictionary is built out of an auxiliary JSON file described above.</p>
 <p>This function generates and documents a method for <code>getindex</code>. The method is defined in the module where the instrument type was defined.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Metaprogramming.jl#L394-L402' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -500,14 +552,14 @@
     </div>
     <div class="next">
       
-        <a href="../todo/" title="To do">
+        <a href="../sweep/" title="Sweep">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                To do
+                Sweep
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">

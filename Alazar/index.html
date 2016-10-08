@@ -25,8 +25,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="../None">
+    <link rel="icon" type="image/x-icon" href="../None">
     <style>
       @font-face {
       	font-family: 'Icon';
@@ -43,7 +43,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
     
       <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
     
@@ -51,7 +51,7 @@
       
       
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
       <style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
@@ -202,8 +202,8 @@
       
         
   <li>
-    <a class="" title="To do" href="../todo/">
-      To do
+    <a class="" title="Sweep" href="../sweep/">
+      Sweep
     </a>
     
   </li>
@@ -397,11 +397,18 @@ sampletype{T}(buf_array::DMABufferArray{T}) = T
 
 <p>Some comments:</p>
 <ul>
-<li>A single SharedArray is used to back <em>all</em> DMA buffers. Memory is therefore contiguous and page-aligned.</li>
-<li>The memory for each DMA buffer is required to be a multiple of the page size when there is more than one buffer.</li>
-<li>The memory can be accessed by multiple processes.</li>
-<li>The elements of a <code>DMABufferArray</code> are pointers to the the different locations in memory which act as DMA buffers. The array is iterable and indexable as usual.</li>
+<li>A single SharedArray is used to back <em>all</em> DMA buffers. Memory is therefore</li>
 </ul>
+<p>contiguous and page-aligned.</p>
+<ul>
+<li>The memory for each DMA buffer is required to be a multiple of the page size</li>
+</ul>
+<p>when there is more than one buffer.</p>
+<ul>
+<li>The memory can be accessed by multiple processes.</li>
+<li>The elements of a <code>DMABufferArray</code> are pointers to the the different</li>
+</ul>
+<p>locations in memory which act as DMA buffers. The array is iterable and indexable as usual.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -418,7 +425,7 @@ sampletype{T}(buf_array::DMABufferArray{T}) = T
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../todo/" title="To do">
+        <a href="../sweep/" title="Sweep">
           <span class="direction">
             Previous
           </span>
@@ -428,7 +435,7 @@ sampletype{T}(buf_array::DMABufferArray{T}) = T
             </div>
             <div class="stretch">
               <div class="title">
-                To do
+                Sweep
               </div>
             </div>
           </div>

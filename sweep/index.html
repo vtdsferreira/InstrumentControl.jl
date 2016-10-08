@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Sweep - InstrumentControl.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="InstrumentControl.jl">
+    <meta property="og:image" content="None/../">
+    <meta name="apple-mobile-web-app-title" content="InstrumentControl.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../None">
+    <link rel="icon" type="image/x-icon" href="../None">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-54f87043f3.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Overview <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Sweep
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/PainterQubits/InstrumentControl.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          InstrumentControl.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          PainterQubits/InstrumentControl.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/PainterQubits/InstrumentControl.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/PainterQubits/InstrumentControl.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Overview</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Design" href="../design/">
+      Design
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Implementation" href="../implementation/">
+      Implementation
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Sweep" href="./">
+      Sweep
+    </a>
+    
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Sweeps" href="#sweeps">
+                Sweeps
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Sweep queue" href="#sweep-queue">
+                Sweep queue
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Instruments</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Alazar digitizers" href="../Alazar/">
+      Alazar digitizers
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="AWG5014C" href="../awg5014c/">
+      AWG5014C
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="E5071C" href="../e5071c/">
+      E5071C
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Miscellaneous</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Documentation building" href="../docbuild/">
+      Documentation building
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Release notes" href="../releases/">
+      Release notes
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="License" href="../LICENSE/">
+      License
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+            <h1>Sweep</h1>
+          
+          <p><a id='Sweeps-1'></a></p>
+<h2 id="sweeps">Sweeps</h2>
+<p><a id='InstrumentControl.sweep' href='#InstrumentControl.sweep'>#</a>
+<strong><code>InstrumentControl.sweep</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span><span class="nt">sweep</span><span class="o">(</span><span class="nt">dep</span><span class="o">:</span><span class="nd">:Response</span><span class="o">,</span> <span class="nt">indep</span><span class="o">:</span><span class="nd">:Tuple</span><span class="p">{</span><span class="n">Stimulus</span><span class="o">,</span> <span class="n">AbstractVector</span><span class="p">}</span><span class="o">...;</span>
+    <span class="nt">priority</span> <span class="o">=</span> <span class="nt">NORMAL</span><span class="o">,</span> <span class="nt">queue</span> <span class="o">=</span> <span class="nt">sweepqueue</span><span class="o">)</span>
+</pre></div>
+
+
+<p>Measures a response as a function of an arbitrary number of stimuli, and returns a handle to the sweep job. This can be used to access the results while the sweep is being measured.</p>
+<p>This function is responsible for initializing an appropriate array, preparing a <a href="./#InstrumentControl.Sweep"><code>InstrumentControl.Sweep</code></a> object, and launching an asynchronous sweep job. The actual <code>source</code> and <code>measure</code> loops are in a private function <a href="./#InstrumentControl._sweep!"><code>InstrumentControl._sweep!</code></a>.</p>
+<p>The <code>priority</code> keyword may be <code>LOW</code>, <code>NORMAL</code>, or <code>HIGH</code>, or any integer greater than or equal to zero. You should not provide the <code>queue</code> keyword argument unless you know what you are doing.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L332-L350' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl._sweep!' href='#InstrumentControl._sweep!'>#</a>
+<strong><code>InstrumentControl._sweep!</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>@generated function _sweep!(updated_status_of, sw, dep::Response,
+        indep::Tuple{Stimulus, AbstractVector}...)
+</pre></div>
+
+
+<p>This is a private function which should not be called directly by the user. It is launched asynchronously by <a href="./#InstrumentControl.sweep"><code>sweep</code></a>. The implementation uses <code>@generated</code> and macros from <a href="http://docs.julialang.org/en/release-0.5/devdocs/cartesian/">Base.Cartesian</a>. The stimuli are sourced only when they need to be, at the start of each <code>for</code> loop level.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L373-L385' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.abort!' href='#InstrumentControl.abort!'>#</a>
+<strong><code>InstrumentControl.abort!</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>abort!(x::Sweep)
+</pre></div>
+
+
+<p>Abort a sweep. Guaranteed to bail out of the sweep in such a way that the data has been measured for most recent sourcing of a stimulus, i.e. at the very start of a for loop in <a href="./#InstrumentControl._sweep!"><code>InstrumentControl._sweep!</code></a>. You can also abort a sweep before it even begins. Presently this function does not interrupt <a href="../@ref"><code>measure</code></a>, so if a single measurement takes a long time then the sweep is only aborted after that finishes.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L169-L180' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.status' href='#InstrumentControl.status'>#</a>
+<strong><code>InstrumentControl.status</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>status(x::Sweep)
+</pre></div>
+
+
+<p>Return the sweep status.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L145-L151' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.progress' href='#InstrumentControl.progress'>#</a>
+<strong><code>InstrumentControl.progress</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>progress(x::Sweep)
+</pre></div>
+
+
+<p>Returns the sweep progress, a <code>Float64</code> between 0 and 1 (inclusive).</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L157-L163' class='documenter-source'>source</a><br></p>
+<p><a id='Base.Math.eta-Tuple{InstrumentControl.Sweep}' href='#Base.Math.eta-Tuple{InstrumentControl.Sweep}'>#</a>
+<strong><code>Base.Math.eta</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>eta(x::Sweep)
+</pre></div>
+
+
+<p>Return the estimated time of completion for sweep <code>x</code>. WIP; will not return correct time if job has been paused.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L127-L134' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.Sweep' href='#InstrumentControl.Sweep'>#</a>
+<strong><code>InstrumentControl.Sweep</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>type Sweep
+    dep::Response
+    indep::Tuple{Tuple{Stimulus, AbstractVector}}
+    priority::Int
+    job_id::Int
+    has_started::Bool
+    status::Channel{SweepStatus}
+    progress::Channel{Float64}
+    whensub::DateTime
+    whenstart::DateTime
+    result::Array
+    Sweep(a,b,c,d,e,f,g,h,i) = new(a,b,c,d,e,f,g,h,i)
+    Sweep(a,b,c,d,e,f,g,h,i,j) = new(a,b,c,d,e,f,g,h,i,j)
+end
+</pre></div>
+
+
+<p>Object representing a sweep. <code>priority</code> is an <code>Int</code> from 0 to <code>typemax(Int)</code>, inclusive, typically one of the following:</p>
+<ul>
+<li><code>HIGH == 10</code></li>
+<li><code>NORMAL == 5</code></li>
+<li><code>LOW == 0</code></li>
+</ul>
+<p><code>status</code> and <code>progress</code> are channels for intertask communication about the status and progress of the sweep. <code>whensub</code> is when the <code>Sweep</code> was created, <code>whenstart</code> is when the <code>Sweep</code> was initially run. <code>result</code> is the result array of the sweep, which need not be provided at the time the <code>Sweep</code> is created.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L39-L68' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.SweepStatus' href='#InstrumentControl.SweepStatus'>#</a>
+<strong><code>InstrumentControl.SweepStatus</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>@enum SweepStatus Waiting Running Aborted Done
+</pre></div>
+
+
+<p>Sweep statuses are represented with an enum.</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">InstrumentControl</span><span class="o">.</span><span class="n">SweepStatus</span>
+<span class="go">Enum InstrumentControl.SweepStatus:</span>
+<span class="go">Waiting = 0</span>
+<span class="go">Running = 1</span>
+<span class="go">Aborted = 2</span>
+<span class="go">Done = 3</span>
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L21-L36' class='documenter-source'>source</a><br></p>
+<p><a id='Sweep-queue-1'></a></p>
+<h2 id="sweep-queue">Sweep queue</h2>
+<p>A priority queue has been implemented for running sweep jobs. Jobs with higher priority run first; jobs with the same priority are prioritized by submission date.</p>
+<p><a id='InstrumentControl.jobs' href='#InstrumentControl.jobs'>#</a>
+<strong><code>InstrumentControl.jobs</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>jobs()
+</pre></div>
+
+
+<p>Returns the default job queue object. Typically you call this to see what jobs are waiting, aborted, or finished, and what job is running.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L259-L266' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>jobs(job_id)
+</pre></div>
+
+
+<p>Return the job associated with <code>job_id</code>.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L269-L275' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.prune!' href='#InstrumentControl.prune!'>#</a>
+<strong><code>InstrumentControl.prune!</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>prune!(q::SweepQueue)
+</pre></div>
+
+
+<p>Prunes a <a href="./#InstrumentControl.SweepQueue"><code>SweepQueue</code></a> of all <a href="./#InstrumentControl.Sweep"><code>InstrumentControl.Sweep</code></a>s with a status of <code>Done</code> or <code>Aborted</code>.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L314-L321' class='documenter-source'>source</a><br></p>
+<p><a id='InstrumentControl.SweepQueue' href='#InstrumentControl.SweepQueue'>#</a>
+<strong><code>InstrumentControl.SweepQueue</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>type SweepQueue
+    q::PriorityQueue{Int,Sweep,
+        Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
+    next_job_id::Int
+    update_condition::Condition
+    function SweepQueue()
+        new(PriorityQueue(Int[],Sweep[],Base.Order.Reverse), 1, Condition())
+    end
+end
+</pre></div>
+
+
+<p>A queue responsible for prioritizing sweeps and executing them accordingly.</p>
+<p><a target='_blank' href='https://github.com/painterqubits/InstrumentControl.jl/tree/ba586e2571e90ba6f07196442bee1e25d207a455/src/Sweep.jl#L187-L201' class='documenter-source'>source</a><br></p>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../implementation/" title="Implementation">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Implementation
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../Alazar/" title="Alazar digitizers">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Alazar digitizers
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'PainterQubits/InstrumentControl.jl';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>
