@@ -1,43 +1,47 @@
-export ThreadStimulus
+export WorkerStimulus
 
 """
-`type ThreadStimulus <: Stimulus`
+```
+type WorkerStimulus <: Stimulus
+```
 
-Changes the number of Julia worker threads. An Expr object is used to
-initialize new threads.
+Changes the number of Julia worker processes. An Expr object is used to
+initialize new workers.
 """
-type ThreadStimulus <: Stimulus
+type WorkerStimulus <: Stimulus
     nworkers::Int
     initialization::Expr
 
-    _tsinfo() = info("Sourcing this ThreadStimulus will ",
+    _tsinfo() = info("Sourcing this WorkerStimulus will ",
         "obliterate your worker processes.")
 
-    ThreadStimulus(a,b) = begin
+    WorkerStimulus(a,b) = begin
         _tsinfo()
         new(a,b)
     end
 
-    ThreadStimulus(a) = begin
+    WorkerStimulus(a) = begin
         _tsinfo()
         new(0,a)
     end
 
-    ThreadStimulus() = begin
+    WorkerStimulus() = begin
         _tsinfo()
         new(0,:((()->nothing)()))
     end
 end
 
-show(io::IO, ch::ThreadStimulus) = print(io,
+show(io::IO, ch::WorkerStimulus) = print(io,
     "Will init workers with: ", ch.initialization)
 
 """
-`source(ch::ThreadStimulus, nw::Int)`
+```
+source(ch::WorkerStimulus, nw::Int)
+```
 
-Adds or removes threads to reach the desired number of worker threads.
+Adds or removes workers to reach the desired number.
 """
-function source(ch::ThreadStimulus, nw::Int)
+function source(ch::WorkerStimulus, nw::Int)
     ch.nworkers = nw
 
     if nw == 0

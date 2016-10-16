@@ -14,7 +14,7 @@ Given an expression resulting from
 returns the return type.
 """
 function codetyp(code)
-    if VERSION < v"0.5.0-pre"
+    @static if VERSION < v"0.5.0-pre"
         code.args[3].typ
     else
         code.rettype
@@ -28,7 +28,7 @@ For a given function and argument type tuple, a method is specified.
 This function returns the return type of that method.
 """
 function returntype(f::Function, types::Tuple)
-    mapreduce(codetyp, Union, code_typed(f, types)) # not type stable
+    mapreduce(codetyp, Union, Union{}, code_typed(f, types))
 end
 
 # """

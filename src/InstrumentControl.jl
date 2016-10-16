@@ -1,16 +1,16 @@
 module InstrumentControl
 
 # Define common types and shared functions
-include("Definitions.jl")
+include("definitions.jl")
 
 # Define anything needed for a VISA instrument
 include("VISA.jl")
 
 # Stimuli, responses, source, measure...
-include(joinpath("sourcemeasure","SourceMeasure.jl"))
+include(joinpath("sourcemeasure","sourcemeasure.jl"))
 
 # Parsing JSON files for easy instrument onboarding
-include("Metaprogramming.jl")
+include("metaprogramming.jl")
 
 # Various instruments
 include(joinpath("instruments","VNAs","VNA.jl"))
@@ -35,8 +35,8 @@ importall .SMB100A
 # importall .ZNB20Module
 
 # Utility functions
-include("Reflection.jl")
-include("Sweep.jl")
+include("reflection.jl")
+include("sweep.jl")
 # include("LiveUpdate.jl")   # <--- causes Documenter to fail?
 # include("Trace3.jl")
 
@@ -52,7 +52,7 @@ using InstrumentControl.GS200
 using InstrumentControl.SMB100A
 # using InstrumentControl.ZNB20Module
 
-const PARALLEL_PATH = joinpath(Pkg.dir("InstrumentControl"), "src", "ParallelUtils.jl")
+const PARALLEL_PATH = joinpath(Pkg.dir("InstrumentControl"), "src", "parallelutils.jl")
 
 reload_parallel() = eval(Main,:(@everywhere include($PARALLEL_PATH)))
 reload_parallel()

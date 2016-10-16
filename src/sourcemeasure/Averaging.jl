@@ -5,8 +5,8 @@ export AveragingResponse
 
 Response that averages other responses.
 """
-type AveragingResponse{T<:Response} <: Response
-    r::T
+type AveragingResponse <: Response
+    r::Response
     n_avg::Int
 end
 
@@ -15,7 +15,7 @@ end
 
 Measures the response held by `ch` `n_avg` times, and returns the average.
 """
-function measure{T<:Response}(ch::AveragingResponse{T})
+function measure(ch::AveragingResponse)
     meas = measure(ch.r)
     for i = 2:ch.n_avg
         meas .+= measure(ch.r)
