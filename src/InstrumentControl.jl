@@ -4,7 +4,7 @@ module InstrumentControl
 include("definitions.jl")
 
 # Define anything needed for a VISA instrument
-include("VISA.jl")
+include("visa.jl")
 
 # Stimuli, responses, source, measure...
 include(joinpath("sourcemeasure","sourcemeasure.jl"))
@@ -38,7 +38,6 @@ importall .SMB100A
 include("reflection.jl")
 include("sweep.jl")
 # include("LiveUpdate.jl")   # <--- causes Documenter to fail?
-# include("Trace3.jl")
 
 end
 
