@@ -1,4 +1,11 @@
 module InstrumentControl
+importall ICCommon
+import JSON, ZMQ
+
+export Instrument, InstrumentProperty, Stimulus, Response
+
+# Parse configuration file
+include("config.jl")
 
 # Define common types and shared functions
 include("definitions.jl")
@@ -51,7 +58,7 @@ using InstrumentControl.GS200
 using InstrumentControl.SMB100A
 # using InstrumentControl.ZNB20Module
 
-const PARALLEL_PATH = joinpath(Pkg.dir("InstrumentControl"), "src", "parallelutils.jl")
+const PARALLEL_PATH = joinpath(dirname(@__FILE__), "parallelutils.jl")
 
 reload_parallel() = eval(Main,:(@everywhere include($PARALLEL_PATH)))
 reload_parallel()

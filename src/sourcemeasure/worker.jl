@@ -3,6 +3,27 @@ export WorkerStimulus
 """
 ```
 type WorkerStimulus <: Stimulus
+    nworkers::Int
+    initialization::Expr
+
+    _tsinfo() = info("Sourcing this WorkerStimulus will ",
+        "obliterate your worker processes.")
+
+    WorkerStimulus(a,b) = begin
+        _tsinfo()
+        new(a,b)
+    end
+
+    WorkerStimulus(a) = begin
+        _tsinfo()
+        new(0,a)
+    end
+
+    WorkerStimulus() = begin
+        _tsinfo()
+        new(0,:((()->nothing)()))
+    end
+end
 ```
 
 Changes the number of Julia worker processes. An Expr object is used to

@@ -1,4 +1,4 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
-deps/dbserver.json
+deps/config.json

@@ -1,4 +1,4 @@
-julia 0.4
+julia 0.5
 VISA
 Alazar
 BinDeps
@@ -6,4 +6,5 @@ FileIO
 FixedSizeArrays
 JSON
 ZMQ
+JLD
 Compat

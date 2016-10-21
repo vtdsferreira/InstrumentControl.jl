@@ -4,7 +4,6 @@ export NPTRecordResponse
 export FFTHardwareResponse
 export IQSoftwareResponse
 
-export measure
 import InstrumentControl.scaling
 
 "Abstract `Response` from an Alazar digitizer instrument."

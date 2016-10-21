@@ -1,7 +1,9 @@
 export PropertyStimulus
 
 """
-`PropertyStimulus{T<:InstrumentProperty} <: Stimulus`
+```
+PropertyStimulus{T<:InstrumentProperty} <: Stimulus
+```
 
 Wraps any Number-valued `InstrumentProperty` into a `Stimulus`. Essentially,
 sourcing a PropertyStimulus does nothing more than calling `setindex!` with
@@ -16,12 +18,18 @@ type PropertyStimulus{T<:InstrumentProperty} <: Stimulus
     PropertyStimulus(a,b,c) = new(a,b,c)
     PropertyStimulus(a,b) = new(a,b,())
 end
-PropertyStimulus{T<:InstrumentProperty}(ins::Instrument, t::Type{T}) =
+PropertyStimulus{T}(ins::Instrument, t::Type{T}) =
     PropertyStimulus{T}(ins, t)
-PropertyStimulus{T<:InstrumentProperty}(ins::Instrument, t::Type{T}, tup::Tuple) =
+PropertyStimulus{T}(ins::Instrument, t::Type{T}, tup::Tuple) =
     PropertyStimulus{T}(ins, t, tup)
 
-"Sourcing a PropertyStimulus configures an InstrumentProperty."
-function source(ch::PropertyStimulus, val::Real)
+"""
+```
+source(ch::PropertyStimulus, val)
+```
+
+Sourcing a PropertyStimulus configures an InstrumentProperty.
+"""
+function source(ch::PropertyStimulus, val)
     ch.ins[ch.typ, ch.tuple...] = val
 end

@@ -1,6 +1,5 @@
-export Stimulus, Response
-
 export source, measure, scaling
+export Stimulus, Response
 
 global scaling
 

@@ -4,6 +4,8 @@ export DelayStimulus, TimerResponse
 """
 ```
 type DelayStimulus <: Stimulus
+    t0::Float64
+end
 ```
 
 Delays until time `t0` (seconds) has passed since a reference time.
@@ -46,6 +48,8 @@ end
 """
 ```
 type TimerResponse <: Response
+    t0::Float64
+end
 ```
 
 For measuring how much time has passed since a reference time `t0` (seconds).

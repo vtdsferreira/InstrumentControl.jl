@@ -2,6 +2,7 @@
 module VNA
 
 importall InstrumentControl
+using ICCommon
 import FixedSizeArrays
 import Base: search
 

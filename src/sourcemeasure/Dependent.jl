@@ -1,7 +1,12 @@
 export DependentStimulus
 
 """
-`DependentStimulus <: Stimulus`
+```
+type DependentStimulus <: Stimulus
+    indep::Stimulus
+    dep::Tuple{Vararg{Tuple{Stimulus, Function}}}
+end
+```
 
 Permits multiple stimuli to be sourced along a given axis on a sweep.
 """
@@ -12,7 +17,9 @@ end
 DependentStimulus(i::Stimulus, d::Tuple{Stimulus, Function}...) = DependentStimulus(i, (d...,))
 
 """
-`source(ch::DependentStimulus, val)`
+```
+source(ch::DependentStimulus, val)
+```
 """
 function source(ch::DependentStimulus, val)
     source(ch.indep, val)

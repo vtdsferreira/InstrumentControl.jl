@@ -22,21 +22,16 @@ function codetyp(code)
 end
 
 """
-`returntype(f::Function, types::Tuple)`
+```
+returntype(f::Function, types::Tuple)
+```
 
 For a given function and argument type tuple, a method is specified.
-This function returns the return type of that method.
+This function returns the return type of that method. If the function is not
+type-stable (the result type is not concrete), then an error is thrown.
 """
 function returntype(f::Function, types::Tuple)
-    mapreduce(codetyp, Union, Union{}, code_typed(f, types))
+    arr = code_typed(f, types)
+    length(arr) > 1 && error("return type not stable.")
+    codetyp(arr[1])
 end
-
-# """
-# `returntype(f, types::Tuple)`
-#
-# For a given function and argument type tuple, a method is specified.
-# This function returns the return type of that method.
-# """
-# function returntype(f, types::Tuple)
-#     returntype(call, (typeof(f), types...))
-# end

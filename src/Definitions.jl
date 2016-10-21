@@ -15,10 +15,8 @@ export VNA
 export make, model
 export stimdata
 
-"""
-Abstract supertype representing an instrument.
-"""
 abstract Instrument
+abstract InstrumentProperty
 
 "How to display an instrument, e.g. in an error."
 show(io::IO, x::Instrument) = print(io, make(x), " ", model(x))
@@ -28,13 +26,6 @@ function make end
 
 "Returns the instrument's model."
 function model end
-
-"""
-Abstract type representing communications with an instrument.
-Subtypes of `InstrumentProperty` can be configured or inspect using
-`setindex!` or `getindex`.
-"""
-abstract InstrumentProperty
 
 abstract Averaging <: InstrumentProperty
 abstract AveragingFactor <: InstrumentProperty

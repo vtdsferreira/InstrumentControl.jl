@@ -1,7 +1,12 @@
 export AveragingResponse
 
 """
-`type AveragingResponse <: Response`
+```
+type AveragingResponse <: Response
+    r::Response
+    n_avg::Int
+end
+```
 
 Response that averages other responses.
 """
@@ -11,7 +16,9 @@ type AveragingResponse <: Response
 end
 
 """
-`measure{T<:Response}(ch::AveragingResponse{T})`
+```
+measure{T<:Response}(ch::AveragingResponse{T})
+```
 
 Measures the response held by `ch` `n_avg` times, and returns the average.
 """
