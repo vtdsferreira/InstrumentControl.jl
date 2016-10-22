@@ -432,7 +432,7 @@ function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
     io = IOBuffer()
     serialize(io, request)
     ZMQ.send(dbsock, ZMQ.Message(io))
-
+    # Note that it is totally possible a task switch can happen here!
     msg = ZMQ.recv(dbsock)
     out = convert(IOStream, msg)
     seekstart(out)
@@ -444,7 +444,7 @@ function update_job_in_db(sw; kwargs...)::Bool
     io = IOBuffer()
     serialize(io, request)
     ZMQ.send(qsock, ZMQ.Message(io))
-
+    # Note that it is totally possible a task switch can happen here!
     msg = ZMQ.recv(qsock)
     out = convert(IOStream, msg)
     seekstart(out)
