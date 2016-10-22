@@ -29,7 +29,7 @@ pages:
 - Overview:
     - 'Design': design.md
     - 'Implementation': implementation.md
-    - 'Sweep': sweep.md
+    - 'Sweeps': sweep.md
 - Instruments:
     - 'Alazar digitizers': Alazar.md
     - 'AWG5014C': awg5014c/index.md

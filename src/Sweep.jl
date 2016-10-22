@@ -1,5 +1,6 @@
-export sweep, eta, status, progress, abort!, prune!, jobs
+export sweep, eta, status, progress, abort!, prune!, jobs, result
 using Base.Cartesian
+import Base.Cartesian.inlineanonymous
 import Compat.view
 import Base: show, isless, getindex, push!, length, eta
 import Base.Collections: PriorityQueue, enqueue!, dequeue!, peek
@@ -29,7 +30,7 @@ which need not be provided at the time the Sweep object is created.
 """
 type Sweep
     dep::Response
-    indep::Tuple{Tuple{Stimulus, AbstractVector}}
+    indep::Vector{Tuple{Stimulus, AbstractVector}}
     result::Array
     Sweep(a,b) = new(a,b)
     Sweep(a,b,c) = new(a,b,c)
@@ -65,6 +66,8 @@ type SweepJob
     status::Channel{SweepStatus}
     progress::Channel{Float64}
     whensub::DateTime
+    username::String
+    notifications::Bool
 end
 ```
 
@@ -79,7 +82,9 @@ to play nicely with queueing and logging. `sweep` is a
 
 `status` and `progress` are channels for intertask communication about the
 status and progress of the sweep. `whensub` is when the `Sweep` was created,
-`whenstart` is when the `Sweep` was initially run.
+`whenstart` is when the `Sweep` was initially run. `username` is who submitted
+the sweep job. If `notifications` is true, status updates are sent out if
+possible.
 """
 type SweepJob
     sweep::Sweep
@@ -90,22 +95,28 @@ type SweepJob
     progress::Channel{Float64}
     whensub::DateTime
     whenstart::DateTime
+    username::String
+    notifications::Bool
 end
 
 """
 ```
-SweepJob(dep, indeps; priority=NORMAL_PRIORITY)
+SweepJob(dep, indeps; priority=NORMAL_PRIORITY, username=confd["username"],
+    notifications=confd["notifications"])
 ```
 
 Initialize a `SweepJob` object given `dep` and `indeps`. Until interaction
 with the database, `job_id` is set to zero and `whenstart` is temporarily
 (and inaccurately) set to `whensub`.
 """
-function SweepJob(dep, indeps; priority=NORMAL_PRIORITY)
+function SweepJob(dep, indeps;
+        priority=NORMAL, username=confd["username"],
+        notifications=confd["notifications"])
     priority < 0 && error("priority must be greater than zero.")
     dt = now()
-    sj = SweepJob(Sweep(dep, indeps), priority, 0, false,
-        Channel{SweepStatus}(1), Channel{Float64}(1), dt, dt)
+    sj = SweepJob(Sweep(dep, [indeps...]), priority, 0, false,
+        Channel{SweepStatus}(1), Channel{Float64}(1), dt, dt, username,
+        notifications)
     put!(sj.status, Waiting)
     put!(sj.progress, 0.0)
     sj
@@ -230,6 +241,22 @@ end
 
 """
 ```
+result(sj::SweepJob)
+```
+
+Return the result array of a sweep job `sj`. Throws an error if the result array
+has not yet been initialized.
+"""
+function result(sj::SweepJob)
+    if isdefined(sj.sweep, :result)
+        sj.sweep.result
+    else
+        error("result array has not yet been initialized.")
+    end
+end
+
+"""
+```
 type SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
@@ -317,15 +344,16 @@ jobs(job_id) = jobs()[job_id]
 
 # Make SweepJobQueues callable
 function (sq::SweepJobQueue)()
+    sj = wait(sq.update_condition)
     while true
-        sj = wait(sq.update_condition)
         st = status(sj)
         if st == Done || st == Aborted
-            # Update stop time
+            # No jobs are running right now so we can take our time
+            # with the database update (no @async).
             update_job_in_db(sj, jobstop=now(), jobstatus=Int(st)) ||
                 error("failed to update job $(sj.job_id).")
 
-            # set to priority lower than can be specified by the user
+            # Set to priority lower than can be specified by the user
             dequeue!(sq.q, sj.job_id)
             sj.priority = NEVER
             enqueue!(sq.q, sj.job_id, sj)
@@ -337,31 +365,42 @@ function (sq::SweepJobQueue)()
             end
 
             # Save whatever was measured, regardless of abort or done
-            archive_result(sj.sweep)
+            # archive_result(sj.sweep)
         end
 
-        if !isempty(sq.q)  # maybe unnecessary to even check
-            k,sjtop = peek(sq.q)
-            sttop = status(sjtop)
+        # Sync block ensures that the enclosed db update finishes before the
+        # next db update. Updating db asynchronously so that there is no task
+        # switching before we wait for the update condition.
+        @sync begin
+            if !isempty(sq.q)  # maybe unnecessary to even check
+                k,sjtop = peek(sq.q)
+                sttop = status(sjtop)
 
-            # job is waiting, nothing is running, and job is runnable
-            if sttop == Waiting && sq.running_id == -1 && sjtop.priority > NEVER
-                take!(sjtop.status)
-                put!(sjtop.status, Running)
-                sjtop.whenstart = now()
-                sjtop.has_started = true
-                update_job_in_db(sjtop, jobstart=sjtop.whenstart,
-                    jobstatus=Int(Running)) || error("failed to update job $(sjtop.job_id).")
+                # job is waiting, nothing is running, and job is runnable
+                if sttop == Waiting && sq.running_id == -1 &&
+                        sjtop.priority > NEVER
 
-                sq.running_id = k
+                    sjtop.whenstart = now()
+                    sjtop.has_started = true
+                    @async begin
+                        update_job_in_db(sjtop, jobstart=sjtop.whenstart,
+                        jobstatus=Int(Running)) ||
+                            error("failed to update job $(sjtop.job_id).")
+                    end
+
+                    sq.running_id = k
+                    take!(sjtop.status)
+                    put!(sjtop.status, Running)
+                end
             end
+            sj = wait(sq.update_condition)
         end
     end
 end
 
 # Set up and initialize a sweep queue.
 const sweepjobqueue = SweepJobQueue()
-@async sweepjobqueue()
+const sweepjobtask = @schedule sweepjobqueue()
 
 """
 ```
@@ -384,8 +423,8 @@ function prune!(q::SweepJobQueue)
 end
 
 # TODO: default username and server mechanism
-function new_job_in_db()::Tuple{UInt, DateTime}
-    request = NewJobRequest(username="ajk", dataserver="discord")
+function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
+    request = NewJobRequest(username=username, dataserver="local_data")
     io = IOBuffer()
     serialize(io, request)
     ZMQ.send(dbsock, ZMQ.Message(io))
@@ -421,7 +460,7 @@ end
 
 """
 ```
-sweep(dep::Response, indep::Tuple{Stimulus, AbstractVector}...;
+sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     priority = NORMAL)
 ```
 
@@ -437,31 +476,32 @@ sweep job. The actual `source` and `measure` loops are in a private function
 The `priority` keyword may be `LOW`, `NORMAL`, or `HIGH`, or any
 integer greater than or equal to zero.
 """
-function sweep(dep::Response, indep::Tuple{Stimulus, AbstractVector}...;
-        priority = NORMAL)
-
-    T = returntype(measure, (typeof(dep),))
-
-    array = Array{T}([length(a) for (stim, a) in indep]...)
+function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
+    priority = NORMAL, username=confd["username"],
+    notifications=confd["notifications"])
 
     # Make a new SweepJob object and assign the array we made to it
-    sj = SweepJob(dep, indep; priority = priority)
-    sj.sweep.result = array
+    sj = SweepJob(dep, indep; priority = priority, username = username,
+        notifications = notifications)
 
     # Get a new job_id
-    job_id, jobsubmit = new_job_in_db()
+    job_id, jobsubmit = new_job_in_db(username=username)
     sj.job_id = job_id
     sj.whensub = jobsubmit
     sj.whenstart = jobsubmit
 
-    push!(sweepjobqueue, sj)
-
-    t = Task(()->_sweep!(sweepjobqueue.update_condition, sj, dep, indep...))
-    @async begin
+    T = returntype(measure, (typeof(dep),))
+    tup = (ndims(T), N)
+    t = Task(()->_sweep!(sweepjobqueue.update_condition, sj, Val{tup}()))
+    @schedule begin
         for x in t
             ZMQ.send(plotsock, ZMQ.Message(x))
         end
+        take!(sj.status); put!(sj.status, Done)
+        notify(sweepjobqueue.update_condition, sj)
     end
+
+    push!(sweepjobqueue, sj)
 
     info("Sweep submitted with job id: $(sj.job_id)")
     sj
@@ -470,8 +510,7 @@ end
 
 """
 ```
-@generated function _sweep!(updated_status_of, sj, dep::Response,
-        indep::Tuple{Stimulus, AbstractVector}...)
+@generated function _sweep!{T}(updated_status_of, sj, ::Val{T})
 ```
 
 This is a private function which should not be called directly by the user.
@@ -480,41 +519,129 @@ The implementation uses `@generated` and macros from
 [Base.Cartesian](http://docs.julialang.org/en/release-0.5/devdocs/cartesian/).
 The stimuli are sourced only when they need to be, at the start of each
 `for` loop level.
-"""
-# ⚠ If the argument names are changed, change @respond_to_status also.
-@generated function _sweep!(updated_status_of, sj, dep::Response,
-        indep::Tuple{Stimulus, AbstractVector}...)
 
-    N = length(indep)
+`T` is a `Tuple{Int,Int}` object where the first `Int` is the number of dimensions
+coming from a single measurement, and the second `Int` is the number of independent
+sweep axes.
+
+`source` operations are assumed to commute (it should not matter what order
+stimuli are `source`d for a given loop index).
+"""
+# ⚠
+@generated function _sweep!{T}(updated_status_of, sj, ::Val{T})
+    D,N = T
     quote
+        # Assign some local variable names for convenience
+        # and setup our progress indicator.
+        indep = sj.sweep.indep
+        dep = sj.sweep.dep
+        it = 0; tot = reduce(*, length(indep[i][2]) for i in 1:$N)
+
+        # Wait for job to run or be aborted
         @respond_to_status
 
-        array = sj.sweep.result
-        T = eltype(array)
+        # Source to first value for each stimulus and do first measurement.
+        @nexprs $N j->source(indep[$(N+1)-j][1], indep[$(N+1)-j][2][1])
+        data = measure(dep)
+
+        # Setup a result array with the correct shape and assign first result.
+        # Update progress.
+        array = Array{eltype(data)}(
+            size(data)..., (length(a) for (stim, a) in indep)...)
+        sj.sweep.result = array
+        inds = ((@ntuple $D t->Colon())..., (@ntuple $N t->1)...)
+        array[inds...] = data
+        it += 1; take!(sj.progress); put!(sj.progress, it/tot)
+
+        # Setup a plot and send our first result
         io = IOBuffer()
-        serialize(io, PlotSetup(Array{T}, size(array)))
+        serialize(io, PlotSetup(Array{eltype(data)}, size(array)))
+        produce(io)
+        io = IOBuffer()
+        serialize(io, PlotPoint(inds, data))
         produce(io)
 
-        it = 0; tot = reduce(*, length(indep[i][2]) for i in 1:$N)
-        @nloops $N i array j->(@respond_to_status;
-            source(indep[j][1], indep[j][2][i_j])) begin
+        (@ntuple $N t) = (@ntuple $N x->true)
+        t_body = true
+        @nloops $N i k->indices(array,k+$D) j->(@respond_to_status;
+            @skipfirst t_j source(indep[j][1], indep[j][2][i_j])) begin
 
-            # measure
-            data = measure(dep)
-            (@nref $N array i) = data
+            if t_body == true
+                t_body = false
+            else
+                data = measure(dep)
+                (@dnref $D $N array i) = data
 
-            # update progress
-            it += 1; take!(sj.progress); put!(sj.progress, it/tot)
+                # update progress
+                it += 1; take!(sj.progress); put!(sj.progress, it/tot)
 
-            # send forth results
-            io = IOBuffer()
-            serialize(io, PlotPoint((@ntuple $N i), data))
-            produce(io)
+                # send forth results
+                io = IOBuffer()
+                serialize(io, PlotPoint((@dntuple $D $N i), data))
+                produce(io)
+            end
         end
-
-        take!(sj.status); put!(sj.status, Done)
-        notify(updated_status_of, sj)
     end
+end
+
+"""
+```
+@dnref(D, N, A, sym)
+```
+
+This is a lot like `@nref` in `Base.Cartesian`. See the Julia documentation;
+the only difference here is that we are going to have the first `D` indices
+be `:` (which are constructed programmatically by `Colon()`).
+"""
+macro dnref(D, N, A, sym)
+    _dnref(D, N, A, sym)
+end
+
+function _dnref(D::Int, N::Int, A, ex)
+    vars = [ inlineanonymous(ex,i) for i = 1:N ]
+    Expr(:escape, Expr(:ref, A, [Colon() for i = 1:D]..., vars...))
+end
+
+"""
+```
+@dntuple(D, N, A, sym)
+```
+
+This is a lot like `@ntuple` in `Base.Cartesian`. See the Julia documentation;
+the only difference here is that we are going to have the first `D` elements
+be `:` (which may be constructed programmatically by `Colon()`).
+"""
+macro dntuple(D, N, ex)
+    _dntuple(D, N, ex)
+end
+
+# This is a lot like @ntuple in Base.Cartesian, except we are going to have the
+# first D indices be Colon().
+function _dntuple(D::Int, N::Int, ex)
+    vars = [ inlineanonymous(ex,i) for i = 1:N ]
+    Expr(:escape, Expr(:tuple, [Colon() for i = 1:D]..., vars...))
+end
+
+"""
+```
+@skipfirst(t, ex)
+```
+
+Place `ex` in a code block such that `ex` is only after the first time this code
+block is encountered.
+
+`t` is a symbol bound to `true`, which is the flag for if the code block should
+be skipped or not. This macro sets `t` to `false` if it is `true` or otherwise
+evaluates `ex`.
+"""
+macro skipfirst(t, ex)
+    esc(quote
+        if $t == true
+            $t = false
+        else
+            $ex
+        end
+    end)
 end
 
 """
@@ -523,7 +650,8 @@ end
 ```
 
 Respond to status changes during a sweep. This is the entry point for sweeps to
-be paused or aborted. Not meant to be called by the user.
+be paused or aborted. Not meant to be called by the user. It will break if
+argument names of [`InstrumentControl._sweep!`](@ref) are modified.
 """
 macro respond_to_status()
     esc(quote
