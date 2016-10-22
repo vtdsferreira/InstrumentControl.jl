@@ -347,30 +347,34 @@ function (sq::SweepJobQueue)()
     sj = wait(sq.update_condition)
     while true
         st = status(sj)
-        if st == Done || st == Aborted
-            # No jobs are running right now so we can take our time
-            # with the database update (no @async).
-            update_job_in_db(sj, jobstop=now(), jobstatus=Int(st)) ||
-                error("failed to update job $(sj.job_id).")
+        @sync begin
+            if st == Done || st == Aborted
+                @async begin
+                    update_job_in_db(sj, jobstop=now(), jobstatus=Int(st)) ||
+                    error("failed to update job $(sj.job_id).")
+                end
 
-            # Set to priority lower than can be specified by the user
-            dequeue!(sq.q, sj.job_id)
-            sj.priority = NEVER
-            enqueue!(sq.q, sj.job_id, sj)
+                # Set to priority lower than can be specified by the user
+                dequeue!(sq.q, sj.job_id)
+                sj.priority = NEVER
+                enqueue!(sq.q, sj.job_id, sj)
 
-            # Flag that nothing is running
-            # (if statement in case we aborted a job that wasn't running)
-            if sj.job_id == sq.running_id
-                sq.running_id = -1
+                # Flag that nothing is running
+                # (if statement in case we aborted a job that wasn't running)
+                if sj.job_id == sq.running_id
+                    sq.running_id = -1
+                end
+
+                # Save whatever was measured, regardless of abort or done
+                # archive_result(sj.sweep)
             end
-
-            # Save whatever was measured, regardless of abort or done
-            # archive_result(sj.sweep)
         end
 
         # Sync block ensures that the enclosed db update finishes before the
         # next db update. Updating db asynchronously so that there is no task
-        # switching before we wait for the update condition.
+        # switching before we wait for the update condition. Without the async,
+        # the returned job status might not show "running" if a job is launched
+        # with nothing in the queue.
         @sync begin
             if !isempty(sq.q)  # maybe unnecessary to even check
                 k,sjtop = peek(sq.q)
@@ -429,7 +433,6 @@ function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
     serialize(io, request)
     ZMQ.send(dbsock, ZMQ.Message(io))
 
-    # this is blocking, probably a more robust implementation is in order
     msg = ZMQ.recv(dbsock)
     out = convert(IOStream, msg)
     seekstart(out)
@@ -440,9 +443,9 @@ function update_job_in_db(sw; kwargs...)::Bool
     request = UpdateJobRequest(sw.job_id; kwargs...)
     io = IOBuffer()
     serialize(io, request)
-    ZMQ.send(dbsock, ZMQ.Message(io))
+    ZMQ.send(qsock, ZMQ.Message(io))
 
-    msg = ZMQ.recv(dbsock)
+    msg = ZMQ.recv(qsock)
     out = convert(IOStream, msg)
     seekstart(out)
     deserialize(out)
@@ -493,7 +496,7 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     T = returntype(measure, (typeof(dep),))
     tup = (ndims(T), N)
     t = Task(()->_sweep!(sweepjobqueue.update_condition, sj, Val{tup}()))
-    @schedule begin
+    @async begin
         for x in t
             ZMQ.send(plotsock, ZMQ.Message(x))
         end

@@ -72,5 +72,8 @@ ZMQ.bind(plotsock, "tcp://127.0.0.1:50002")
 const dbsock = ZMQ.Socket(ctx, ZMQ.REQ)
 ZMQ.connect(dbsock, confd["dbserver"])
 
+const qsock = ZMQ.Socket(ctx, ZMQ.REQ)
+ZMQ.connect(qsock, confd["dbserver"])
+
 # Now that the database server is connected, check that username is valid.
 validate_username(confd["username"])
