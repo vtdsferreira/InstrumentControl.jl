@@ -1,4 +1,3 @@
-"Definitions specific to VNAs."
 module VNA
 
 importall InstrumentControl
@@ -14,18 +13,22 @@ export clearavg, data, search, shotgun, sweeptime
 abstract InstrumentVNA  <: Instrument
 
 """
-`type FSweep <: Response`
+```
+type FSweep <: Response
+```
 
-Your standard frequency sweep.
+Your standard frequency sweep using a VNA.
 
--`ins`: `InstrumentVNA` object.
--`reject`: Number of traces to reject before keeping measurements.
+- `ins`: `InstrumentVNA` object.
+- `reject`: Number of traces to reject before keeping measurements.
 """
 type FSweep <: Response
     ins::InstrumentVNA
     reject::Int
 end
 FSweep(ins::InstrumentVNA) = FSweep(ins, 0)
+axisnames(::FSweep) = [:f, :sparameter]
+axisscales(x::FSweep) = (stimdata(x.ins), [:S11, :S21])
 
 "Graph layout specified by a matrix."
 abstract Graphs <: InstrumentProperty
@@ -52,7 +55,9 @@ immutable Negative <: Polarity end
 immutable Both <: Polarity end
 
 """
-`immutable MarkerSearch{T}`
+```
+immutable MarkerSearch{T}
+```
 
 Type encapsulating a marker search query. The type parameter should be a
 symbol specifying the search type. The available options may depend on
@@ -80,6 +85,10 @@ immutable MarkerSearch{T}
 end
 
 """
+```
+MarkerSearch(typ::Symbol, ch, tr, m, val=0.0, pol::Polarity=Both())
+```
+
 You are recommended to construct a `MarkerSearch` object using this function,
 which makes a suitable one given the type of search you want to do
 (specified by `typ::Symbol`), the channel `ch`, trace `tr`, marker number `m`,
@@ -104,7 +113,9 @@ data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) =
     data(ins, Val{ins[VNA.Format, ch, tr]}, ch, tr)
 
 """
-`clearavg(ins::InstrumentVNA, ch::Integer=1)`
+```
+clearavg(ins::InstrumentVNA, ch::Integer=1)
+```
 
 SENSe#:AVERage:CLEar
 [E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_average_clear.htm]
@@ -142,7 +153,9 @@ function shotgun(ins::InstrumentVNA, m::AbstractArray=1:9,
 end
 
 """
-`sweeptime(ins::InstrumentVNA)`
+```
+sweeptime(ins::InstrumentVNA)
+```
 
 Returns the sweep time for a given VNA, including averaging.
 """

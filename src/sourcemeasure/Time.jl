@@ -5,6 +5,8 @@ export DelayStimulus, TimerResponse
 ```
 type DelayStimulus <: Stimulus
     t0::Float64
+    axisname::Symbol
+    axislabel::String
 end
 ```
 
@@ -12,8 +14,11 @@ Delays until time `t0` (seconds) has passed since a reference time.
 """
 type DelayStimulus <: Stimulus
 	t0::Float64
+    axisname::Symbol
+    axislabel::String
 end
-DelayStimulus() = DelayStimulus(time())
+DelayStimulus(;axisname=gensym(:delay), axislabel="Delay since about $(now())") =
+    DelayStimulus(time(), axisname, axislabel)
 
 """
 ```

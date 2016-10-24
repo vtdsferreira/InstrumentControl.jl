@@ -2,7 +2,13 @@ export PropertyStimulus
 
 """
 ```
-PropertyStimulus{T<:InstrumentProperty} <: Stimulus
+type PropertyStimulus{T<:InstrumentProperty} <: Stimulus
+    ins::Instrument
+    typ::Type{T}
+    tuple::Tuple
+    axisname::Symbol
+    axislabel::String
+end
 ```
 
 Wraps any Number-valued `InstrumentProperty` into a `Stimulus`. Essentially,
@@ -14,14 +20,13 @@ type PropertyStimulus{T<:InstrumentProperty} <: Stimulus
     ins::Instrument
     typ::Type{T}
     tuple::Tuple
-
-    PropertyStimulus(a,b,c) = new(a,b,c)
-    PropertyStimulus(a,b) = new(a,b,())
+    axisname::Symbol
+    axislabel::String
 end
-PropertyStimulus{T}(ins::Instrument, t::Type{T}) =
-    PropertyStimulus{T}(ins, t)
-PropertyStimulus{T}(ins::Instrument, t::Type{T}, tup::Tuple) =
-    PropertyStimulus{T}(ins, t, tup)
+PropertyStimulus{T}(ins::Instrument, t::Type{T}, tup=();
+    axisname=gensym(lowercase(string(typ))),
+    axislabel=string(typ)) =
+    PropertyStimulus{T}(ins, t, tup, axisname, axislabel)
 
 """
 ```

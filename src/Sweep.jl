@@ -1,5 +1,7 @@
 export sweep, eta, status, progress, abort!, prune!, jobs, result
-using Base.Cartesian
+using Base.Cartesian, JLD
+using AxisArrays
+import AxisArrays: axes
 import Base.Cartesian.inlineanonymous
 import Compat.view
 import Base: show, isless, getindex, push!, length, eta
@@ -17,7 +19,7 @@ const HIGH = 10
 type Sweep
     dep::Response
     indep::Tuple{Tuple{Stimulus, AbstractVector}}
-    result::Array
+    result::AxisArray
     Sweep(a,b) = new(a,b)
     Sweep(a,b,c) = new(a,b,c)
 end
@@ -31,7 +33,7 @@ which need not be provided at the time the Sweep object is created.
 type Sweep
     dep::Response
     indep::Vector{Tuple{Stimulus, AbstractVector}}
-    result::Array
+    result::AbstractArray
     Sweep(a,b) = new(a,b)
     Sweep(a,b,c) = new(a,b,c)
 end
@@ -244,7 +246,7 @@ end
 result(sj::SweepJob)
 ```
 
-Return the result array of a sweep job `sj`. Throws an error if the result array
+Returns the result array of a sweep job `sj`. Throws an error if the result array
 has not yet been initialized.
 """
 function result(sj::SweepJob)
@@ -257,10 +259,33 @@ end
 
 """
 ```
+result(i::Integer)
+```
+
+Returns a result array by job id.
+"""
+@inline result(i::Integer) = result(jobs(i))
+
+"""
+```
+result()
+```
+
+Returns the result array from the last finished or aborted job.
+"""
+function result()
+    sweepjobqueue.last_finished_id == -1 &&
+        error("no jobs have run yet; no results to return.")
+    result(sweepjobqueue.last_finished_id)
+end
+
+"""
+```
 type SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
     running_id::Int
+    last_finished_id::Int
     update_condition::Condition
     function SweepJobQueue()
         new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, Condition())
@@ -274,9 +299,10 @@ type SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
     running_id::Int
+    last_finished_id::Int
     update_condition::Condition
     function SweepJobQueue()
-        new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, Condition())
+        new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, -1, Condition())
     end
 end
 
@@ -364,9 +390,10 @@ function (sq::SweepJobQueue)()
                 if sj.job_id == sq.running_id
                     sq.running_id = -1
                 end
+                sq.last_finished_id = sj.job_id
 
                 # Save whatever was measured, regardless of abort or done
-                # archive_result(sj.sweep)
+                # archive_result(sj)
             end
         end
 
@@ -451,14 +478,19 @@ function update_job_in_db(sw; kwargs...)::Bool
     deserialize(out)
 end
 
-function archive_result(sw::Sweep)
+function archive_result(sj::SweepJob)
 
     # archive format
     Dict("data"=>sw.result)
 
-    io = IOBuffer()
-
-
+    try
+        dpath = joinpath(confd["archivepath"], "$(Date(now()))")
+        if !isdir(dpath)
+            mkdir(dpath)
+        end
+    catch
+        warn("could not save data!")
+    end
 end
 
 """
@@ -527,10 +559,9 @@ The stimuli are sourced only when they need to be, at the start of each
 coming from a single measurement, and the second `Int` is the number of independent
 sweep axes.
 
-`source` operations are assumed to commute (it should not matter what order
-stimuli are `source`d for a given loop index).
+The axis scaling of `measure(sj.sweep.dep)` is presumed to be fixed, as it is
+only looked at once, the first time `measure` is called.
 """
-# ⚠
 @generated function _sweep!{T}(updated_status_of, sj, ::Val{T})
     D,N = T
     quote
@@ -549,8 +580,9 @@ stimuli are `source`d for a given loop index).
 
         # Setup a result array with the correct shape and assign first result.
         # Update progress.
-        array = Array{eltype(data)}(
-            size(data)..., (length(a) for (stim, a) in indep)...)
+        array = AxisArray( Array{eltype(data)}(
+            size(data)..., (length(a) for (stim, a) in indep)...),
+            axes(data)..., stimaxis.(indep)...)
         sj.sweep.result = array
         inds = ((@ntuple $D t->Colon())..., (@ntuple $N t->1)...)
         array[inds...] = data
@@ -586,6 +618,9 @@ stimuli are `source`d for a given loop index).
         end
     end
 end
+
+axes(::Number) = ()
+stimaxis(sv) = Axis{axisname(sv[1])}(sv[2])
 
 """
 ```

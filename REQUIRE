@@ -3,6 +3,7 @@ VISA
 Alazar
 BinDeps
 FileIO
+AxisArrays
 FixedSizeArrays
 JSON
 ZMQ
