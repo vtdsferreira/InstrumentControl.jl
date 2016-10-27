@@ -224,6 +224,7 @@ function abort!(x::SweepJob)
             error("job already aborted.")
         end
     end
+    x
 end
 
 """
@@ -487,25 +488,27 @@ function archive_result(sj::SweepJob)
     # apart into pieces that can be reassembled later. We do this to secure
     # future compatibility in case the definition of an AxisArray changes.
     # We can always reconstruct the axis array later.
-    axarray = sj.sweep.result
-    archive = Dict{String,Any}("data" => axarray.data)
-    firstdim = ndims(axarray) - length(sj.sweep.indep)
-    for (i,ax) in enumerate(axes(axarray))
-        archive["axis$(i)_$(axisname(ax))"] = ax.val
-    end
-    for (i, (s,a)) in enumerate(sj.sweep.indep)
-        archive["desc$(i+firstdim)"] = axislabel(s)
-    end
-
-    try
-        dpath = joinpath(confd["archivepath"], "$(Date(sj.whensub))")
-        if !isdir(dpath)
-            mkdir(dpath)
+    if isdefined(sj.sweep, :result)
+        axarray = sj.sweep.result
+        archive = Dict{String,Any}("data" => axarray.data)
+        firstdim = ndims(axarray) - length(sj.sweep.indep)
+        for (i,ax) in enumerate(axes(axarray))
+            archive["axis$(i)_$(axisname(ax))"] = ax.val
         end
-        save(joinpath(dpath, "$(sj.job_id).jld"), archive)
-    catch e
-        warn("could not save data!")
-        rethrow(e)
+        for (i, (s,a)) in enumerate(sj.sweep.indep)
+            archive["desc$(i+firstdim)"] = axislabel(s)
+        end
+
+        try
+            dpath = joinpath(confd["archivepath"], "$(Date(sj.whensub))")
+            if !isdir(dpath)
+                mkdir(dpath)
+            end
+            save(joinpath(dpath, "$(sj.job_id).jld"), archive)
+        catch e
+            warn("could not save data!")
+            rethrow(e)
+        end
     end
 end
 
@@ -561,14 +564,13 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     T = returntype(measure, (typeof(dep),))
     tup = (ndims(T), N)
     t = Task(()->_sweep!(sweepjobqueue.update_condition, sj, Val{tup}()))
+
     @async begin
         for x in t
             ZMQ.send(plotsock, ZMQ.Message(x))
         end
-        take!(sj.status); put!(sj.status, Done)
         notify(sweepjobqueue.update_condition, sj)
     end
-
     push!(sweepjobqueue, sj)
 
     info("Sweep submitted with job id: $(sj.job_id)")
@@ -620,7 +622,7 @@ only looked at once, the first time `measure` is called.
             size(data)..., (length(a) for (stim, a) in indep)...),
             axes(data)..., stimaxis.(indep)...)
         array.data[:] = default_value(eltype(data))
-        
+
         sj.sweep.result = array
         inds = ((@ntuple $D t->Colon())..., (@ntuple $N t->1)...)
         array[inds...] = data
@@ -654,6 +656,7 @@ only looked at once, the first time `measure` is called.
                 produce(io)
             end
         end
+        take!(sj.status); put!(sj.status, Done)
     end
 end
 
