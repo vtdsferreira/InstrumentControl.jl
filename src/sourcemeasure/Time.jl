@@ -5,6 +5,7 @@ export DelayStimulus, TimerResponse
 ```
 type DelayStimulus <: Stimulus
     t0::Float64
+    shouldreset::Bool
     axisname::Symbol
     axislabel::String
 end
@@ -14,11 +15,13 @@ Delays until time `t0` (seconds) has passed since a reference time.
 """
 type DelayStimulus <: Stimulus
 	t0::Float64
+    shouldreset::Bool
     axisname::Symbol
     axislabel::String
 end
-DelayStimulus(;axisname=gensym(:delay), axislabel="Delay since about $(now())") =
-    DelayStimulus(time(), axisname, axislabel)
+DelayStimulus(shouldreset=true; axisname=gensym(:delay),
+    axislabel="Delay since about $(now())") =
+    DelayStimulus(time(), shouldreset, axisname, axislabel)
 
 """
 ```
@@ -33,20 +36,20 @@ end
 
 """
 ```
-source(ch::DelayStimulus, val::Real, shouldreset::Bool=true)
+source(ch::DelayStimulus, val::Real)
 ```
 
 Wait until `val` seconds have elapsed since `ch` was initialized or reset.
-Optionally resets the `DelayStimulus` after the time has elapsed (default true).
+Resets the `DelayStimulus` after the time has elapsed if `ch.shouldreset`.
 """
-function source(ch::DelayStimulus, val::Real, shouldreset::Bool=true)
+function source(ch::DelayStimulus, val::Real)
 	if val < eps()
 		ch.t0 = time()
 	else
 		while val + ch.t0 > time()
 			sleep(0.01)
 		end
-        shouldreset && reset(ch)
+        ch.shouldreset && reset(ch)
 	end
 end
 

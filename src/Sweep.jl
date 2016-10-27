@@ -1,4 +1,5 @@
 export sweep, eta, status, progress, abort!, prune!, jobs, result
+export reconstruct, atvalue
 using Base.Cartesian, JLD
 using AxisArrays
 import AxisArrays: axes
@@ -33,7 +34,7 @@ which need not be provided at the time the Sweep object is created.
 type Sweep
     dep::Response
     indep::Vector{Tuple{Stimulus, AbstractVector}}
-    result::AbstractArray
+    result::AxisArray
     Sweep(a,b) = new(a,b)
     Sweep(a,b,c) = new(a,b,c)
 end
@@ -393,7 +394,7 @@ function (sq::SweepJobQueue)()
                 sq.last_finished_id = sj.job_id
 
                 # Save whatever was measured, regardless of abort or done
-                # archive_result(sj)
+                archive_result(sj)
             end
         end
 
@@ -478,20 +479,52 @@ function update_job_in_db(sw; kwargs...)::Bool
     deserialize(out)
 end
 
-function archive_result(sj::SweepJob)
+axisname(ax::Axis) = typeof(ax).parameters[1]
 
-    # archive format
-    Dict("data"=>sw.result)
+function archive_result(sj::SweepJob)
+    # We assume that the sweep result is an AxisArray.
+    # For our archived data we do not save an AxisArray but rather split it
+    # apart into pieces that can be reassembled later. We do this to secure
+    # future compatibility in case the definition of an AxisArray changes.
+    # We can always reconstruct the axis array later.
+    axarray = sj.sweep.result
+    archive = Dict{String,Any}("data" => axarray.data)
+    firstdim = ndims(axarray) - length(sj.sweep.indep)
+    for (i,ax) in enumerate(axes(axarray))
+        archive["axis$(i)_$(axisname(ax))"] = ax.val
+    end
+    for (i, (s,a)) in enumerate(sj.sweep.indep)
+        archive["desc$(i+firstdim)"] = axislabel(s)
+    end
 
     try
-        dpath = joinpath(confd["archivepath"], "$(Date(now()))")
+        dpath = joinpath(confd["archivepath"], "$(Date(sj.whensub))")
         if !isdir(dpath)
             mkdir(dpath)
         end
-    catch
+        save(joinpath(dpath, "$(sj.job_id).jld"), archive)
+    catch e
         warn("could not save data!")
+        rethrow(e)
     end
 end
+
+# Reconstruct AxisArray from an archived dictionary.
+function reconstruct(d::Dict{String,Any})
+    haskey(d, "data") || error("no `data` key.")
+
+    r = r"^axis([0-9]+)_([\s\S]+)"
+    keyz = collect(keys(d))
+    where = [ismatch(r, str) for str in keyz]
+    matches = keyz[where]
+    a = map(str->begin m = match(r,str); parse(m[1]),m[2] end, matches)
+    a2 = Vector{Tuple{Symbol, Any}}(length(a))
+    for (f,g) in a
+        a2[f] = (Symbol(g), d["axis$(f)_$(g)"])
+    end
+    AxisArray(d["data"], (Axis{name}(v) for (name,v) in a2)...)
+end
+
 
 """
 ```
@@ -542,6 +575,9 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     sj
 end
 
+default_value(x) = zero(x)
+default_value{T<:AbstractFloat}(::Type{T}) = T(NaN)
+default_value{T<:AbstractFloat}(::Type{Complex{T}}) = Complex{T}(NaN)
 
 """
 ```
@@ -583,6 +619,8 @@ only looked at once, the first time `measure` is called.
         array = AxisArray( Array{eltype(data)}(
             size(data)..., (length(a) for (stim, a) in indep)...),
             axes(data)..., stimaxis.(indep)...)
+        array.data[:] = default_value(eltype(data))
+        
         sj.sweep.result = array
         inds = ((@ntuple $D t->Colon())..., (@ntuple $N t->1)...)
         array[inds...] = data
@@ -619,7 +657,18 @@ only looked at once, the first time `measure` is called.
     end
 end
 
+# AxisArrays patchwork
+# Needed for when `measure` returns a scalar.
 axes(::Number) = ()
+
+# Needed for indexing arrays by real value.
+immutable Value{T}
+    val::T
+end
+atvalue(x) = Value(x)
+AxisArrays.axisindexes(::Type{AxisArrays.Dimensional}, ax::AbstractVector,
+    idx::Value) = findfirst(ax.==idx.val)
+
 stimaxis(sv) = Axis{axisname(sv[1])}(sv[2])
 
 """

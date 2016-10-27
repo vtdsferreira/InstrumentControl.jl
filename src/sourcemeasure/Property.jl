@@ -23,10 +23,10 @@ type PropertyStimulus{T<:InstrumentProperty} <: Stimulus
     axisname::Symbol
     axislabel::String
 end
-PropertyStimulus{T}(ins::Instrument, t::Type{T}, tup=();
+PropertyStimulus{T}(ins::Instrument, typ::Type{T}, tup=();
     axisname=gensym(lowercase(string(typ))),
     axislabel=string(typ)) =
-    PropertyStimulus{T}(ins, t, tup, axisname, axislabel)
+    PropertyStimulus{T}(ins, typ, tup, axisname, axislabel)
 
 """
 ```
