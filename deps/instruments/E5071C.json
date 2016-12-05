@@ -1,0 +1,475 @@
+{
+    "instrument": {
+        "module": "E5071C",
+        "type": "InsE5071C",
+        "super": "InstrumentVNA",
+        "make": "Keysight",
+        "model": "E5071C",
+        "writeterminator": "\n"
+    },
+    "properties": [
+        {
+            "cmd": ":SENSch:SWE:TIME:AUTO",
+            "type": "AutoSweepTime",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:SWE:TIME",
+            "type": "SweepTime",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:EDEL:MED",
+            "type": "ElectricalMedium",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Coaxial": "COAX",
+                "Waveguide": "WAV"
+            },
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:FORM",
+            "type": "VNA.Format",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "LogMagnitude": "MLOG",
+                "Phase": "PHAS",
+                "GroupDelay": "GDEL",
+                "SmithLinear": "SLIN",
+                "SmithLog": "SLOG",
+                "SmithComplex": "SCOM",
+                "Smith": "SMIT",
+                "SmithAdmittance": "SADM",
+                "PolarLinear": "PLIN",
+                "PolarLog": "PLOG",
+                "PolarComplex": "POL",
+                "LinearMagnitude": "MLIN",
+                "SWR": "SWR",
+                "RealPart": "REAL",
+                "ImagPart": "IMAG",
+                "ExpandedPhase": "UPH",
+                "PositivePhase": "PPH"
+            },
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:PARtr:DEF",
+            "type": "VNA.Parameter",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "S11": "S11",
+                "S12": "S12",
+                "S21": "S21",
+                "S22": "S22"
+            },
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":TRIG:OUTP:POL",
+            "type": "TriggerOutputPolarity",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Positive": "POS",
+                "Negative": "NEG"
+            }
+        },
+        {
+            "cmd": ":TRIG:OUTP:POS",
+            "type": "TriggerOutputTiming",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Before": "BEF",
+                "After": "AFT"
+            }
+        },
+        {
+            "cmd": ":SENSch:AVER",
+            "type": "Averaging",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:AVER:COUN",
+            "type": "AveragingFactor",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":TRIG:AVER",
+            "type": "AveragingTrigger",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:EDEL:TIME",
+            "type": "ElectricalDelay",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":TRIG:EXT:DEL",
+            "type": "ExtTriggerDelay",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":TRIG:EXT:LLAT",
+            "type": "ExtTriggerLowLatency",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:STAR",
+            "type": "FrequencyStart",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:STOP",
+            "type": "FrequencyStop",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:CENT",
+            "type": "FrequencyCenter",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:SPAN",
+            "type": "FrequencySpan",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:BAND",
+            "type": "IFBandwidth",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:PAR:COUN",
+            "type": "NumTraces",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:SWE:POIN",
+            "type": "NumPoints",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":OUTP",
+            "type": "Output",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:OFFS:PHAS",
+            "type": "PhaseOffset",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":TRIG:POIN",
+            "type": "PointTrigger",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":SOURch:POW:PORT:COUP",
+            "type": "PowerCoupled",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SOURch:POW",
+            "type": "PowerLevel",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SOURch:POW:PORTport",
+            "type": "PowerPortLevel",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "port::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SOURch:POW:SLOP:STAT",
+            "type": "PowerSlope",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SOURch:POW:SLOP",
+            "type": "PowerSlopeLevel",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ",
+            "type": "PowerSweepFrequency",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:STAT",
+            "type": "TraceDisplay",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:SMO",
+            "type": "Smoothing",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:SMO:APER",
+            "type": "SmoothingAperture",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:WINDch:MAX",
+            "type": "TraceMaximized",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:TRACtr:CORR:EDEL:WGC",
+            "type": "WaveguideCutoff",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:WINDch:Y:DIV",
+            "type": "YDivisions",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:Y:PDIV",
+            "type": "YScalePerDivision",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:Y:RLEV",
+            "type": "YReferenceLevel",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:WINDch:TRACtr:Y:RPOS",
+            "type": "YReferencePosition",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1",
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":FORM:BORD",
+            "type": "TransferByteOrder",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "BigEndian": "NORM",
+                "LittleEndian": "SWAP"
+            }
+        },
+        {
+            "cmd": ":FORM:DATA",
+            "type": "TransferFormat",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "String": "ASC",
+                "Float32": "REAL32",
+                "Float64": "REAL"
+            }
+        },
+        {
+            "cmd": ":TRIG:SLOP",
+            "type": "TriggerSlope",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Rising": "POS",
+                "Falling": "NEG"
+            }
+        },
+        {
+            "cmd": ":TRIG:SOUR",
+            "type": "TriggerSource",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "InternalTrigger": "INT",
+                "ExternalTrigger": "EXT",
+                "ManualTrigger": "MAN",
+                "BusTrigger": "BUS"
+            }
+        },
+        {
+            "cmd": ":TRIG:OUTP",
+            "type": "TriggerOutput",
+            "values": [
+                "v::Bool"
+            ]
+        }
+    ]
+}

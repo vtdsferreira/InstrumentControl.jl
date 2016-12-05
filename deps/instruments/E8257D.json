@@ -1,0 +1,202 @@
+{
+    "instrument":{
+            "module":"E8257D",
+            "type":"InsE8257D",
+            "make":"Keysight",
+            "model":"E8257D",
+            "writeterminator":"\n"
+    },
+    "properties":[
+        {
+            "cmd":"SOUR:ROSC:SOUR?",
+            "type":"OscillatorSource",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Internal":"INT",
+                "External":"EXT"
+            }
+        }, {
+            "cmd":"TRIG:OUTP:POL",
+            "type":"TriggerOutputPolarity",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "Positive":"POS",
+                "Negative":"NEG"
+            }
+        }, {
+            "cmd":"TRIG:SOUR",
+            "type":"TriggerSource",
+            "values":[
+                "v::Symbol in symbols"
+            ],
+            "symbols":{
+                "InternalTrigger":"IMM",
+                "ExternalTrigger":"EXT",
+                "ManualTrigger":"KEY",
+                "BusTrigger":"BUS"
+            }
+        }, {
+            "cmd":"SOUR:POW:ALC:STAT",
+            "type":"ALC",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:POW:ALC:BAND",
+            "type":"ALCBandwidth",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:ALC:BAND:AUTO",
+            "type":"ALCBandwidthAuto",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:POW:ALC:LEV",
+            "type":"ALCLevel",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:ATT:AUTO",
+            "type":"AttenuatorAuto",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:CORR:STAT",
+            "type":"FlatnessCorrection",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:FREQ:FIX",
+            "type":"Frequency",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:FREQ:STAR",
+            "type":"FrequencyStart",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:FREQ:STOP",
+            "type":"FrequencyStop",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:FREQ:STEP",
+            "type":"FrequencyStep",
+            "values":[
+                "v::Real"
+            ],
+            "infixes":[
+            ]
+        }, {
+            "cmd":"SOUR:FREQ:REF",
+            "type":"FrequencyReferenceLevel",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:FREQ:REF:STAT",
+            "type":"FrequencyReference",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":":OUTP",
+            "type":"Output",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:OUTP:BLAN:STAT",
+            "type":"OutputBlanking",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:OUTP:BLAN:AUTO",
+            "type":"OutputBlankingAuto",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:PHAS:ADJ",
+            "type":"OutputPhase",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW",
+            "type":"Power",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:LIM:MAX",
+            "type":"PowerLimit",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:LIM:MAX:ADJ",
+            "type":"PowerLimitAdjustable",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:POW:STAR",
+            "type":"PowerStart",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:STOP",
+            "type":"PowerStop",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:LEV:STEP",
+            "type":"PowerStep",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:REF:STAT",
+            "type":"PowerReference",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:POW:REF",
+            "type":"PowerReferenceLevel",
+            "values":[
+                "v::Real"
+            ]
+        }, {
+            "cmd":"SOUR:POW:PROT:STAT",
+            "type":"PowerSearchProtection",
+            "values":[
+                "v::Bool"
+            ]
+        }, {
+            "cmd":"SOUR:POW:NOIS:STAT",
+            "type":"PowerOptimizeSNR",
+            "values":[
+                "v::Bool"
+            ]
+        }
+    ]
+}

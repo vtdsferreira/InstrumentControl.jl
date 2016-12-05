@@ -1,0 +1,24 @@
+{
+    "instrument":{
+            "module":"SMB100A",
+            "type":"InsSMB100A",
+            "make":"Rohde & Schwarz",
+            "model":"SMB100A",
+            "writeterminator":"\n"
+    },
+    "properties":[
+        {
+            "cmd":"FREQ",
+            "type":"Frequency",
+            "values":"v::Real"
+        }, {
+            "cmd":"POW",
+            "type":"Power",
+            "values":"v::Real"
+        }, {
+            "cmd":"OUTP",
+            "type":"Output",
+            "values":"v::Bool"
+        }
+    ]
+}
