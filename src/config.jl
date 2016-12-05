@@ -25,7 +25,7 @@ end
 get_user() = confd["username"]
 
 # Load package configuration into a dictionary `confd`.
-confpath = joinpath(dirname(dirname(@__FILE__)), "deps", "config.json")
+const confpath = joinpath(dirname(dirname(@__FILE__)), "deps", "config.json")
 if isfile(confpath)
     const confd = JSON.parsefile(confpath)
     if !haskey(confd, "dbserver")
@@ -60,20 +60,3 @@ if isfile(confpath)
 else
     error("configuration file not found at $(confpath).")
 end
-
-# ZeroMQ context
-const ctx = ZMQ.Context()
-
-# Live plotting
-const plotsock = ZMQ.Socket(ctx, ZMQ.PUB)
-ZMQ.bind(plotsock, "tcp://127.0.0.1:50002")
-
-# Database server connection
-const dbsock = ZMQ.Socket(ctx, ZMQ.REQ)
-ZMQ.connect(dbsock, confd["dbserver"])
-
-const qsock = ZMQ.Socket(ctx, ZMQ.REQ)
-ZMQ.connect(qsock, confd["dbserver"])
-
-# Now that the database server is connected, check that username is valid.
-validate_username(confd["username"])

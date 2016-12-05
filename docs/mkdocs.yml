@@ -32,8 +32,11 @@ pages:
     - 'Sweeps': sweep.md
 - Instruments:
     - 'Alazar digitizers': Alazar.md
-    - 'AWG5014C': awg5014c/index.md
-    - 'E5071C': e5071c/index.md
+    - Waveform generators:
+        - 'AWG5014C': waveform_generator/awg5014c.md
+    - VNAs:
+        - 'VNAs': vna/vna.md
+        - 'E5071C': vna/e5071c.md
 - Miscellaneous:
     - 'Documentation building': docbuild.md
     - 'Release notes': releases.md
