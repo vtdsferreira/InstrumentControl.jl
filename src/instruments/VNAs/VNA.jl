@@ -2,14 +2,14 @@ module VNA
 
 importall InstrumentControl
 using ICCommon
-import FixedSizeArrays
+using AxisArrays
 import Base: search
 
 export InstrumentVNA
 export MarkerSearch
 
 # export Format, Parameter
-export clearavg, data, search, shotgun, sweeptime
+export clearavg, data, search, shotgun, stimdata, sweeptime
 abstract InstrumentVNA  <: Instrument
 
 """
@@ -32,6 +32,7 @@ axisnames(::FrequencySweep) = [:f, :sparameter]
 axisscales(x::FrequencySweep) = (stimdata(x.ins), [:S11, :S21])
 
 function measure(x::FrequencySweep)
+
     old_timeout = x.ins[Timeout]
     old_avgtrig = x.ins[AveragingTrigger]
 
@@ -85,14 +86,14 @@ function measure(x::FrequencySweep)
 end
 
 """
-`Format`: Format of returned data. Search for `VNA.Format` in the instrument
+Format of returned data. Search for `VNA.Format` in the instrument
 template files to find valid options; some examples include `:LogMagnitude`,
 `:GroupDelay`, `:PolarComplex`, etc.
 """
 abstract Format <: InstrumentProperty
 
-""""
-`Graphs`: Graph layout on the VNA display. Specify with a matrix of integers.
+"""
+Graph layout on the VNA display. Specify with a matrix of integers.
 
 The following example will have graph 1 occupying the top half of the screen,
 graph 2 occupying the lower-left, and graph 3 the lower-right:
@@ -104,22 +105,22 @@ ins[Graphs] = [1 1; 2 3]
 abstract Graphs <: InstrumentProperty
 
 """
-`Marker`: Marker state for a given marker (on/off).
+Marker state for a given marker (on/off).
 """
 abstract Marker <: InstrumentProperty
 
 """
-`MarkerX`: X-axis value for a given marker.
+X-axis value for a given marker.
 """
 abstract MarkerX <: InstrumentProperty
 
 """
-`MarkerY`: Y-axis value for a marker.
+Y-axis value for a marker.
 """
 abstract MarkerY <: InstrumentProperty
 
 """
-`Parameter`: Scattering parameter. For the E5071C, you can specify
+Scattering parameter. For two-port VNAs, you can specify
 `:S11`, `:S12`, `:S21`, or `:S22`.
 
 Example:
@@ -131,7 +132,7 @@ ins[Parameter, channel, trace] = :S21
 abstract Parameter <: InstrumentProperty
 
 """
-`SearchTracking`: Do a marker search with each trace update (yes/no).
+Do a marker search with each trace update (yes/no).
 """
 abstract SearchTracking <: InstrumentProperty
 
@@ -232,6 +233,14 @@ data(ins::InstrumentVNA, fmt::Symbol, ch::Integer=1, tr::Integer=1) =
 data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) =
     data(ins, Val{ins[VNA.Format, ch, tr]}, ch, tr)
 
+"""
+```
+stimdata(ins::InstrumentVNA, ch::Integer=1)
+```
+
+Short for "stimulus data," reads the frequency axis from the VNA.
+"""
+function stimdata end
 
 """
 ```

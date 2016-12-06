@@ -11,7 +11,7 @@ instrument model numbers are used for module definitions
 (e.g. `VISA` and `Alazar` calls). This way, at least some code can be reused if
 someone else does not want to use our codebase.
 - Early instrument definitions and functions like `Instrument` and
-`InstrumentException` are defined in `src/Definitions.jl`. If there is ever
+`InstrumentException` are defined in `src/definitions.jl`. If there is ever
 trouble with `InstrumentProperty` subtypes not being defined by the time they
 are used in a function, they can be defined and exported manually here.
 - `export` statements from an instrument submodule are not currently exported
@@ -25,7 +25,7 @@ syntax (VISA and SCPI respectively). For such instruments, methods for
 `setindex!` and `getindex` can be generated with metaprogramming, rather than
 typing them out explicitly.
 
-The file `src/Metaprogramming.jl` is used heavily for code generation based
+The file `src/metaprogramming.jl` is used heavily for code generation based
 on JSON template files. Since much of the logic for talking to instruments is
 the same between VISA instruments, in some cases no code needs to be written
 to control a new instrument provided an appropriate template file is prepared.
@@ -33,11 +33,11 @@ The metaprogramming functions are described below although they are not intended
 to be used interactively.
 
 ```@docs
-    insjson
-    generate_all
-    generate_instruments
-    generate_properties
-    generate_handlers
-    generate_configure
-    generate_inspect
+    InstrumentControl.insjson
+    InstrumentControl.@generate_all
+    InstrumentControl.@generate_instruments
+    InstrumentControl.@generate_properties
+    InstrumentControl.@generate_handlers
+    InstrumentControl.@generate_configure
+    InstrumentControl.@generate_inspect
 ```

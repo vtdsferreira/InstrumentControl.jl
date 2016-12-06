@@ -294,13 +294,13 @@ function scaling{T<:AbstractArray}(resp::FFTResponse{T},
     rate = (resp.ins)[SampleRate]
     npts = resp.m.sam_per_fft # single-sided
     dims = T.parameters[2]::Int
-    if (dims == 1)
+    if dims == 1
         @assert whichaxis == 1
         return repeat(collect(0:rate/npts:(rate/2-rate/npts)),
                       outer=[resp.m.total_recs])
-    elseif (dims == 2)
+    elseif dims == 2
         @assert 1<=whichaxis<=2
-        if (whichaxis == 1)
+        if whichaxis == 1
             return collect(0:rate/npts:(rate/2-rate/npts))
         else
             return collect(1:resp.m.total_recs)

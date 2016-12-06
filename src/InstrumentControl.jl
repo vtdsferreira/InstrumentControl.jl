@@ -22,6 +22,9 @@ function __init__()
 
     # Now that the database server is connected, check that username is valid.
     validate_username(confd["username"])
+
+    const global PARALLEL_PATH = joinpath(dirname(@__FILE__), "parallelutils.jl")
+    eval(Main, :(@everywhere include($PARALLEL_PATH)))
 end
 
 # Parse configuration file
@@ -46,25 +49,26 @@ for x in readdir(dir)
 end
 
 # Various instruments
-include(joinpath("instruments","VNAs","VNA.jl"))
-include(joinpath("instruments","VNAs","E5071C.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "VNAs", "VNA.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "VNAs", "E5071C.jl"))
 # include(joinpath("instruments","VNAs","ZNB20.jl"))
-#
-# include(joinpath("instruments","SMB100A.jl"))
-# include(joinpath("instruments","E8257D.jl"))
-# include(joinpath("instruments","AWG5014C.jl"))
-# include(joinpath("instruments","GS200.jl"))
-#
-# include(joinpath("instruments","Alazar","Alazar.jl"))
+
+include(joinpath(dirname(@__FILE__), "instruments", "SMB100A.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "E8257D.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "AWG5014C.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "GS200.jl"))
+
+include(joinpath(dirname(@__FILE__), "instruments", "Alazar", "Alazar.jl"))
+
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
 
-# importall .AlazarModule
-# importall .AWG5014C
-# importall .E5071C
-# importall .E8257D
-# importall .GS200
-# importall .SMB100A
+importall .AlazarModule
+importall .AWG5014C
+importall .E5071C
+importall .E8257D
+importall .GS200
+importall .SMB100A
 # importall .ZNB20Module
 
 # Utility functions
@@ -83,8 +87,3 @@ end
 # using InstrumentControl.GS200
 # using InstrumentControl.SMB100A
 # # using InstrumentControl.ZNB20
-
-# const PARALLEL_PATH = joinpath(dirname(@__FILE__), "parallelutils.jl")
-#
-# reload_parallel() = eval(Main, :(@everywhere include($PARALLEL_PATH)))
-# reload_parallel()

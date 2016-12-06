@@ -25,7 +25,7 @@ Starting from the home directory at the shell:
 
 
 ```
-cd .julia/v0.4/InstrumentControl/docs
+cd .julia/v0.5/InstrumentControl/docs
 julia make.jl
 ```
 

@@ -29,7 +29,6 @@ pages:
 - Overview:
     - 'Design': design.md
     - 'Implementation': implementation.md
-    - 'Sweeps': sweep.md
 - Instruments:
     - 'Alazar digitizers': Alazar.md
     - Waveform generators:

@@ -1,4 +1,4 @@
-module ZNB20Module
+module ZNB20
 
 ## Import packages
 import VISA
@@ -11,7 +11,7 @@ import InstrumentControl: getdata
 importall InstrumentControl.VNA
 import InstrumentControl.VNA: datacmd
 
-include(joinpath(Pkg.dir("InstrumentControl"),"src","meta","Metaprogramming.jl"))
+@generate_all(InstrumentControl.meta["ZNB20"])
 
 export ZNB20
 
@@ -32,12 +32,12 @@ export stimdata
 
 znbool(a) = (Bool(a) ? "ON" : "OFF")
 
-type ZNB20 <: InstrumentVNA
+type InsZNB20 <: InstrumentVNA
     vi::(VISA.ViSession)
     writeTerminator::AbstractString
     model::AbstractString
 
-    ZNB20(x) = begin
+    InsZNB20(x) = begin
         ins = new()
         ins.vi = x
         ins.writeTerminator = "\n"
@@ -46,7 +46,7 @@ type ZNB20 <: InstrumentVNA
         ins
     end
 
-    ZNB20() = new()
+    InsZNB20() = new()
 end
 
 # subtypesArray = [

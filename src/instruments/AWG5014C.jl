@@ -34,8 +34,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps","AWG5014C.json"))
-generate_all(metadata)
+@generate_all(InstrumentControl.meta["AWG5014C"])
 
 ## Exports
 export allWaveforms

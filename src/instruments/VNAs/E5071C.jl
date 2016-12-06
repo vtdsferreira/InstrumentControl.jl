@@ -23,7 +23,7 @@ export WindowLayout
 export SetActiveMarker
 export SetActiveChannel
 
-export autoscale, bandwidth
+export autoscale
 export screen, search
 export stimdata, data
 export mktrace, trig1
@@ -83,7 +83,7 @@ function autoscale(ins::InsE5071C, ch::Integer=1, tr::Integer=1)
     return nothing
 end
 
-function stimdata(ins::InsE5071C, ch::Int=1)
+function stimdata(ins::InsE5071C, ch::Integer=1)
     xfer = ins[TransferFormat]
     getdata(ins, Val{xfer}, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
@@ -234,6 +234,17 @@ code(::InsE5071C,  ::VNA.Both)    = "BOTH"
 
 peaknotfound(::InsE5071C, val::Integer) = (val == 41)
 
+"""
+```
+screen(ins::InsE5071C, filename::AbstractString="screen.png", display::Bool=true)
+```
+
+Take and retrieve a local copy of a screenshot. Display the screenshot if
+`display` is true.
+
+Whatever is at `filename` on the computer calling this method will be overwritten
+with the screenshot. The screenshot is also saved on the instrument.
+"""
 function screen(ins::InsE5071C, filename::AbstractString="screen.png", display::Bool=true)
     rempath = "D:\\screen.png"
     write(ins, ":MMEM:STOR:IMAG #", quoted(rempath))

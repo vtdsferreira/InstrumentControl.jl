@@ -9,8 +9,7 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps","E8257D.json"))
-generate_all(metadata)
+@generate_all(InstrumentControl.meta["E8257D"])
 
 export OutputSettled
 export SetFrequencyReference
