@@ -186,7 +186,7 @@ end
 Read the stimulus values for the given channel (defaults to 1).
 """
 function stimdata(ins::InsE5071C, ch::Int=1)
-    xfer = ins[TransferFormat]
+    xfer = eval(ins[TransferFormat])
     getdata(ins, Val{xfer}, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
 
@@ -197,7 +197,7 @@ end
 """
 function data{T}(ins::InsE5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1)
     ins[VNA.Format, ch, tr] = T
-    xfer = ins[TransferFormat]
+    xfer = eval(ins[TransferFormat])
     cmdstr = datacmd(ins, Val{T})
     cmdstr = replace(cmdstr, "#", string(ch), 1)
     cmdstr = replace(cmdstr, "#", string(tr), 1)
@@ -216,7 +216,7 @@ function data(ins::InsE5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::In
     !(mpar ∈ [:S11, :S12, :S21, :S22]) &&
         error("Raw data must represent a wave quantity or ratio.")
 
-    xfer = ins[TransferFormat]
+    xfer = eval(ins[TransferFormat])
     cmdstr = datacmd(ins, processing)
     cmdstr = replace(cmdstr,"#",string(ch),1)
     cmdstr = replace(cmdstr,"#",code(ins,mpar),1)

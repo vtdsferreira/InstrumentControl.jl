@@ -194,7 +194,6 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
         # This ensures the first trigger to the digitizer is the first trigger
         # sent by the AWG.
         a[AuxIOMode] = :AuxOutputPacer
-        a[AuxOutputPacerDivider] = 10
 
         for dmaptr in buf_array
             wait_buffer(a, m, dmaptr, timeout_ms)
