@@ -607,8 +607,7 @@ only looked at once, the first time `measure` is called.
         # and setup our progress indicator.
         indep = sj.sweep.indep
         dep = sj.sweep.dep
-        it = 0; tot = reduce(*, 0, length(indep[i][2]) for i in 1:$N)
-        tot += (tot == 0 ? 1 : 0) # avoid div by 0
+        it = 0; tot = reduce(*, 1, length(indep[i][2]) for i in 1:$N)
 
         # Wait for job to run or be aborted
         @respond_to_status
