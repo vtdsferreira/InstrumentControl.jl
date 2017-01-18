@@ -2,13 +2,13 @@ export set_user, get_user
 
 # Some functions for user handling.
 function validate_username(username)
-    username in listusers() ||
+    (username in listusers()) ||
         error("username not found in database.")
 end
 
 function listusers()
     io = IOBuffer()
-    serialize(io, ListUsersRequest())
+    serialize(io, ICCommon.ListUsersRequest())
     ZMQ.send(dbsock, ZMQ.Message(io))
 
     msg = ZMQ.recv(dbsock)

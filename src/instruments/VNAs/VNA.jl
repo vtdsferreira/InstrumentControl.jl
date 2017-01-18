@@ -4,6 +4,7 @@ importall InstrumentControl
 using ICCommon
 using AxisArrays
 import Base: search
+import ICCommon: measure
 
 export InstrumentVNA
 export MarkerSearch
@@ -204,6 +205,9 @@ function MarkerSearch(typ::Symbol, ch, tr, m, val=0.0, pol::Polarity=Both())
     return MarkerSearch{typ}(ch, tr, m, val, pol)
 end
 
+
+function autoscale end
+
 """
 ```
 clearavg(ins::InstrumentVNA, ch::Integer=1)
@@ -287,6 +291,9 @@ end
 
 "Determines if an error code reflects a peak search failure."
 function peaknotfound end
+
+"Trigger a single sweep when TriggerSource is :Bus."
+function trig1 end
 
 "How to specify a window layout in a command string, given a matrix."
 function window end

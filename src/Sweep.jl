@@ -431,9 +431,7 @@ function (sq::SweepJobQueue)()
     end
 end
 
-# Set up and initialize a sweep queue.
-const sweepjobqueue = SweepJobQueue()
-const sweepjobtask = @schedule sweepjobqueue()
+
 
 """
 ```
@@ -457,7 +455,7 @@ end
 
 # TODO: default username and server mechanism
 function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
-    request = NewJobRequest(username=username, dataserver="local_data")
+    request = ICCommon.NewJobRequest(username=username, dataserver="local_data")
     io = IOBuffer()
     serialize(io, request)
     ZMQ.send(dbsock, ZMQ.Message(io))
@@ -469,7 +467,7 @@ function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
 end
 
 function update_job_in_db(sw; kwargs...)::Bool
-    request = UpdateJobRequest(sw.job_id; kwargs...)
+    request = ICCommon.UpdateJobRequest(sw.job_id; kwargs...)
     io = IOBuffer()
     serialize(io, request)
     ZMQ.send(qsock, ZMQ.Message(io))
@@ -630,10 +628,10 @@ only looked at once, the first time `measure` is called.
 
         # Setup a plot and send our first result
         io = IOBuffer()
-        serialize(io, PlotSetup(Array{eltype(data)}, size(array)))
+        serialize(io, ICCommon.PlotSetup(Array{eltype(data)}, size(array)))
         produce(io)
         io = IOBuffer()
-        serialize(io, PlotPoint(inds, data))
+        serialize(io, ICCommon.PlotPoint(inds, data))
         produce(io)
 
         (@ntuple $N t) = (@ntuple $N x->true)
@@ -652,7 +650,7 @@ only looked at once, the first time `measure` is called.
 
                 # send forth results
                 io = IOBuffer()
-                serialize(io, PlotPoint((@dntuple $D $N i), data))
+                serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))
                 produce(io)
             end
         end

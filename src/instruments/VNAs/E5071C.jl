@@ -3,7 +3,7 @@ import Base: getindex, setindex!
 import VISA
 importall InstrumentControl
 importall InstrumentControl.VNA
-import InstrumentControl.VNA: peaknotfound, window
+import InstrumentControl.VNA: autoscale, peaknotfound, trig1, window
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
@@ -117,7 +117,6 @@ function data(ins::InsE5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::In
     reinterpret(Complex{Float64}, data)
 end
 
-"Trigger a single sweep when TriggerSource is :Bus."
 trig1(ins::InsE5071C) = write(ins, ":TRIG:SING")
 
 nummarkers(ins::InsE5071C) = 9

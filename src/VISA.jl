@@ -7,14 +7,14 @@ import Compat
 import Compat.@compat
 
 ## Get the resource manager
-"""
-```
-const resourcemanager
-```
+# """
+# ```
+# const resourcemanager
+# ```
+#
+# The default VISA resource manager as returned by `VISA.viOpenDefaultRM()`.
+# """
 
-The default VISA resource manager as returned by `VISA.viOpenDefaultRM()`.
-"""
-const  resourcemanager = VISA.viOpenDefaultRM()
 export resourcemanager
 
 ## VISA specific InstrumentProperty subtypes

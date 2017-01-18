@@ -25,6 +25,13 @@ function __init__()
 
     const global PARALLEL_PATH = joinpath(dirname(@__FILE__), "parallelutils.jl")
     eval(Main, :(@everywhere include($PARALLEL_PATH)))
+
+    # VISA resource manager
+    const global resourcemanager = VISA.viOpenDefaultRM()
+
+    # Finally, set up and initialize a sweep queue.
+    const global sweepjobqueue = SweepJobQueue()
+    const global sweepjobtask = @schedule sweepjobqueue()
 end
 
 # Parse configuration file
@@ -73,17 +80,17 @@ importall .SMB100A
 
 # Utility functions
 include("reflection.jl")
-# include("sweep.jl")
+include("sweep.jl")
 # include("LiveUpdate.jl")   # <--- causes Documenter to fail?
 
 end
 #
-# using InstrumentControl
-# using InstrumentControl.AWG5014C
-# using InstrumentControl.AlazarModule
-# using InstrumentControl.VNA
-# using InstrumentControl.E5071C
-# using InstrumentControl.E8257D
-# using InstrumentControl.GS200
-# using InstrumentControl.SMB100A
+using InstrumentControl
+using InstrumentControl.AWG5014C
+using InstrumentControl.AlazarModule
+using InstrumentControl.VNA
+using InstrumentControl.E5071C
+using InstrumentControl.E8257D
+using InstrumentControl.GS200
+using InstrumentControl.SMB100A
 # # using InstrumentControl.ZNB20
