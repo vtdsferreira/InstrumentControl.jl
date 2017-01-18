@@ -4,8 +4,6 @@ export NPTRecordResponse
 export FFTHardwareResponse
 export IQSoftwareResponse
 
-import InstrumentControl.scaling
-
 "Abstract `Response` from an Alazar digitizer instrument."
 abstract AlazarResponse{T} <: Response
 

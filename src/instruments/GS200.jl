@@ -9,7 +9,6 @@ returntype(::Type{Integer}) = (Int, Int)
 fmt(v::Bool) = string(Int(v))
 fmt(v) = string(v)
 
-metadata = insjson(joinpath(Pkg.dir("InstrumentControl"),"deps","GS200.json"))
-generate_all(metadata)
+@generate_all(InstrumentControl.meta["GS200"])
 
 end

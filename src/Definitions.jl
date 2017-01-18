@@ -1,6 +1,4 @@
 import Base: show, showerror
-export Instrument
-export InstrumentProperty
 
 export Averaging
 export AveragingFactor
@@ -13,10 +11,6 @@ export InstrumentException
 # Miscellaneous stuff
 export VNA
 export make, model
-export stimdata
-
-abstract Instrument
-abstract InstrumentProperty
 
 "How to display an instrument, e.g. in an error."
 show(io::IO, x::Instrument) = print(io, make(x), " ", model(x))
@@ -67,6 +61,3 @@ function showerror(io::IO, e::InstrumentException)
         end
     end
 end
-
-"Read the stimulus values."
-function stimdata end

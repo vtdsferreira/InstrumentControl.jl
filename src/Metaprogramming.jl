@@ -1,24 +1,14 @@
 import JSON
 
 export insjson
-export generate_all, generate_instruments
+export @generate_all, @generate_instruments
 export generate_properties, generate_handlers, generate_configure, generate_inspect
 export argsym, argtype, insjson, stripin
 
 """
-`insjson{T<:Instrument}(::Type{T})`
-
-Simple wrapper to call `insjson` on the appropriate file path for a given
-instrument type.
-"""
-function insjson{T<:Instrument}(::Type{T})
-    # Get the name of the instrument by taking the type name (without module prefixes!)
-    insname = split(string(T.name),".")[end]
-    insjson(insname*".json")
-end
-
-"""
-`insjson(file::AbstractString)`
+```
+insjson(file::AbstractString)
+```
 
 Parses a JSON file with a standardized schema to describe how to control
 an instrument.
@@ -118,16 +108,17 @@ function insjson(file::AbstractString)
 end
 
 """
-`generate_all(metadata)`
+```
+generate_all(metadata)
+```
 
-This function takes a dictionary of instrument metadata, typically obtained
+This macro takes a dictionary of instrument metadata, typically obtained
 from a call to [`insjson`](@ref). It will go through the following steps:
 
-1. [`generate_instruments`](@ref) part 1: If the module for this instrument does not
-already exist, generate it and import required modules and symbols.
-2. [`generate_instruments`](@ref) part 2: Define the `Instrument` subtype and the `make`
-and `model` methods (`make` and `model` are defined in `src/Definitions.jl`).
-Export the subtype.
+1. [`generate_instruments`](@ref) Import required modules and symbols. Define
+and export the `Instrument` subtype and the `make` and `model` methods if they
+do not exist already (note generic functions `make` and `model` are defined in
+`src/Definitions.jl`).
 3. [`generate_properties`](@ref): Generate instrument properties if they do
 not exist already, and do any necessary importing and exporting.
 4. [`generate_handlers`](@ref): Generate "handler" methods to convert between
@@ -139,23 +130,25 @@ symbols and SCPI string args.
 if one exists. It is not required to have a source file for each instrument if
 the automatically generated code is sufficient.
 """
-function generate_all(metadata)
-    generate_instruments(metadata)
-    md = eval(InstrumentControl, metadata[:instrument][:module])
-    ins = eval(md, metadata[:instrument][:type])
+macro generate_all(metadata)
+    quote
+        @generate_instruments($(esc(metadata)))
+        ins = $(esc(metadata))[:instrument][:type]
 
-    for p in metadata[:properties]
-        generate_properties(ins, p)
-        generate_handlers(ins, p)
-        generate_inspect(ins, p)
-        if p[:cmd][end] != '?'
-            generate_configure(ins, p)
+        for p in $(esc(metadata))[:properties]
+            @generate_handlers(ins, p)
+            @generate_inspect(ins, p)
+            if p[:cmd][end] != '?'
+                @generate_configure(ins, p)
+            end
         end
     end
 end
 
 """
-`generate_instruments(metadata)`
+```
+generate_instruments(metadata)
+```
 
 This function takes a dictionary of metadata, typically obtained from
 a call to [`insjson`](@ref). It operates on the `:instrument` field of the dictionary
@@ -176,116 +169,75 @@ By convention we typically have the module name be the same as the model name,
 and the type is just the model prefixed by "Ins", e.g. `InsE5071C`. This is not
 required.
 """
-function generate_instruments(metadata)
-    idata = metadata[:instrument]
-    mdname = idata[:module]
-    # The module may not be defined if there is no source .jl file.
-    if !isdefined(InstrumentControl, mdname)
+macro generate_instruments(metadata)
+    esc(quote
         # We must define the module and import necessary definitions
-        eval(InstrumentControl, quote
-            module $mdname
-            import Base: getindex, setindex!
-            import VISA
-            importall InstrumentControl
-            end
-        end)
-    end
+        import Base: getindex, setindex!
+        import VISA
+        importall InstrumentControl
 
-    # Now the module is defined. We evaluate the symbol and get the Module object
-    md = eval(InstrumentControl, mdname)
+        # boring assignment for convenience
+        md = eval($(metadata)[:instrument][:module])
+        typsym = $(metadata)[:instrument][:type]
+        sup = $(metadata)[:instrument][:super]
+        term = $(metadata)[:instrument][:writeterminator]
+        mod = $(metadata)[:instrument][:model]
+        mak = $(metadata)[:instrument][:make]
 
-    # boring assignment for convenience
-    typsym = idata[:type]
-    sup = idata[:super]
-    term = idata[:writeterminator]
-    model = idata[:model]
-    make = idata[:make]
+        # Here we define the Instrument subtype.
+        if !isdefined(md, typsym)
+            eval(quote
+                export $typsym
+                type $typsym <: $sup
+                    vi::(VISA.ViSession)
+                    writeTerminator::String
+                    ($typsym)(x) = begin
+                        ins = new()
+                        ins.vi = x
+                        ins.writeTerminator = $term
+                        ins[WriteTermCharEnable] = true
+                        ins
+                    end
 
-    # Here we define the Instrument subtype.
-    if !isdefined(md, typsym)
-        eval(md, quote
-            export $typsym
-            type $typsym <: $sup
-                vi::(VISA.ViSession)
-                writeTerminator::AbstractString
-                ($typsym)(x) = begin
-                    ins = new()
-                    ins.vi = x
-                    ins.writeTerminator = $term
-                    ins[WriteTermCharEnable] = true
-                    ins
+                    ($typsym)() = new()
                 end
+            end)
+        end
 
-                ($typsym)() = new()
+        typ = eval(typsym)
+        if !method_exists(make, (typ,))
+            make(x::typ) = mak
+        end
+
+        if !method_exists(model, (typ,))
+            model(x::typ) = mod
+        end
+    end)
+end
+
+macro generate_properties(metadata)
+    quote
+        for p in $(esc(metadata))[:properties]
+            # First check if it is a `Symbol`. Why? Because it could be an `Expr`,
+            # in which case it is referring to an InstrumentProperty already
+            # defined elsewhere (e.g. `VNA.Format`)
+            if isa(p[:type], Symbol) && !isdefined(p[:type])
+                sym = p[:type]
+                eval(Expr(:abstract, Expr(:(<:), sym, InstrumentProperty)))
+                eval(Expr(:export, sym))
             end
-        end)
-    end
-
-    if !method_exists(md.make, (eval(md, typsym),))
-        eval(md, quote make(x::$typsym) = $make end)
-    end
-
-    if !method_exists(md.model, (eval(md, typsym),))
-        eval(md, quote model(x::$typsym) = $model end)
-    end
-
-end
-
-"""
-`generate_properties{S<:Instrument}(instype::Type{S}, p)`
-
-This function takes an `Instrument` subtype `instype`, and a property dictionary
-`p`. The property dictionary is built out of an auxiliary JSON file described above.
-
-This function is responsible for generating the `InstrumentProperty` subtypes
-to use with `getindex` and `setindex!` if they have not been defined already.
-Ordinarily these types are defined in the InstrumentControl module but if a really
-generic name is desired that makes sense for a class of instruments (e.g. `VNA.Format`)
-then the `Format` subtype is defined in the `InstrumentControl.VNA` module. The defined
-subtype is then imported into the module where the `instype` is defined.
-
-If you an encounter an error where it appears like the subtypes were not
-defined, it may be that they are being referenced from a module that did an
-`import` statement too soon, before all relevant `InstrumentProperty` subtypes
-were defined and exported. Ordinarily this is not a problem.
-"""
-function generate_properties{S<:Instrument}(instype::Type{S}, p)
-    md = instype.name.module
-    if isa(p[:type], Symbol)
-        # No module path; assume we define it in the base module
-        if !isdefined(InstrumentControl, p[:type])
-            # Define and export the InstrumentProperty subtype in InstrumentControl
-            eval(InstrumentControl, :(abstract $(p[:type]) <: InstrumentProperty))
-            eval(InstrumentControl, :(export $(p[:type])))
-            # Import the subtype in our instrument's module
-            eval(md, :(import InstrumentControl.$(p[:type])))
         end
-    elseif isa(p[:type], Expr)
-        # Symbol is qualified by module path.
-        sym = p[:type].args[2].value
-        where = eval(p[:type].args[1])
-        if !isdefined(where, sym)
-            # Define and export the InstrumentProperty subtype where appropriate
-            eval(where, :(abstract $sym <: InstrumentProperty))
-            eval(where, :(export $sym))
-            # We need to take care with module paths. The following is
-            # kind of crude but import doesn't accept modules, only symbols
-            syms = map(Symbol, split(string(p[:type]),"."))
-            syms[1] != :InstrumentControl && (insert!(syms, 1, :InstrumentControl))
-            # Import the subtype in our instrument's module
-            eval(md, Expr(:import, syms...))
-        end
-    else
-        # Parser found something weird
-        error("Unexpected InstrumentProperty subtype name.")
     end
 end
 
 """
-`generate_handlers{S<:Instrument}(instype::Type{S}, p)`
+```
+@generate_handlers(instype, p)
+```
 
-This function takes an `Instrument` subtype `instype`, and a property dictionary
-`p`. The property dictionary is built out of an auxiliary JSON file described above.
+This macro takes a symbol `instype` bound to an `Instrument` subtype, and a
+symbol `p` bound to a property dictionary. The property dictionary is built out
+of an auxiliary JSON file described above.
 
 In some cases, an instrument command does not except numerical arguments but
 rather a small set of options. Here is an example of the property dictionary
@@ -295,7 +247,7 @@ channel and trace on the E5071C vector network analyzer:
 ```json
 {
     "cmd":":CALCch:TRACtr:FORM",
-    "type":"VNA.Format",
+    "type":"VNAFormat",
     "values":[
         "v::Symbol in symbols"
     ],
@@ -332,213 +284,232 @@ a dictionary that is defined on the next line. The keys of this dictionary
 are going to be interpreted as symbols (e.g. `:LogMagnitude`) and the values
 are just ASCII strings to be sent to the instrument.
 
-`generate_handlers` makes a bidirectional mapping between the symbols and the strings.
-In this example, this is accomplished as follows:
+`generate_handlers` makes a bidirectional mapping between the symbols and the
+strings. In this example, the macro defines the following functions:
 
 ```jl
-symbols(ins::E5071C, ::Type{VNA.Format}, v::Symbol) = symbols(ins, VNA.Format, Val{v})
-symbols(ins::E5071C, ::Type{VNA.Format}, ::Type{Val{:LogMagnitude}}) = "MLOG" # ... etc. for each symbol.
+function symbols(ins::InsE5071C, ::Type{VNAFormat}, v::Symbol)
+    if v == :LogMagnitude
+        "MLOG"
+    elseif v == :Phase
+        "PHAS"
+    elseif ...
 
-VNA.Format(ins::E5071C, s::AbstractString) = VNA.Format(ins, Val{symbol(s)})
-VNA.Format(ins::E5071C, ::Type{Val{Symbol("MLOG")}}) = :LogMagnitude # ... etc. for each symbol.
+    else
+        error("unexpected input.")
+    end
+end
+
+function VNAFormat(ins::InsE5071C, s::AbstractString)
+    if s == "MLOG"
+        :LogMagnitude
+    elseif s == "PHAS"
+        :Phase
+    elseif ...
+
+    else
+        error("unexpected input.")
+    end
+end
 ```
 
-The above methods will be defined in the E5071C module. Note that the function `symbols`
-has its name chosen based on the dictionary name in the JSON file. Since this function
-is not exported from the instrument's module there should be few namespace worries
-and we maintain future flexibliity.
+The above functions will be defined in the E5071C module. Note that the function
+`symbols` has its name chosen based on the dictionary name in the JSON file.
+Since this function is not exported from the instrument's module there should be
+few namespace worries and we maintain future flexibliity.
 """
-function generate_handlers{S<:Instrument}(instype::Type{S}, p)
+macro generate_handlers(instype, p)
+    quote
+        # Look for symbol dictionaries
+        for v in $(esc(p))[:values]
+            if v.head == :(call) && v.args[1] == :(in)
+                # Looks like we have a symbol dictionary
+                sym = v.args[3]     # name of dictionary
+                !haskey($(esc(p)), sym) && error("Property $p lacking some information.")
+                dict = $(esc(p))[sym]      # the dictionary
 
-    md = instype.name.module
-    T = eval(md, p[:type])
+                # Define a function signature fnsig, e.g.:
+                # symbols(ins::InsE5071C, ::Type{VNAFormat}, v::Symbol)
+                fnsig = Expr(:call, :symbols,
+                    Expr(:(::), :ins, $(esc(instype))),
+                    Expr(:(::), Expr(:curly, :Type, $(esc(p))[:type])),
+                    Expr(:(::), :v, :Symbol))
+                fndecl = Expr(:function, fnsig)
 
-    # Look for symbol dictionaries
-    for v in p[:values]
-        if VERSION < v"0.5.0-pre"
-            cond = (v.head == :(in))
-            idxadj = 0
-        else
-            cond = (v.head == :(call) && v.args[1] == :(in))
-            idxadj = 1
-        end
-        if cond
-            # Looks like we have a dictionary of symbols
-            sym = v.args[2+idxadj]     # name of dictionary
-            !haskey(p, sym) && error("Property $p lacking some information.")
-            dict = p[sym]       # the dictionary
+                # Build up the if-elses programmatically
+                expr = Expr(:if)
+                next2last = expr
+                last = expr
+                for (a,b) in dict
+                    x = parse(a)
+                    push!(last.args, Expr(:call, :(==), :v, QuoteNode(x)))
+                    push!(last.args, b)
+                    push!(last.args, Expr(:if))
+                    next2last = last
+                    last = last.args[end]
+                end
+                pop!(next2last.args)
+                push!(next2last.args, :(error("Unexpected input.")))
+                push!(fndecl.args, expr)
 
-            # Define methods to dispatch based on Val types
-            # e.g. symbols(ins::AWG5014C, ::Type{ClockSource}, v::Symbol) =
-            #       symbols(ins, ClockSource, Val{v})
-            # and  ClockSource(ins::AWG5014C, s::AbstractString) =
-            #       ClockSource(ins, Val{symbol(s)})
-            eval(md, :(($sym)(ins::$instype, ::Type{$T}, $(v.args[1+idxadj])) =
-                ($sym)(ins, $T, Val{$(argsym(v))})))
-            eval(md, :(($(p[:type]))(ins::$instype, s::AbstractString) =
-                ($(p[:type]))(ins, Val{Symbol(s)})))
+                # Define the function
+                eval(current_module(), fndecl)
 
-            # Now define the methods that use the Val types
-            # e.g. symbols(ins::AWG5014C, ::Type{ClockSource}, Val{:Internal}) = "INT"
-            # and  ClockSource(ins::AWG5014C, Val{:INT}) = :Internal
-            for (a,b) in dict
-                eval(md, :(($sym)(ins::$instype, ::Type{$T}, ::Type{Val{parse($a)}}) = $b))
-                eval(md, :(($(p[:type]))(ins::$instype, ::Type{Val{Symbol($b)}}) = parse($a)))
+                # Define a function signature fnsig, e.g.:
+                # VNAFormat(ins::InsE5071C, s::AbstractString)
+                fnsig = Expr(:call, $(esc(p))[:type],
+                    Expr(:(::), :ins, $(esc(instype))),
+                    Expr(:(::), :s, :AbstractString))
+                fndecl = Expr(:function, fnsig)
+
+                # Build up the if-elses programmatically
+                expr = Expr(:if)
+                next2last = expr
+                last = expr
+                for (a,b) in dict
+                    x = parse(a)
+                    push!(last.args, Expr(:call, :(==), :s, b))
+                    push!(last.args, QuoteNode(x))
+                    push!(last.args, Expr(:if))
+                    next2last = last
+                    last = last.args[end]
+                end
+                pop!(next2last.args)
+                push!(next2last.args, :(error("Unexpected input.")))
+                push!(fndecl.args, expr)
+
+                # Define the function
+                eval(current_module(), fndecl)
             end
         end
     end
-
-    nothing
 end
 
 """
-`generate_inspect{S<:Instrument}(instype::Type{S}, p)`
+```
+generate_inspect(instype, p)
+```
 
-This function takes an `Instrument` subtype `instype`, and a property dictionary
-`p`. The property dictionary is built out of an auxiliary JSON file described above.
+This macro takes a symbol `instype` bound to an `Instrument` subtype and a
+symbol `p` bound to a property dictionary. The property dictionary is built out
+of an auxiliary JSON file described above.
 
 This function generates and documents a method for `getindex`. The method is
 defined in the module where the instrument type was defined.
 """
-function generate_inspect{S<:Instrument}(instype::Type{S}, p)
+macro generate_inspect(instype, p)
+    quote
+        # Get the instrument property type and assert.
+        !haskey($(esc(p)), :infixes) && ($(esc(p))[:infixes] = [])
 
-    # Get the instrument property type and assert.
-    md = instype.name.module
-    T = eval(md, p[:type])
-    !haskey(p, :infixes) && (p[:infixes] = [])
+        # Collect the arguments for `inspect`
+        fargs = [Expr(:(::), :ins, $(esc(instype))),
+            Expr(:(::), Expr(:curly, :Type, $(esc(p))[:type]))]
+        for a in $(esc(p))[:infixes]
+            push!(fargs, a)
+        end
 
-    # Collect the arguments for `inspect`
-    fargs = [:(ins::$S), :(::Type{$T})]
-    for a in p[:infixes]
-        push!(fargs, a)
-    end
+        # If it looks like configure needs two or more parameters to follow the
+        # command, the return type for inspect is not obvious
+        length(($(esc(p)))[:values]) > 1 && error("Not yet implemented.")
 
-    # If it looks like configure needs two or more parameters to follow the
-    # command, the return type for inspect is not obvious
-    length(p[:values]) > 1 && error("Not yet implemented.")
+        # Begin constructing our definition of `inspect`
+        method  = Expr(:call, :getindex, fargs...)
+        inspect = Expr(:function, method, Expr(:block))
+        fbody = inspect.args[2].args
 
-    # Begin constructing our definition of `inspect`
-    method  = Expr(:call, :getindex, fargs...)
-    inspect = Expr(:function, method, Expr(:block))
-    fbody = inspect.args[2].args
+        # Add the question mark for a query
+        command = $(esc(p))[:cmd]
+        command[end] != '?' && (command *= "?")
 
-    # Add the question mark for a query
-    command = p[:cmd]
-    command[end] != '?' && (command *= "?")
+        # In the function body: Define `cmd`
+        push!(fbody, Expr(:(=), :cmd, command))
 
-    # In the function body: Define `cmd`
-    push!(fbody, :(cmd = $command))
+        # In the function body: Replace the infixes with the `getindex` arguments
+        for infix in ($(esc(p)))[:infixes]
+            sym = argsym(infix)
+            name = string(sym)
+            push!(fbody, Expr(:(=), :cmd, Expr(:call, :replace, :cmd, name, sym)))
+        end
 
-    # In the function body: Replace the infixes with the `getindex` arguments
-    for infix in p[:infixes]
-        sym = argsym(infix)
-        name = string(sym)
-        push!(fbody, :(cmd = replace(cmd, $name, $sym)))
-    end
-
-    if VERSION < v"0.5.0-pre"
-        if p[:values][1].head != :(in)
-            vtyp = argtype(p[:values][1])
+        if !($(esc(p))[:values][1].head == :(call) &&
+                $(esc(p))[:values][1].args[1] == :(in))
+            vtyp = argtype($(esc(p))[:values][1])
             if vtyp <: Number
-                P,C = md.returntype(vtyp)
-                push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
+                P,C = current_module().returntype(vtyp)
+                # following looks like C(parse(ask(ins,cmd)))::P
+                push!(fbody, Expr(:call, C, Expr(:(::), Expr(:call, :parse,
+                    Expr(:call, :ask, :ins, :cmd)), P)))
             else
-                push!(fbody, :(ask(ins, cmd)) )
+                push!(fbody, :(ask(ins, cmd)))
             end
         else
-            push!(fbody, :(($T)(ins, ask(ins, cmd))))
+            push!(fbody, Expr(:call, $(esc(p))[:type], :ins,
+                Expr(:call, :ask, :ins, :cmd)))
         end
-    else
-        if !(p[:values][1].head == :(call) && p[:values][1].args[1] == :(in))
-            vtyp = argtype(p[:values][1])
-            if vtyp <: Number
-                P,C = md.returntype(vtyp)
-                push!(fbody, :(($C)(parse(ask(ins, cmd))::($P))) )
-            else
-                push!(fbody, :(ask(ins, cmd)) )
-            end
-        else
-            push!(fbody, :(($T)(ins, ask(ins, cmd))))
-        end
+
+        # Define the method in the current module.
+        eval(current_module(), inspect)
     end
-
-    # Define the method in the current module.
-    eval(md, inspect)
-
-    # Document the method.
-    p[:doc] = string("```jl\n",method,"\n```\n\n") * "\n\n" * p[:doc]  # Prepend with method signature
-    eval(md, :(@doc $(p[:doc]) $method))             # ...and document it.
-
-    # Return a method signature without variable names, optional argument defaults, etc.
-    method
 end
 
 """
-`generate_configure{S<:Instrument}(instype::Type{S}, p)`
+```
+generate_configure(instype, p)
+```
 
-This function takes an `Instrument` subtype `instype`, and a property dictionary
-`p`. The property dictionary is built out of an auxiliary JSON file described above.
+This macro takes a symbol `instype` bound to an `Instrument` subtype `instype`,
+and a symbol `p` bound to a property dictionary. The property dictionary is
+built out of an auxiliary JSON file described above.
 
 This function generates and documents a method for `getindex`. The method is
 defined in the module where the instrument type was defined.
 """
-function generate_configure{S<:Instrument}(instype::Type{S}, p)
+macro generate_configure(instype, p)
+    quote
+        command = $(esc(p))[:cmd]
+        !haskey($(esc(p)), :infixes) && ($(esc(p))[:infixes] = [])
 
-    # Get the instrument property type and assert.
-    md = instype.name.module
-    T = eval(md, p[:type])
+        length($(esc(p))[:values]) > 1 && error("Not yet implemented.")
 
-    command = p[:cmd]
-    !haskey(p, :infixes) && (p[:infixes] = [])
+        method = Expr(:call, :setindex!, Expr(:(::), :ins, $(esc(instype))),
+            map(stripin, $(esc(p))[:values])...,
+            Expr(:(::), Expr(:curly, :Type, $(esc(p))[:type])),
+            $(esc(p))[:infixes]...)
 
-    length(p[:values]) > 1 && error("Not yet implemented.")
+        configure = Expr(:function, method, Expr(:block))
+        fbody = configure.args[2].args
 
-    method = Expr(:call, :setindex!,
-        :(ins::$S), map(stripin, p[:values])..., :(::Type{$T}), p[:infixes]...)
-
-    configure = Expr(:function, method, Expr(:block))
-    fbody = configure.args[2].args
-
-    # In the function body: Define `cmd`
-    push!(fbody, :(cmd = $(command*" #")))
-    for infix in p[:infixes]
-        sym = argsym(infix)
-        name = string(sym)
-        push!(fbody, :(cmd = replace(cmd, $name, $sym)))
-    end
-
-    if VERSION < v"0.5.0-pre"
-        if p[:values][1].head == :(in)
-            dictname = p[:values][1].args[2]
-            push!(fbody, :(write(ins, cmd, ($dictname)(ins, $T, $(argsym(p[:values][1]))))))
-        else
-            vsym = argsym(p[:values][1])
-            push!(fbody, :(write(ins, cmd, fmt($vsym))))
+        # In the function body: Define `cmd`
+        push!(fbody, Expr(:(=), :cmd, command*" #"))
+        for infix in $(esc(p))[:infixes]
+            sym = argsym(infix)
+            name = string(sym)
+            push!(fbody, Expr(:(=), :cmd, Expr(:call, :replace, :cmd, name, sym)))
         end
-    else
-        if p[:values][1].head == :(call) && p[:values][1].args[1] == :(in)
-            dictname = p[:values][1].args[3]
-            push!(fbody, :(write(ins, cmd, ($dictname)(ins, $T, $(argsym(p[:values][1]))))))
+
+        vsym = argsym($(esc(p))[:values][1])
+        if $(esc(p))[:values][1].head == :(call) &&
+                $(esc(p))[:values][1].args[1] == :(in)
+            dictname = $(esc(p))[:values][1].args[3]
+            push!(fbody, Expr(:call, :write, :ins, :cmd,
+                Expr(:call, dictname, :ins, $(esc(p))[:type], vsym)))
         else
-            vsym = argsym(p[:values][1])
-            push!(fbody, :(write(ins, cmd, fmt($vsym))))
+            push!(fbody, Expr(:call, :write, :ins, :cmd,
+                Expr(:call, :fmt, vsym)))
         end
+
+        # Define the method in the current module.
+        eval(current_module(), configure)
     end
-
-    # Define the method in the current module.
-    eval(md, configure)
-
-    # Document the method.
-    p[:doc] = string("```jl\n",method,"\n```\n\n") * "\n\n" * p[:doc]  # Prepend with method signature
-    eval(md, :(@doc $(p[:doc]) $method))             # ...and document it.
-
-    method
 end
 
 #### Helper functions ####
 
 """
-`argtype(expr)`
+```
+argtype(expr)
+```
 
 Given function arguments, will return types:
 
@@ -636,7 +607,9 @@ function argsym(expr)
 end
 
 """
-`stripin(expr)`
+```
+stripin(expr)
+```
 
 Return the same expression in most cases, except:
 

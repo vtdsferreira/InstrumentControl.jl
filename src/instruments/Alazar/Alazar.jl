@@ -34,9 +34,9 @@ Abstract type representing an AlazarTech digitizer.
 """
 abstract InstrumentAlazar <: Instrument
 
-show(io::IO, ins::InstrumentAlazar) = begin
+function show(io::IO, ins::InstrumentAlazar)
     println(io, "$(typeof(ins)): ",
-                "SystemId $(ins.systemId), BoardId $(ins.boardId)")
+        "SystemId $(ins.systemId), BoardId $(ins.boardId)")
 end
 
 include("Errors.jl")
@@ -49,9 +49,9 @@ include("Inspect.jl")
 include("ResponseTypes.jl")
 include("ResponseFunctions.jl")
 
-# Model-specific type definitions and methods
-include(joinpath("models","ATS9360.jl"))
-include(joinpath("models","ATS9440.jl"))    # ~~not yet implemented~~
-include(joinpath("models","ATS9870.jl"))
+# # Model-specific type definitions and methods
+# include(joinpath(dirname(@__FILE__), "models", "ATS9360.jl"))
+# include(joinpath(dirname(@__FILE__), "models", "ATS9440.jl")) # not yet impl.
+# include(joinpath(dirname(@__FILE__), "models", "ATS9870.jl"))
 
 end

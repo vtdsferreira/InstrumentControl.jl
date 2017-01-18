@@ -4,7 +4,7 @@ Alazar
 BinDeps
 FileIO
 AxisArrays
-FixedSizeArrays
+StaticArrays
 JSON
 ZMQ
 JLD

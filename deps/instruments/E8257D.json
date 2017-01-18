@@ -16,8 +16,7 @@
             "symbols":{
                 "Internal":"INT",
                 "External":"EXT"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"TRIG:OUTP:POL",
             "type":"TriggerOutputPolarity",
@@ -27,8 +26,7 @@
             "symbols":{
                 "Positive":"POS",
                 "Negative":"NEG"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"TRIG:SOUR",
             "type":"TriggerSource",
@@ -40,71 +38,61 @@
                 "ExternalTrigger":"EXT",
                 "ManualTrigger":"KEY",
                 "BusTrigger":"BUS"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"SOUR:POW:ALC:STAT",
             "type":"ALC",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:ALC:BAND",
             "type":"ALCBandwidth",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:ALC:BAND:AUTO",
             "type":"ALCBandwidthAuto",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:ALC:LEV",
             "type":"ALCLevel",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:ATT:AUTO",
             "type":"AttenuatorAuto",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:CORR:STAT",
             "type":"FlatnessCorrection",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:FREQ:FIX",
             "type":"Frequency",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:FREQ:STAR",
             "type":"FrequencyStart",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:FREQ:STOP",
             "type":"FrequencyStop",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:FREQ:STEP",
             "type":"FrequencyStep",
@@ -112,120 +100,103 @@
                 "v::Real"
             ],
             "infixes":[
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:FREQ:REF",
             "type":"FrequencyReferenceLevel",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:FREQ:REF:STAT",
             "type":"FrequencyReference",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":":OUTP",
             "type":"Output",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:OUTP:BLAN:STAT",
             "type":"OutputBlanking",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:OUTP:BLAN:AUTO",
             "type":"OutputBlankingAuto",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:PHAS:ADJ",
             "type":"OutputPhase",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW",
             "type":"Power",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:LIM:MAX",
             "type":"PowerLimit",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:LIM:MAX:ADJ",
             "type":"PowerLimitAdjustable",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:STAR",
             "type":"PowerStart",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:STOP",
             "type":"PowerStop",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:LEV:STEP",
             "type":"PowerStep",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:REF:STAT",
             "type":"PowerReference",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:REF",
             "type":"PowerReferenceLevel",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:PROT:STAT",
             "type":"PowerSearchProtection",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:POW:NOIS:STAT",
             "type":"PowerOptimizeSNR",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }
     ]
 }

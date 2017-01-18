@@ -16,8 +16,7 @@
             "symbols":{
                 "Rising":"POS",
                 "Falling":"NEG"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"AWGC:CLOC:SOUR",
             "type":"ClockSource",
@@ -27,8 +26,7 @@
             "symbols":{
                 "InternalClock":"INT",
                 "ExternalClock":"EXT"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"EVEN:IMP",
             "type":"EventImpedance",
@@ -38,8 +36,7 @@
             "symbols":{
                 "Ohms50":50.0,
                 "Ohms1k":1000.0
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"EVEN:POL",
             "type":"EventSlope",
@@ -49,8 +46,7 @@
             "symbols":{
                 "Rising":"POS",
                 "Falling":"NEG"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"EVEN:JTIM",
             "type":"EventTiming",
@@ -60,8 +56,7 @@
             "symbols":{
                 "Synchronous":"SYNC",
                 "Asynchronous":"ASYN"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"SOURch:PHAS",
             "type":"OutputPhase",
@@ -70,8 +65,7 @@
             ],
             "infixes":[
                 "ch::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:ROSC:SOUR",
             "type":"OscillatorSource",
@@ -81,8 +75,7 @@
             "symbols":{
                 "Internal":"INT",
                 "External":"EXT"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"AWGC:RMOD",
             "type":"RunMode",
@@ -94,8 +87,7 @@
                 "Continuous":"CONT",
                 "Gated":"GAT",
                 "Sequence":"SEQ"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"TRIG:IMP",
             "type":"TriggerImpedance",
@@ -105,8 +97,7 @@
             "symbols":{
                 "Ohms50":50.0,
                 "Ohms1k":1000.0
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"TRIG:POL",
             "type":"TriggerPolarity",
@@ -116,8 +107,7 @@
             "symbols":{
                 "Positive":"POS",
                 "Negative":"NEG"
-            },
-            "doc":"Trigger input polarity in gated mode."
+            }
         }, {
             "cmd":"TRIG:SLOP",
             "type":"TriggerSlope",
@@ -127,8 +117,7 @@
             "symbols":{
                 "Rising":"POS",
                 "Falling":"NEG"
-            },
-            "doc":"Hey"
+            }
         }, {
             "cmd":"TRIG:SOUR",
             "type":"TriggerSource",
@@ -138,8 +127,7 @@
             "symbols":{
                 "Internal":"INT",
                 "External":"EXT"
-            },
-            "doc":"Internal or external clock as trigger source."
+            }
         }, {
             "cmd":"SOURch:DELAY",
             "type":"AnalogOutputDelay",
@@ -148,8 +136,7 @@
             ],
             "infixes":[
                 "ch::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"OUTPch:STAT",
             "type":"ChannelOutput",
@@ -158,29 +145,25 @@
             ],
             "infixes":[
                 "ch::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:DC:STAT",
             "type":"DCOutput",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:DCch:VOLT:OFFS",
             "type":"DCOutputLevel",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:CLOC:DRAT",
             "type":"ExtOscDividerRate",
             "values":[
                 "v::Integer"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOURch:MARKm:DEL",
             "type":"MarkerDelay",
@@ -190,8 +173,7 @@
             "infixes":[
                 "ch::Integer=1",
                 "m::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOURch:MARKm:VOLT:HIGH",
             "type":"MarkerHigh",
@@ -220,36 +202,31 @@
             ],
             "infixes":[
                 "ch::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:ROSC:FREQ",
             "type":"RefOscFrequency",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOUR:ROSC:MULT",
             "type":"RefOscMultiplier",
             "values":[
                 "v::Integer"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:RRAT:HOLD",
             "type":"RepRateHeld",
             "values":[
                 "v::Bool"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:RRAT",
             "type":"RepRate",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:JTAR:IND",
             "type":"SequenceEventJumpTarget",
@@ -258,8 +235,7 @@
             ],
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:JTAR:TYPE",
             "type":"SequenceEventJumpType",
@@ -273,8 +249,7 @@
             },
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:TWA",
             "type":"SequenceWaitTrigger",
@@ -283,8 +258,7 @@
             ],
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:GOTO:STAT",
             "type":"SequenceGOTOState",
@@ -293,8 +267,7 @@
             ],
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:GOTO:IND",
             "type":"SequenceGOTOTarget",
@@ -303,8 +276,7 @@
             ],
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:LOOP:INF",
             "type":"SequenceInfiniteLoop",
@@ -313,15 +285,13 @@
             ],
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:LENG",
             "type":"SequenceLength",
             "values":[
                 "v::Integer"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SEQ:ELEMel:LOOP:COUN",
             "type":"SequenceLoopCount",
@@ -330,15 +300,13 @@
             ],
             "infixes":[
                 "el::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:SEQ:POS?",
             "type":"SequencePosition",
             "values":[
                 "v::Integer"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"AWGC:SEQ:POS?",
             "type":"SequencerType",
@@ -348,29 +316,25 @@
             "symbols":{
                 "Hardware":"HARD",
                 "Software":"SOFT"
-            },
-            "doc":"Returns current sequencer type."
+            }
         }, {
             "cmd":"TRIG:LEV",
             "type":"TriggerLevel",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"TRIG:TIM",
             "type":"TriggerInterval",
             "values":[
                 "v::Real"
-            ],
-            "doc":"Internal trigger interval (time)."
+            ]
         }, {
             "cmd":"WLIST:SIZE?",
             "type":"WavelistLength",
             "values":[
                 "v::Integer"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOURch:VOLT:OFFS",
             "type":"VoltageOffset",
@@ -379,8 +343,7 @@
             ],
             "infixes":[
                 "ch::Integer=1"
-            ],
-            "doc":"Hey"
+            ]
         }, {
             "cmd":"SOURch:VOLT",
             "type":"SourceLevel",
