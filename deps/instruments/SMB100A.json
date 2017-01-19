@@ -13,7 +13,7 @@
             "values":"v::Real"
         }, {
             "cmd":"POW",
-            "type":"Power",
+            "type":"PowerLevel",
             "values":"v::Real"
         }, {
             "cmd":"OUTP",

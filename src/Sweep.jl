@@ -236,7 +236,7 @@ Abort the currently running job (if any). If no job is running, the method does
 not throw an error.
 """
 function abort!()
-    sjq = sweepjobqueue
+    sjq = sweepjobqueue[]
     job_id = sjq.running_id
     if job_id > 0
         abort!(sjq[job_id])
@@ -276,9 +276,10 @@ result()
 Returns the result array from the last finished or aborted job.
 """
 function result()
-    sweepjobqueue.last_finished_id == -1 &&
+    sjq = sweepjobqueue[]
+    sjq.last_finished_id == -1 &&
         error("no jobs have run yet; no results to return.")
-    result(sweepjobqueue.last_finished_id)
+    result(sjq.last_finished_id)
 end
 
 """
@@ -359,7 +360,7 @@ jobs()
 Returns the default sweep job queue object. Typically you call this to see what
 jobs are waiting, aborted, or finished, and what job is running.
 """
-jobs() = sweepjobqueue
+jobs() = sweepjobqueue[]
 
 """
 ```
@@ -458,9 +459,9 @@ function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
     request = ICCommon.NewJobRequest(username=username, dataserver="local_data")
     io = IOBuffer()
     serialize(io, request)
-    ZMQ.send(dbsock, ZMQ.Message(io))
+    ZMQ.send(dbsock[], ZMQ.Message(io))
     # Note that it is totally possible a task switch can happen here!
-    msg = ZMQ.recv(dbsock)
+    msg = ZMQ.recv(dbsock[])
     out = convert(IOStream, msg)
     seekstart(out)
     job_id, jobsubmit = deserialize(out)
@@ -561,15 +562,16 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
 
     T = returntype(measure, (typeof(dep),))
     tup = (ndims(T), N)
-    t = Task(()->_sweep!(sweepjobqueue.update_condition, sj, Val{tup}()))
+    sjq = sweepjobqueue[]
+    t = Task(()->_sweep!(sjq.update_condition, sj, Val{tup}()))
 
     @async begin
         for x in t
-            ZMQ.send(plotsock, ZMQ.Message(x))
+            ZMQ.send(plotsock[], ZMQ.Message(x))
         end
-        notify(sweepjobqueue.update_condition, sj)
+        notify(sjq.update_condition, sj)
     end
-    push!(sweepjobqueue, sj)
+    push!(sjq, sj)
 
     info("Sweep submitted with job id: $(sj.job_id)")
     sj

@@ -6,17 +6,6 @@ import Base: getindex, setindex!
 import Compat
 import Compat.@compat
 
-## Get the resource manager
-# """
-# ```
-# const resourcemanager
-# ```
-#
-# The default VISA resource manager as returned by `VISA.viOpenDefaultRM()`.
-# """
-
-export resourcemanager
-
 ## VISA specific InstrumentProperty subtypes
 export WriteTermCharEnable
 
@@ -62,33 +51,33 @@ abstract WriteTermCharEnable <: InstrumentProperty
 ## Finding and obtaining resources
 
 "Finds VISA resources to which we can connect. Doesn't seem to find ethernet instruments."
-findresources(expr::AbstractString="?*::INSTR") = VISA.viFindRsrc(resourcemanager, expr)
+findresources(expr::AbstractString="?*::INSTR") = VISA.viFindRsrc(resourcemanager[], expr)
 
 """
 Returns a `viSession` for the given GPIB primary address using board 0.
 See VISA spec for details on what a `viSession` is.
 """
-gpib(primary) = VISA.viOpen(resourcemanager, "GPIB::"*primary*"::0::INSTR")
+gpib(primary) = VISA.viOpen(resourcemanager[], "GPIB::"*primary*"::0::INSTR")
 
 """
 Returns a `viSession` for the given GPIB board and primary address.
 See VISA spec for details on what a `viSession` is.
 """
 gpib(board, primary) = VISA.viOpen(
-    resourcemanager, "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
+    resourcemanager[], "GPIB"*(board == 0 ? "" : board)+"::"*primary*"::0::INSTR")
 
 """
 Returns a `viSession` for the given GPIB board, primary, and secondary address.
 See VISA spec for details on what a `viSession` is.
 """
-gpib(board, primary, secondary) = VISA.viOpen(resourcemanager,
+gpib(board, primary, secondary) = VISA.viOpen(resourcemanager[],
     "GPIB"*(board == 0 ? "" : board)*"::"+primary+"::"+secondary+"::INSTR")
 
 "Returns a INSTR `viSession` for the given IPv4 address string."
-tcpip_instr(ip) = VISA.viOpen(resourcemanager, "TCPIP::"*ip*"::INSTR")
+tcpip_instr(ip) = VISA.viOpen(resourcemanager[], "TCPIP::"*ip*"::INSTR")
 
 "Returns a raw socket `viSession` for the given IPv4 address string."
-tcpip_socket(ip,port) = VISA.viOpen(resourcemanager,
+tcpip_socket(ip,port) = VISA.viOpen(resourcemanager[],
     "TCPIP0::"*ip*"::"*string(port)*"::SOCKET")
 
 ## Reading and writing

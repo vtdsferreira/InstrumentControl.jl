@@ -22,6 +22,12 @@ import Base:
     setindex!
 
 importall InstrumentControl
+import ICCommon: Stimulus,
+    Response,
+    source,
+    measure,
+    axisname,
+    axislabel
 
 export InstrumentAlazar
 export inf_records
@@ -52,6 +58,6 @@ include("ResponseFunctions.jl")
 # # Model-specific type definitions and methods
 # include(joinpath(dirname(@__FILE__), "models", "ATS9360.jl"))
 # include(joinpath(dirname(@__FILE__), "models", "ATS9440.jl")) # not yet impl.
-# include(joinpath(dirname(@__FILE__), "models", "ATS9870.jl"))
+include(joinpath(dirname(@__FILE__), "models", "ATS9870.jl"))
 
 end

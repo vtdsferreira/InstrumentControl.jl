@@ -237,6 +237,16 @@ data(ins::InstrumentVNA, fmt::Symbol, ch::Integer=1, tr::Integer=1) =
 data(ins::InstrumentVNA, ch::Integer=1, tr::Integer=1) =
     data(ins, Val{ins[VNA.Format, ch, tr]}, ch, tr)
 
+
+"""
+```
+nummarkers(ins::InstrumentVNA)
+```
+
+Returns the number of markers supported by the VNA.
+"""
+function nummarkers end
+
 """
 ```
 stimdata(ins::InstrumentVNA, ch::Integer=1)
@@ -292,7 +302,13 @@ end
 "Determines if an error code reflects a peak search failure."
 function peaknotfound end
 
-"Trigger a single sweep when TriggerSource is :Bus."
+"""
+```
+trig1(vna::InstrumentVNA)
+```
+
+Trigger a single sweep when TriggerSource is :Bus.
+"""
 function trig1 end
 
 "How to specify a window layout in a command string, given a matrix."

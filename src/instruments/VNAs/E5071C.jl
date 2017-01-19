@@ -3,7 +3,15 @@ import Base: getindex, setindex!
 import VISA
 importall InstrumentControl
 importall InstrumentControl.VNA
-import InstrumentControl.VNA: autoscale, peaknotfound, trig1, window
+import InstrumentControl.VNA:
+    autoscale,
+    nummarkers,
+    peaknotfound,
+    trig1,
+    window
+import FileIO
+import InstrumentControl: getdata
+import StaticArrays: SArray, @SArray
 
 returntype(::Type{Bool}) = (Int, Bool)
 returntype(::Type{Real}) = (Float64, Float64)
@@ -13,21 +21,19 @@ fmt(v) = string(v)
 
 @generate_all(InstrumentControl.meta["E5071C"])
 
-import FileIO
-import InstrumentControl: getdata
-import StaticArrays: SArray, @SArray
-
 export GraphLayout
 export SearchTracking
 export WindowLayout
 export SetActiveMarker
 export SetActiveChannel
 
-export autoscale
+export autoscale,
+    nummarkers,
+    trig1
+
 export screen, search
 export stimdata, data
-export mktrace, trig1
-export nummarkers
+export mktrace
 
 # The E5071C has rather incomplete support for referring to traces by name.
 # We will maintain an internal description of what names correspond to what
@@ -77,17 +83,11 @@ function getindex(ins::InsE5071C, ::Type{VNA.SearchTracking}, m::Integer, ch::In
     Bool(parse(ask(ins, ":CALC#:TRAC#:MARK#:FUNC:TRAC?", ch, tr, m))::Int)
 end
 
-
 function autoscale(ins::InsE5071C, ch::Integer=1, tr::Integer=1)
     write(ins, ":DISP:WIND#:TRAC#:Y:AUTO", ch, tr)
     return nothing
 end
 
-"""
-[SENSe#:FREQuency:DATA?][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/sense/scpi_sense_ch_frequency_data.htm]
-
-Read the stimulus values for the given channel (defaults to 1).
-"""
 function stimdata(ins::InsE5071C, ch::Int=1)
     xfer = eval(ins[TransferFormat])
     getdata(ins, Val{xfer}, ":SENSe"*string(ch)*":FREQuency:DATA?")
