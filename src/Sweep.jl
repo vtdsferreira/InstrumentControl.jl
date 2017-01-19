@@ -1,5 +1,5 @@
 export sweep, eta, status, progress, abort!, prune!, jobs, result
-export reconstruct, atvalue
+export atvalue
 using Base.Cartesian, JLD
 using AxisArrays
 import AxisArrays: axes
@@ -496,23 +496,6 @@ function archive_result(sj::SweepJob)
         end
     end
 end
-
-# Reconstruct AxisArray from an archived dictionary.
-function reconstruct(d::Dict{String,Any})
-    haskey(d, "data") || error("no `data` key.")
-
-    r = r"^axis([0-9]+)_([\s\S]+)"
-    keyz = collect(keys(d))
-    where = [ismatch(r, str) for str in keyz]
-    matches = keyz[where]
-    a = map(str->begin m = match(r,str); parse(m[1]),m[2] end, matches)
-    a2 = Vector{Tuple{Symbol, Any}}(length(a))
-    for (f,g) in a
-        a2[f] = (Symbol(g), d["axis$(f)_$(g)"])
-    end
-    AxisArray(d["data"], (Axis{name}(v) for (name,v) in a2)...)
-end
-
 
 """
 ```
