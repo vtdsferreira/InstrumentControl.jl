@@ -456,27 +456,13 @@ end
 
 # TODO: default username and server mechanism
 function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
-    request = ICCommon.NewJobRequest(username=username, dataserver="local_data")
-    io = IOBuffer()
-    serialize(io, request)
-    ZMQ.send(dbsock[], ZMQ.Message(io))
-    # Note that it is totally possible a task switch can happen here!
-    msg = ZMQ.recv(dbsock[])
-    out = convert(IOStream, msg)
-    seekstart(out)
-    job_id, jobsubmit = deserialize(out)
+    d = JWA.apicall(dbapi, "newjob"; username=username, dataserver="local_data")
+    job_id, jobsubmit = d["data"]
 end
 
 function update_job_in_db(sw; kwargs...)::Bool
-    request = ICCommon.UpdateJobRequest(sw.job_id; kwargs...)
-    io = IOBuffer()
-    serialize(io, request)
-    ZMQ.send(qsock, ZMQ.Message(io))
-    # Note that it is totally possible a task switch can happen here!
-    msg = ZMQ.recv(qsock)
-    out = convert(IOStream, msg)
-    seekstart(out)
-    deserialize(out)
+    d = JWA.apicall(dbapi, "updatejob", sw.job_id; kwargs...)
+    d["data"]
 end
 
 axisname(ax::Axis) = typeof(ax).parameters[1]

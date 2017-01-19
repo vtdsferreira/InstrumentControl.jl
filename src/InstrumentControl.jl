@@ -1,7 +1,8 @@
 __precompile__(true)
 module InstrumentControl
 importall ICCommon
-import JSON, ZMQ
+import JSON, ZMQ, JuliaWebAPI
+const JWA = JuliaWebAPI
 
 export Instrument, InstrumentProperty, Stimulus, Response
 export source, measure
@@ -59,14 +60,14 @@ include("sweep.jl")
 
 # const globals should not be defined within __init__.
 # See Julia docs, Modules chapter for further details.
-const global ctx = Ref{ZMQ.Context}()
-const global plotsock = Ref{ZMQ.Socket}()
-const global dbsock = Ref{ZMQ.Socket}()
-const global qsock = Ref{ZMQ.Socket}()
-const global PARALLEL_PATH = Ref{String}()
-const global resourcemanager = Ref{UInt32}()
-const global sweepjobqueue = Ref{SweepJobQueue}()
-const global sweepjobtask = Ref{Task}()
+const ctx = Ref{ZMQ.Context}()
+const plotsock = Ref{ZMQ.Socket}()
+const qsock = Ref{ZMQ.Socket}()
+const PARALLEL_PATH = Ref{String}()
+const resourcemanager = Ref{UInt32}()
+const sweepjobqueue = Ref{SweepJobQueue}()
+const sweepjobtask = Ref{Task}()
+const dbapi = Ref{JWA.APIInvoker{JWA.ZMQTransport,JWA.SerializedMsgFormat}}()
 
 function __init__()
     # ZeroMQ context
@@ -77,8 +78,9 @@ function __init__()
     ZMQ.bind(plotsock[], "tcp://127.0.0.1:50002")
 
     # Database server connection
-    dbsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
-    ZMQ.connect(dbsock[], confd["dbserver"])
+    dbapi[] = APIInvoker(
+        ZMQTransport(confd["dbserver"], ZMQ.REQ, false, ctx[]),
+        SerializedMsgFormat())
 
     qsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
     ZMQ.connect(qsock[], confd["dbserver"])
