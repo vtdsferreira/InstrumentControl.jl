@@ -471,9 +471,9 @@ function update_job_in_db(sw; kwargs...)::Bool
     request = ICCommon.UpdateJobRequest(sw.job_id; kwargs...)
     io = IOBuffer()
     serialize(io, request)
-    ZMQ.send(qsock, ZMQ.Message(io))
+    ZMQ.send(qsock[], ZMQ.Message(io))
     # Note that it is totally possible a task switch can happen here!
-    msg = ZMQ.recv(qsock)
+    msg = ZMQ.recv(qsock[])
     out = convert(IOStream, msg)
     seekstart(out)
     deserialize(out)
