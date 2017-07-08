@@ -39,11 +39,7 @@ export savestate
 
 
 """
-```
-abstract WriteTermCharEnable <: InstrumentProperty
-```
-
-Write terminator character for VISA instruments.
+Enable write terminator character for VISA instruments.
 """
 @compat abstract type WriteTermCharEnable <: InstrumentProperty end
 
@@ -130,55 +126,37 @@ binblockreadavailable(ins::Instrument) = VISA.binBlockReadAvailable(ins.vi)
 tst(ins::Instrument) = write(ins, "*TST?")
 
 """
-```
-rst(ins::Instrument)
-```
-
+    rst(ins::Instrument)
 Reset with the \*RST command.
 """
 rst(ins::Instrument) = write(ins, "*RST")
 
 """
-```
-idn(ins::Instrument)
-```
-
+    idn(ins::Instrument)
 Ask the \*IDN? command.
 """
 idn(ins::Instrument) = ask(ins, "*IDN?")
 
 """
-```
-cls(ins::Instrument)
-```
-
+    cls(ins::Instrument)
 Clear registers with \*CLS.
 """
 cls(ins::Instrument) = write(ins, "*CLS")
 
 """
-```
-trg(ins::Instrument)
-```
-
+    trg(ins::Instrument)
 Bus trigger with \*TRG.
 """
 trg(ins::Instrument) = write(ins, "*TRG")
 
 """
-```
-wai(ins::Instrument)
-```
-
+    wai(ins::Instrument)
 Wait for completion of a sweep with \*WAI.
 """
 wai(ins::Instrument) = write(ins, "*WAI")
 
 """
-```
-opc(ins::Instrument)
-```
-
+    opc(ins::Instrument)
 Wait for completion of a sweep with \*OPC?.
 """
 opc(ins::Instrument) = ask(ins, "*OPC?")
@@ -212,8 +190,7 @@ function errors(ins::Instrument, maxerrors=100)
 end
 
 """
-`getindex(ins::Instrument, ::Type{Timeout})`
-
+    getindex(ins::Instrument, ::Type{Timeout})
 Get the VISA timeout time (in ms).
 """
 function getindex(ins::Instrument, ::Type{Timeout})
@@ -221,8 +198,7 @@ function getindex(ins::Instrument, ::Type{Timeout})
 end
 
 """
-`getindex(ins::Instrument, ::Type{WriteTermCharEnable})`
-
+    getindex(ins::Instrument, ::Type{WriteTermCharEnable})
 Is the write termination character enabled?
 """
 function getindex(ins::Instrument, ::Type{WriteTermCharEnable})
@@ -230,8 +206,7 @@ function getindex(ins::Instrument, ::Type{WriteTermCharEnable})
 end
 
 """
-`setindex!(ins::Instrument, x::Real, ::Type{Timeout})`
-
+    setindex!(ins::Instrument, x::Real, ::Type{Timeout})
 Set the VISA timeout time (in ms).
 """
 function setindex!(ins::Instrument, x::Real, ::Type{Timeout})
@@ -240,8 +215,7 @@ function setindex!(ins::Instrument, x::Real, ::Type{Timeout})
 end
 
 """
-`setindex!(ins::Instrument, x::Bool, ::Type{WriteTermCharEnable})`
-
+    setindex!(ins::Instrument, x::Bool, ::Type{WriteTermCharEnable})
 Set whether or not the write termination character is enabled.
 """
 function setindex!(ins::Instrument, x::Bool, ::Type{WriteTermCharEnable})
@@ -256,6 +230,13 @@ quoted(str::AbstractString) = "\""*str*"\""
 
 "Strip a string of enclosing quotation marks."
 unquoted(str::AbstractString) = strip(str,['"','\''])
+
+# Try this version at some point: 
+# "Strip a string of enclosing quotation marks (including \" or ')."
+# function unquoted(str::AbstractString)
+#     chars = ['"','\'']
+#     rstrip(lstrip(str, chars), chars)
+# end
 
 ## Convenient functions for querying arrays of numbers.
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
@@ -296,10 +277,7 @@ end
 ## File management
 
 """
-MMEMory:COPY
-[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_copy.htm)
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87048.htm)
-
+    cp(ins::Instrument, src::AbstractString, dest::AbstractString)
 Copy a file from path `src` to `dest`, both on the instrument.
 """
 function cp(ins::Instrument, src::AbstractString, dest::AbstractString)
@@ -307,9 +285,7 @@ function cp(ins::Instrument, src::AbstractString, dest::AbstractString)
 end
 
 """
-MMEMory:TRANsfer
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/_mmem_tran.htm]
-
+    getfile(ins::Instrument, src::AbstractString, dest::AbstractString)
 Copy a file from path `src` on the instrument, to path `dest` on the computer.
 There may be size limits for transfer via this protocol.
 """
@@ -323,20 +299,15 @@ function getfile(ins::Instrument, src::AbstractString, dest::AbstractString)
 end
 
 """
-MMEMory:LOAD:STATe
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_load_state.htm]
-
-Load the settings of the instrument, and possibly other info (e.g. calibration).
+    loadstate(ins::Instrument, file::AbstractString)
+Load the settings of the instrument and possibly other info (e.g. calibration) from a file.
 """
 function loadstate(ins::Instrument, file::AbstractString)
     write(ins, ":MMEM:LOAD:STAT #", quoted(file))
 end
 
 """
-MMEMory:MDIRectory
-[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_mdirectory.htm)
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e89416.htm)
-
+    mkdir(ins::Instrument, dir::AbstractString)
 Make a directory.
 """
 function mkdir(ins::Instrument, dir::AbstractString)
@@ -344,10 +315,7 @@ function mkdir(ins::Instrument, dir::AbstractString)
 end
 
 """
-MMEMory:CATalog?
-[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_catalog_dir.htm)
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/7f7650b75a604b3d.htm)
-
+    readdir(ins::Instrument, dir::AbstractString="")
 Read the directory contents.
 """
 function readdir(ins::Instrument, dir::AbstractString="")
@@ -358,26 +326,19 @@ function readdir(ins::Instrument, dir::AbstractString="")
     res = unquoted(ask(ins, cmd))
     _readdir(ins, res)
 end
-
-"Helper function to process `readdir` response."
 _readdir(ins::Instrument, res::AbstractString) = split(res,",")[3:3:end]
 
 """
-MMEMory:DELete
-[E5071C](http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_delete.htm)
-[ZNB20](https://www.rohde-schwarz.com/webhelp/znb_znbt_webhelp_en_5/Content/d36e87202.htm)
-
-Remove a file.
+    rm(ins::Instrument, file::AbstractString)
+Remove a file on an instrument.
 """
 function rm(ins::Instrument, file::AbstractString)
     write(ins, "MMEM:DEL #", quoted(file))
 end
 
 """
-MMEMory:STORe:STATe
-[E5071C][http://ena.support.keysight.com/e5071c/manuals/webhelp/eng/programming/command_reference/memory/scpi_mmemory_store_state.htm]
-
-Save the settings of the instrument, and possibly other info (e.g. calibration).
+    savestate(ins::Instrument, file::AbstractString)
+Save the settings of the instrument and possibly other info (e.g. calibration) to a file.
 """
 function savestate(ins::Instrument, file::AbstractString)
     write(ins, ":MMEM:STOR:STAT #", quoted(file))
