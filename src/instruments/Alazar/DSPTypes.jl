@@ -44,7 +44,7 @@ In the future, other methods may be added.
 @compat abstract type WindowZeroes{T} <: DSPWindow{T} end
 
 "Type alias for `WindowNone`."
-const WindowOnes{T} = WindowNone{T}
+@compat const WindowOnes{T} = WindowNone{T}
 
 "Represents a DSP module of an AlazarTech digitizer."
 type DSPModule
