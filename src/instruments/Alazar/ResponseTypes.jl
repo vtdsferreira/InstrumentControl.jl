@@ -25,9 +25,9 @@ type ContinuousStreamResponse{T} <: StreamResponse{T}
 
     m::AlazarMode
 
-    ContinuousStreamResponse(a,b) = begin
+    (::Type{ContinuousStreamResponse{T}}){T}(a,b) = begin
         b <= 0 && error("Need at least one sample.")
-        r = new(a,b)
+        r = new{T}(a,b)
         r.m = ContinuousStreamMode(r.samples_per_ch *
                                    r.ins[ChannelCount])
         r
@@ -45,9 +45,9 @@ type TriggeredStreamResponse{T} <: StreamResponse{T}
 
     m::AlazarMode
 
-    TriggeredStreamResponse(a,b) = begin
+    (::Type{TriggeredStreamResponse{T}}){T}(a,b) = begin
         b <= 0 && error("Need at least one sample.")
-        r = new(a,b)
+        r = new{T}(a,b)
         r.m = TriggeredStreamMode(r.samples_per_ch *
                                   r.ins[ChannelCount])
         r
@@ -66,10 +66,10 @@ type NPTRecordResponse{T} <: RecordResponse{T}
 
     m::AlazarMode
 
-    NPTRecordResponse(a,b,c) = begin
+    (::Type{NPTRecordResponse{T}}){T}(a,b,c) = begin
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
-        r = new(a,b,c)
+        r = new{T}(a,b,c)
         r.m = NPTRecordMode(r.sam_per_rec_per_ch * r.ins[ChannelCount],
                             r.total_recs)
         r
@@ -90,13 +90,13 @@ type FFTHardwareResponse{T} <: FFTResponse{T}
 
     m::AlazarMode
 
-    FFTHardwareResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) = begin
+    (::Type{FFTHardwareResponse{T}}){T,S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) = begin
         b <= 0 && error("Need at least one sample.")
         c == 0 && error("FFT length (samples) too short.")
         !ispow2(c) && error("FFT length (samples) not a power of 2.")
         d <= 0 && error("Need at least one record.")
         !(e <: Alazar.AlazarFFTBits) && error("Takes an AlazarFFTBits type.")
-        r = new(a,b,c,d,e)
+        r = new{T}(a,b,c,d,e)
         r.m = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
                             r.total_recs, r.output_eltype)
         r
@@ -118,10 +118,10 @@ type IQSoftwareResponse{T} <: RecordResponse{T}
 
     m::AlazarMode
 
-    IQSoftwareResponse(a,b,c,d) = begin
+    (::Type{IQSoftwareResponse{T}}){T}(a,b,c,d) = begin
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
-        r = new(a,b,c,d)
+        r = new{T}(a,b,c,d)
         r.m = NPTRecordMode(r.sam_per_rec_per_ch * (r.ins)[ChannelCount],
                             r.total_recs)
         r
