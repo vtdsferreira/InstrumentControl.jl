@@ -1,4 +1,5 @@
 module E5071C
+using Compat
 import Base: getindex, setindex!
 import VISA
 importall InstrumentControl
@@ -39,11 +40,11 @@ export mktrace
 # We will maintain an internal description of what names correspond to what
 # trace numbers.
 
-abstract GraphLayout      <: InstrumentProperty
-abstract SearchTracking   <: InstrumentProperty
-abstract WindowLayout     <: InstrumentProperty
-abstract SetActiveMarker  <: InstrumentProperty
-abstract SetActiveChannel <: InstrumentProperty
+@compat abstract type GraphLayout      <: InstrumentProperty end
+@compat abstract type SearchTracking   <: InstrumentProperty end
+@compat abstract type WindowLayout     <: InstrumentProperty end
+@compat abstract type SetActiveMarker  <: InstrumentProperty end
+@compat abstract type SetActiveChannel <: InstrumentProperty end
 
 function setindex!(ins::InsE5071C, b::Bool, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")

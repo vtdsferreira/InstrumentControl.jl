@@ -1,5 +1,5 @@
 module AWG5014C
-import Compat.ASCIIString
+using Compat
 import Base: getindex, setindex!
 import VISA
 importall InstrumentControl         # All the stuff in InstrumentDefs, etc.
@@ -111,10 +111,10 @@ exceptions    = Dict(
 
 InstrumentException(ins::InsAWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
-abstract Normalization     <: InstrumentProperty
+@compat abstract type Normalization     <: InstrumentProperty end
 
 "Waveform type may be integer or real."
-abstract WaveformType      <: InstrumentProperty
+@compat abstract type WaveformType      <: InstrumentProperty end
 
 code(ins::InsAWG5014C, ::Type{Normalization}, ::Type{Val{:None}}) = "NONE"
 code(ins::InsAWG5014C, ::Type{Normalization}, ::Type{Val{:FullScale}}) = "FSC"
@@ -130,20 +130,20 @@ end
 """
 Amplitude for a given channel.
 """
-abstract Amplitude                <: InstrumentProperty
+@compat abstract type Amplitude                <: InstrumentProperty end
 
 """
 Add the signal from an external input to the given channel output.
 """
-abstract ExtInputAddsToOutput     <: InstrumentProperty
+@compat abstract type ExtInputAddsToOutput     <: InstrumentProperty end
 
-abstract SequenceWaveform         <: InstrumentProperty
+@compat abstract type SequenceWaveform         <: InstrumentProperty end
 
 "When inspected, will report if the instrument is waiting for a trigger."
-abstract WaitingForTrigger        <: InstrumentProperty
+@compat abstract type WaitingForTrigger        <: InstrumentProperty end
 
 "Name of a waveform loaded into a given channel."
-abstract Waveform                 <: InstrumentProperty
+@compat abstract type Waveform                 <: InstrumentProperty end
 
 "Configure the global analog output state of the AWG."
 function setindex!(ins::InsAWG5014C, on::Bool, ::Type{Output})
@@ -287,7 +287,7 @@ end
 "Delete a waveform by name."
 deletewaveform
 
-function newwaveform(ins::InsAWG5014C, name::ASCIIString, numPoints::Integer,
+function newwaveform(ins::InsAWG5014C, name::String, numPoints::Integer,
     wvtype::Symbol; defercache=false)
     write(ins, "WLIS:WAV:NEW #,#,#",quoted(name),
         string(numPoints), code(ins, WaveformType, Val{wvtype}))
@@ -314,7 +314,7 @@ end
 resamplewaveform
 
 "Does a waveform identified by `name` exist?"
-waveformexists(ins::InsAWG5014C, name::ASCIIString) = name in keys(ins.cache)
+waveformexists(ins::InsAWG5014C, name::AbstractString) = name in keys(ins.cache)
 
 function cachewaveforms!(ins::InsAWG5014C)
     names = [waveformname(ins,i) for i in 1:ins[WavelistLength]]
@@ -329,13 +329,13 @@ function cachewaveforms!(ins::InsAWG5014C)
 end
 
 "Returns whether or not a waveform is predefined (comes with instrument)."
-function waveformispredefined(ins::InsAWG5014C, name::ASCIIString)
+function waveformispredefined(ins::InsAWG5014C, name::AbstractString)
     # Bool(parse(ask(ins,"WLIST:WAV:PRED? "*quoted(name))))
     name[1] == '*'
 end
 
 "Returns the length of a waveform."
-function waveformlength(ins::InsAWG5014C, name::ASCIIString; usecache=true)
+function waveformlength(ins::InsAWG5014C, name::AbstractString; usecache=true)
     if usecache
         ins.cache[name].length
     else
@@ -360,7 +360,7 @@ end
 Returns the type of the waveform. The AWG hardware
 ultimately uses an `IntWaveform` but `RealWaveform` is more convenient.
 """
-function waveformtype(ins::InsAWG5014C, name::ASCIIString; usecache=true)
+function waveformtype(ins::InsAWG5014C, name::AbstractString; usecache=true)
     if usecache
         ins.cache[name].wvtype
     else
@@ -368,7 +368,7 @@ function waveformtype(ins::InsAWG5014C, name::ASCIIString; usecache=true)
     end
 end
 
-function pushto_awg(ins::InsAWG5014C, name::ASCIIString,
+function pushto_awg(ins::InsAWG5014C, name::AbstractString,
         awgData::AWG5014CData, wvType::Symbol; resampleOk::Bool=true)
 
     # First validate the awgData

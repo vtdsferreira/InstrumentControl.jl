@@ -1,4 +1,5 @@
 module E8257D
+using Compat
 import Base: getindex, setindex!
 import VISA
 importall InstrumentControl     # All the stuff in InstrumentDefs, etc.
@@ -19,9 +20,9 @@ export boards, cumulativeattenuatorswitches, cumulativepowerons, cumulativeontim
 export options, revision
 
 "Has the output settled?"
-abstract OutputSettled           <: InstrumentProperty
-abstract SetFrequencyReference   <: InstrumentProperty
-abstract SetPhaseReference       <: InstrumentProperty
+@compat abstract type OutputSettled           <: InstrumentProperty end
+@compat abstract type SetFrequencyReference   <: InstrumentProperty end
+@compat abstract type SetPhaseReference       <: InstrumentProperty end
 
 
 boards(ins::InsE8257D) = ask(ins,"DIAGnostic:INFOrmation:BOARds?")

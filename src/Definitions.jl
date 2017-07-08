@@ -21,20 +21,20 @@ function make end
 "Returns the instrument's model."
 function model end
 
-abstract Averaging <: InstrumentProperty
-abstract AveragingFactor <: InstrumentProperty
-abstract AveragingTrigger <: InstrumentProperty
+@compat abstract type Averaging <: InstrumentProperty end
+@compat abstract type AveragingFactor <: InstrumentProperty end
+@compat abstract type AveragingTrigger <: InstrumentProperty end
 
-abstract FrequencyStart <: InstrumentProperty
-abstract FrequencyStop <: InstrumentProperty
+@compat abstract type FrequencyStart <: InstrumentProperty end
+@compat abstract type FrequencyStop <: InstrumentProperty end
 
 "The sample rate for digitizing, synthesizing, etc."
-abstract SampleRate <: InstrumentProperty
+@compat abstract type SampleRate <: InstrumentProperty end
 
-abstract SweepTime <: InstrumentProperty
+@compat abstract type SweepTime <: InstrumentProperty end
 
 "Time to wait for an instrument to reply before bailing out."
-abstract Timeout <: InstrumentProperty
+@compat abstract type Timeout <: InstrumentProperty end
 
 """
 Exception to be thrown by an instrument. Fields include the instrument in error

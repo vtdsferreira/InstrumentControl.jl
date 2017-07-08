@@ -6,7 +6,7 @@ import AxisArrays: axes
 import Base.Cartesian.inlineanonymous
 import Compat.view
 import Base: show, isless, getindex, push!, length, eta
-import Base.Collections: PriorityQueue, enqueue!, dequeue!, peek
+import DataStructures: PriorityQueue, enqueue!, dequeue!, peek
 # export Sweep, SweepJob, SweepStatus
 
 # Priorities for sweep jobs
@@ -517,8 +517,8 @@ function reconstruct(d::Dict{String,Any})
 
     r = r"^axis([0-9]+)_([\s\S]+)"
     keyz = collect(keys(d))
-    where = [ismatch(r, str) for str in keyz]
-    matches = keyz[where]
+    w = [ismatch(r, str) for str in keyz]
+    matches = keyz[w]
     a = map(str->begin m = match(r,str); parse(m[1]),m[2] end, matches)
     a2 = Vector{Tuple{Symbol, Any}}(length(a))
     for (f,g) in a

@@ -16,6 +16,7 @@ module AlazarModule
 lib_opened = false
 
 using Alazar
+using Compat
 import Base:
     show,
     getindex,
@@ -38,7 +39,7 @@ const inf_records = U32(0x7FFFFFFF)
 """
 Abstract type representing an AlazarTech digitizer.
 """
-abstract InstrumentAlazar <: Instrument
+@compat abstract type InstrumentAlazar <: Instrument end
 
 function show(io::IO, ins::InstrumentAlazar)
     println(io, "$(typeof(ins)): ",

@@ -20,31 +20,31 @@ The parameter determines the method of window generation:
 
 In the future, other methods may be added.
 """
-abstract DSPWindow{T}
+@compat abstract type DSPWindow{T} end
 
 "Flat window (ones). Implemented in AlazarDSP."
-abstract WindowNone{T}           <: DSPWindow{T}
+@compat abstract type WindowNone{T} <: DSPWindow{T} end
 
 "Hanning window. Implemented in AlazarDSP."
-abstract WindowHanning{T}        <: DSPWindow{T}
+@compat abstract type WindowHanning{T} <: DSPWindow{T} end
 
 "Hamming window. Implemented in AlazarDSP."
-abstract WindowHamming{T}        <: DSPWindow{T}
+@compat abstract type WindowHamming{T} <: DSPWindow{T} end
 
 "Blackman window. Implemented in AlazarDSP."
-abstract WindowBlackman{T}       <: DSPWindow{T}
+@compat abstract type WindowBlackman{T} <: DSPWindow{T} end
 
 "Blackman-Harris window. Implemented in AlazarDSP."
-abstract WindowBlackmanHarris{T} <: DSPWindow{T}
+@compat abstract type WindowBlackmanHarris{T} <: DSPWindow{T} end
 
 "Bartlett window. Implemented in AlazarDSP."
-abstract WindowBartlett{T}       <: DSPWindow{T}
+@compat abstract type WindowBartlett{T} <: DSPWindow{T} end
 
 "Flat window (zeroes!)."
-abstract WindowZeroes{T}         <: DSPWindow{T}
+@compat abstract type WindowZeroes{T} <: DSPWindow{T} end
 
 "Type alias for `WindowNone`."
-typealias WindowOnes{T} WindowNone{T}
+const WindowOnes{T} = WindowNone{T}
 
 "Represents a DSP module of an AlazarTech digitizer."
 type DSPModule

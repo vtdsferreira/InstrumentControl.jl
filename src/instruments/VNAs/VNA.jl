@@ -1,5 +1,5 @@
 module VNA
-
+using Compat
 importall InstrumentControl
 using ICCommon
 using AxisArrays
@@ -11,7 +11,7 @@ export MarkerSearch
 
 # export Format, Parameter
 export clearavg, data, search, shotgun, stimdata, sweeptime
-abstract InstrumentVNA  <: Instrument
+@compat abstract type InstrumentVNA <: Instrument end
 
 """
 ```
@@ -91,7 +91,7 @@ Format of returned data. Search for `VNA.Format` in the instrument
 template files to find valid options; some examples include `:LogMagnitude`,
 `:GroupDelay`, `:PolarComplex`, etc.
 """
-abstract Format <: InstrumentProperty
+@compat abstract type Format <: InstrumentProperty end
 
 """
 Graph layout on the VNA display. Specify with a matrix of integers.
@@ -103,22 +103,22 @@ graph 2 occupying the lower-left, and graph 3 the lower-right:
 ins[Graphs] = [1 1; 2 3]
 ```
 """
-abstract Graphs <: InstrumentProperty
+@compat abstract type Graphs <: InstrumentProperty end
 
 """
 Marker state for a given marker (on/off).
 """
-abstract Marker <: InstrumentProperty
+@compat abstract type Marker <: InstrumentProperty end
 
 """
 X-axis value for a given marker.
 """
-abstract MarkerX <: InstrumentProperty
+@compat abstract type MarkerX <: InstrumentProperty end
 
 """
 Y-axis value for a marker.
 """
-abstract MarkerY <: InstrumentProperty
+@compat abstract type MarkerY <: InstrumentProperty end
 
 """
 Scattering parameter. For two-port VNAs, you can specify
@@ -130,16 +130,16 @@ channel, trace = 1, 2
 ins[Parameter, channel, trace] = :S21
 ```
 """
-abstract Parameter <: InstrumentProperty
+@compat abstract type Parameter <: InstrumentProperty end
 
 """
 Do a marker search with each trace update (yes/no).
 """
-abstract SearchTracking <: InstrumentProperty
+@compat abstract type SearchTracking <: InstrumentProperty end
 
 
 "Polarity for peak and dip searching with VNAs."
-abstract Polarity
+@compat abstract type Polarity end
 
 "Positive polarity (a peak)."
 immutable Positive <: Polarity end

@@ -5,19 +5,19 @@ export NPTRecordMode, TraditionalRecordMode
 export FFTRecordMode
 
 "Abstract type representing a mode of operation for an AlazarTech digitizer."
-abstract AlazarMode
+@compat abstract type AlazarMode end
 
 """
 Abstract type representing any streaming mode of operation for an
 AlazarTech digitizer.
 """
-abstract StreamMode <: AlazarMode
+@compat abstract type StreamMode <: AlazarMode end
 
 """
 Abstract type representing any record mode of operation for an
 AlazarTech digitizer.
 """
-abstract RecordMode <: AlazarMode
+@compat abstract type RecordMode <: AlazarMode end
 
 "See the AlazarTech documentation. Need to set `total_samples`."
 type ContinuousStreamMode <: StreamMode

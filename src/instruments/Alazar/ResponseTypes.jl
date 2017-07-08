@@ -5,16 +5,16 @@ export FFTHardwareResponse
 export IQSoftwareResponse
 
 "Abstract `Response` from an Alazar digitizer instrument."
-abstract AlazarResponse{T} <: Response
+@compat abstract type AlazarResponse{T} <: Response end
 
 "Abstract time-domain streaming `Response` from an Alazar digitizer instrument."
-abstract StreamResponse{T} <: AlazarResponse{T}
+@compat abstract type StreamResponse{T} <: AlazarResponse{T} end
 
 "Abstract time-domain record `Response` from an Alazar digitizer instrument."
-abstract RecordResponse{T} <: AlazarResponse{T}
+@compat abstract type RecordResponse{T} <: AlazarResponse{T} end
 
 "Abstract FFT `Response` from an Alazar digitizer instrument."
-abstract FFTResponse{T}    <: AlazarResponse{T}
+@compat abstract type FFTResponse{T}    <: AlazarResponse{T} end
 
 """
 Response type implementing the "continuous streaming mode" of the Alazar API.

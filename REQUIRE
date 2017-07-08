@@ -8,4 +8,5 @@ StaticArrays
 JSON
 ZMQ
 JLD
-Compat
+Compat 0.17.0
+DataStructures 0.5.3

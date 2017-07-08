@@ -45,7 +45,7 @@ abstract WriteTermCharEnable <: InstrumentProperty
 
 Write terminator character for VISA instruments.
 """
-abstract WriteTermCharEnable <: InstrumentProperty
+@compat abstract type WriteTermCharEnable <: InstrumentProperty end
 
 
 ## Finding and obtaining resources

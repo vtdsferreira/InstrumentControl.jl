@@ -30,12 +30,10 @@ export TriggerRange
 export TriggerTimeoutS
 export TriggerTimeoutTicks
 
-"An InstrumentProperty specific to AlazarTech digitizers."
-abstract AlazarProperty       <: InstrumentProperty
 
-abstract AlazarDataPacking    <: AlazarProperty
-abstract AlazarLSB            <: AlazarProperty
-abstract AlazarTimestampReset <: AlazarProperty
+@compat abstract type AlazarDataPacking    <: InstrumentProperty end
+@compat abstract type AlazarLSB            <: InstrumentProperty end
+@compat abstract type AlazarTimestampReset <: InstrumentProperty end
 
 # subtypesArray = [
 #
@@ -46,35 +44,35 @@ abstract AlazarTimestampReset <: AlazarProperty
 #
 # ]::Array{Tuple{Symbol,DataType},1}
 
-abstract AcquisitionChannel        <: AlazarProperty
-abstract AuxInputTriggerSlope      <: AlazarProperty
-abstract AuxIOMode                 <: AlazarProperty
-abstract AuxOutputPacerDivider     <: AlazarProperty
-abstract AuxOutputTTL              <: AlazarProperty
-abstract AuxSoftwareTriggerEnable  <: AlazarProperty
-abstract BitsPerSample             <: AlazarProperty
-abstract BytesPerSample            <: AlazarProperty
-abstract BufferAlignment           <: AlazarProperty
-abstract BufferTimeout             <: AlazarProperty
-abstract ChannelCount              <: AlazarProperty
-abstract Coupling                  <: AlazarProperty
-abstract InputRange                <: AlazarProperty
-abstract LED                       <: AlazarProperty
-abstract MinSamplesPerRecord       <: AlazarProperty
-abstract MaxBufferBytes            <: AlazarProperty
-abstract MinFFTSamples             <: AlazarProperty
-abstract MaxFFTSamples             <: AlazarProperty
-abstract OutputTTLLevel            <: AlazarProperty
-abstract PretriggerAlignment       <: AlazarProperty
-abstract RecordCount               <: AlazarProperty
-abstract SampleMemoryPerChannel    <: AlazarProperty
-abstract Sleep                     <: AlazarProperty
-abstract TriggerCoupling           <: AlazarProperty
-abstract TriggerDelaySamples       <: AlazarProperty
-abstract TriggerEngine             <: AlazarProperty
-abstract TriggerRange              <: AlazarProperty
-abstract TriggerTimeoutS           <: AlazarProperty
-abstract TriggerTimeoutTicks       <: AlazarProperty
+@compat abstract type AcquisitionChannel        <: InstrumentProperty end
+@compat abstract type AuxInputTriggerSlope      <: InstrumentProperty end
+@compat abstract type AuxIOMode                 <: InstrumentProperty end
+@compat abstract type AuxOutputPacerDivider     <: InstrumentProperty end
+@compat abstract type AuxOutputTTL              <: InstrumentProperty end
+@compat abstract type AuxSoftwareTriggerEnable  <: InstrumentProperty end
+@compat abstract type BitsPerSample             <: InstrumentProperty end
+@compat abstract type BytesPerSample            <: InstrumentProperty end
+@compat abstract type BufferAlignment           <: InstrumentProperty end
+@compat abstract type BufferTimeout             <: InstrumentProperty end
+@compat abstract type ChannelCount              <: InstrumentProperty end
+@compat abstract type Coupling                  <: InstrumentProperty end
+@compat abstract type InputRange                <: InstrumentProperty end
+@compat abstract type LED                       <: InstrumentProperty end
+@compat abstract type MinSamplesPerRecord       <: InstrumentProperty end
+@compat abstract type MaxBufferBytes            <: InstrumentProperty end
+@compat abstract type MinFFTSamples             <: InstrumentProperty end
+@compat abstract type MaxFFTSamples             <: InstrumentProperty end
+@compat abstract type OutputTTLLevel            <: InstrumentProperty end
+@compat abstract type PretriggerAlignment       <: InstrumentProperty end
+@compat abstract type RecordCount               <: InstrumentProperty end
+@compat abstract type SampleMemoryPerChannel    <: InstrumentProperty end
+@compat abstract type Sleep                     <: InstrumentProperty end
+@compat abstract type TriggerCoupling           <: InstrumentProperty end
+@compat abstract type TriggerDelaySamples       <: InstrumentProperty end
+@compat abstract type TriggerEngine             <: InstrumentProperty end
+@compat abstract type TriggerRange              <: InstrumentProperty end
+@compat abstract type TriggerTimeoutS           <: InstrumentProperty end
+@compat abstract type TriggerTimeoutTicks       <: InstrumentProperty end
 
 function symbol_to_aux_mode(s)
     if s == :AuxOutputTrigger
