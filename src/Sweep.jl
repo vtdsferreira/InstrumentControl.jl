@@ -1,5 +1,5 @@
 export sweep, eta, status, progress, abort!, prune!, jobs, result
-export reconstruct, atvalue
+export reconstruct
 using Base.Cartesian, JLD
 using AxisArrays
 import AxisArrays: axes
@@ -560,14 +560,15 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     sj.whensub = jobsubmit
     sj.whenstart = jobsubmit
 
-    T = returntype(measure, (typeof(dep),))
-    tup = (ndims(T), N)
+    T = Base.return_types(measure, (typeof(dep),))[1]
+    D = ndims(T)
     sjq = sweepjobqueue[]
-    t = Task(()->_sweep!(sjq.update_condition, sj, Val{tup}()))
+    !method_exists(_sweep!, (Val{D}, Val{N}, Any, Any)) && define_sweep(D,N)
+    t = Task(()->_sweep!(Val{D}(), Val{N}(), sjq.update_condition, sj))
 
     @async begin
         for x in t
-            ZMQ.send(plotsock[], ZMQ.Message(x))
+            # ZMQ.send(plotsock[], ZMQ.Message(x))
         end
         notify(sjq.update_condition, sj)
     end
@@ -583,102 +584,91 @@ default_value{T<:AbstractFloat}(::Type{Complex{T}}) = Complex{T}(NaN)
 
 """
 ```
-@generated function _sweep!{T}(updated_status_of, sj, ::Val{T})
+_sweep!(::Val{T}, updated_status_of, sj)
 ```
 
 This is a private function which should not be called directly by the user.
-It is launched asynchronously by [`sweep`](@ref).
-The implementation uses `@generated` and macros from
-[Base.Cartesian](http://docs.julialang.org/en/release-0.5/devdocs/cartesian/).
-The stimuli are sourced only when they need to be, at the start of each
-`for` loop level.
+It is launched asynchronously by [`sweep`](@ref). The implementation uses macros from
+[Base.Cartesian](https://docs.julialang.org/en/stable/devdocs/cartesian/).
+The stimuli are sourced only when they need to be, at the start of each `for` loop level.
 
 `T` is a `Tuple{Int,Int}` object where the first `Int` is the number of dimensions
 coming from a single measurement, and the second `Int` is the number of independent
-sweep axes.
+sweep axes. The first time a new `T` is encountered, an appropriate method is defined.
 
-The axis scaling of `measure(sj.sweep.dep)` is presumed to be fixed, as it is
-only looked at once, the first time `measure` is called.
+The axis scaling of `measure(sj.sweep.dep)` is presumed to be fixed, as it is only looked
+at once, the first time `measure` is called.
 """
-@generated function _sweep!{T}(updated_status_of, sj, ::Val{T})
-    D,N = T
-    quote
-        # Assign some local variable names for convenience
-        # and setup our progress indicator.
-        indep = sj.sweep.indep
-        dep = sj.sweep.dep
-        it = 0; tot = reduce(*, 1, length(indep[i][2]) for i in 1:$N)
+function _sweep! end
 
-        # Wait for job to run or be aborted
-        @respond_to_status
+function define_sweep(D,N)
+    eval(InstrumentControl, quote
+        function _sweep!(::Val{$D}, ::Val{$N}, updated_status_of, sj)
+            # Assign some local variable names for convenience
+            # and setup our progress indicator.
+            indep = sj.sweep.indep
+            dep = sj.sweep.dep
+            it = 0; tot = reduce(*, 1, length(indep[i][2]) for i in 1:$N)
 
-        # Source to first value for each stimulus and do first measurement.
-        @nexprs $N j->source(indep[$(N+1)-j][1], indep[$(N+1)-j][2][1])
-        data = measure(dep)
+            # Wait for job to run or be aborted
+            @respond_to_status
 
-        # Setup a result array with the correct shape and assign first result.
-        # Update progress.
-        array = AxisArray( Array{eltype(data)}(
-            size(data)..., (length(a) for (stim, a) in indep)...),
-            axes(data)..., stimaxis.(indep)...)
-        array.data[:] = default_value(eltype(data))
+            # Source to first value for each stimulus and do first measurement.
+            @nexprs $N j->source(indep[$(N+1)-j][1], indep[$(N+1)-j][2][1])
+            data = measure(dep)
 
-        sj.sweep.result = array
-        inds = ((@ntuple $D t->Colon())..., (@ntuple $N t->1)...)
-        array[inds...] = data
-        it += 1; take!(sj.progress); put!(sj.progress, it/tot)
+            # Setup a result array with the correct shape and assign first result.
+            # Update progress.
+            array = AxisArray( Array{eltype(data)}(
+                size(data)..., (length(a) for (stim, a) in indep)...),
+                axes(data)..., stimaxis.(indep)...)
+            array.data[:] = default_value(eltype(data))
 
-        # Setup a plot and send our first result
-        io = IOBuffer()
-        serialize(io, ICCommon.PlotSetup(Array{eltype(data)}, size(array)))
-        produce(io)
-        io = IOBuffer()
-        serialize(io, ICCommon.PlotPoint(inds, data))
-        produce(io)
+            sj.sweep.result = array
+            inds = ((@ntuple $D t->Colon())..., (@ntuple $N t->1)...)
+            array[inds...] = data
+            it += 1; take!(sj.progress); put!(sj.progress, it/tot)
 
-        (@ntuple $N t) = (@ntuple $N x->true)
-        t_body = true
-        @nloops $N i k->indices(array,k+$D) j->(@respond_to_status;
-            @skipfirst t_j source(indep[j][1], indep[j][2][i_j])) begin
+            # Setup a plot and send our first result
+            io = IOBuffer()
+            serialize(io, ICCommon.PlotSetup(Array{eltype(data)}, size(array)))
+            produce(io)
+            io = IOBuffer()
+            serialize(io, ICCommon.PlotPoint(inds, data))
+            produce(io)
 
-            if t_body == true
-                t_body = false
-            else
-                data = measure(dep)
-                (@dnref $D $N array i) = data
+            (@ntuple $N t) = (@ntuple $N x->true)
+            t_body = true
+            @nloops $N i k->indices(array,k+$D) j->(@respond_to_status;
+                @skipfirst t_j source(indep[j][1], indep[j][2][i_j])) begin
 
-                # update progress
-                it += 1; take!(sj.progress); put!(sj.progress, it/tot)
+                if t_body == true
+                    t_body = false
+                else
+                    data = measure(dep)
+                    (@dnref $D $N array i) = data
 
-                # send forth results
-                io = IOBuffer()
-                serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))
-                produce(io)
+                    # update progress
+                    it += 1; take!(sj.progress); put!(sj.progress, it/tot)
+
+                    # send forth results
+                    io = IOBuffer()
+                    serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))
+                    produce(io)
+                end
             end
+            take!(sj.status); put!(sj.status, Done)
         end
-        take!(sj.status); put!(sj.status, Done)
-    end
+    end)
 end
 
 # AxisArrays patchwork
 # Needed for when `measure` returns a scalar.
 axes(::Number) = ()
-
-# Needed for indexing arrays by real value.
-immutable Value{T}
-    val::T
-end
-atvalue(x) = Value(x)
-AxisArrays.axisindexes(::Type{AxisArrays.Dimensional}, ax::AbstractVector,
-    idx::Value) = findfirst(ax.==idx.val)
-
 stimaxis(sv) = Axis{axisname(sv[1])}(sv[2])
 
 """
-```
-@dnref(D, N, A, sym)
-```
-
+    @dnref(D, N, A, sym)
 This is a lot like `@nref` in `Base.Cartesian`. See the Julia documentation;
 the only difference here is that we are going to have the first `D` indices
 be `:` (which are constructed programmatically by `Colon()`).
@@ -693,10 +683,7 @@ function _dnref(D::Int, N::Int, A, ex)
 end
 
 """
-```
-@dntuple(D, N, A, sym)
-```
-
+    @dntuple(D, N, A, sym)
 This is a lot like `@ntuple` in `Base.Cartesian`. See the Julia documentation;
 the only difference here is that we are going to have the first `D` elements
 be `:` (which may be constructed programmatically by `Colon()`).
@@ -713,10 +700,7 @@ function _dntuple(D::Int, N::Int, ex)
 end
 
 """
-```
-@skipfirst(t, ex)
-```
-
+    @skipfirst(t, ex)
 Place `ex` in a code block such that `ex` is only after the first time this code
 block is encountered.
 
@@ -738,7 +722,6 @@ end
 ```
 @respond_to_status
 ```
-
 Respond to status changes during a sweep. This is the entry point for sweeps to
 be paused or aborted. Not meant to be called by the user. It will break if
 argument names of [`InstrumentControl._sweep!`](@ref) are modified.

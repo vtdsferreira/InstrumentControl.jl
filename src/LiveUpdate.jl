@@ -6,7 +6,7 @@ export plotserver
 function plotobj(dep::Response,
     indep::NTuple{1,Tuple{Stimulus, AbstractArray}})
 
-    PlotSetup(size(indep[1][2]), returntype(measure, (typeof(dep),));
+    PlotSetup(size(indep[1][2]), Base.return_type(measure, (typeof(dep),)[1]);
         xlabel = plotlabel(indep[1]),
         ylabel = plotlabel(dep),
         series_type = :scatter
