@@ -103,11 +103,8 @@ type SweepJob
 end
 
 """
-```
-SweepJob(dep, indeps; priority=NORMAL_PRIORITY, username=confd["username"],
-    notifications=confd["notifications"])
-```
-
+    SweepJob(dep, indeps; priority=NORMAL_PRIORITY, username=confd["username"],
+        notifications=confd["notifications"])
 Initialize a `SweepJob` object given `dep` and `indeps`. Until interaction
 with the database, `job_id` is set to zero and `whenstart` is temporarily
 (and inaccurately) set to `whensub`.
@@ -152,10 +149,7 @@ function show(io::IO, s::SweepJob)
 end
 
 """
-```
-eta(x::SweepJob)
-```
-
+    eta(x::SweepJob)
 Return the estimated time of completion for sweep job `x`.
 """
 function eta(x::SweepJob)
@@ -176,10 +170,7 @@ function eta(x::SweepJob)
 end
 
 """
-```
-status(x::SweepJob)
-```
-
+    status(x::SweepJob)
 Return the sweep job status.
 """
 function status(x::SweepJob)
@@ -188,10 +179,7 @@ function status(x::SweepJob)
 end
 
 """
-```
-progress(x::SweepJob)
-```
-
+    progress(x::SweepJob)
 Returns the sweep job progress, a `Float64` between 0 and 1 (inclusive).
 """
 function progress(x::SweepJob)
@@ -200,10 +188,7 @@ function progress(x::SweepJob)
 end
 
 """
-```
-abort!(x::SweepJob)
-```
-
+    abort!(x::SweepJob)
 Abort a sweep job. Guaranteed to bail out of the sweep in such a way that the
 data has been measured for most recent sourcing of a stimulus, i.e. at the very
 start of a for loop in [`InstrumentControl._sweep!`](@ref). You can also abort a
@@ -228,10 +213,7 @@ function abort!(x::SweepJob)
 end
 
 """
-```
-abort!()
-```
-
+    abort!()
 Abort the currently running job (if any). If no job is running, the method does
 not throw an error.
 """
@@ -244,10 +226,7 @@ function abort!()
 end
 
 """
-```
-result(sj::SweepJob)
-```
-
+    result(sj::SweepJob)
 Returns the result array of a sweep job `sj`. Throws an error if the result array
 has not yet been initialized.
 """
@@ -260,19 +239,13 @@ function result(sj::SweepJob)
 end
 
 """
-```
-result(i::Integer)
-```
-
+    result(i::Integer)
 Returns a result array by job id.
 """
-@inline result(i::Integer) = result(jobs(i))
+result(i::Integer) = result(jobs(i))
 
 """
-```
-result()
-```
-
+    result()
 Returns the result array from the last finished or aborted job.
 """
 function result()
@@ -283,19 +256,16 @@ function result()
 end
 
 """
-```
-type SweepJobQueue
-    q::PriorityQueue{Int,SweepJob,
-        Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
-    running_id::Int
-    last_finished_id::Int
-    update_condition::Condition
-    function SweepJobQueue()
-        new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, Condition())
+    type SweepJobQueue
+        q::PriorityQueue{Int,SweepJob,
+            Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
+        running_id::Int
+        last_finished_id::Int
+        update_condition::Condition
+        function SweepJobQueue()
+            new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, Condition())
+        end
     end
-end
-```
-
 A queue responsible for prioritizing sweeps and executing them accordingly.
 """
 type SweepJobQueue
@@ -353,20 +323,14 @@ function push!(q::SweepJobQueue, sw::SweepJob)
 end
 
 """
-```
-jobs()
-```
-
+    jobs()
 Returns the default sweep job queue object. Typically you call this to see what
 jobs are waiting, aborted, or finished, and what job is running.
 """
 jobs() = sweepjobqueue[]
 
 """
-```
-jobs(job_id)
-```
-
+    jobs(job_id)
 Return the job associated with `job_id`.
 """
 jobs(job_id) = jobs()[job_id]
@@ -435,10 +399,7 @@ end
 
 
 """
-```
-prune!(q::SweepJobQueue)
-```
-
+    prune!(q::SweepJobQueue)
 Prunes a [`SweepJobQueue`](@ref) of all [`InstrumentControl.SweepJob`](@ref)s
 with a status of `Done` or `Aborted`. This will have the side effect of releasing
 old sweep results if there remain no references to them in julia, however they
@@ -511,29 +472,9 @@ function archive_result(sj::SweepJob)
     end
 end
 
-# Reconstruct AxisArray from an archived dictionary.
-function reconstruct(d::Dict{String,Any})
-    haskey(d, "data") || error("no `data` key.")
-
-    r = r"^axis([0-9]+)_([\s\S]+)"
-    keyz = collect(keys(d))
-    w = [ismatch(r, str) for str in keyz]
-    matches = keyz[w]
-    a = map(str->begin m = match(r,str); parse(m[1]),m[2] end, matches)
-    a2 = Vector{Tuple{Symbol, Any}}(length(a))
-    for (f,g) in a
-        a2[f] = (Symbol(g), d["axis$(f)_$(g)"])
-    end
-    AxisArray(d["data"], (Axis{name}(v) for (name,v) in a2)...)
-end
-
-
 """
-```
-sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
-    priority = NORMAL)
-```
-
+    sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
+        priority = NORMAL)
 Measures a response as a function of an arbitrary number of stimuli, and returns
 a handle to the sweep job. This can be used to access the results while the
 sweep is being measured.
@@ -550,6 +491,15 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     priority = NORMAL, username=confd["username"],
     notifications=confd["notifications"])
 
+    Ts = Base.return_types(measure, (typeof(dep),))
+    length(Ts) == 0 && error(string("measure(::", typeof(dep), ") appears to have no ",
+        "return types. Did you define this method?"))
+    length(Ts) > 1 && error(string("measure(::", typeof(dep), ") has multiple return ",
+        "types somehow."))
+    T = Ts[1]
+    !isleaftype(T) && error(string("measure(::", typeof(dep), ") must return a leaf type. ",
+        "Is this method type-stable?"))
+
     # Make a new SweepJob object and assign the array we made to it
     sj = SweepJob(dep, indep; priority = priority, username = username,
         notifications = notifications)
@@ -560,11 +510,19 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     sj.whensub = jobsubmit
     sj.whenstart = jobsubmit
 
-    T = Base.return_types(measure, (typeof(dep),))[1]
     D = ndims(T)
     sjq = sweepjobqueue[]
     !method_exists(_sweep!, (Val{D}, Val{N}, Any, Any)) && define_sweep(D,N)
-    t = Task(()->_sweep!(Val{D}(), Val{N}(), sjq.update_condition, sj))
+    t = Task(()->begin
+        try
+            _sweep!(Val{D}(), Val{N}(), sjq.update_condition, sj)
+        catch e
+            take!(sj.status)
+            put!(sj.status, Aborted)
+            notify(sjq.update_condition, sj)
+            rethrow(e)
+        end
+    end)
 
     @async begin
         for x in t

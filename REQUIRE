@@ -1,9 +1,9 @@
-julia 0.5
+julia 0.6
 VISA
 Alazar
 BinDeps
 FileIO
-AxisArrays
+AxisArrays 0.1.4
 StaticArrays
 JSON
 ZMQ
