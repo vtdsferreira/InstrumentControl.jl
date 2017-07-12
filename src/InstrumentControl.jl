@@ -68,23 +68,44 @@ const global resourcemanager = Ref{UInt32}()
 const global sweepjobqueue = Ref{SweepJobQueue}()
 const global sweepjobtask = Ref{Task}()
 
+const global plotsockopened = Ref{Bool}(false)
+const global dbsockopened = Ref{Bool}(false)
+const global qsockopened = Ref{Bool}(false)
+
+# Database server connection
+function dbsocket()
+    if !dbsockopened[]
+        dbsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
+        ZMQ.connect(dbsock[], confd["dbserver"])
+        dbsockopened[] = true
+        # Now that the database server is connected, check that username is valid.
+        validate_username(confd["username"])
+    end
+    return dbsock[]
+end
+
+# Live plotting
+function plotsocket()
+    if !plotsockopened[]
+        plotsock[] = ZMQ.Socket(ctx[], ZMQ.PUB)
+        ZMQ.bind(plotsock[], "tcp://127.0.0.1:50002")
+        plotsockopened[] = true
+    end
+    return plotsock[]
+end
+
+function qsocket()
+    if !qsockopened[]
+        qsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
+        ZMQ.bind(qsock[],  confd["dbserver"])
+        qsockopened[] = true
+    end
+    return qsock[]
+end
+
 function __init__()
     # ZeroMQ context
     ctx[] = ZMQ.Context()
-
-    # Live plotting
-    plotsock[] = ZMQ.Socket(ctx[], ZMQ.PUB)
-    ZMQ.bind(plotsock[], "tcp://127.0.0.1:50002")
-
-    # Database server connection
-    dbsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
-    ZMQ.connect(dbsock[], confd["dbserver"])
-
-    qsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
-    ZMQ.connect(qsock[], confd["dbserver"])
-
-    # Now that the database server is connected, check that username is valid.
-    validate_username(confd["username"])
 
     PARALLEL_PATH[] = joinpath(dirname(@__FILE__), "parallelutils.jl")
     eval(Main, :(@everywhere include($(PARALLEL_PATH[]))))

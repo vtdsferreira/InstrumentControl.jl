@@ -9,9 +9,9 @@ end
 function listusers()
     io = IOBuffer()
     serialize(io, ICCommon.ListUsersRequest())
-    ZMQ.send(dbsock[], ZMQ.Message(io))
+    ZMQ.send(dbsocket(), ZMQ.Message(io))
 
-    msg = ZMQ.recv(dbsock[])
+    msg = ZMQ.recv(dbsocket())
     out = convert(IOStream, msg)
     seekstart(out)
     deserialize(out)

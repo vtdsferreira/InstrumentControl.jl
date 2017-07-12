@@ -420,9 +420,9 @@ function new_job_in_db(;username="default")::Tuple{UInt, DateTime}
     request = ICCommon.NewJobRequest(username=username, dataserver="local_data")
     io = IOBuffer()
     serialize(io, request)
-    ZMQ.send(dbsock[], ZMQ.Message(io))
+    ZMQ.send(dbsocket(), ZMQ.Message(io))
     # Note that it is totally possible a task switch can happen here!
-    msg = ZMQ.recv(dbsock[])
+    msg = ZMQ.recv(dbsocket())
     out = convert(IOStream, msg)
     seekstart(out)
     job_id, jobsubmit = deserialize(out)
@@ -432,9 +432,9 @@ function update_job_in_db(sw; kwargs...)::Bool
     request = ICCommon.UpdateJobRequest(sw.job_id; kwargs...)
     io = IOBuffer()
     serialize(io, request)
-    ZMQ.send(qsock[], ZMQ.Message(io))
+    ZMQ.send(qsocket(), ZMQ.Message(io))
     # Note that it is totally possible a task switch can happen here!
-    msg = ZMQ.recv(qsock[])
+    msg = ZMQ.recv(qsocket())
     out = convert(IOStream, msg)
     seekstart(out)
     deserialize(out)
@@ -491,6 +491,11 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     priority = NORMAL, username=confd["username"],
     notifications=confd["notifications"])
 
+    # Spin up sockets so they are ready to use (maybe unnecessary)
+    plotsocket()
+    dbsocket()
+    qsocket()
+
     Ts = Base.return_types(measure, (typeof(dep),))
     length(Ts) == 0 && error(string("measure(::", typeof(dep), ") appears to have no ",
         "return types. Did you define this method?"))
@@ -526,7 +531,7 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
 
     @async begin
         for x in t
-            # ZMQ.send(plotsock[], ZMQ.Message(x))
+            # ZMQ.send(plotsocket(), ZMQ.Message(x))
         end
         notify(sjq.update_condition, sj)
     end
