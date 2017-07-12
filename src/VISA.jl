@@ -37,10 +37,7 @@ export savestate
 # `vi::ViSession`
 # `writeTerminator::AbstractString`
 
-
-"""
-Enable write terminator character for VISA instruments.
-"""
+"Enable write terminator character for VISA instruments."
 @compat abstract type WriteTermCharEnable <: InstrumentProperty end
 
 
@@ -231,7 +228,7 @@ quoted(str::AbstractString) = "\""*str*"\""
 "Strip a string of enclosing quotation marks."
 unquoted(str::AbstractString) = strip(str,['"','\''])
 
-# Try this version at some point: 
+# Try this version at some point:
 # "Strip a string of enclosing quotation marks (including \" or ')."
 # function unquoted(str::AbstractString)
 #     chars = ['"','\'']

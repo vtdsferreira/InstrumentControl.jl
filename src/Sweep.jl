@@ -519,14 +519,7 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     sjq = sweepjobqueue[]
     !method_exists(_sweep!, (Val{D}, Val{N}, Any, Any)) && define_sweep(D,N)
     t = Task(()->begin
-        try
-            _sweep!(Val{D}(), Val{N}(), sjq.update_condition, sj)
-        catch e
-            take!(sj.status)
-            put!(sj.status, Aborted)
-            notify(sjq.update_condition, sj)
-            rethrow(e)
-        end
+        _sweep!(Val{D}(), Val{N}(), sjq.update_condition, sj)
     end)
 
     @async begin
