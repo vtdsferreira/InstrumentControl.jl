@@ -66,7 +66,6 @@ const global qsock = Ref{ZMQ.Socket}()
 const global PARALLEL_PATH = Ref{String}()
 const global resourcemanager = Ref{UInt32}()
 const global sweepjobqueue = Ref{SweepJobQueue}()
-const global sweepjobtask = Ref{Task}()
 
 const global plotsockopened = Ref{Bool}(false)
 const global dbsockopened = Ref{Bool}(false)
@@ -115,7 +114,6 @@ function __init__()
 
     # Finally, set up and initialize a sweep queue.
     sweepjobqueue[] = SweepJobQueue()
-    sweepjobtask[] = @schedule sweepjobqueue[]()
 end
 
 end

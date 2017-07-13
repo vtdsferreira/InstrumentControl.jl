@@ -219,7 +219,8 @@ not throw an error.
 """
 function abort!()
     sjq = sweepjobqueue[]
-    job_id = sjq.running_id
+    job_id = take!(sjq.running_id)
+    put!(sjq.running_id, job_id)
     if job_id > 0
         abort!(sjq[job_id])
     end
@@ -256,26 +257,27 @@ function result()
 end
 
 """
-    type SweepJobQueue
-        q::PriorityQueue{Int,SweepJob,
-            Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
-        running_id::Int
-        last_finished_id::Int
-        update_condition::Condition
-        function SweepJobQueue()
-            new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, Condition())
-        end
-    end
 A queue responsible for prioritizing sweeps and executing them accordingly.
+
+When a `SweepJobQueue` is created, two tasks are initialized.
 """
 type SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
-    running_id::Int
-    last_finished_id::Int
-    update_condition::Condition
+    running_id::Channel{Int}
+    last_finished_id::Int               # make this a Channel?
+    trystart_condition::Condition
+    update_taskref::Ref{Task}
+    update_channel::Channel{SweepJob}
     function SweepJobQueue()
-        new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse), -1, -1, Condition())
+        sjq = new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse),
+            Channel{Int}(1), -1, Condition())
+        put!(sjq.running_id, -1)
+        sjq.update_taskref = Ref{Task}()
+        sjq.update_channel = Channel(t->job_updater(sjq, t);
+            ctype = SweepJob, taskref=sjq.update_taskref)
+        @schedule job_starter(sjq)
+        sjq
     end
 end
 
@@ -284,9 +286,10 @@ function show(io::IO, x::SweepJobQueue)
     if length(x) == 0
         println(io, "No jobs in queue.")
     else
-        if x.running_id != -1
+        rid = fetch(x.running_id)
+        if rid != -1
             println("Running job")
-            show(io, x[x.running_id])
+            show(io, x[rid])
             println(io)
         end
         println(io, "Ten highest priority jobs")
@@ -314,12 +317,12 @@ dequeue!(x::SweepJobQueue) = dequeue!(x.q)
 peek(x::SweepJobQueue) = peek(x.q)
 length(x::SweepJobQueue) = length(x.q)
 
-function push!(q::SweepJobQueue, sw::SweepJob)
+function push!(sjq::SweepJobQueue, sj::SweepJob)
     # Stick it in the queue and increment next job id
-    enqueue!(q.q, sw.job_id, sw)
+    enqueue!(sjq.q, sj.job_id, sj)
 
     # Maybe the job should be run, let's give the queue a chance to react
-    notify(q.update_condition, sw)
+    notify(sjq.trystart_condition)
 end
 
 """
@@ -336,67 +339,65 @@ Return the job associated with `job_id`.
 jobs(job_id) = jobs()[job_id]
 
 # Make SweepJobQueues callable
-function (sq::SweepJobQueue)()
-    sj = wait(sq.update_condition)
+function job_updater(sjq::SweepJobQueue, update_channel::Channel{SweepJob})
     while true
+        sj = take!(update_channel)
         st = status(sj)
-        @sync begin
-            if st == Done || st == Aborted
-                @async begin
-                    update_job_in_db(sj, jobstop=now(), jobstatus=Int(st)) ||
-                    error("failed to update job $(sj.job_id).")
-                end
-
-                # Set to priority lower than can be specified by the user
-                dequeue!(sq.q, sj.job_id)
-                sj.priority = NEVER
-                enqueue!(sq.q, sj.job_id, sj)
-
-                # Flag that nothing is running
-                # (if statement in case we aborted a job that wasn't running)
-                if sj.job_id == sq.running_id
-                    sq.running_id = -1
-                end
-                sq.last_finished_id = sj.job_id
-
-                # Save whatever was measured, regardless of abort or done
-                archive_result(sj)
+        if st == Done || st == Aborted
+            @async begin
+                update_job_in_db(sj, jobstop=now(), jobstatus=Int(st)) ||
+                    error("failed to update job ", sj.job_id, ".")
             end
-        end
 
-        # Sync block ensures that the enclosed db update finishes before the
-        # next db update. Updating db asynchronously so that there is no task
-        # switching before we wait for the update condition. Without the async,
-        # the returned job status might not show "running" if a job is launched
-        # with nothing in the queue.
-        @sync begin
-            if !isempty(sq.q)  # maybe unnecessary to even check
-                k,sjtop = peek(sq.q)
-                sttop = status(sjtop)
+            # Set to priority lower than can be specified by the user
+            dequeue!(sjq.q, sj.job_id)
+            sj.priority = NEVER
+            enqueue!(sjq.q, sj.job_id, sj)
 
-                # job is waiting, nothing is running, and job is runnable
-                if sttop == Waiting && sq.running_id == -1 &&
-                        sjtop.priority > NEVER
-
-                    sjtop.whenstart = now()
-                    sjtop.has_started = true
-                    @async begin
-                        update_job_in_db(sjtop, jobstart=sjtop.whenstart,
-                        jobstatus=Int(Running)) ||
-                            error("failed to update job $(sjtop.job_id).")
-                    end
-
-                    sq.running_id = k
-                    take!(sjtop.status)
-                    put!(sjtop.status, Running)
-                end
+            # Flag that nothing is running
+            # (if statement in case we aborted a job that wasn't running)
+            rid = fetch(sjq.running_id)
+            if sj.job_id == rid
+                take!(sjq.running_id)
+                put!(sjq.running_id, -1)
             end
-            sj = wait(sq.update_condition)
+            sjq.last_finished_id = sj.job_id
+
+            # Save whatever was measured, regardless of abort or done
+            # (some other task can do it to keep this one free)
+            @async archive_result(sj)
+
+            # Maybe we should start a new job?
+            notify(sjq.trystart_condition)
         end
     end
 end
 
+function job_starter(sjq::SweepJobQueue)
+    while true
+        wait(sjq.trystart_condition)
+        if !isempty(sjq.q)  # maybe unnecessary to even check
+            k,sjtop = peek(sjq.q)
+            sttop = status(sjtop)
 
+            # job is waiting, nothing is running, and job is runnable
+            rid = fetch(sjq.running_id)
+            if sttop == Waiting && rid == -1 && sjtop.priority > NEVER
+                sjtop.whenstart = now()
+                sjtop.has_started = true
+                @async begin
+                    update_job_in_db(sjtop, jobstart=sjtop.whenstart,
+                    jobstatus=Int(Running)) ||
+                        error("failed to update job $(sjtop.job_id).")
+                end
+                take!(sjq.running_id)
+                put!(sjq.running_id, k)
+                take!(sjtop.status)
+                put!(sjtop.status, Running)
+            end
+        end
+    end
+end
 
 """
     prune!(q::SweepJobQueue)
@@ -518,19 +519,9 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
     D = ndims(T)
     sjq = sweepjobqueue[]
     !method_exists(_sweep!, (Val{D}, Val{N}, Any, Any)) && define_sweep(D,N)
-    t = Task(()->begin
-        _sweep!(Val{D}(), Val{N}(), sjq.update_condition, sj)
-    end)
-
-    @async begin
-        for x in t
-            # ZMQ.send(plotsocket(), ZMQ.Message(x))
-        end
-        notify(sjq.update_condition, sj)
-    end
+    @schedule _sweep!(Val{D}(), Val{N}(), sj, sjq.update_channel)
     push!(sjq, sj)
-
-    info("Sweep submitted with job id: $(sj.job_id)")
+    info("Sweep submitted with job id: ", sj.job_id)
     sj
 end
 
@@ -540,7 +531,7 @@ default_value{T<:AbstractFloat}(::Type{Complex{T}}) = Complex{T}(NaN)
 
 """
 ```
-_sweep!(::Val{T}, updated_status_of, sj)
+_sweep!(::Val{D}, ::Val{N}, sj, update_channel)
 ```
 
 This is a private function which should not be called directly by the user.
@@ -559,15 +550,15 @@ function _sweep! end
 
 function define_sweep(D,N)
     eval(InstrumentControl, quote
-        function _sweep!(::Val{$D}, ::Val{$N}, updated_status_of, sj)
+        function _sweep!(::Val{$D}, ::Val{$N}, sj, update_channel)
+            # Wait for job to run or be aborted
+            @respond_to_status
+
             # Assign some local variable names for convenience
             # and setup our progress indicator.
             indep = sj.sweep.indep
             dep = sj.sweep.dep
             it = 0; tot = reduce(*, 1, length(indep[i][2]) for i in 1:$N)
-
-            # Wait for job to run or be aborted
-            @respond_to_status
 
             # Source to first value for each stimulus and do first measurement.
             @nexprs $N j->source(indep[$(N+1)-j][1], indep[$(N+1)-j][2][1])
@@ -586,12 +577,12 @@ function define_sweep(D,N)
             it += 1; take!(sj.progress); put!(sj.progress, it/tot)
 
             # Setup a plot and send our first result
-            io = IOBuffer()
-            serialize(io, ICCommon.PlotSetup(Array{eltype(data)}, size(array)))
-            produce(io)
-            io = IOBuffer()
-            serialize(io, ICCommon.PlotPoint(inds, data))
-            produce(io)
+            # io = IOBuffer()
+            # serialize(io, ICCommon.PlotSetup(Array{eltype(data)}, size(array)))
+            # produce(io)
+            # io = IOBuffer()
+            # serialize(io, ICCommon.PlotPoint(inds, data))
+            # produce(io)
 
             (@ntuple $N t) = (@ntuple $N x->true)
             t_body = true
@@ -608,12 +599,13 @@ function define_sweep(D,N)
                     it += 1; take!(sj.progress); put!(sj.progress, it/tot)
 
                     # send forth results
-                    io = IOBuffer()
-                    serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))
-                    produce(io)
+                    # io = IOBuffer()
+                    # serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))
+                    # produce(io)
                 end
             end
             take!(sj.status); put!(sj.status, Done)
+            put!(update_channel, sj)
         end
     end)
 end
@@ -689,7 +681,6 @@ macro respond_to_status()
         end
 
         if status(sj) == Aborted
-            notify(updated_status_of, sj)
             return
         end
     end)
