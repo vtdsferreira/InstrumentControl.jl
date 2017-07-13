@@ -257,16 +257,33 @@ function result()
 end
 
 """
+    type SweepJobQueue ... end
 A queue responsible for prioritizing sweeps and executing them accordingly.
 
-When a `SweepJobQueue` is created, two tasks are initialized.
+When a `SweepJobQueue` is created, two tasks are initialized. One task manages job updates,
+the other task is responsible for starting jobs.
+
+When the job starter task is notified with the `trystart::Condition` object, it will look
+at one of the jobs with highest priority, get its status, and then check the sweep job queue
+to see if a job is running. If a job is not running, and if the prioritized job is waiting,
+and if the prioritized job is runnable (the priority may be "never"), then the job is started.
+The database is updated asynchronously to reflect the new job. The job starter task will
+receive notifications from the job updater task, or when a new job is pushed to the sweep
+job queue.
+
+The job updater task tries to take a `SweepJob` from an unbuffered `Channel`. This blocks
+until a job is put into the channel. Once a job arrives, provided the job has finished
+or has been aborted, the database is asynchronously updated, the job is marked as no longer
+running, the sweep is asynchronously saved to disk, and finally the job starter task is
+notified. The job updater task loops around and waits for another job to arrive at its
+channel.
 """
 type SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
     running_id::Channel{Int}
     last_finished_id::Int               # make this a Channel?
-    trystart_condition::Condition
+    trystart::Condition
     update_taskref::Ref{Task}
     update_channel::Channel{SweepJob}
     function SweepJobQueue()
@@ -322,7 +339,7 @@ function push!(sjq::SweepJobQueue, sj::SweepJob)
     enqueue!(sjq.q, sj.job_id, sj)
 
     # Maybe the job should be run, let's give the queue a chance to react
-    notify(sjq.trystart_condition)
+    notify(sjq.trystart)
 end
 
 """
@@ -368,21 +385,21 @@ function job_updater(sjq::SweepJobQueue, update_channel::Channel{SweepJob})
             @async archive_result(sj)
 
             # Maybe we should start a new job?
-            notify(sjq.trystart_condition)
+            notify(sjq.trystart)
         end
     end
 end
 
 function job_starter(sjq::SweepJobQueue)
     while true
-        wait(sjq.trystart_condition)
+        wait(sjq.trystart)
         if !isempty(sjq.q)  # maybe unnecessary to even check
             k,sjtop = peek(sjq.q)
             sttop = status(sjtop)
 
             # job is waiting, nothing is running, and job is runnable
             rid = fetch(sjq.running_id)
-            if sttop == Waiting && rid == -1 && sjtop.priority > NEVER
+            if sttop == Waiting && && sjtop.priority > NEVER
                 sjtop.whenstart = now()
                 sjtop.has_started = true
                 @async begin
