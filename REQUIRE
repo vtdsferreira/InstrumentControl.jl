@@ -4,9 +4,9 @@ Alazar
 BinDeps
 FileIO
 AxisArrays 0.1.4
-StaticArrays
+StaticArrays 0.6.0
 JSON
 ZMQ
 JLD
-Compat 0.17.0
+Compat 0.18.0
 DataStructures 0.5.3

@@ -399,7 +399,7 @@ function job_starter(sjq::SweepJobQueue)
 
             # job is waiting, nothing is running, and job is runnable
             rid = fetch(sjq.running_id)
-            if sttop == Waiting && && sjtop.priority > NEVER
+            if sttop == Waiting && rid == -1 && sjtop.priority > NEVER
                 sjtop.whenstart = now()
                 sjtop.has_started = true
                 @async begin

@@ -96,7 +96,7 @@ end
 function qsocket()
     if !qsockopened[]
         qsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
-        ZMQ.bind(qsock[],  confd["dbserver"])
+        ZMQ.connect(qsock[],  confd["dbserver"])
         qsockopened[] = true
     end
     return qsock[]

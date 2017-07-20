@@ -61,7 +61,7 @@ function setindex!(ins::InsE5071C, b::Bool, ::Type{VNA.SearchTracking}, m::Integ
 end
 
 function setindex!(ins::InsE5071C, a::AbstractArray{Int}, ::Type{VNA.Graphs}, ch::Integer=1)
-    write(ins, ":DISP:WIND#:SPL #", ch, window(ins, Val{SArray{size(a)}(a)}))
+    write(ins, ":DISP:WIND#:SPL #", ch, window(ins, Val{SArray{Tuple{size(a)...}}(a)}))
 end
 
 function getindex(ins::InsE5071C, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
@@ -76,7 +76,7 @@ end
 
 function getindex(ins::InsE5071C, ::Type{VNA.MarkerY}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
-    data = getdata(ins, Val{:ASCIIString}, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
+    data = getdata(ins, :String, "CALC#:TRAC#:MARK#:Y?", ch, tr, m)
     _reformat(ins, data, ch, tr)[1]
 end
 
@@ -90,17 +90,17 @@ function autoscale(ins::InsE5071C, ch::Integer=1, tr::Integer=1)
 end
 
 function stimdata(ins::InsE5071C, ch::Int=1)
-    xfer = eval(ins[TransferFormat])
-    getdata(ins, Val{xfer}, ":SENSe"*string(ch)*":FREQuency:DATA?")
+    xfer = ins[TransferFormat]
+    getdata(ins, xfer, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
 
 function data{T}(ins::InsE5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1)
     ins[VNA.Format, ch, tr] = T
-    xfer = eval(ins[TransferFormat])
+    xfer = ins[TransferFormat]
     cmdstr = datacmd(ins, Val{T})
     cmdstr = replace(cmdstr, "#", string(ch), 1)
     cmdstr = replace(cmdstr, "#", string(tr), 1)
-    data = getdata(ins, Val{xfer}, cmdstr)
+    data = getdata(ins, xfer, cmdstr)
     _reformat(ins, Val{T}, data)
 end
 
@@ -110,11 +110,11 @@ function data(ins::InsE5071C, processing::Type{Val{:Raw}}, ch::Integer=1, tr::In
     !(mpar ∈ [:S11, :S12, :S21, :S22]) &&
         error("Raw data must represent a wave quantity or ratio.")
 
-    xfer = eval(ins[TransferFormat])
+    xfer = ins[TransferFormat]
     cmdstr = datacmd(ins, processing)
     cmdstr = replace(cmdstr,"#",string(ch),1)
     cmdstr = replace(cmdstr,"#",code(ins,mpar),1)
-    data = getdata(ins, Val{xfer}, cmdstr)
+    data = getdata(ins, xfer, cmdstr)
     reinterpret(Complex{Float64}, data)
 end
 

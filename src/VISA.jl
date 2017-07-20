@@ -174,7 +174,7 @@ function errors(ins::Instrument, maxerrors=100)
     i, res = 0, split(ask(ins, ":SYST:ERR?"), ",")
     if parse(res[1])::Int != 0
         codes = Int64[]
-        strings = UTF8String[]
+        strings = String[]
         while (i < maxerrors && parse(res[1])::Int != 0)
             push!(codes, parse(res[1])::Int)
             push!(strings, res[2])
@@ -237,38 +237,35 @@ unquoted(str::AbstractString) = strip(str,['"','\''])
 
 ## Convenient functions for querying arrays of numbers.
 "Retreive and parse a delimited string into an `Array{Float64,1}`."
-function getdata(ins::Instrument, ::Type{Val{:ASCIIString}},
-        cmd, infixes...; delim=",")
-    for infix in infixes
-        cmd = replace(cmd, "#", infix, 1)
+function getdata(ins::Instrument, xfer::Symbol, cmd, infixes...; delim=",")
+    if xfer == :String
+        for infix in infixes
+            cmd = replace(cmd, "#", infix, 1)
+        end
+        data = ask(ins, cmd)
+        return Float64[parse(x) for x in split(data, delim)]
+    elseif xfer ∈ (:Float32, :Float64)
+        for infix in infixes
+            cmd = replace(cmd, "#", infix, 1)
+        end
+        write(ins, cmd)
+        io = binblockreadavailable(ins)
+
+        _conv = (ins[TransferByteOrder] == :LittleEndian ? ltoh : ntoh)
+
+        bytes = (xfer == :Float32 ? 4 : 8)
+        nsam = Int(floor((io.size-(io.ptr-1))/bytes))
+
+        array = Vector{Float64}(nsam)
+        T = eval(xfer)
+        for i=1:nsam
+            array[i] = (_conv)(read(io, T))
+        end
+
+        return array
+    else
+        error("unexpected transfer format.")
     end
-    data = ask(ins, cmd)
-    [parse(x)::Float64 for x in split(data, delim)]
-end
-
-"""
-Parse a binary block, taking care of float size and byte ordering.
-Return type is always `Array{Float64,1}` regardless of transfer format.
-"""
-function getdata{T}(ins::Instrument, ::Type{Val{T}}, cmd, infixes...)
-    for infix in infixes
-        cmd = replace(cmd, "#", infix, 1)
-    end
-    write(ins, cmd)
-    io = binblockreadavailable(ins)
-
-    endian = ins[TransferByteOrder]
-    _conv = (endian == :LittleEndian ? ltoh : ntoh)
-
-    bytes = sizeof(T)
-    nsam = Int(floor((io.size-(io.ptr-1))/bytes))
-
-    array = Vector{Float64}(nsam)
-    for i=1:nsam
-        array[i] = (_conv)(read(io, T))
-    end
-
-    array
 end
 
 ## File management
