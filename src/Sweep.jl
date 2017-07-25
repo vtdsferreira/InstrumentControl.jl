@@ -198,9 +198,11 @@ is only aborted after that finishes.
 """
 function abort!(x::SweepJob)
     isready(x.status) || error("status unavailable.")
+    sjq = sweepjobqueue[]
     oldstat = take!(x.status)
     if oldstat == Waiting || oldstat == Running
         put!(x.status, Aborted)
+        put!(sjq.update_channel, x)
     else
         put!(x.status, oldstat)
         if oldstat == Done
@@ -219,8 +221,7 @@ not throw an error.
 """
 function abort!()
     sjq = sweepjobqueue[]
-    job_id = take!(sjq.running_id)
-    put!(sjq.running_id, job_id)
+    job_id = fetch(sjq.running_id)
     if job_id > 0
         abort!(sjq[job_id])
     end

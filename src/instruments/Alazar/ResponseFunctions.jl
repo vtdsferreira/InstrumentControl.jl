@@ -132,12 +132,12 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     ftbase = ch.f*linspace(0., tstep*(N-1), N)
 
     imix0 = Array{Float32}(2, N)
-    imix0[1,:] = cos(2pi*ftbase)
-    imix0[2,:] = sin(2pi*ftbase)
+    imix0[1,:] .= cos.(2pi*ftbase)
+    imix0[2,:] .= sin.(2pi*ftbase)
 
     # Multiply by a Hann window function
     hann = Float32[(0.5*(1-cos(2π*i/N))) for i in 1:N]'
-    imix0 = broadcast(.*, imix0, hann)::Array{Float32,2}
+    imix0 = (imix0.*hann)::Array{Float32,2}
 
     qmix0 = Array{Float32}(2, N)
     qmix0[1,:] = imix0[2,:] .* -1
@@ -176,7 +176,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     rec_per_buf = records_per_buffer(a,m)
 
     # We will need an array to store the 32-bit floats.
-    fft_buffer = SharedArray(Float32, sam_per_buf)
+    fft_buffer = SharedArray{Float32}(sam_per_buf)
 
     # We also preallocate the output array.
     iqout = Array{Complex{Float32}}(m.total_recs)
@@ -201,7 +201,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
             @sync begin
                 for p in procs(fft_buffer)
                     @async begin
-                        remotecall_wait(p, Main.worker_dotminus!,
+                        remotecall_wait(worker_dotminus!, p,
                             fft_buffer, mean(fft_buffer))
                     end
                 end
@@ -217,7 +217,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
         # Strictly required when doing DSP, like FFTs.
         abort(a,m)
     end
-    iqout
+    iqout::Vector{Complex{Float32}}
 end
 
 """
@@ -230,7 +230,7 @@ function tofloat!(backing::SharedArray, fft_buffer::SharedArray,
         samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
         for p in procs(backing)
             @async begin
-                remotecall_wait(p, Main.worker_tofloat!,
+                remotecall_wait(worker_tofloat!, p,
                     backing, samplerange, fft_buffer)
             end
         end

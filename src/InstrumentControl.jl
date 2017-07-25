@@ -63,7 +63,6 @@ const global ctx = Ref{ZMQ.Context}()
 const global plotsock = Ref{ZMQ.Socket}()
 const global dbsock = Ref{ZMQ.Socket}()
 const global qsock = Ref{ZMQ.Socket}()
-const global PARALLEL_PATH = Ref{String}()
 const global resourcemanager = Ref{UInt32}()
 const global sweepjobqueue = Ref{SweepJobQueue}()
 
@@ -102,12 +101,12 @@ function qsocket()
     return qsock[]
 end
 
+# NOTE: THE following must be seen by AlazarModule as well!!
+include(joinpath(dirname(@__FILE__), "parallelutils.jl"))
+
 function __init__()
     # ZeroMQ context
     ctx[] = ZMQ.Context()
-
-    PARALLEL_PATH[] = joinpath(dirname(@__FILE__), "parallelutils.jl")
-    eval(Main, :(@everywhere include($(PARALLEL_PATH[]))))
 
     # VISA resource manager
     resourcemanager[] = VISA.viOpenDefaultRM()

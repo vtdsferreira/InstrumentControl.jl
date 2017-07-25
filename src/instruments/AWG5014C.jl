@@ -416,7 +416,7 @@ function pushlowlevel(ins::InsAWG5014C, name::AbstractString,
         # Write marker bits
         write(buf, UInt8(awgData.marker1[i]) << 6 | UInt8(awgData.marker2[i]) << 7)
     end
-    binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
+    binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",", take!(buf))
 end
 
 function pushlowlevel(ins::InsAWG5014C, name::AbstractString,
@@ -430,7 +430,7 @@ function pushlowlevel(ins::InsAWG5014C, name::AbstractString,
         value = value | (UInt16(awgData.marker2[i]) << 15)  # set marker bit 2 too
         write(buf, htol(value))    # make sure we send little endian
     end
-    binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",",takebuf_array(buf))
+    binblockwrite(ins, "WLIST:WAV:DATA "*quoted(name)*",", take!(buf))
 end
 
 "Takes care of the dirty work in pushing the data to the AWG."
@@ -452,7 +452,7 @@ function validate(awgData::AWG5014CData, wvType::Symbol)
     end
 
     # Integrity checks
-    if ((cummax(awgData.data))[end] > 1.0 || (cummin(awgData.data))[end] < -1.0)
+    if ((accumulate(max, awgData.data, 1))[end] > 1.0 || (accumulate(min, awgData.data, 1))[end] < -1.0)
         error("Data should be within range [-1.0, 1.0]")
     end
 end
