@@ -201,7 +201,7 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
             @sync begin
                 for p in procs(fft_buffer)
                     @async begin
-                        remotecall_wait(worker_dotminus!, p,
+                        remotecall_wait(InstrumentControl.worker_dotminus!, p,
                             fft_buffer, mean(fft_buffer))
                     end
                 end
@@ -230,7 +230,7 @@ function tofloat!(backing::SharedArray, fft_buffer::SharedArray,
         samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
         for p in procs(backing)
             @async begin
-                remotecall_wait(worker_tofloat!, p,
+                remotecall_wait(InstrumentControl.worker_tofloat!, p,
                     backing, samplerange, fft_buffer)
             end
         end

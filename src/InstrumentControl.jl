@@ -101,7 +101,6 @@ function qsocket()
     return qsock[]
 end
 
-# NOTE: THE following must be seen by AlazarModule as well!!
 include(joinpath(dirname(@__FILE__), "parallelutils.jl"))
 
 function __init__()
