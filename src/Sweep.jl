@@ -4,7 +4,6 @@ using Base.Cartesian, JLD
 using AxisArrays
 import AxisArrays: axes
 import Base.Cartesian.inlineanonymous
-import Compat.view
 import Base: show, isless, getindex, push!, length, eta
 import DataStructures: PriorityQueue, enqueue!, dequeue!, peek
 # export Sweep, SweepJob, SweepStatus
@@ -17,7 +16,7 @@ const HIGH = 10
 
 """
 ```
-type Sweep
+mutable struct Sweep
     dep::Response
     indep::Tuple{Tuple{Stimulus, AbstractVector}}
     result::AxisArray
@@ -31,7 +30,7 @@ that will be measured. `indep` is a tuple of [`Stimulus`](@ref) objects and the
 values they will be sourced over. `result` is the result array of the sweep,
 which need not be provided at the time the Sweep object is created.
 """
-type Sweep
+mutable struct Sweep
     dep::Response
     indep::Vector{Tuple{Stimulus, AbstractVector}}
     result::AxisArray
@@ -61,7 +60,7 @@ SweepStatus
 
 """
 ```
-type SweepJob
+mutable struct SweepJob
     sweep::Sweep
     priority::Int
     job_id::Int
@@ -89,7 +88,7 @@ status and progress of the sweep. `whensub` is when the `Sweep` was created,
 the sweep job. If `notifications` is true, status updates are sent out if
 possible.
 """
-type SweepJob
+mutable struct SweepJob
     sweep::Sweep
     priority::Int
     job_id::Int
@@ -258,7 +257,7 @@ function result()
 end
 
 """
-    type SweepJobQueue ... end
+    mutable struct SweepJobQueue ... end
 A queue responsible for prioritizing sweeps and executing them accordingly.
 
 When a `SweepJobQueue` is created, two tasks are initialized. One task manages job updates,
@@ -279,7 +278,7 @@ running, the sweep is asynchronously saved to disk, and finally the job starter 
 notified. The job updater task loops around and waits for another job to arrive at its
 channel.
 """
-type SweepJobQueue
+mutable struct SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
     running_id::Channel{Int}
@@ -506,9 +505,9 @@ sweep job. The actual `source` and `measure` loops are in a private function
 The `priority` keyword may be `LOW`, `NORMAL`, or `HIGH`, or any
 integer greater than or equal to zero.
 """
-function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
+function sweep(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     priority = NORMAL, username=confd["username"],
-    notifications=confd["notifications"])
+    notifications=confd["notifications"]) where {N}
 
     # Spin up sockets so they are ready to use (maybe unnecessary)
     plotsocket()
@@ -544,8 +543,8 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
 end
 
 default_value(x) = zero(x)
-default_value{T<:AbstractFloat}(::Type{T}) = T(NaN)
-default_value{T<:AbstractFloat}(::Type{Complex{T}}) = Complex{T}(NaN)
+default_value(::Type{T}) where {T <: AbstractFloat} = T(NaN)
+default_value(::Type{Complex{T}}) where {T <: AbstractFloat} = Complex{T}(NaN)
 
 """
 ```

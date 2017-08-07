@@ -1,8 +1,8 @@
 "Abstract type; not implemented."
 abstract AlazarATS9440 <: InstrumentAlazar
 
-function configure{S<:AlazarLSB, T<:AlazarLSB}(a::AlazarATS9440,
-        lsb0::Type{S}, lsb1::Type{T})
+function configure(a::AlazarATS9440,
+        lsb0::Type{S}, lsb1::Type{T}) where {S <: AlazarLSB,T <: AlazarLSB}
     (lsb1 == AlazarLSB || lsb0 == AlazarLSB) &&
         error("Choose a subtype of AlazarLSB.")
     val0 = code(a,lsb0)

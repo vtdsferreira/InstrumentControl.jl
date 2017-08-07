@@ -31,9 +31,9 @@ export TriggerTimeoutS
 export TriggerTimeoutTicks
 
 
-@compat abstract type AlazarDataPacking    <: InstrumentProperty end
-@compat abstract type AlazarLSB            <: InstrumentProperty end
-@compat abstract type AlazarTimestampReset <: InstrumentProperty end
+abstract type AlazarDataPacking    <: InstrumentProperty end
+abstract type AlazarLSB            <: InstrumentProperty end
+abstract type AlazarTimestampReset <: InstrumentProperty end
 
 # subtypesArray = [
 #
@@ -44,35 +44,35 @@ export TriggerTimeoutTicks
 #
 # ]::Array{Tuple{Symbol,DataType},1}
 
-@compat abstract type AcquisitionChannel        <: InstrumentProperty end
-@compat abstract type AuxInputTriggerSlope      <: InstrumentProperty end
-@compat abstract type AuxIOMode                 <: InstrumentProperty end
-@compat abstract type AuxOutputPacerDivider     <: InstrumentProperty end
-@compat abstract type AuxOutputTTL              <: InstrumentProperty end
-@compat abstract type AuxSoftwareTriggerEnable  <: InstrumentProperty end
-@compat abstract type BitsPerSample             <: InstrumentProperty end
-@compat abstract type BytesPerSample            <: InstrumentProperty end
-@compat abstract type BufferAlignment           <: InstrumentProperty end
-@compat abstract type BufferTimeout             <: InstrumentProperty end
-@compat abstract type ChannelCount              <: InstrumentProperty end
-@compat abstract type Coupling                  <: InstrumentProperty end
-@compat abstract type InputRange                <: InstrumentProperty end
-@compat abstract type LED                       <: InstrumentProperty end
-@compat abstract type MinSamplesPerRecord       <: InstrumentProperty end
-@compat abstract type MaxBufferBytes            <: InstrumentProperty end
-@compat abstract type MinFFTSamples             <: InstrumentProperty end
-@compat abstract type MaxFFTSamples             <: InstrumentProperty end
-@compat abstract type OutputTTLLevel            <: InstrumentProperty end
-@compat abstract type PretriggerAlignment       <: InstrumentProperty end
-@compat abstract type RecordCount               <: InstrumentProperty end
-@compat abstract type SampleMemoryPerChannel    <: InstrumentProperty end
-@compat abstract type Sleep                     <: InstrumentProperty end
-@compat abstract type TriggerCoupling           <: InstrumentProperty end
-@compat abstract type TriggerDelaySamples       <: InstrumentProperty end
-@compat abstract type TriggerEngine             <: InstrumentProperty end
-@compat abstract type TriggerRange              <: InstrumentProperty end
-@compat abstract type TriggerTimeoutS           <: InstrumentProperty end
-@compat abstract type TriggerTimeoutTicks       <: InstrumentProperty end
+abstract type AcquisitionChannel        <: InstrumentProperty end
+abstract type AuxInputTriggerSlope      <: InstrumentProperty end
+abstract type AuxIOMode                 <: InstrumentProperty end
+abstract type AuxOutputPacerDivider     <: InstrumentProperty end
+abstract type AuxOutputTTL              <: InstrumentProperty end
+abstract type AuxSoftwareTriggerEnable  <: InstrumentProperty end
+abstract type BitsPerSample             <: InstrumentProperty end
+abstract type BytesPerSample            <: InstrumentProperty end
+abstract type BufferAlignment           <: InstrumentProperty end
+abstract type BufferTimeout             <: InstrumentProperty end
+abstract type ChannelCount              <: InstrumentProperty end
+abstract type Coupling                  <: InstrumentProperty end
+abstract type InputRange                <: InstrumentProperty end
+abstract type LED                       <: InstrumentProperty end
+abstract type MinSamplesPerRecord       <: InstrumentProperty end
+abstract type MaxBufferBytes            <: InstrumentProperty end
+abstract type MinFFTSamples             <: InstrumentProperty end
+abstract type MaxFFTSamples             <: InstrumentProperty end
+abstract type OutputTTLLevel            <: InstrumentProperty end
+abstract type PretriggerAlignment       <: InstrumentProperty end
+abstract type RecordCount               <: InstrumentProperty end
+abstract type SampleMemoryPerChannel    <: InstrumentProperty end
+abstract type Sleep                     <: InstrumentProperty end
+abstract type TriggerCoupling           <: InstrumentProperty end
+abstract type TriggerDelaySamples       <: InstrumentProperty end
+abstract type TriggerEngine             <: InstrumentProperty end
+abstract type TriggerRange              <: InstrumentProperty end
+abstract type TriggerTimeoutS           <: InstrumentProperty end
+abstract type TriggerTimeoutTicks       <: InstrumentProperty end
 
 function symbol_to_aux_mode(s)
     if s == :AuxOutputTrigger

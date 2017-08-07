@@ -11,5 +11,4 @@ fmt(v) = string(v)
 
 @generate_all(InstrumentControl.meta["SMB100A"])
 
-
 end

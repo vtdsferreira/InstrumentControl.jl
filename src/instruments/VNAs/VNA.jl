@@ -1,5 +1,4 @@
 module VNA
-using Compat
 importall InstrumentControl
 using ICCommon
 using AxisArrays
@@ -11,11 +10,11 @@ export MarkerSearch
 
 # export Format, Parameter
 export clearavg, data, search, shotgun, stimdata, sweeptime
-@compat abstract type InstrumentVNA <: Instrument end
+abstract type InstrumentVNA <: Instrument end
 
 """
 ```
-type FrequencySweep <: Response
+mutable struct FrequencySweep <: Response
     ins::InstrumentVNA
     reject::Int
 end
@@ -24,7 +23,7 @@ end
 Your standard frequency sweep using a VNA. `reject` lets you reject a number of
 traces to reject before keeping measurements.
 """
-type FrequencySweep <: Response
+mutable struct FrequencySweep <: Response
     ins::InstrumentVNA
     reject::Int
 end
@@ -91,7 +90,7 @@ Format of returned data. Search for `VNA.Format` in the instrument
 template files to find valid options; some examples include `:LogMagnitude`,
 `:GroupDelay`, `:PolarComplex`, etc.
 """
-@compat abstract type Format <: InstrumentProperty end
+abstract type Format <: InstrumentProperty end
 
 """
 Graph layout on the VNA display. Specify with a matrix of integers.
@@ -103,22 +102,22 @@ graph 2 occupying the lower-left, and graph 3 the lower-right:
 ins[Graphs] = [1 1; 2 3]
 ```
 """
-@compat abstract type Graphs <: InstrumentProperty end
+abstract type Graphs <: InstrumentProperty end
 
 """
 Marker state for a given marker (on/off).
 """
-@compat abstract type Marker <: InstrumentProperty end
+abstract type Marker <: InstrumentProperty end
 
 """
 X-axis value for a given marker.
 """
-@compat abstract type MarkerX <: InstrumentProperty end
+abstract type MarkerX <: InstrumentProperty end
 
 """
 Y-axis value for a marker.
 """
-@compat abstract type MarkerY <: InstrumentProperty end
+abstract type MarkerY <: InstrumentProperty end
 
 """
 Scattering parameter. For two-port VNAs, you can specify
@@ -130,29 +129,29 @@ channel, trace = 1, 2
 ins[Parameter, channel, trace] = :S21
 ```
 """
-@compat abstract type Parameter <: InstrumentProperty end
+abstract type Parameter <: InstrumentProperty end
 
 """
 Do a marker search with each trace update (yes/no).
 """
-@compat abstract type SearchTracking <: InstrumentProperty end
+abstract type SearchTracking <: InstrumentProperty end
 
 
 "Polarity for peak and dip searching with VNAs."
-@compat abstract type Polarity end
+abstract type Polarity end
 
 "Positive polarity (a peak)."
-immutable Positive <: Polarity end
+struct Positive <: Polarity end
 
 "Negative polarity (a dip)."
-immutable Negative <: Polarity end
+struct Negative <: Polarity end
 
 "Both polarities (peak or dip)."
-immutable Both <: Polarity end
+struct Both <: Polarity end
 
 """
 ```
-immutable MarkerSearch{T}
+struct MarkerSearch{T}
     ch::Int
     tr::Int
     m::Int
@@ -178,7 +177,7 @@ The E5071C supports:
 :RightTarget
 ```
 """
-immutable MarkerSearch{T}
+struct MarkerSearch{T}
     ch::Int
     tr::Int
     m::Int

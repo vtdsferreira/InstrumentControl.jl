@@ -21,27 +21,27 @@ function make end
 "Returns the instrument's model."
 function model end
 
-@compat abstract type Averaging <: InstrumentProperty end
-@compat abstract type AveragingFactor <: InstrumentProperty end
-@compat abstract type AveragingTrigger <: InstrumentProperty end
+abstract type Averaging <: InstrumentProperty end
+abstract type AveragingFactor <: InstrumentProperty end
+abstract type AveragingTrigger <: InstrumentProperty end
 
-@compat abstract type FrequencyStart <: InstrumentProperty end
-@compat abstract type FrequencyStop <: InstrumentProperty end
+abstract type FrequencyStart <: InstrumentProperty end
+abstract type FrequencyStop <: InstrumentProperty end
 
 "The sample rate for digitizing, synthesizing, etc."
-@compat abstract type SampleRate <: InstrumentProperty end
+abstract type SampleRate <: InstrumentProperty end
 
-@compat abstract type SweepTime <: InstrumentProperty end
+abstract type SweepTime <: InstrumentProperty end
 
 "Time to wait for an instrument to reply before bailing out."
-@compat abstract type Timeout <: InstrumentProperty end
+abstract type Timeout <: InstrumentProperty end
 
 """
 Exception to be thrown by an instrument. Fields include the instrument in error
 `ins::Instrument`, the error code `val::Int64`, and a `humanReadable` Unicode
 string.
 """
-immutable InstrumentException <: Exception
+mutable struct InstrumentException <: Exception
     ins::Instrument
     val::Array{Int,1}
     humanReadable::Array{AbstractString,1}

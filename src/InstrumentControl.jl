@@ -1,6 +1,5 @@
 __precompile__(true)
 module InstrumentControl
-using Compat
 importall ICCommon
 import JSON, ZMQ
 

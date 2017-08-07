@@ -15,7 +15,7 @@ Defaults are selected as:
 - Acquire with both channels
 - AUX IO outputs a trigger signal synced to the sample clock.
 """
-type AlazarATS9870 <: InstrumentAlazar
+mutable struct AlazarATS9870 <: InstrumentAlazar
 
     systemId::Culong
     boardId::Culong
@@ -124,7 +124,7 @@ type AlazarATS9870 <: InstrumentAlazar
         at[TriggerDelaySamples] = 0
         at[TriggerTimeoutTicks] = 0
         at[BufferTimeout] = 5000.
-        
+
         at.auxOutTriggerEnable = false
         at.auxInTriggerSlope = :Rising
         at.auxOutDivider = 4

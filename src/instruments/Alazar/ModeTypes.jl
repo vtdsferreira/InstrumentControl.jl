@@ -5,22 +5,22 @@ export NPTRecordMode, TraditionalRecordMode
 export FFTRecordMode
 
 "Abstract type representing a mode of operation for an AlazarTech digitizer."
-@compat abstract type AlazarMode end
+abstract type AlazarMode end
 
 """
 Abstract type representing any streaming mode of operation for an
 AlazarTech digitizer.
 """
-@compat abstract type StreamMode <: AlazarMode end
+abstract type StreamMode <: AlazarMode end
 
 """
 Abstract type representing any record mode of operation for an
 AlazarTech digitizer.
 """
-@compat abstract type RecordMode <: AlazarMode end
+abstract type RecordMode <: AlazarMode end
 
 "See the AlazarTech documentation. Need to set `total_samples`."
-type ContinuousStreamMode <: StreamMode
+mutable struct ContinuousStreamMode <: StreamMode
     total_samples::Int
 
     buf_size::Int
@@ -30,7 +30,7 @@ type ContinuousStreamMode <: StreamMode
 end
 
 "See the AlazarTech documentation. Need to set `total_samples`."
-type TriggeredStreamMode <: StreamMode
+mutable struct TriggeredStreamMode <: StreamMode
     total_samples::Int
 
     buf_size::Int
@@ -43,7 +43,7 @@ end
 See the AlazarTech documentation. Need to set samples per record `sam_per_rec`
 and total number of records `total_recs`. These must meet certain requirements.
 """
-type NPTRecordMode <: RecordMode
+mutable struct NPTRecordMode <: RecordMode
     sam_per_rec::Int
     total_recs::Int
 
@@ -58,7 +58,7 @@ See the AlazarTech documentation. Need to set pre-trigger samples per record
 `pre_sam_per_rec`, post-trigger samples per record `post_sam_per_rec`, and
 total number of records `total_recs`. These must meet certain requirements.
 """
-type TraditionalRecordMode <: RecordMode
+mutable struct TraditionalRecordMode <: RecordMode
     pre_sam_per_rec::Int
     post_sam_per_rec::Int
     total_recs::Int
@@ -75,7 +75,7 @@ samples per FFT `sam_per_fft` (which should be bigger than `sam_per_rec`),
 total number of records `total_recs`, and the FFT output type `output_eltype`.
 Some parameters must meet certain requirements.
 """
-type FFTRecordMode <: RecordMode
+mutable struct FFTRecordMode <: RecordMode
     sam_per_rec::Int
     sam_per_fft::Int
     total_recs::Int

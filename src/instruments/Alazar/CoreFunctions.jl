@@ -398,8 +398,8 @@ API to generate a particular window function.
 """
 dsp
 
-function generatewindowfunction{S<:DSPWindow}(
-    ::Type{S}, sam_per_rec, padding)
+function generatewindowfunction(
+    ::Type{S}, sam_per_rec, padding) where {S <: DSPWindow}
 
     window = Array(Cfloat, sam_per_rec + padding)
     r = AlazarDSPGenerateWindowFunction(dsp(S), window, sam_per_rec, padding)

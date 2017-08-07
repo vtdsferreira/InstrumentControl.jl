@@ -5,8 +5,8 @@ import Base: localindexes
 # src is assumed to be a big shared array you are indexing into;
 # dest can either be the same size as the big shared array, or have
 # the same size as the subrange.
-function worker_tofloat!{S<:AlazarBits,T<:AbstractFloat}(src::SharedArray{S,1},
-        subrange::UnitRange, dest::SharedArray{T,1})
+function worker_tofloat!(src::SharedArray{S,1},
+        subrange::UnitRange, dest::SharedArray{T,1}) where {S <: AlazarBits,T <: AbstractFloat}
     local st
     if size(dest) == size(subrange)
         st = start(subrange) - 1

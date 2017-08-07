@@ -16,11 +16,7 @@ module AlazarModule
 lib_opened = false
 
 using Alazar
-using Compat
-import Base:
-    show,
-    getindex,
-    setindex!
+import Base: show, getindex, setindex!
 
 importall InstrumentControl
 import ICCommon: Stimulus,
@@ -39,7 +35,7 @@ const inf_records = U32(0x7FFFFFFF)
 """
 Abstract type representing an AlazarTech digitizer.
 """
-@compat abstract type InstrumentAlazar <: Instrument end
+abstract type InstrumentAlazar <: Instrument end
 
 function show(io::IO, ins::InstrumentAlazar)
     println(io, "$(typeof(ins)): ",

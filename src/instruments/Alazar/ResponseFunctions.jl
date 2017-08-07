@@ -262,12 +262,12 @@ DMABuffers (backed by SharedArrays) to the desired return type.
 """
 function postprocess end
 
-function postprocess{T}(ch::AlazarResponse{SharedArray{T,1}}, buf_array::Alazar.DMABufferArray)
+function postprocess(ch::AlazarResponse{SharedArray{T,1}}, buf_array::Alazar.DMABufferArray) where {T}
     backing = buf_array.backing
     SharedArray{T,1}(sdata(backing))
 end
 
-function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray)
+function postprocess(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray) where {T}
     backing = buf_array.backing
     array = Array{T}(sdata(backing))
 
@@ -277,8 +277,8 @@ function postprocess{T}(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.
     convert(SharedArray, array)::SharedArray{T,2}
 end
 
-function postprocess{T<:Union{Float32,Float64}}(
-        ch::IQSoftwareResponse, fft_array::SharedArray{T,2})
+function postprocess(
+        ch::IQSoftwareResponse, fft_array::SharedArray{T,2}) where {T <: Union{Float32, Float64}}
 
     data = sdata(fft_array)
     array = reinterpret(Complex{T}, data, (Int(size(data)[1]/2), size(data)[2]))
@@ -287,8 +287,8 @@ end
 # Triangular dispatch would be nice here (waiting for Julia 0.6)
 # scaling{T, S<:AbstractArray{T,2}}(resp::FFTRecordResponse{S}, ...
 "Returns the axis scaling for an FFT response."
-function scaling{T<:AbstractArray}(resp::FFTResponse{T},
-        whichaxis::Integer=1)
+function scaling(resp::FFTResponse{T},
+        whichaxis::Integer=1) where {T <: AbstractArray}
 
     rate = (resp.ins)[SampleRate]
     npts = resp.m.sam_per_fft # single-sided
