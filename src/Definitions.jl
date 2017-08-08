@@ -41,7 +41,7 @@ Exception to be thrown by an instrument. Fields include the instrument in error
 `ins::Instrument`, the error code `val::Int64`, and a `humanReadable` Unicode
 string.
 """
-struct InstrumentException <: Exception
+mutable struct InstrumentException <: Exception
     ins::Instrument
     val::Array{Int,1}
     humanReadable::Array{AbstractString,1}

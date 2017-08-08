@@ -24,8 +24,9 @@ include("Sweep.jl")
 
 # Generate instrument properties based on template JSON files
 # insjson parses the template files
-# @generate_properties takes parsed information and makes Instrument types,
-# InstrumentProperty types, and methods to inspect and configure instrument settings
+# @generate_properties takes parsed information and makes InstrumentProperty types
+# we generate the instrument property types in InstrumentControl so they are not
+# module specific, and can be shared among different instrument modules
 const dir = joinpath(dirname(dirname(@__FILE__)), "deps", "instruments") #directory of template files
 const meta = Dict{String, Any}() #dictionary to hold parsed information of template files
 for x in readdir(dir) #loop through all filenames in dir
@@ -45,7 +46,7 @@ include(joinpath(dirname(@__FILE__), "instruments", "GS200.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "Alazar", "Alazar.jl"))
 
 # Not required but you can uncomment this to look for conflicting function
-# definitions that should be declared global and exported in InstrumentDefs.jl: ?
+# definitions that should be declared global and exported in InstrumentDefs.jl:
 
 importall .AlazarModule
 importall .AWG5014C
