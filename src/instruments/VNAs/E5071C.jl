@@ -1,5 +1,4 @@
 module E5071C
-using Compat
 import Base: getindex, setindex!
 import VISA
 importall InstrumentControl
@@ -40,11 +39,11 @@ export mktrace
 # We will maintain an internal description of what names correspond to what
 # trace numbers.
 
-@compat abstract type GraphLayout      <: InstrumentProperty end
-@compat abstract type SearchTracking   <: InstrumentProperty end
-@compat abstract type WindowLayout     <: InstrumentProperty end
-@compat abstract type SetActiveMarker  <: InstrumentProperty end
-@compat abstract type SetActiveChannel <: InstrumentProperty end
+abstract type GraphLayout      <: InstrumentProperty end
+abstract type SearchTracking   <: InstrumentProperty end
+abstract type WindowLayout     <: InstrumentProperty end
+abstract type SetActiveMarker  <: InstrumentProperty end
+abstract type SetActiveChannel <: InstrumentProperty end
 
 function setindex!(ins::InsE5071C, b::Bool, ::Type{VNA.Marker}, m::Integer, ch::Integer=1, tr::Integer=1)
     1 <= m <= 10 || error("Invalid marker number.")
@@ -94,7 +93,7 @@ function stimdata(ins::InsE5071C, ch::Int=1)
     getdata(ins, xfer, ":SENSe"*string(ch)*":FREQuency:DATA?")
 end
 
-function data{T}(ins::InsE5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1)
+function data(ins::InsE5071C, ::Type{Val{T}}, ch::Integer=1, tr::Integer=1) where {T}
     ins[VNA.Format, ch, tr] = T
     xfer = ins[TransferFormat]
     cmdstr = datacmd(ins, Val{T})
@@ -168,7 +167,7 @@ _reformat(x::InsE5071C, ::Type{Val{:PositivePhase}}, data) =
     view(data, 1:2:length(data))
 _reformat(x::InsE5071C, ::Type{Val{:Calibrated}}, data) =
     reinterpret(Complex{Float64}, data)
-_reformat{T}(x::InsE5071C, ::Type{Val{T}}, data) =
+_reformat(x::InsE5071C, ::Type{Val{T}}, data) where {T} =
     reinterpret(NTuple{2,Float64}, data)
 
 function search(ins::InsE5071C, m::MarkerSearch{:Global}, exec::Bool=true)
@@ -177,7 +176,7 @@ function search(ins::InsE5071C, m::MarkerSearch{:Global}, exec::Bool=true)
     exec && _search(ins, m)
 end
 
-function search{T}(ins::InsE5071C, m::MarkerSearch{T}, exec::Bool=true)
+function search(ins::InsE5071C, m::MarkerSearch{T}, exec::Bool=true) where {T}
     write(ins, _type(ins, m), m.ch, m.tr, m.m)
     write(ins, _val(ins, m),  m.ch, m.tr, m.m, m.val)
     write(ins, _pol(ins, m),  m.ch, m.tr, m.m, code(ins, m.pol))

@@ -1,11 +1,7 @@
-
 ## Auxiliary IO
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{AuxIOMode})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{AuxIOMode})
 Inspect the AUX IO mode.
 """
 getindex(a::InstrumentAlazar, ::Type{AuxIOMode}) = a.auxIOMode
@@ -13,29 +9,20 @@ getindex(a::InstrumentAlazar, ::Type{AuxIOMode}) = a.auxIOMode
 ## Channels ########
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{AcquisitionChannel})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{AcquisitionChannel})
 Returns which channel(s) will be acquired.
 """
 getindex(a::InstrumentAlazar, ::Type{AcquisitionChannel}) = a.acquisitionChannel
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{BufferTimeout})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{BufferTimeout})
 Returns the timeout (ms) for waiting for a buffer to be filled. See the
 Alazar API documentation for `AlazarWaitAsyncBufferComplete`.
 """
 getindex(a::InstrumentAlazar, ::Type{BufferTimeout}) = a.bufferTimeout
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{ChannelCount})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{ChannelCount})
 Returns the number of channels to acquire.
 """
 getindex(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
@@ -44,8 +31,8 @@ getindex(a::InstrumentAlazar, ::Type{ChannelCount}) = a.channelCount
 
 # "Inspect the data packing mode for a given channel."
 # Needs to be rewritten.
-function getindex{T<:AcquisitionChannel}(a::InstrumentAlazar,
-        ::Type{AlazarDataPacking}, ch::Type{T})
+function getindex(a::InstrumentAlazar,
+        ::Type{AlazarDataPacking}, ch::Type{T}) where {T <: AcquisitionChannel}
     ch == AcquisitionChannel && error("Specify a particular channel.")
 
     arr = Array{Clong}(1)
@@ -56,10 +43,7 @@ function getindex{T<:AcquisitionChannel}(a::InstrumentAlazar,
 end
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{SampleRate})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{SampleRate})
 Inspect the sample rate. As currently programmed, does not distinguish
 between the internal preset clock rates and otherwise.
 """
@@ -69,10 +53,7 @@ function getindex(a::InstrumentAlazar, ::Type{SampleRate})
 end
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{SampleMemoryPerChannel})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{SampleMemoryPerChannel})
 Returns the memory per channel in units of samples.
 """
 function getindex(a::InstrumentAlazar, ::Type{SampleMemoryPerChannel})
@@ -89,37 +70,25 @@ end
 
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{TriggerEngine})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{TriggerEngine})
 Returns which trigger engines cause a trigger event.
 """
 getindex(a::InstrumentAlazar, ::Type{TriggerEngine}) = a.engine
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{TriggerSource})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{TriggerSource})
 Returns the trigger source for engines J and K.
 """
 getindex(a::InstrumentAlazar, ::Type{TriggerSource}) = a.sourceJ, a.sourceK
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{TriggerSlope})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{TriggerSlope})
 Returns the trigger slope for engines J and K
 """
 getindex(a::InstrumentAlazar, ::Type{TriggerSlope}) = a.slopeJ, a.slopeK
 
 """
-```
-getindex(a::InstrumentAlazar, ::Type{TriggerLevel})
-```
-
+    getindex(a::InstrumentAlazar, ::Type{TriggerLevel})
 Returns the trigger levels for engines J and K.
 """
 getindex(a::InstrumentAlazar, ::Type{TriggerLevel}) = a.levelJ, a.levelK

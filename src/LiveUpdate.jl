@@ -13,8 +13,8 @@ function plotobj(dep::Response,
     )
 end
 
-function plotobj{N}(dep::Response,
-    indep::NTuple{N,Tuple{Stimulus, AbstractArray}})
+function plotobj(dep::Response,
+    indep::NTuple{N,Tuple{Stimulus, AbstractArray}}) where {N}
 
     nothing
 end

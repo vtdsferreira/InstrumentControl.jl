@@ -1,18 +1,17 @@
 module AWG5014C
-using Compat
 import Base: getindex, setindex!
 import VISA
 importall InstrumentControl         # All the stuff in InstrumentDefs, etc.
 
 export InsAWG5014C
 
-type WaveformInfo
+mutable struct WaveformInfo
     index::Int
     wvtype::Symbol
     length::Int
 end
 
-type InsAWG5014C <: Instrument
+mutable struct InsAWG5014C <: Instrument
     vi::VISA.ViSession
     writeTerminator::AbstractString
     cache::Dict{AbstractString,WaveformInfo}
@@ -92,7 +91,7 @@ This represents the maximum value (register size?).
 const maximumValue      = 0x3fff
 
 "Type for storing waveform data (including markers) in Float32 format."
-type AWG5014CData
+mutable struct AWG5014CData
     data::Array{Float32,1}
     marker1::Array{Bool,1}
     marker2::Array{Bool,1}
@@ -111,10 +110,10 @@ exceptions    = Dict(
 
 InstrumentException(ins::InsAWG5014C, r) = InstrumentException(ins, r, exceptions[r])
 
-@compat abstract type Normalization     <: InstrumentProperty end
+abstract type Normalization     <: InstrumentProperty end
 
 "Waveform type may be integer or real."
-@compat abstract type WaveformType      <: InstrumentProperty end
+abstract type WaveformType      <: InstrumentProperty end
 
 code(ins::InsAWG5014C, ::Type{Normalization}, ::Type{Val{:None}}) = "NONE"
 code(ins::InsAWG5014C, ::Type{Normalization}, ::Type{Val{:FullScale}}) = "FSC"
@@ -130,20 +129,20 @@ end
 """
 Amplitude for a given channel.
 """
-@compat abstract type Amplitude                <: InstrumentProperty end
+abstract type Amplitude                <: InstrumentProperty end
 
 """
 Add the signal from an external input to the given channel output.
 """
-@compat abstract type ExtInputAddsToOutput     <: InstrumentProperty end
+abstract type ExtInputAddsToOutput     <: InstrumentProperty end
 
-@compat abstract type SequenceWaveform         <: InstrumentProperty end
+abstract type SequenceWaveform         <: InstrumentProperty end
 
 "When inspected, will report if the instrument is waiting for a trigger."
-@compat abstract type WaitingForTrigger        <: InstrumentProperty end
+abstract type WaitingForTrigger        <: InstrumentProperty end
 
 "Name of a waveform loaded into a given channel."
-@compat abstract type Waveform                 <: InstrumentProperty end
+abstract type Waveform                 <: InstrumentProperty end
 
 "Configure the global analog output state of the AWG."
 function setindex!(ins::InsAWG5014C, on::Bool, ::Type{Output})

@@ -4,7 +4,6 @@ using Base.Cartesian, JLD
 using AxisArrays
 import AxisArrays: axes
 import Base.Cartesian.inlineanonymous
-import Compat.view
 import Base: show, isless, getindex, push!, length, eta
 import DataStructures: PriorityQueue, enqueue!, dequeue!, peek
 
@@ -16,7 +15,7 @@ const HIGH = 10
 
 """
 ```
-struct Sweep
+mutable struct Sweep
     dep::Response
     indep::Tuple{Tuple{Stimulus, AbstractVector}}
     result::AxisArray
@@ -584,9 +583,9 @@ integer greater than or equal to zero.
 If [`InstrumentControl._sweep!`](@ref) is not defined yet, this function will
 also define the method in order to ito be used to schedule a sweep
 """
-function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
+function sweep(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     priority = NORMAL, username=confd["username"],
-    notifications=confd["notifications"])
+    notifications=confd["notifications"]) where {N}
 
     # Initialize sockets so they are ready to use (maybe unnecessary)
     plotsocket()
@@ -621,8 +620,8 @@ function sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, 
 end
 
 default_value(x) = zero(x)
-default_value{T<:AbstractFloat}(::Type{T}) = T(NaN)
-default_value{T<:AbstractFloat}(::Type{Complex{T}}) = Complex{T}(NaN)
+default_value(::Type{T}) where {T <: AbstractFloat} = T(NaN)
+default_value(::Type{Complex{T}}) where {T <: AbstractFloat} = Complex{T}(NaN)
 
 """
 ```

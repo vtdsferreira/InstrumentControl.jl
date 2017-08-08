@@ -15,7 +15,7 @@ Defaults are selected as:
 - Acquire with both channels
 - AUX IO outputs a trigger signal synced to the sample clock.
 """
-type AlazarATS9360 <: InstrumentAlazar
+mutable struct AlazarATS9360 <: InstrumentAlazar
 
     systemId::Culong
     boardId::Culong
@@ -182,8 +182,8 @@ end
 Configures the DSP windows. `AlazarFFTSetWindowFunction` is called towards
 the start of `measure` rather than here.
 """
-function configure{S<:DSPWindow, T<:DSPWindow}(
-        a::AlazarATS9360, re::Type{S}, im::Type{T})
+function configure(
+        a::AlazarATS9360, re::Type{S}, im::Type{T}) where {S <: DSPWindow,T <: DSPWindow}
     a.reWindowType = S
     a.imWindowType = T
     nothing

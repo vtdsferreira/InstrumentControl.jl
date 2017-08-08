@@ -24,10 +24,7 @@ function auxparam(a::InstrumentAlazar, aux::Symbol)
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AuxIOMode})
-```
-
+    setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AuxIOMode})
 Configure a digitizer's AUX I/O mode. Available choices include:
 
 - `:AuxOutputTrigger`
@@ -51,10 +48,7 @@ function setindex!(a::InstrumentAlazar, aux::Symbol, ::Type{AuxIOMode})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, trigSlope::Symbol, ::Type{AuxInputTriggerSlope})
-```
-
+    setindex!(a::InstrumentAlazar, trigSlope::Symbol, ::Type{AuxInputTriggerSlope})
 Trigger enable is on the [`:Rising` / `:Falling`] edge of a TTL pulse to the
 AUX I/O connector. This does nothing immediately unless the AUX I/O
 mode is `:AuxInTriggerEnable`.
@@ -81,9 +75,7 @@ end
 
 
 """
-```
-function setindex!(a::InstrumentAlazar, b::Bool, ::Type{AuxSoftwareTriggerEnable})
-```
+    setindex!(a::InstrumentAlazar, b::Bool, ::Type{AuxSoftwareTriggerEnable})
 If an AUX I/O output mode has been configured, then this will configure
 software trigger enable. From the Alazar API:
 
@@ -132,10 +124,7 @@ end
 ## Clocks ############
 
 """
-```
-setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
-```
-
+    setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
 Configures one of the preset sample rates derived from the internal clock.
 """
 function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
@@ -151,10 +140,7 @@ function setindex!(a::InstrumentAlazar, rate::Symbol, ::Type{SampleRate})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, slope::Symbol, ::Type{ClockSlope})
-```
-
+    setindex!(a::InstrumentAlazar, slope::Symbol, ::Type{ClockSlope})
 Configures whether the clock ticks on a rising or falling slope.
 """
 function setindex!(a::InstrumentAlazar, slope::Symbol, ::Type{ClockSlope})
@@ -183,10 +169,7 @@ end
 ## Miscellaneous #####
 
 """
-```
-setindex!(a::InstrumentAlazar, rng::Tuple{Symbol,Symbol}, ::Type{InputRange}
-```
-
+    setindex!(a::InstrumentAlazar, rng::Tuple{Symbol,Symbol}, ::Type{InputRange}
 Configure the input range for each channel of the digitizer.
 """
 function setindex!(a::InstrumentAlazar, rng::Tuple{Symbol,Symbol},
@@ -200,11 +183,9 @@ function setindex!(a::InstrumentAlazar, rng::Tuple{Symbol,Symbol},
     a.rangeA, a.rangeB = rng
     nothing
 end
-"""
-```
-setindex!(a::InstrumentAlazar, ledState::Bool, ::Type{LED})
-```
 
+"""
+    setindex!(a::InstrumentAlazar, ledState::Bool, ::Type{LED})
 Configures the LED on the digitizer card chassis.
 """
 function setindex!(a::InstrumentAlazar, ledState, ::Type{LED})
@@ -213,10 +194,7 @@ function setindex!(a::InstrumentAlazar, ledState, ::Type{LED})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, sleepState, ::Type{Sleep})
-```
-
+    setindex!(a::InstrumentAlazar, sleepState, ::Type{Sleep})
 Configures the sleep state of the digitizer card.
 """
 function setindex!(a::InstrumentAlazar, sleepState, ::Type{Sleep})
@@ -226,10 +204,7 @@ end
 
 #
 """
-```
-setindex!(a::InstrumentAlazar, s::Symbol, ::Type{AlazarTimestampReset})
-```
-
+    setindex!(a::InstrumentAlazar, s::Symbol, ::Type{AlazarTimestampReset})
 Configures timestamp reset.
 - `:Always`: Reset the timestamp counter to zero on each call to
 `AlazarStartCapture`. This is the default operation.
@@ -246,10 +221,7 @@ end
 ## Trigger engine ###########
 
 """
-```
-setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
-```
-
+    setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
 Configures the trigger engines J and K. Available arguments are `:J`, `:K`,
 `:JOrK`, `:JAndK`, `:JXorK`, `:JAndNotK`, `:NotJAndK`.
 """
@@ -261,10 +233,7 @@ function setindex!(a::InstrumentAlazar, eng::Symbol, ::Type{TriggerEngine})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol}, ::Type{TriggerSlope})
-```
-
+    setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol}, ::Type{TriggerSlope})
 Configures whether to trigger on a rising or falling slope, for engine J and K.
 """
 function setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol},
@@ -277,10 +246,7 @@ function setindex!(a::InstrumentAlazar, slope::Tuple{Symbol,Symbol},
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol}, ::Type{TriggerSource})
-```
-
+    setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol}, ::Type{TriggerSource})
 Configure the trigger source for trigger engine J and K.
 """
 function setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol},
@@ -293,10 +259,7 @@ function setindex!(a::InstrumentAlazar, source::Tuple{Symbol,Symbol},
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer}, ::Type{TriggerLevel})
-```
-
+    setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer}, ::Type{TriggerLevel})
 Configure the trigger level for trigger engine J and K, in Volts.
 """
 function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
@@ -309,10 +272,7 @@ function setindex!(a::InstrumentAlazar, l::Tuple{Integer,Integer},
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
-```
-
+    setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
 Configure the external trigger coupling.
 """
 function setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
@@ -327,10 +287,7 @@ function setindex!(a::InstrumentAlazar, c::Symbol, ::Type{TriggerCoupling})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
-```
-
+    setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
 Configure the external trigger range.
 """
 function setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
@@ -346,10 +303,7 @@ function setindex!(a::InstrumentAlazar, range, ::Type{TriggerRange})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, delay_samples, ::Type{TriggerDelaySamples})
-```
-
+    setindex!(a::InstrumentAlazar, delay_samples, ::Type{TriggerDelaySamples})
 Configure how many samples to wait after receiving a trigger event before capturing
 a record.
 """
@@ -360,10 +314,7 @@ function setindex!(a::InstrumentAlazar, delay_samples, ::Type{TriggerDelaySample
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
-```
-
+    setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
 Wrapper for C function `AlazarSetTriggerTimeOut`.
 """
 function setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
@@ -373,10 +324,7 @@ function setindex!(a::InstrumentAlazar, ticks, ::Type{TriggerTimeoutTicks})
 end
 
 """
-```
-setindex!(a::InstrumentAlazar, timeout_s, ::Type{TriggerTimeoutS})
-```
-
+    setindex!(a::InstrumentAlazar, timeout_s, ::Type{TriggerTimeoutS})
 Wrapper for C function `AlazarSetTriggerTimeOut`, except we take seconds here
 instead of ticks (units of 10 us).
 """

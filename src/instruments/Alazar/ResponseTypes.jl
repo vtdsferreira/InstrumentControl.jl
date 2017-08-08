@@ -5,21 +5,21 @@ export FFTHardwareResponse
 export IQSoftwareResponse
 
 "Abstract `Response` from an Alazar digitizer instrument."
-@compat abstract type AlazarResponse{T} <: Response end
+abstract type AlazarResponse{T} <: Response end
 
 "Abstract time-domain streaming `Response` from an Alazar digitizer instrument."
-@compat abstract type StreamResponse{T} <: AlazarResponse{T} end
+abstract type StreamResponse{T} <: AlazarResponse{T} end
 
 "Abstract time-domain record `Response` from an Alazar digitizer instrument."
-@compat abstract type RecordResponse{T} <: AlazarResponse{T} end
+abstract type RecordResponse{T} <: AlazarResponse{T} end
 
 "Abstract FFT `Response` from an Alazar digitizer instrument."
-@compat abstract type FFTResponse{T}    <: AlazarResponse{T} end
+abstract type FFTResponse{T}    <: AlazarResponse{T} end
 
 """
 Response type implementing the "continuous streaming mode" of the Alazar API.
 """
-type ContinuousStreamResponse{T} <: StreamResponse{T}
+mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
 
@@ -39,7 +39,7 @@ ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
 """
 Response type implementing the "triggered streaming mode" of the Alazar API.
 """
-type TriggeredStreamResponse{T} <: StreamResponse{T}
+mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
 
@@ -59,7 +59,7 @@ TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
 """
 Response type implementing the "NPT record mode" of the Alazar API.
 """
-type NPTRecordResponse{T} <: RecordResponse{T}
+mutable struct NPTRecordResponse{T} <: RecordResponse{T}
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
     total_recs::Int
@@ -81,7 +81,7 @@ NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
 """
 Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
 """
-type FFTHardwareResponse{T} <: FFTResponse{T}
+mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
     ins::InstrumentAlazar
     sam_per_rec::Int
     sam_per_fft::Int
@@ -102,7 +102,7 @@ type FFTHardwareResponse{T} <: FFTResponse{T}
         r
     end
 end
-FFTHardwareResponse{S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) =
+FFTHardwareResponse(a,b,c,d,e::Type{S}) where {S <: Alazar.AlazarFFTBits} =
     FFTHardwareResponse{SharedArray{S,2}}(a,b,c,d,e)
 
 """
@@ -110,7 +110,7 @@ Response type for measuring with NPT record mode, then using Julia's FFTW to
 return the FFT. Slower than doing it with the FPGA, but ultimately necessary if
 we want to use both channels as inputs to the FFT.
 """
-type IQSoftwareResponse{T} <: RecordResponse{T}
+mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
     total_recs::Int

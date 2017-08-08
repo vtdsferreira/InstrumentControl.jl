@@ -32,7 +32,7 @@ export stimdata
 
 znbool(a) = (Bool(a) ? "ON" : "OFF")
 
-type InsZNB20 <: InstrumentVNA
+mutable struct InsZNB20 <: InstrumentVNA
     vi::(VISA.ViSession)
     writeTerminator::AbstractString
     model::AbstractString
