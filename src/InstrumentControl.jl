@@ -10,33 +10,38 @@ export source, measure
 include("config.jl")
 
 # Define common types and shared functions
-include("definitions.jl")
+include("Definitions.jl")
 
 # Define anything needed for a VISA instrument
-include("visa.jl")
+include("VISA.jl")
 
 # Parsing JSON files for easy instrument onboarding
-include("metaprogramming.jl")
+include("Metaprogramming.jl")
 
-# Generate instrument properties based on the template files
-const dir = joinpath(dirname(dirname(@__FILE__)), "deps", "instruments")
-const meta = Dict{String, Any}()
-for x in readdir(dir)
-    name = split(x, ".")[1]
+# Sweep and queueing functionality
+include("Sweep.jl")
+
+# Generate instrument properties based on template JSON files
+# insjson parses the template files
+# @generate_properties takes parsed information and makes InstrumentProperty types
+# we generate the instrument property types in InstrumentControl so they are not
+# module specific, and can be shared among different instrument modules
+const dir = joinpath(dirname(dirname(@__FILE__)), "deps", "instruments") #directory of template files
+const meta = Dict{String, Any}() #dictionary to hold parsed information of template files
+for x in readdir(dir) #loop through all filenames in dir
+    name = split(x, ".")[1] #get filename without extension: for use as key in meta
     meta[name] = insjson(joinpath(dir, x))
     @generate_properties meta[name]
 end
 
-# Various instruments
+# Various instrument modules
 include(joinpath(dirname(@__FILE__), "instruments", "VNAs", "VNA.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "VNAs", "E5071C.jl"))
 # include(joinpath("instruments","VNAs","ZNB20.jl"))
-
 include(joinpath(dirname(@__FILE__), "instruments", "SMB100A.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "E8257D.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "AWG5014C.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "GS200.jl"))
-
 include(joinpath(dirname(@__FILE__), "instruments", "Alazar", "Alazar.jl"))
 
 # Not required but you can uncomment this to look for conflicting function
@@ -50,26 +55,29 @@ importall .GS200
 importall .SMB100A
 # importall .ZNB20Module
 
-# Utility functions
-include("sweep.jl")
-# include("LiveUpdate.jl")   # <--- causes Documenter to fail?
+# INITIALIZATION CODE FOLLOWS
 
-# Initialization code follows
+# First make pointers (references) for objects that will be made in functions,
+# thereby extending their scope beyond the function # through these pointers
 
-# const globals should not be defined within __init__.
-# See Julia docs, Modules chapter for further details.
+# ZeroMQ is used for communication between the Julia enviroment being used for measurement
+# and the ICDatabase. See ZeroMQ documentation for further details
+
 const global ctx = Ref{ZMQ.Context}()
 const global plotsock = Ref{ZMQ.Socket}()
-const global dbsock = Ref{ZMQ.Socket}()
-const global qsock = Ref{ZMQ.Socket}()
-const global resourcemanager = Ref{UInt32}()
-const global sweepjobqueue = Ref{SweepJobQueue}()
+const global dbsock = Ref{ZMQ.Socket}() #socket used to communicate to ICDatabase
+const global qsock = Ref{ZMQ.Socket}() #dedicated socket used update job in ICDatabase
+const global resourcemanager = Ref{UInt32}() #VISA instruments resource manager
+const global sweepjobqueue = Ref{SweepJobQueue}() #default jobs queue
 
 const global plotsockopened = Ref{Bool}(false)
 const global dbsockopened = Ref{Bool}(false)
 const global qsockopened = Ref{Bool}(false)
 
-# Database server connection
+"""
+    dbsocket()
+Opens dbsock, the socket used to connect to the ICDatabase
+"""
 function dbsocket()
     if !dbsockopened[]
         dbsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
@@ -81,6 +89,20 @@ function dbsocket()
     return dbsock[]
 end
 
+"""
+    qsocket()
+Opens qsock, the socket used to connect to the ICDatabase
+"""
+function qsocket()
+    if !qsockopened[]
+        qsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
+        ZMQ.connect(qsock[],  confd["dbserver"])
+        qsockopened[] = true
+    end
+    return qsock[]
+end
+
+
 # Live plotting
 function plotsocket()
     if !plotsockopened[]
@@ -91,17 +113,9 @@ function plotsocket()
     return plotsock[]
 end
 
-function qsocket()
-    if !qsockopened[]
-        qsock[] = ZMQ.Socket(ctx[], ZMQ.REQ)
-        ZMQ.connect(qsock[],  confd["dbserver"])
-        qsockopened[] = true
-    end
-    return qsock[]
-end
-
-include(joinpath(dirname(@__FILE__), "parallelutils.jl"))
-
+# Run at compile time. Initializes the ZMQ context for communication with ICDatabase,
+# initializes a default SweepJobQueue object used for jobs queuing, and initializes
+# a VISA instruments resource manager
 function __init__()
     # ZeroMQ context
     ctx[] = ZMQ.Context()

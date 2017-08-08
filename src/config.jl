@@ -1,30 +1,10 @@
 export set_user, get_user
 
-# Some functions for user handling.
-function validate_username(username)
-    (username in listusers()) ||
-        error("username not found in database.")
-end
+# Parses JSON config.json file which has username information, ICDatabase address,
+# and a path for saving data. This script checks if config.json file has all necessary
+# information, and loads this information into the dictionary confd. If some
+# information is missing, an error is thrown  
 
-function listusers()
-    io = IOBuffer()
-    serialize(io, ICCommon.ListUsersRequest())
-    ZMQ.send(dbsocket(), ZMQ.Message(io))
-
-    msg = ZMQ.recv(dbsocket())
-    out = convert(IOStream, msg)
-    seekstart(out)
-    deserialize(out)
-end
-
-function set_user(username)
-    validate_username(username)
-    confd["username"] = username
-end
-
-get_user() = confd["username"]
-
-# Load package configuration into a dictionary `confd`.
 const confpath = joinpath(dirname(dirname(@__FILE__)), "deps", "config.json")
 if isfile(confpath)
     const confd = JSON.parsefile(confpath)
@@ -60,3 +40,28 @@ if isfile(confpath)
 else
     error("configuration file not found at $(confpath).")
 end
+
+# Some functions for user handling.
+
+function validate_username(username)
+    (username in listusers()) ||
+        error("username not found in database.")
+end
+
+function listusers()
+    io = IOBuffer()
+    serialize(io, ICCommon.ListUsersRequest())
+    ZMQ.send(dbsocket(), ZMQ.Message(io))
+
+    msg = ZMQ.recv(dbsocket())
+    out = convert(IOStream, msg)
+    seekstart(out)
+    deserialize(out)
+end
+
+function set_user(username)
+    validate_username(username)
+    confd["username"] = username
+end
+
+get_user() = confd["username"]

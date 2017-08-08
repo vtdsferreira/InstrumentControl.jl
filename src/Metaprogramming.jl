@@ -46,60 +46,54 @@ The `instrument` dictionary is described in the [`generate_instruments`](@ref)
 documentation. The `properties` array contains one or more dictionaries, each
 with keys:
 
-- `cmd`: Specifies what must be sent to the instrument (it should be
-terminated with "?" for query-only). The lower-case characters are replaced
-by infix arguments.
-- `type`: Specifies the `InstrumentProperty` subtype to use this command. Will be
-parsed and evaluated.
-- `values`: Specifies the required arguments for `setindex!` which will
-appear after `cmd` in the string sent to the instrument.
-- `infixes`: Specifies the infix arguments in `cmd`. Symbol names must match
-infix arguments. This key is not required if there are no infixes.
+- `cmd`: Specifies what must be sent to the instrument (it should be terminated
+with "?" for query-only commands). The lower-case characters are replaced by
+"infixes", which are either numerical arguments or strings
+- `type`: Specifies the `InstrumentProperty` subtype to use this command.
+- `values`: Specifies the required argument for `setindex!`, which will appear
+after `cmd` in the string sent to the instrument.
+- `infixes`: Specifies the infix arguments to be put in `cmd`. This key is not
+required if there are no infixes.
 - `doc`: Specifies documentation for the generated Julia functions. This key
 is not required if there is no documentation. This is used not only for
 interactive help but also in generating the documentation you are reading.
 
 The value of the `properties.type` field and entries in the `properties.values`
-and `properties.infixes` arrays are parsed by Julia into expressions or symbols
+and `properties.infixes` arrays are parsed into expressions or symbols
 for further manipulation.
 """
 function insjson(file::AbstractString)
     j = JSON.parsefile(file)
-
-    # Prefer symbols as keys instead of strings
+    # In all dictionaries below, keys are converted to symbols for metaprogramming purposes
     j = convert(Dict{Symbol,Any}, j)
-
     !haskey(j, :instrument) && error("Missing instrument information.")
     !haskey(j, :properties) && error("Missing property information.")
 
-    # Tidy up (and validate?) the instrument dictionary
     j[:instrument] = convert(Dict{Symbol, Any}, j[:instrument])
-
     # Define a supertype if one is not specified
     !haskey(j[:instrument], :super) && (j[:instrument][:super] = :Instrument)
-
     for x in [:module, :type, :super]
-        j[:instrument][x] = Symbol(j[:instrument][x])
+        j[:instrument][x] = Symbol(j[:instrument][x]) #convert these values to Symbols
     end
 
-    # Tidy up (and validate?) the properties dictionary
     for i in eachindex(j[:properties])
-        # Prefer symbols instead of strings
         j[:properties][i] = convert(Dict{Symbol,Any}, j[:properties][i])
         p = j[:properties][i]
-        p[:type] = parse(p[:type])
-        if !isa(p[:values], AbstractArray)
-            # Handle the case where p[:values] is just a string
+        p[:type] = parse(p[:type]) #parses into an expression; for one word, parsed into a Symbol
+        if !isa(p[:values], AbstractArray) #make p[:values] an array if it isn't one
             p[:values] = (p[:values] != "" ? [p[:values]] : [])
         end
+        #convert all elements of p[:values] into expressions for metaprogramming
         p[:values] = convert(Array{Expr,1}, map(parse, p[:values]))
 
         !haskey(p, :infixes) && (p[:infixes] = [])
         !haskey(p, :doc) && (p[:doc] = "")
+        #convert all elements of p[:infixes] into expressions for metaprogramming
         p[:infixes] = convert(Array{Expr,1}, map(parse, p[:infixes]))
         for k in p[:infixes]
             # `parse` doesn't recognize we want the equal sign to indicate
-            # an optional argument, denoted by the :kw symbol.
+            # an optional keyword argument. An equal sign sign in a keyword argument
+            # is denoted by the :kw symbol.
             k.head = :kw
         end
     end
@@ -119,12 +113,10 @@ from a call to [`insjson`](@ref). It will go through the following steps:
 and export the `Instrument` subtype and the `make` and `model` methods if they
 do not exist already (note generic functions `make` and `model` are defined in
 `src/Definitions.jl`).
-3. [`generate_properties`](@ref): Generate instrument properties if they do
-not exist already, and do any necessary importing and exporting.
-4. [`generate_handlers`](@ref): Generate "handler" methods to convert between
+2. [`generate_handlers`](@ref): Generate "handler" methods to convert between
 symbols and SCPI string args.
-5. [`generate_inspect`](@ref): Generate `getindex` methods for instrument properties.
-6. [`generate_configure`](@ref): Generate `setindex!` methods for instrument properties.
+3. [`generate_inspect`](@ref): Generate `getindex` methods for instrument properties.
+4. [`generate_configure`](@ref): Generate `setindex!` methods for instrument properties.
 
 `generate_all` should be called near the start of an instrument's .jl file,
 if one exists. It is not required to have a source file for each instrument if
@@ -165,9 +157,16 @@ This field is converted from a string to a `Symbol` by [`insjson`](@ref).
 - `model`: The model of the instrument, e.g. E5071C, AWG5014C, etc.
 - `writeterminator`: Write termination string for sending SCPI commands.
 
+The macro imports required modules and methods, defines and exports the `Instrument`
+subtype, and defines and exports and the `make` and `model` methods if they
+do not exist already (note generic functions `make` and `model` are defined in
+`src/Definitions.jl`).
+
 By convention we typically have the module name be the same as the model name,
 and the type is just the model prefixed by "Ins", e.g. `InsE5071C`. This is not
 required.
+
+
 """
 macro generate_instruments(metadata)
     esc(quote
@@ -188,7 +187,7 @@ macro generate_instruments(metadata)
         if !isdefined(md, typsym)
             eval(quote
                 export $typsym
-                type $typsym <: $sup
+                mutable struct $typsym <: $sup
                     vi::(VISA.ViSession)
                     writeTerminator::String
                     ($typsym)(x) = begin
