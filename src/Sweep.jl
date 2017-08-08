@@ -1,8 +1,3 @@
-#Changes: 1)change type declarations to struct and mutable struct, 2) take off has_started boolean
-#3) order of things, 4)change last_finished_id to a channel
-
-
-
 export sweep, eta, status, progress, abort!, prune!, jobs, result
 export reconstruct
 using Base.Cartesian, JLD
@@ -37,7 +32,7 @@ a [`Response`](@ref) that will be measured. `indep` is a tuple of [`Stimulus`](@
 objects and the values they will be sourced over. `result` is the result array of
 the sweep, which need not be provided at the time the `Sweep` object is created.
 """
-struct Sweep
+mutable struct Sweep
     dep::Response
     indep::Vector{Tuple{Stimulus, AbstractVector}}
     result::AxisArray
@@ -266,7 +261,7 @@ It prioritizes jobs based on their priorities; for equal priority values, the jo
 submitted earlier takes precedent. This queue holds sweep jobs where the jobs
 are "indexed" by their job_id, and the jobs are `SweepJob` objects. The queue
 keeps track of which job is running (if any) by it's running_id `Channel`. The
-queue keeps track of the last finished job by the last_finished_id field, for
+queue keeps track of the last finished job by the last_finished_id channel, for
 easy access to the data of the last finished job. Other fields are used for
 intertask communication.
 
@@ -287,7 +282,7 @@ The job updater task tries to take a `SweepJob` from `update_channel`, the unbuf
 job `Channel` of the `SweepJobQueue` object. The task is blocked until a job is
 put into the channel. Once a job arrives, provided the job has finished or has
 been aborted, the database is asynchronously updated, the job is marked as no longer
-running (by updating the running_id and last_finished_id fields), the sweep result
+running (by updating the running_id and last_finished_id channels), the sweep result
 is asynchronously saved to disk, and finally the job starter task is notified
 through the queue's trystart Condition object. The job updater task loops around
 and waits for another job to arrive at its channel.
@@ -298,15 +293,16 @@ mutable struct SweepJobQueue
     q::PriorityQueue{Int,SweepJob,
         Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
     running_id::Channel{Int}
-    last_finished_id::Int # make this a Channel?
+    last_finished_id::Channel{Int}
     trystart::Condition #used to communicate with the job_starter function
     update_taskref::Ref{Task} #used to communicate with the job_updater function
     update_channel::Channel{SweepJob} #channel for communicating with the job_updater function
     function SweepJobQueue()
         sjq = new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse),
-            Channel{Int}(1), -1, Condition())
+            Channel{Int}(1), Channel{Int}(1), Condition())
         #a running_id of -1 in the code is taken to mean that no job is currently running
         put!(sjq.running_id, -1)
+        put!(sjq.last_finished_id,-1)
         sjq.update_taskref = Ref{Task}() #initializing a pointer for a task
         sjq.update_channel = Channel(t->job_updater(sjq, t);
             ctype = SweepJob, taskref=sjq.update_taskref)
@@ -351,9 +347,10 @@ function job_updater(sjq::SweepJobQueue, update_channel::Channel{SweepJob})
             if sj.job_id == rid
                 take!(sjq.running_id)
                 put!(sjq.running_id, -1)
+                take!(sjq.last_finished_id)
+                put!(sjq.last_finished_id,sj.job_id)
+                @async archive_result(sj) #save whatever was measured regardless if job was done or aborted
             end
-            sjq.last_finished_id = sj.job_id
-            @async archive_result(sj) #save whatever was measured regardless if job was done or aborted
             notify(sjq.trystart)
         end
     end
@@ -497,9 +494,10 @@ default sweep job queue object.
 """
 function result()
     sjq = sweepjobqueue[]
-    sjq.last_finished_id == -1 &&
+    last_finished_id=fetch(sjq.last_finished_id)
+    last_finished_id == -1 &&
         error("no jobs have run yet; no results to return.")
-    result(sjq.last_finished_id)
+    result(last_finished_id)
 end
 
 """
@@ -636,12 +634,15 @@ It is launched asynchronously by [`sweep`](@ref). The implementation uses macros
 [Base.Cartesian](https://docs.julialang.org/en/stable/devdocs/cartesian/).
 The stimuli are sourced only when they need to be, at the start of each `for` loop level.
 
-`T` is a `Tuple{Int,Int}` object where the first `Int` is the number of dimensions
-coming from a single measurement, and the second `Int` is the number of independent
-sweep axes. The first time a new `T` is encountered, an appropriate method is defined.
+`D` is the dimension of the output array of the measure function (if multiple
+things are measured for one Response type, the array will be multi-dimensional).
+`N` is the number of stimuli which the sweep sources over. sj is the handle to
+the `SweepJob` object, and update_channel is a channel of the queue used for
+intertask comunication.
 
-The axis scaling of `measure(sj.sweep.dep)` is presumed to be fixed, as it is only looked
-at once, the first time `measure` is called.
+The axis scaling of `measure(sj.sweep.dep)`, i.e., the dimensions of the output
+array of the function. is presumed to be fixed, as it is only looked at once,
+the first time `measure` is called.
 """
 function _sweep! end
 
@@ -683,7 +684,7 @@ function define_sweep(D,N)
             t_body = true
             #below, @respond_to_status is in the pre-expression of each loop,
             #if sweep is aborted, this macro returns, and ends the _sweep! function call
-            @nloops $N i k->indices(array,k+$D) j->(@respond_to_status; 
+            @nloops $N i k->indices(array,k+$D) j->(@respond_to_status;
                 @skipfirst t_j source(indep[j][1], indep[j][2][i_j])) begin
 
                 if t_body == true
