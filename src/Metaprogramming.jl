@@ -229,7 +229,7 @@ type we would like to assign to a given property of the instrument
 For every property dictionary, the macro first checks if a type with name corresponding
 to the dictionary's `:type` field  has already been defined. If not, it then
 defines an abstract type with that name, and makes it a subtype of the
-InstrumentProperty type defined in the ICCommon package. The macro then finally
+`InstrumentProperty` type defined in the ICCommon package. The macro then finally
 exports that type
 """
 macro generate_properties(metadata)
