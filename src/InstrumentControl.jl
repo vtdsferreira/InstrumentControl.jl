@@ -91,7 +91,7 @@ end
 
 """
     qsocket()
-Opens qsock, the socket used to connect to the ICDatabase
+Opens qsock, the socket used to connect to the ICDataserver
 """
 function qsocket()
     if !qsockopened[]
@@ -117,7 +117,7 @@ end
 # initializes a default SweepJobQueue object used for jobs queuing, and initializes
 # a VISA instruments resource manager
 function __init__()
-    # ZeroMQ context
+    # ZeroMQ context for communication with ICDatabase
     ctx[] = ZMQ.Context()
 
     # VISA resource manager

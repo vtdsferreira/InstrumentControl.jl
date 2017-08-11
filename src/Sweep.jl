@@ -73,9 +73,9 @@ mutable struct SweepJob
 end
 ```
 
-Object representing a "sweep job." While a sweep object has all information
+Object representing a "sweep job." While a `Sweep` object has all information
 related to the actual measurement, we would like to have some metadata associated
-with each sweep oject for the purposes of queueing multiple different sweeps,
+with each `Sweep` oject for the purposes of queueing multiple different sweeps,
 automatic scheduling of sweeps in a queue, logging of information, etc. For this
 purpose, we create a `SweepJob` type to hold together the sweep and all metadata
 associated with it.
@@ -194,6 +194,12 @@ function result(sj::SweepJob)
     end
 end
 
+"""
+    archieve_result(sj::SweepJob)
+Save the result array of a 'Sweep' object in the path specified for saving data
+by the user. This path is stored in the `confd` dictionary initialized when
+InstrumentControl is imported
+"""
 function archive_result(sj::SweepJob)
     # We assume that the sweep result is an AxisArray.
     # For our archived data we do not save an AxisArray but rather split it
@@ -253,7 +259,32 @@ function show(io::IO, s::SweepJob)
 end
 
 """
-    type SweepJobQueue ... end
+```
+mutable struct SweepJobQueue
+    #PriorityQueue is essentially a glorified dictionary with built-in functionality
+    #for sorting of keys
+    q::PriorityQueue{Int,SweepJob,
+        Base.Order.ReverseOrdering{Base.Order.ForwardOrdering}}
+    running_id::Channel{Int}
+    last_finished_id::Channel{Int}
+    trystart::Condition #used to communicate with the job_starter function
+    update_taskref::Ref{Task} #used to communicate with the job_updater function
+    update_channel::Channel{SweepJob} #channel for communicating with the job_updater function
+    function SweepJobQueue()
+        sjq = new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse),
+            Channel{Int}(1), Channel{Int}(1), Condition())
+        put!(sjq.running_id, -1)
+        put!(sjq.last_finished_id,-1)
+        sjq.update_taskref = Ref{Task}() #initializing a pointer for a task
+        sjq.update_channel = Channel(t->job_updater(sjq, t);
+            ctype = SweepJob, taskref=sjq.update_taskref)
+        #the job_updater function is wrapped in a Task through this Channel constructor
+        @schedule job_starter(sjq) #the job_started function is wrapped in a Task here
+        sjq
+    end
+end
+```
+
 A queue responsible for prioritizing sweeps and executing them accordingly. The
 queue holds `SweepJob` objects, and "indexes" them according to their job number.
 It prioritizes jobs based on their priorities; for equal priority values, the job
@@ -262,9 +293,11 @@ are "indexed" by their job_id, and the jobs are `SweepJob` objects. The queue
 keeps track of which job is running (if any) by it's running_id `Channel`. The
 queue keeps track of the last finished job by the last_finished_id channel, for
 easy access to the data of the last finished job. Other fields are used for
-intertask communication.
+intertask communication. Note that a running_id of -1 signifies that no job
+is running.
 
-When a `SweepJobQueue` is created, two tasks are initialized. One task manages
+When a `SweepJobQueue` is created through it's argumentless inner constructor (made
+for initialization purposes), two tasks are initialized. One task manages
 job updates, the other task is responsible for starting jobs; the former task
 executes the `job_updater` function, the latter task executes the `job_starter`
 function. Both functions execute infinite while loops, therefore they never end.
@@ -272,10 +305,10 @@ function. Both functions execute infinite while loops, therefore they never end.
 When the job starter task is notified with the `trystart::Condition` object in
 the `SweepJobQueue` object, it will find the highest priority job in the queue.
 Then, if a job is not running, if the prioritized job is waiting,
-and if the prioritized job is runnable (the priority may be "never"), then the
+and if the prioritized job is runnable (the priority may be "NEVER"), then the
 job is started. The database is updated asynchronously to reflect the new job,
 the queue's `running_id` is changed to the job's id, and the job's status is
-changed to "Running"
+changed to "Running".
 
 The job updater task tries to take a `SweepJob` from `update_channel`, the unbuffered
 job `Channel` of the `SweepJobQueue` object. The task is blocked until a job is
@@ -475,8 +508,8 @@ jobs() = sweepjobqueue[]
 
 """
     jobs(job_id)
-Return the job associated with `job_id` scheduled in the default sweep job queue
-object.
+Return the `SweepJob` object associated with `job_id` scheduled in the default
+sweep job queue object.
 """
 jobs(job_id) = jobs()[job_id]
 
@@ -565,7 +598,9 @@ end
 """
     sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
         priority = NORMAL)
-Measures a response as a function of an arbitrary number of stimuli, and returns
+
+`sweep` measures a response as a function of an arbitrary number of stimuli,
+sourced over the values given in the `AbstractVector` input, and returns
 a handle to the sweep job. This can be used to access the results while the
 sweep is being measured.
 
@@ -574,14 +609,15 @@ ICdatabase, 2)initializing an appropriate array to hold the reults of the sweep,
 3) preparing a [`InstrumentControl.SweepJob`](@ref) object with an appropriate job_id
 obtained from the database, 4) adding the job to the default `SweepJobQueue` object
 (defined when the InstrumentControl module is used/imported), and 5) launching an
-asynchronous sweep job. The actual sweeping, i.e., the actual `source` and `measure`
-loops to measure data are in a private function [`InstrumentControl._sweep!`](@ref).
+asynchronous sweep job.
 
 The `priority` keyword may be `LOW`, `NORMAL`, or `HIGH`, or any
 integer greater than or equal to zero.
 
-If [`InstrumentControl._sweep!`](@ref) is not defined yet, this function will
-also define the method in order to ito be used to schedule a sweep
+The actual sweeping, i.e., the actual `source` and `measure`
+loops to measure data are in a private function [`InstrumentControl._sweep!`](@ref).
+Note that if [`InstrumentControl._sweep!`](@ref) is not defined yet, this function will
+also define the method in order to it to be used to schedule a sweep
 """
 function sweep(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     priority = NORMAL, username=confd["username"],
