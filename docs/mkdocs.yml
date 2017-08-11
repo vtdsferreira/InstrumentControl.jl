@@ -1,7 +1,7 @@
 site_name:        InstrumentControl.jl
 repo_url:         https://github.com/PainterQubits/InstrumentControl.jl
 site_description: Package for instrument control and superconducting qubit measurement.
-site_author:      Andrew Keller
+site_author:      Andrew Keller, Vinicius Ferreira
 
 theme: material
 extra:
