@@ -95,17 +95,10 @@ InstrumentControl.Sweep
 ```
 
 However, additional metadata is needed for scheduling and queueing of sweeps, as
-well as logging of job information on ICDataServer. We "bundle" that information along
-with a `Sweep` object in a more comprehensive `SweepJob` type:
+well as logging of job information on ICDataServer. We "bundle" that information along with a `Sweep` object in a more comprehensive `SweepJob` type:
 
 ```@docs
 InstrumentControl.SweepJob
-```
-
-`SweepJob` objects are initialized through the `SweepJob` function:
-
-```@docs
-InstrumentControl.SweepJob()
 ```
 
 Finally, we require a *collection* object that can hold `SweepJob` objects, and
@@ -132,5 +125,5 @@ Sweeps are scheduled by a call to the `sweep` function:
 
 ```@docs
 InstrumentControl.sweep
-IntrumentControl._sweep!
+InstrumentControl._sweep!
 ```

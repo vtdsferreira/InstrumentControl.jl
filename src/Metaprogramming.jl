@@ -6,10 +6,7 @@ export generate_properties, generate_handlers, generate_configure, generate_insp
 export argsym, argtype, insjson, stripin
 
 """
-```
-insjson(file::AbstractString)
-```
-
+    insjson(file::AbstractString)
 Parses a JSON file with a standardized schema to describe how to control
 an instrument.
 
@@ -42,7 +39,7 @@ Here is an example of a valid JSON file with valid schema for parsing:
 ```
 
 After loading with `JSON.parse`, all dictionary keys are converted to symbols.
-The `instrument` dictionary is described in the [`generate_instruments`](@ref)
+The `instrument` dictionary is described in the [`@generate_instruments`](@ref)
 documentation. The `properties` array contains one or more dictionaries, each
 with keys:
 
@@ -102,10 +99,7 @@ function insjson(file::AbstractString)
 end
 
 """
-```
-generate_all(metadata)
-```
-
+    @generate_all(metadata)
 This macro takes a dictionary of instrument metadata, typically obtained
 from a call to [`insjson`](@ref). It will go through the following steps:
 
@@ -138,11 +132,8 @@ macro generate_all(metadata)
 end
 
 """
-```
-generate_instruments(metadata)
-```
-
-This function takes a dictionary of metadata, typically obtained from
+    @generate_instruments(metadata)
+This macro takes a dictionary of metadata, typically obtained from
 a call to [`insjson`](@ref). It operates on the `:instrument` field of the dictionary
 which is expected to have the following structure:
 
@@ -165,8 +156,6 @@ do not exist already (note generic functions `make` and `model` are defined in
 By convention we typically have the module name be the same as the model name,
 and the type is just the model prefixed by "Ins", e.g. `InsE5071C`. This is not
 required.
-
-
 """
 macro generate_instruments(metadata)
     esc(quote
@@ -215,11 +204,8 @@ macro generate_instruments(metadata)
 end
 
 """
-```
-generate_properties(metadata)
-```
-
-This function takes a dictionary of metadata, typically obtained from
+    @generate_properties(metadata)
+This macro takes a dictionary of metadata, typically obtained from
 a call to [`insjson`](@ref). It operates on the `:properties` field of
 the dictionary, which is expected to be a list of dictionaries with information
 on each "property" of the instrument. This macro specifically operates on the
@@ -248,10 +234,7 @@ macro generate_properties(metadata)
 end
 
 """
-```
-@generate_handlers(instype, p)
-```
-
+    @generate_handlers(instype, p)
 This macro takes a symbol `instype` bound to an `Instrument` subtype (i.e. if
 the symbol was evaluated, it would return an `Instrument` subtype ), and a property
 dictionary `p` located in the `:properties` field of the dictionary of metadata
@@ -423,10 +406,7 @@ macro generate_handlers(instype, p)
 end
 
 """
-```
-generate_inspect(instype, p)
-```
-
+    @generate_inspect(instype, p)
 This macro takes a symbol `instype` bound to an `Instrument` subtype (i.e. if
 the symbol was evaluated, it would return an `Instrument` subtype ), and a property
 dictionary `p` located in the `:properties` field of the dictionary of metadata
@@ -522,10 +502,7 @@ macro generate_inspect(instype, p)
 end
 
 """
-```
-generate_configure(instype, p)
-```
-
+    @generate_configure(instype, p)
 This macro takes a symbol `instype` bound to an `Instrument` subtype (i.e. if
 the symbol was evaluated, it would return an `Instrument` subtype ), and a property
 dictionary `p` located in the `:properties` field of the dictionary of metadata
@@ -615,10 +592,7 @@ end
 #### Helper functions ####
 
 """
-```
-argtype(expr)
-```
-
+    argtype(expr)
 Given function arguments, will return types:
 
 - `:(x::Integer)` → `Integer`
@@ -632,42 +606,25 @@ Some package-specific cases:
 - `:(x::Symbol in symbols)` → `Symbol`
 """
 function argtype(expr)
-    if VERSION < v"0.5.0-pre"
-        if isa(expr, Symbol)
-            return Any
-        elseif expr.head == :(::)
-            if length(expr.args) == 1
-                return eval(expr.args[1])
-            else
-                return eval(expr.args[2])
-            end
-        elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
-            return argtype(expr.args[1])
+    if isa(expr, Symbol)
+        return Any
+    elseif expr.head == :(::)
+        if length(expr.args) == 1
+            return eval(expr.args[1])
         else
-            error("Cannot handle this argument.")
+            return eval(expr.args[2])
         end
+    elseif expr.head == :(=) || expr.head == :(kw)
+        return argtype(expr.args[1])
+    elseif expr.head == :call && expr.args[1] == :in
+        return argtype(expr.args[2])
     else
-        if isa(expr, Symbol)
-            return Any
-        elseif expr.head == :(::)
-            if length(expr.args) == 1
-                return eval(expr.args[1])
-            else
-                return eval(expr.args[2])
-            end
-        elseif expr.head == :(=) || expr.head == :(kw)
-            return argtype(expr.args[1])
-        elseif expr.head == :call && expr.args[1] == :in
-            return argtype(expr.args[2])
-        else
-            error("Cannot handle this argument.")
-        end
+        error("Cannot handle this argument.")
     end
 end
 
 """
-`argsym(expr)`
-
+    argsym(expr)
 Given function arguments, will return symbols:
 
 - `:(x::Integer)` → `:x`
@@ -681,44 +638,25 @@ Some package-specific syntax:
 - `:(x::Symbol in symbols)` → `:x`
 """
 function argsym(expr)
-    if VERSION < v"0.5.0-pre"
-        if isa(expr, Symbol)
-            return expr
-        elseif expr.head == :(::)
-            if length(expr.args) == 1
-                return :_
-            else
-                return expr.args[1]
-            end
-        elseif expr.head == :(=) || expr.head == :(kw) || expr.head == :(in)
-            return argsym(expr.args[1])
+    if isa(expr, Symbol)
+        return expr
+    elseif expr.head == :(::)
+        if length(expr.args) == 1
+            return :_
         else
-            error("Cannot handle this argument.")
+            return expr.args[1]
         end
+    elseif expr.head == :(=) || expr.head == :(kw)
+        return argsym(expr.args[1])
+    elseif expr.head == :call && expr.args[1] == :in
+        return argsym(expr.args[2])
     else
-        if isa(expr, Symbol)
-            return expr
-        elseif expr.head == :(::)
-            if length(expr.args) == 1
-                return :_
-            else
-                return expr.args[1]
-            end
-        elseif expr.head == :(=) || expr.head == :(kw)
-            return argsym(expr.args[1])
-        elseif expr.head == :call && expr.args[1] == :in
-            return argsym(expr.args[2])
-        else
-            error("Cannot handle this argument.")
-        end
+        error("Cannot handle this argument.")
     end
 end
 
 """
-```
-stripin(expr)
-```
-
+    stripin(expr)
 Return the same expression in most cases, except:
 
 - `:(x::Symbol in symbols)` → `:(x::Symbol)`
@@ -726,18 +664,10 @@ Return the same expression in most cases, except:
 """
 function stripin(expr)
     isa(expr, Symbol) && return expr
-    if VERSION < v"0.5.0-pre"
-        if expr.head == :(in)
-            return expr.args[1]
-        else
-            return expr
-        end
+    if expr.head == :call && expr.args[1] == :(in)
+        return expr.args[2]
     else
-        if expr.head == :call && expr.args[1] == :(in)
-            return expr.args[2]
-        else
-            return expr
-        end
+        return expr
     end
 end
 

@@ -27,7 +27,7 @@ end
 Object representing a sweep; which will contain information on stimuli sent to
 the instruments, information on what kind of response we will be measuring, and
 the numerical data obtained from the measurement. `dep` (short for dependent) is
-a [`Response`](@ref) that will be measured. `indep` is a tuple of [`Stimulus`](@ref)
+a `Response` that will be measured. `indep` is a tuple of `Stimulus`
 objects and the values they will be sourced over. `result` is the result array of
 the sweep, which need not be provided at the time the `Sweep` object is created.
 """
@@ -544,7 +544,7 @@ data that has been measured for most recent sourcing of a stimulus, i.e. at the 
 start of a for loop in [`InstrumentControl._sweep!`](@ref), is archieved. You can
 also abort a sweep before it even begins.
 
-Presently this function does not interrupt [`measure`](@ref), so if a single
+Presently this function does not interrupt `measure`, so if a single
 measurement takes a long time then the sweep is only aborted after that finishes.
 """
 function abort!(x::SweepJob)
