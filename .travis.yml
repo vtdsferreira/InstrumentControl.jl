@@ -1,16 +1,19 @@
-language: cpp
-compiler:
-  - clang
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 0.6
 notifications:
   email: false
-env:
-  matrix:
-    - JULIAVERSION="juliareleases"
-    - JULIAVERSION="julianightlies"
-before_install:
-  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
-  - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
-  - sudo apt-get update -qq -y
-  - sudo apt-get install libpcre3-dev julia -y
 script:
-  - julia -e 'Pkg.init(); Pkg.clone(pwd()); Pkg.test("InstrumentControl")'
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone(pwd())'
+  - julia -e 'Pkg.clone("https://github.com/PainterQubits/VISA.jl.git")'
+  - julia -e 'Pkg.clone("https://github.com/PainterQubits/Alazar.jl.git")'
+  - julia -e 'Pkg.clone("https://github.com/PainterQubits/ICCommon.jl.git")'
+  - julia -e 'Pkg.build("InstrumentControl"); Pkg.test("InstrumentControl"; coverage=false)'
+after_success:
+  - julia -e 'Pkg.add("Documenter")'
+  - julia -e 'cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
