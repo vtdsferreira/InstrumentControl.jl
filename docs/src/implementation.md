@@ -2,17 +2,17 @@
 
 ## Code organization
 
-- Each instrument is defined within its own module, a submodule of `InstrumentControl`.
++ Each instrument is defined within its own module, a submodule of `InstrumentControl`.
 Each instrument is a subtype of `Instrument`. By convention, instrument model
 numbers are used for module definitions (e.g. `AWG5014C`), so type names have
 "Ins" prepended (e.g. `InsAWG5014`).
-- Low-level wrappers for shared libraries are kept in their own packages (e.g. `VISA`, `Alazar`, and `KeysightInstruments` calls).
++ Low-level wrappers for shared libraries are kept in their own packages (e.g. `VISA`, `Alazar`, and `KeysightInstruments` calls).
 This way, at least some code can be reused if someone else does not want to use our codebase.
-- All sweep related type definitions and functions described in [Sweep Jobs](https://painterqubits.github.io/InstrumentControl.jl/sweep/)
++ All sweep related type definitions and functions described in [Sweep Jobs](https://painterqubits.github.io/InstrumentControl.jl/sweep/)
 can be found in `src/Sweep.jl`
-- Abstract type definitions like `Instrument` and `Stimulus`, are defined in
++ Abstract type definitions like `Instrument` and `Stimulus`, are defined in
 [ICCommon.jl](https://github.com/PainterQubits/ICCommon.jl)  
-- `src/Definitions.jl` contains some definitions of other commonly used functions
++ `src/Definitions.jl` contains some definitions of other commonly used functions
 and types. `src/config.jl` parses information in `deps/config.json` for talking to
 the database set up by ICDataServer, such as username information, database server
 address, path for saving results of sweeps, and stores it in a dictionary for access

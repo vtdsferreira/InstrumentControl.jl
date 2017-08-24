@@ -41,24 +41,24 @@ languages, along with links to the Julia docs explaining them. It is our hope th
 with the reading listed below and this documentation, that any reader with some
 background in programming would be able to satisfactorily understand the source code:
 
-###Types
-[Julia Types in general](https://docs.julialang.org/en/stable/manual/types/)
-[Parametric Types](https://docs.julialang.org/en/stable/manual/types/#Parametric-Types-1)
-[Singleton Types](https://docs.julialang.org/en/stable/manual/types/#man-singleton-types-1)
++ Types
+    * [Julia Types in general](https://docs.julialang.org/en/stable/manual/types/)
+    * [Parametric Types](https://docs.julialang.org/en/stable/manual/types/#Parametric-Types-1)
+    * [Singleton Types](https://docs.julialang.org/en/stable/manual/types/#man-singleton-types-1)
 
-###Functions and Methods
-[Optional and Keyword Arguments](https://docs.julialang.org/en/stable/manual/functions/#Optional-Arguments-1)
-[Anonymous Functions](https://docs.julialang.org/en/stable/manual/functions/#man-anonymous-functions-1)
-[Parametric Methods](https://docs.julialang.org/en/stable/manual/methods/#Parametric-Methods-1)
-[Vararg Functions](https://docs.julialang.org/en/stable/manual/functions/#Varargs-Functions-1)
++ Functions and Methods
+    * [Optional and Keyword Arguments](https://docs.julialang.org/en/stable/manual/functions/#Optional-Arguments-1)
+    * [Anonymous Functions](https://docs.julialang.org/en/stable/manual/functions/#man-anonymous-functions-1)
+    * [Parametric Methods](https://docs.julialang.org/en/stable/manual/methods/#Parametric-Methods-1)
+    * [Vararg Functions](https://docs.julialang.org/en/stable/manual/functions/#Varargs-Functions-1)
 
-###Macros and Metaprogramming
-[Metaprogramming in general](https://docs.julialang.org/en/stable/manual/metaprogramming/) (also describes the `Symbol` type and expressions)
-[Macros](https://docs.julialang.org/en/stable/manual/metaprogramming/#man-macros-1)
++ Macros and Metaprogramming
+    * [Metaprogramming in general](https://docs.julialang.org/en/stable/manual/metaprogramming/) (also describes the `Symbol` type and expressions)
+    * [Macros](https://docs.julialang.org/en/stable/manual/metaprogramming/#man-macros-1)
 
-###Tasks
-[Tasks](https://docs.julialang.org/en/stable/manual/control-flow/#man-tasks-1)
-[Dynamic Scheduling of Tasks](https://docs.julialang.org/en/stable/manual/parallel-computing/#Synchronization-With-Remote-References-1)
++ Tasks
+    * [Tasks](https://docs.julialang.org/en/stable/manual/control-flow/#man-tasks-1)
+    * [Dynamic Scheduling of Tasks](https://docs.julialang.org/en/stable/manual/parallel-computing/#Synchronization-With-Remote-References-1)
 
-#Miscellaneous
-[Short Circuit Evaluation](https://docs.julialang.org/en/stable/manual/control-flow/#Short-Circuit-Evaluation-1)
++ Miscellaneous
+    * [Short Circuit Evaluation](https://docs.julialang.org/en/stable/manual/control-flow/#Short-Circuit-Evaluation-1)
