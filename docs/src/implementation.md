@@ -6,9 +6,8 @@
 Each instrument is a subtype of `Instrument`. By convention, instrument model
 numbers are used for module definitions (e.g. `AWG5014C`), so type names have
 "Ins" prepended (e.g. `InsAWG5014`).
-- Low-level wrappers for shared libraries are kept in their own packages
-(e.g. `VISA` and `Alazar` calls). This way, at least some code can be reused if
-someone else does not want to use our codebase.
+- Low-level wrappers for shared libraries are kept in their own packages (e.g. `VISA`, `Alazar`, and `KeysightInstruments` calls).
+This way, at least some code can be reused if someone else does not want to use our codebase.
 - All sweep related type definitions and functions described in [Sweep Jobs](https://painterqubits.github.io/InstrumentControl.jl/sweep/)
 can be found in `src/Sweep.jl`
 - Abstract type definitions like `Instrument` and `Stimulus`, are defined in
@@ -24,7 +23,7 @@ to all other functions that need this information to communicate with the databa
 The functionality of the InstrumentControl.jl package is intertwined with the
 [ICDataServer.jl](https://github.com/PainterQubits/ICDataServer.jl) package.
 ICDataServer sets up a relational database (RDBMS) with which it communicates with
-through SQL, and InstrumentControl talks to that database. This database is used to
+through SQL. InstrumentControl talks to that database; this database is used to
 maintain a log of information for each job: the job is identified by the job ID,
 and it mantains any metadata specified by the database creator. In its current
 implementation, the data saved to the database is the time of job submission, the
@@ -34,9 +33,9 @@ functionality to the code over time.
 When `sweep` is executed, the function communicates with the ICDataServer to create
 a new entry in the database table; the identifier of the new entry is a new job ID
 that the RDMS itself creates. ICDataServer then communicates back to InstrumentControl
-with a job ID and a time submission; this job metadata is immediately stored in the
-`SweepJob` object created by the `sweep` function as a handle to the new job. The job
-is then queued with the provided job ID as it's identifier
+with this particular job ID and the time of submission; this job metadata is immediately
+stored in the `SweepJob` object (created by the `sweep` function as a handle to
+the new job). The job is then queued with the provided job ID as it's identifier.
 
 The actual communication between the two packages is mediated by the popular
 [ZeroMQ](http://zeromq.org/) distributed messaging software; we utilize it's
@@ -55,7 +54,7 @@ initialized. `ZMQ.Socket` objects are initialized in the first instance of
 communication with the ICDataServer, and the same object is used thereafter for
 communication within the same usage session. The socket objects are automatically bound
 to TCP ports that the user specifies in the `deps/config.json` file. InstrumentControl
-and ICDataServer communicate by binding to the same TCP connection
+and ICDataServer communicate by binding to the same TCP connection.
 
 ## Metaprogramming for VISA instruments
 
@@ -65,7 +64,7 @@ syntax (VISA and SCPI respectively). For such instruments, methods for
 subtype definitions, can be generated with metaprogramming, rather than
 typing them out explicitly.
 
-The file `src/Metaprogramming.jl` is used heavily for code generation based
+The file `src/MetaprogrammingVISA.jl` is used heavily for code generation based
 on JSON template files. Since much of the logic for talking to instruments is
 the same between VISA instruments, in some cases no code needs to be written
 to control a new instrument provided an appropriate template file is prepared.
@@ -95,10 +94,11 @@ InstrumentControl.Sweep
 ```
 
 However, additional metadata is needed for scheduling and queueing of sweeps, as
-well as logging of job information on ICDataServer. We "bundle" that information along with a `Sweep` object in a more comprehensive `SweepJob` type:
+well as logging of job information on ICDataServer. We "bundle" that information, along with a `Sweep` object, in a more comprehensive `SweepJob` type:
 
 ```@docs
 InstrumentControl.SweepJob
+InstrumentControl.SweepJob()
 ```
 
 Finally, we require a *collection* object that can hold `SweepJob` objects, and

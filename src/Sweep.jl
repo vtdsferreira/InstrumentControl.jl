@@ -80,7 +80,7 @@ automatic scheduling of sweeps in a queue, logging of information, etc. For this
 purpose, we create a `SweepJob` type to hold together the sweep and all metadata
 associated with it.
 
-A `SweepJob` object holds a [`InstrumentControl.Sweep`](@ref) ] `sweep` object.
+A `SweepJob` object holds a [`InstrumentControl.Sweep`](@ref)  `sweep` object.
 `priority` is an `Int` from 0 to `typemax(Int)`, inclusive, and is used to
 prioritize the next sweep in a queue (with multiple sweeps) to be run. It is
 typically one of the following:
@@ -89,24 +89,24 @@ typically one of the following:
 - `NORMAL == 5`
 - `LOW == 0`
 
-`job_id` is used as the reference to the sweep job in the ICdatabase, and in the
-jobs queue. When a new sweep is requested, and the corresponding `SweepJob`` object
-is made, an appropriate job_id is requested from the ICdatabase and is automatically
+`job_id` is used as the reference to the sweep job in the ICDataServer, and in the
+jobs queue. When a new sweep is requested, and the corresponding `SweepJob` object
+is made, an appropriate job_id is requested from the ICDataServer and is automatically
 assigned to the job object. The job is then automatically submitted to the
-queue with this job_id as it's identifier and Handle.
+queue with this `job_id` as it's identifier and handle.
 
 `status` is a channel that holds the status of a job (Waiting,Running,Aborted,Done),
 and is used for interstask communcations for operations on jobs such as starting
 the job, aborting the job, queueing the job, etc, as well communication with
-ICDatabase. For example: a change in status of a job to "Done" or "Aborted"
-prompts the job status to be updated in the ICDatabase; or, once a queued sweep is
+ICDataServer. For example: a change in status of a job to "Done" or "Aborted"
+prompts the job status to be updated in the ICDataServer; or, once a queued sweep is
 next in line to be run, the queue changes the sweep job's status from "Waiting"
 to "Running", which then automatically prompts the queued sweep to be started.
 
 `progress` is a channel to track the progress of a sweep job; the progress is
 calculated as a sweep is run, and the number is put into this channel. The rest
 of the fields are metadata for logging purposes: `whensub` is when the `Sweep`
-was created, `whenstart` is when the `Sweep` was initially run. `username` is who
+was created, `whenstart` is when the `Sweep` was initially run, `username` is who
 submitted the sweep job. If `notifications` is true, status updates are sent out
 if possible. These metadata are logged in the database set up by ICDataServer with
 which InstrumentControl interacts with
@@ -286,15 +286,13 @@ end
 ```
 
 A queue responsible for prioritizing sweeps and executing them accordingly. The
-queue holds `SweepJob` objects, and "indexes" them according to their job number.
-It prioritizes jobs based on their priorities; for equal priority values, the job
-submitted earlier takes precedent. This queue holds sweep jobs where the jobs
-are "indexed" by their job_id, and the jobs are `SweepJob` objects. The queue
-keeps track of which job is running (if any) by it's running_id `Channel`. The
-queue keeps track of the last finished job by the last_finished_id channel, for
-easy access to the data of the last finished job. Other fields are used for
-intertask communication. Note that a running_id of -1 signifies that no job
-is running.
+queue holds `SweepJob` objects, and "indexes" them by their `job_id`. It prioritizes
+jobs based on their priorities; for equal priority values, the job submitted earlier
+takes precedent. The queue keeps track of which job is running (if any) by it's
+`running_id` `Channel`. The queue keeps track of the last finished job by the
+`last_finished_id channel`, for easy access to the data of the last finished job.
+Other fields are used for intertask communication. Note that a `running_id of` -1
+signifies that no job is running.
 
 When a `SweepJobQueue` is created through it's argumentless inner constructor (made
 for initialization purposes), two tasks are initialized. One task manages
@@ -304,7 +302,7 @@ function. Both functions execute infinite while loops, therefore they never end.
 
 When the job starter task is notified with the `trystart::Condition` object in
 the `SweepJobQueue` object, it will find the highest priority job in the queue.
-Then, if a job is not running, if the prioritized job is waiting,
+Then, if a job is not running, and the prioritized job is waiting,
 and if the prioritized job is runnable (the priority may be "NEVER"), then the
 job is started. The database is updated asynchronously to reflect the new job,
 the queue's `running_id` is changed to the job's id, and the job's status is
@@ -314,9 +312,9 @@ The job updater task tries to take a `SweepJob` from `update_channel`, the unbuf
 job `Channel` of the `SweepJobQueue` object. The task is blocked until a job is
 put into the channel. Once a job arrives, provided the job has finished or has
 been aborted, the database is asynchronously updated, the job is marked as no longer
-running (by updating the running_id and last_finished_id channels), the sweep result
+running (by updating the `running_id` and `last_finished_id` channels), the sweep result
 is asynchronously saved to disk, and finally the job starter task is notified
-through the queue's trystart Condition object. The job updater task loops around
+through the queue's `trystart` `Condition` object. The job updater task loops around
 and waits for another job to arrive at its channel.
 """
 mutable struct SweepJobQueue
@@ -347,8 +345,8 @@ end
 """
     job_updater(sjq::SweepJobQueue, update_channel::Channel{SweepJob})
 Used when a sweep job finishes; archieves the result of the finished sweep job,
-updates all job and queue metadata, asynchronously updates ICDatabase, and notifies
-the job_starter task to run through sjq's trystart Condition object. This function
+updates all job and queue metadata, asynchronously updates ICDataServer, and notifies
+the job_starter task to run through `sjq`'s `trystart` `Condition` object. This function
 continuously runs continuously without stopping once called. In its current
 implementation, this function is executed through a Task when a `SweepJobQueue`
 object is initialized; this allows the function to be stopped and recontinued
@@ -391,10 +389,10 @@ end
 """
     job_starter(sjq::SweepJobQueue)
 Used when starting a new sweep job. The function first obtains the highest priority
-job in sjq; and given that a job is not running, it's status is "Waiting",
+job in `sjq`; and given that a job is not running, it's status is "Waiting",
 and if the prioritized job is runnable (the priority may be "never"), then the
 job is started. The function updates all job and queue metadata and asynchronously
-updates ICDatabase. This function continuously runs continuously without stopping
+updates ICDataServer. This function continuously runs continuously without stopping
 once called. In its current implementation, this function is executed through a
 Task when a `SweepJobQueue` object is initialized; this allows the function to
 be stopped and recontinued asynchronously as is appropriate.
@@ -515,7 +513,7 @@ jobs(job_id) = jobs()[job_id]
 
 """
     result(i::Integer)
-Returns a result array by job id scheduled in the default sweep job queue object.
+Returns a result array by job id in job scheduled in the default sweep job queue object.
 """
 result(i::Integer) = result(jobs(i))
 
@@ -537,11 +535,11 @@ end
 Abort a sweep job. Practically, the status of the job is changed to "Aborted",
 and the job is put into the update_channel of the default `SweepJobQueue` object.
 This automatically leads to: update of job metadata in the `SweepJob` object
-as well as in the ICDatabase, update of queue metadata, archieving of the job's
+as well as in the ICDataServer, update of queue metadata, archieving of the job's
 result array, and start of the highest priority job in the default sweep job queue.
 Thus, aborting a job is guaranteed to bail out of the sweep in such a way that the
 data that has been measured for most recent sourcing of a stimulus, i.e. at the very
-start of a for loop in [`InstrumentControl._sweep!`](@ref), is archieved. You can
+start of a "for loop" in [`InstrumentControl._sweep!`](@ref). You can
 also abort a sweep before it even begins.
 
 Presently this function does not interrupt `measure`, so if a single
@@ -605,8 +603,8 @@ a handle to the sweep job. This can be used to access the results while the
 sweep is being measured.
 
 This function is responsible for 1) initialzing sockets for communication with the
-ICdatabase, 2)initializing an appropriate array to hold the reults of the sweep,
-3) preparing a [`InstrumentControl.SweepJob`](@ref) object with an appropriate job_id
+ICDataServer, 2) initializing an appropriate array to hold the reults of the sweep,
+3) preparing a [`InstrumentControl.SweepJob`](@ref) object with an appropriate `job_id`
 obtained from the database, 4) adding the job to the default `SweepJobQueue` object
 (defined when the InstrumentControl module is used/imported), and 5) launching an
 asynchronous sweep job.
@@ -617,7 +615,7 @@ integer greater than or equal to zero.
 The actual sweeping, i.e., the actual `source` and `measure`
 loops to measure data are in a private function [`InstrumentControl._sweep!`](@ref).
 Note that if [`InstrumentControl._sweep!`](@ref) is not defined yet, this function will
-also define the method in order to it to be used to schedule a sweep
+also define the method in order to it to be used to schedule a sweep.
 """
 function sweep(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     priority = NORMAL, username=confd["username"],
@@ -641,7 +639,7 @@ function sweep(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     # Make a new SweepJob object and assign appropriate id and metadata
     sj = SweepJob(dep, indep; priority = priority, username = username,
         notifications = notifications)
-    job_id, jobsubmit = new_job_in_db(username=username) #get id from ICdatabase
+    job_id, jobsubmit = new_job_in_db(username=username) #get id from ICDataServer
     sj.job_id = job_id
     sj.whensub = jobsubmit
     sj.whenstart = jobsubmit

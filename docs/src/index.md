@@ -26,3 +26,50 @@ notebooks in order to showcase this package's functionality.
 ```
 # put example notebooks here
 ```
+
+New to Julia
+-----------
+This documentation seeks to provide a higher-level description of the
+architecture and control-flow of the code, with references to the source code only
+to facilitate explanation. If the user seeks to understand the source code, while
+this documentation is a useful aid, aptitude and understanding of the Julia language
+(as well as object-oriented programming in general) will be necessary to fully
+understand it's implementation in a line by line level. For those who have a background
+in programming, but not in Julia, below is a list of Julia features used in the source
+code which might not be featured in other languages, along with links to the Julia
+docs explaining them. It is our hope that, with the reading listed below and this
+documentation, that any reader with some background in programming would be able
+to satisfactorily understand the source code:
+
+###Types
+[Julia Types in general](https://docs.julialang.org/en/stable/manual/types/)
+[Parametric Types](https://docs.julialang.org/en/stable/manual/types/#Parametric-Types-1)
+[Parametric Methods](https://docs.julialang.org/en/stable/manual/methods/#Parametric-Methods-1)
+[Inner Constructors](https://docs.julialang.org/en/stable/manual/constructors/#Inner-Constructor-Methods-1)
+[Incomplete Initialization](https://docs.julialang.org/en/stable/manual/constructors/#Incomplete-Initialization-1)
+[Singleton Types](https://docs.julialang.org/en/stable/manual/types/#man-singleton-types-1)
+
+###Functions and Methods
+[Optional Arguments](https://docs.julialang.org/en/stable/manual/functions/#Optional-Arguments-1)
+[Keyword Arguments](https://docs.julialang.org/en/stable/manual/functions/#Keyword-Arguments-1)
+[Anonymous Functions](https://docs.julialang.org/en/stable/manual/functions/#man-anonymous-functions-1)
+[Vararg Functions](https://docs.julialang.org/en/stable/manual/functions/#Varargs-Functions-1)
+[Vararg Type](https://docs.julialang.org/en/stable/manual/methods/#Parametrically-constrained-Varargs-methods-1)
+
+###Macros and Metaprogramming
+[Metaprogramming in general](https://docs.julialang.org/en/stable/manual/metaprogramming/)
+[Symbols](https://docs.julialang.org/en/stable/manual/metaprogramming/#Symbols-1)
+[Macros](https://docs.julialang.org/en/stable/manual/metaprogramming/#man-macros-1)
+
+###Tasks
+[Tasks](https://docs.julialang.org/en/stable/manual/control-flow/#man-tasks-1)
+[Dynamic Scheduling of Tasks](https://docs.julialang.org/en/stable/manual/parallel-computing/#Synchronization-With-Remote-References-1)
+[Channels](https://docs.julialang.org/en/stable/stdlib/parallel/#Base.Channel)(usually used with tasks)
+[@async, @sync](https://docs.julialang.org/en/stable/stdlib/parallel/#Base.@async)
+[@schedule](https://docs.julialang.org/en/stable/stdlib/parallel/#Base.@schedule)
+
+#Miscellaneous
+[Compound Expressions](https://docs.julialang.org/en/stable/manual/control-flow/#man-compound-expressions-1)
+[Short Circuit Evaluation](https://docs.julialang.org/en/stable/manual/control-flow/#Short-Circuit-Evaluation-1)
+[Runnning C Code](https://docs.julialang.org/en/stable/manual/calling-c-and-fortran-code/)(used for Keysight Instrument modules)
+[Modules](https://docs.julialang.org/en/stable/manual/modules/)
