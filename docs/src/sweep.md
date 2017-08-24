@@ -9,7 +9,7 @@ user to conduct his measurements.
 
 Moreover, the need to automate measurements and facilitate use of the same instruments
 by multiple users warrants some sort of queueing structure for "sweeps", which is
-maintained automatically and in the background of the Julia interface that the user is
+maintained automatically in the background of the Julia interface that the user is
 using.
 
 We have achieved precisely these goals in a object-oriented way with our "Sweep"
@@ -24,8 +24,7 @@ we describe how exactly sweep and queueing functionality is implemented
 A sweep is submitted by the user via the `sweep` function:
 
 ```julia
-sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
-    priority = NORMAL)
+sweep{N}(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N}; priority = NORMAL)
 ```
 
 `sweep` measures a response as a function of an arbitrary number of stimuli,
@@ -44,7 +43,7 @@ Thus, the `priority` keyword argument may be `LOW`, `NORMAL`, or `HIGH`, or any
 integer greater than or equal to zero.
 
 The `sweep` functions assumes that appropriate `measure` methods have been written
-for the dep object passed, and that appropriate `source` methods have been written
+for the `dep` object passed, and that appropriate `source` methods have been written
 for all `Stimulus` objects in the passed `indep` argument. Thus, to use the function
 the user must have defined `Response` and `Stimulus` subtypes, as well as `source`
 and `measure` functions for those types.
@@ -56,7 +55,7 @@ For example, ... put example here with definition of `Stimulus`, `source`, `resp
 
 InstrumentControl employs a queueing structure for job handling through manipulation
 of `SweepJob` objects, which are instantiated when the `sweep` function is used.
-The actual "queue" is a `SweepJobQueue` object, described more in detail in [Implementation](https://painterqubits.github.io/InstrumentControl.jl/implementation/)
+The actual "queue" is a `SweepJobQueue` object, described more in detail in [Implementation](https://painterqubits.github.io/InstrumentControl.jl/implementation/).
 When the InstrumentControl package is imported by the user, a 'SweepJobQueue' object,
 as well as communication with the database set up by [ICDataServer.jl](https://github.com/PainterQubits/ICDataServer.jl),
 is automatically initialized; in the documentation this object is referred to as the
@@ -69,7 +68,7 @@ job ID as it's identifier. In essence, a `SweepJobQueue` object can be thought o
 as a *collection* (in the Julia sense) of `SweepJob` objects, indexed by their job ID,
 along with other fields and helper functions for automatic scheduling of jobs in
 the background. The queue prioritizes jobs based on their priorities; for equal
-priority values, the job submitted earlier takes precedent
+priority values, the job submitted earlier takes precedent.
 
 ## Interacting with a sweep job
 

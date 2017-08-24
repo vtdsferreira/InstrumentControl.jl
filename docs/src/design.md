@@ -41,12 +41,12 @@ the super types described in the rest of this documentation.
 
 Notably, this package implements queueing structure for measurement "jobs" , which
 affords automation of measurements and facilitates use of the same instruments
-by multiple users warrants. The queue schedules jobs automatically and in the
+by multiple users. The queue schedules jobs automatically in the
 background of the Julia interface that the user is using. We call these jobs
 "sweep jobs", in accordance with what one usually thinking of measurement:
 measuring some dependent variable with respect to some independent variable that
 is swept across a range of values. When the user executes the `sweep` function,
-job objects are automatically generated, passed to the queue, and schedules jobs
+job objects are automatically generated, passed to the queue, and scheduled
 according to their priority without any additional input from the user.
 
 Finally, InstrumentControl.jl communicates with a relational database server, set

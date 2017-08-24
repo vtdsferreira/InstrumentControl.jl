@@ -38,15 +38,15 @@ Here is an example of a valid JSON file with valid schema for parsing:
 }
 ```
 
-After loading with `JSON.parse`, all dictionary keys are converted to symbols.
-The `instrument` dictionary is described in the [`@generate_instruments`](@ref)
+`JSON.parse` takes such a file and makes an 'instrument' dictionary and a 'properties'
+array. The `instrument` dictionary is described in the [`@generate_instruments`](@ref)
 documentation. The `properties` array contains one or more dictionaries, each
 with keys:
 
 - `cmd`: Specifies what must be sent to the instrument (it should be terminated
 with "?" for query-only commands). The lower-case characters are replaced by
 "infixes", which are either numerical arguments or strings
-- `type`: Specifies the `InstrumentProperty` subtype to use this command.
+- `type`: Specifies the `InstrumentProperty` subtype to use `cmd`.
 - `values`: Specifies the required argument for `setindex!`, which will appear
 after `cmd` in the string sent to the instrument.
 - `infixes`: Specifies the infix arguments to be put in `cmd`. This key is not
@@ -57,6 +57,7 @@ interactive help but also in generating the documentation you are reading.
 
 The value of the `properties.type` field and entries in the `properties.values`
 and `properties.infixes` arrays are parsed into expressions or symbols
+for further manipulation. All generated dictionary keys are also converted to symbols
 for further manipulation.
 """
 function insjson(file::AbstractString)
@@ -210,7 +211,7 @@ a call to [`insjson`](@ref). It operates on the `:properties` field of
 the dictionary, which is expected to be a list of dictionaries with information
 on each "property" of the instrument. This macro specifically operates on the
 `:type` field of each property dictionary; this field contains the name of the
-type we would like to assign to a given property of the instrument
+type we would like to assign to a given property of the instrument.
 
 For every property dictionary, the macro first checks if a type with name corresponding
 to the dictionary's `:type` field  has already been defined. If not, it then
@@ -287,7 +288,7 @@ are going to be interpreted as symbols (e.g. `:LogMagnitude`) and the values
 are just ASCII strings to be sent to the instrument. We want to associate these
 symbols with the specific ASCII strings because these strings are not very
 descriptive, so we would like a more descriptive handle for them, as well as a
-handle that could be potentially shared between different instruments with have
+handle that could be potentially shared between different instruments which have
 different "spellings" for the same command. We make the handles symbols because
 they are a more flexible type (which can always be parsed into strings)
 
@@ -422,7 +423,7 @@ specified by the user.
 
 The method constructs a query command to send to the instrument regarding the
 specific instrument property the dictionary `p` corresponds to. It then sends the
-command to the instrument with the `ask` method (NOTE: currently only defined in the
+command to the instrument with the `ask` method (NOTE: currently defined in the
 VISA module for VISA instruments). The `ask` method returns the value or state
 of the instrument property being queried.
 

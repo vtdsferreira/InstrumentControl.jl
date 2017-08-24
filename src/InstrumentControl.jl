@@ -15,8 +15,8 @@ include("Definitions.jl")
 # Define anything needed for a VISA instrument
 include("VISA.jl")
 
-# Parsing JSON files for easy instrument onboarding
-include("Metaprogramming.jl")
+# Parsing JSON files for easy VISA instrument onboarding
+include("MetaprogrammingVISA.jl")
 
 # Sweep and queueing functionality
 include("Sweep.jl")
@@ -40,9 +40,9 @@ include(joinpath(dirname(@__FILE__), "instruments", "VNAs", "E5071C.jl"))
 # include(joinpath("instruments","VNAs","ZNB20.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "SMB100A.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "E8257D.jl"))
-include(joinpath(dirname(@__FILE__), "instruments", "AWG5014C.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "AWGs", "AWG5014C.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "GS200.jl"))
-include(joinpath(dirname(@__FILE__), "instruments", "Alazar", "Alazar.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "Digitizers", "Alazar", "Alazar.jl"))
 
 # Not required but you can uncomment this to look for conflicting function
 # definitions that should be declared global and exported in InstrumentDefs.jl:
@@ -61,12 +61,12 @@ importall .SMB100A
 # thereby extending their scope beyond the function # through these pointers
 
 # ZeroMQ is used for communication between the Julia enviroment being used for measurement
-# and the ICDatabase. See ZeroMQ documentation for further details
+# and the ICDataServer. See ZeroMQ documentation for further details
 
 const global ctx = Ref{ZMQ.Context}()
 const global plotsock = Ref{ZMQ.Socket}()
-const global dbsock = Ref{ZMQ.Socket}() #socket used to communicate to ICDatabase
-const global qsock = Ref{ZMQ.Socket}() #dedicated socket used update job in ICDatabase
+const global dbsock = Ref{ZMQ.Socket}() #socket used to communicate to ICDataServer
+const global qsock = Ref{ZMQ.Socket}() #dedicated socket used update job in ICDataServer
 const global resourcemanager = Ref{UInt32}() #VISA instruments resource manager
 const global sweepjobqueue = Ref{SweepJobQueue}() #default jobs queue
 
@@ -76,7 +76,7 @@ const global qsockopened = Ref{Bool}(false)
 
 """
     dbsocket()
-Opens dbsock, the socket used to connect to the ICDatabase
+Opens dbsock, the socket used to connect to the ICDataServer
 """
 function dbsocket()
     if !dbsockopened[]
@@ -91,7 +91,7 @@ end
 
 """
     qsocket()
-Opens qsock, the socket used to connect to the ICDataserver
+Opens qsock, the socket used to connect to the ICDataServer
 """
 function qsocket()
     if !qsockopened[]
@@ -113,11 +113,11 @@ function plotsocket()
     return plotsock[]
 end
 
-# Run at compile time. Initializes the ZMQ context for communication with ICDatabase,
+# Run at compile time. Initializes the ZMQ context for communication with ICDataServer,
 # initializes a default SweepJobQueue object used for jobs queuing, and initializes
 # a VISA instruments resource manager
 function __init__()
-    # ZeroMQ context for communication with ICDatabase
+    # ZeroMQ context for communication with ICDataServer
     ctx[] = ZMQ.Context()
 
     # VISA resource manager

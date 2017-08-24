@@ -11,12 +11,6 @@ All instruments are Julia objects, subtypes of the abstract type `Instrument`.
 The implementation of each subtype (it's fields, constructors, etc) depend
 on the specific instrument.
 
-
-### Instrument types
-
-Many instruments share the same communications protocols. We subtype `Instrument`
-based on these protocols.
-
 #### VISA
 
 Many instruments are able to be addressed using the
@@ -61,16 +55,16 @@ Two functions are provided to abstract away many kinds of measurements: `source`
 and `measure`. In an experiment you source  some stimulus and measure a response.
 Therefore `source` takes as arguments: an instance of some subtype of the
 `Stimulus` type (which can have different fields for different subtypes), as well as
-the numerical value for the particular stimulus. `measure` takes as
+the numerical value(s) for the particular stimulus. `measure` takes as
 argument an instance of some subtype of type `Response`. The idea is to write
 new subtypes of `Stimulus` and `Response` to describe what you are doing, as well
 as new methods for `source` and `measure` that know how to communicate with the
-instrument based on the Stimuli and Response arguments passed to them
+instrument(s) based on the Stimuli and Response arguments passed to them
 
 ### Stimuli
 
 All stimuli are objects, subtyped from the abstract `Stimulus` type.
-Many stimuli, associated with the capabilities of particular instruments,
+Many stimuli, either general or associated with the capabilities of particular instruments,
 are already implemented. The implementation of each subtype depends on the specific
 goals of the user: demonstrations of different stimuli being used can be found in
 the example notebooks.
@@ -125,10 +119,6 @@ end
 ```
 Easy right?
 
-Again, stimuli need not be tied to a particular property. Rather, this is just one
-convenient and easily generalized example. In more complicated instances it is
-probably better to make a new `Stimulus` subtype rather than use `PropertyStimulus`.
-
 Note that one may assign whatever fields and constructor one wishes for a newly
 created `Stimulus` subtype. Also, note that not all stimuli need to be associated
 with a physical instrument. For instance, sourcing a `DelayStimulus` will cause
@@ -159,8 +149,8 @@ and an instrument property is not obvious. While in many cases there is an overl
 between stimuli and properties, a stimulus is like a generalized
 instrument property: sourcing a stimulus may entail configuring zero or more
 instrument properties, on zero or more different instruments. As was mentioned
-earlier, a useful stimulus to change gate voltages on multiple different instruments
-all at once.
+earlier, a useful stimulus could be to change gate voltages on multiple different
+instruments all at once.
 
 It is useful to think of a stimulus as something which has a chance to react to
 what you are measuring. For example, this could be applied voltage, sourced by
