@@ -47,75 +47,75 @@ C functions that control the AWG directly.
 function symbol_to_keysight(sym::Symbol)
     #AWG trigger settings
     if sym == :Auto
-      return KSI.AUTOTRIG
+        return KSI.AUTOTRIG
     elseif sym == :Software_HVI
-      return KSI.SWHVITRIG
+        return KSI.SWHVITRIG
     elseif sym == :SF_HVIPerCycle
-      return KSI.SWHVITRIG_CYCLE
+        return KSI.SWHVITRIG_CYCLE
     elseif sym == :External
-      return KSI.EXTTRIG
+        return KSI.EXTTRIG
     elseif sym == :ExternalPerCycle
-      return KSI.EXTTRIG_CYCLE
+        return KSI.EXTTRIG_CYCLE
     #AWG trigger behavior
     elseif sym == :High
-      return KSI.TRIG_HIGH
+        return KSI.TRIG_HIGH
     elseif sym == :Low
-      return KSI.TRIG_LOW
+        return KSI.TRIG_LOW
     elseif sym == :Rising
-      return KSI.TRIG_RISE
+        return KSI.TRIG_RISE
     elseif sym == :Falling
-      return KSI.TRIG_FALL
+        return KSI.TRIG_FALL
     #AWG trigger source
     elseif sym ==  :TRGPort
-      return KSI.TRIG_EXTERNAL
+        return KSI.TRIG_EXTERNAL
     #module clock mode
     elseif sym == :LowJitter
-      return KSI.CLK_LOW_JITTER
+        return KSI.CLK_LOW_JITTER
     elseif sym == :FastTune
-      return KSI.CLK_FAST_TUNE
+        return KSI.CLK_FAST_TUNE
     #output waveform
     elseif sym == :NoSignal
-      return KSI.AOU_HIZ
+        return KSI.AOU_HIZ
     elseif sym == :Off
-      return KSI.AOU_OFF
+        return KSI.AOU_OFF
     elseif sym == :Sinusoidal
-      return KSI.AOU_SINUSOIDAL
+        return KSI.AOU_SINUSOIDAL
     elseif sym == :Triangular
-      return KSI.AOU_TRIANGULAR
+        return KSI.AOU_TRIANGULAR
     elseif sym == :Square
-      return KSI.AOU_SQUARE
+        return KSI.AOU_SQUARE
     elseif sym == :DC
-      return KSI.AOU_DC
+        return KSI.AOU_DC
     elseif sym == :Arbitrary
-      return KSI.AOU_AWG
+        return KSI.AOU_AWG
     elseif sym == :Differential
-      return KSI.AOU_PARTNER
+        return KSI.AOU_PARTNER
     #waveform input type
     elseif sym == :Analog16
-      return KSI.WAVE_ANALOG_16
+        return KSI.WAVE_ANALOG_16
     elseif sym == :Analog32
-      return KSI.WAVE_ANALOG_32
+        return KSI.WAVE_ANALOG_32
     elseif sym == :DualAnalog16
-      return KSI.WAVE_ANALOG_16_DUAL
+        return KSI.WAVE_ANALOG_16_DUAL
     elseif sym == :DualAnalog32
-      return KSI.WAVE_ANALOG_32_DUAL
+        return KSI.WAVE_ANALOG_32_DUAL
     elseif sym == :IQ
-      return KSI.WAVE_IQ
+        return KSI.WAVE_IQ
     elseif sym == :ModPhase
-      return KSI.WAVE_IQPOLAR
+        return KSI.WAVE_IQPOLAR
     elseif sym == :Digital
-      return KSI.WAVE_DIGITAL
+        return KSI.WAVE_DIGITAL
     #AWG queue repition mode
     elseif sym == :OneShot
-      return Cint(0)
+        return Cint(0)
     elseif sym == :Cyclic
-      return Cint(1)
+        return Cint(1)
     #AWG queue sync mode
     elseif sym == :CLKSys
-      return Cint(0)
+        return Cint(0)
     elseif sym == :CLKPXI
-      return Cint(1)
+        return Cint(1)
     else
-      error("Symbol input not acceptable")
+        error("Symbol input not acceptable")
     end
 end

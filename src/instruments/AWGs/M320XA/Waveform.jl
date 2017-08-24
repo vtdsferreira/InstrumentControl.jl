@@ -18,9 +18,9 @@ export waveforms_flush
 """
 '''
 mutable struct Waveform
-  waveformValues::Array{Float64}
-  name::String
-  ch_properties::Dict{Int, Dict{Any, Any}}
+    waveformValues::Array{Float64}
+    name::String
+    ch_properties::Dict{Int, Dict{Any, Any}}
 end
 '''
 
@@ -48,19 +48,20 @@ for each channel. It knows how many channels there will be from the module globa
 constant `CHANNELS` defined in the InsAWGM320XA constructor.
 """
 mutable struct Waveform
-  waveformValues::Array{Float64}
-  name::String
-  ch_properties::Dict{Int, Dict{Any, Any}}
-  #the methods that change this ch_properties[int] will only allow WaveChProperty keys
-  Waveform(waveformValues::Array{Float64}, name::String) = begin
-    wav = new()
-    wav.name = name
-    wav.waveformValues = waveformValues
-    ch_properties = Dict{Int, Dict{Any, Any}}()
-    for i = 1:CHANNELS
-        ch_properties[ch] = Dict{Any, Any}()
-    return wav
-  end
+    waveformValues::Array{Float64}
+    name::String
+    ch_properties::Dict{Int, Dict{Any, Any}}
+    #the methods that change this ch_properties[int] will only allow WaveChProperty keys
+    Waveform(waveformValues::Array{Float64}, name::String) = begin
+        wav = new()
+        wav.name = name
+        wav.waveformValues = waveformValues
+        wav.ch_properties = Dict{Int, Dict{Any, Any}}()
+        for i = 1:CHANNELS
+            wav.ch_properties[ch] = Dict{Any, Any}()
+        end
+        return wav
+    end
 end
 
 abstract type WaveChProperty end
@@ -97,9 +98,9 @@ function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::In
     temp_id = SD_Wave_newFromArrayDouble(symbol_to_Keysight(waveform_type), length,
       waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
     if haskey(ins.waveforms, id)
-      SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
+        SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
     else
-      SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
+        SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
     end
     new_waveform = Waveform(waveformValues, name)
     ins.waveforms[id] = new_waveform
@@ -110,9 +111,9 @@ function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
     temp_id = SD_Wave_newFromFile(waveformFile)
     if haskey(ins.waveforms, id)
-      SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
+        SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
     else
-      SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
+        SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
     end
     #read csv file and extract waveformValues; NEEDS WORK
     temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
@@ -151,6 +152,7 @@ function queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer,
     waveform.ch_properties[ch][WavPrescaler] = prescaler
     next_queue_position = sort(collect(keys(ins.channels[Queue])))[end] + 1
     ins.channels[ch][Queue][next_queue_position] = id
+    nothing
 end
 
 function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
@@ -158,13 +160,14 @@ function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
                         delay::Integer = 0, prescaler::Integer = 0)
     #finding the id of the waveform object with which the waveform was loaded to RAM
     for key in keys(ins.waveforms)
-      if ins.waveforms[key] == wav
-        id = key
-        break
-      end
+        if ins.waveforms[key] == wav
+            id = key
+            break
+        end
     end
     queue_waveform(ins, id, ch, trigger_mode; repetitions = repititions,
-                            delay = delay, prescaler = prescaler )
+                    delay = delay, prescaler = prescaler)
+    nothing
 end
 
 """
@@ -193,8 +196,9 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Wa
                         trigger_mode::Symbol = :Software_HVI)
     queue_waveform(ins, wavsForQueue[1], ch::Integer, trigger_mode)
     for i=2::size(wavsForQueue)[1]
-      queue_waveform(ins, wavsForQueue[i], ch::Integer, :Auto)
+        queue_waveform(ins, wavsForQueue[i], ch::Integer, :Auto)
     end
+    nothing
 end
 
 function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{Waveform},
@@ -202,6 +206,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{Wa
     wavsForQueue = collect(wavsForQueue) #turn tuple of waveforms into vector of waveforms
     #calling upon wavsForQueue::Vector{Waveform} method
     queue_sequence(ins, ch, wavsForQueue, trigger_mode)
+    nothing
 end
 
 function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Integer},
@@ -209,6 +214,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{In
     wavsForQueue = map(x-->ins.waveforms[x], wavsForQueue)
     #calling upon wavsForQueue::Vector{Waveform} method
     queue_sequence(ins, ch, wavsForQueue, trigger_mode)
+    nothing
 end
 
 function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{Integer},
@@ -216,6 +222,8 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{In
     wavsForQueue = collect(wavsForQueue) #turn tuple of integers into vector of integers
     #calling upon wavsForQueue::Vector{Integer} method
     queue_sequence(ins, ch, wavsForQueue, trigger_mode)
+    nothing
+end
 
 """
     queue_flush(ins::InsAWGM320XA, ch::Integer)
@@ -229,8 +237,9 @@ function queue_flush(ins::InsAWGM320XA, ch::Integer)
     SD_AOU_AWGflush(ins.index, ch)
     ins.channels[ch][Queue] = Dict{Int, Int}()
     for waveform in ins.waveforms
-      ch_properties[ch] = Dict{Any, Any}()
+        ch_properties[ch] = Dict{Any, Any}()
     end
+    nothing
 end
 
 """
@@ -247,6 +256,7 @@ function waveforms_flush(ins::InsAWGM320XA)
     SD_AOU_waveformFlush(ins.index)
     ins.waveforms = Dict{Int, Waveform}()
     for ch in keys(ins.channels)
-      ins.channels[ch][Queue] = Dict{Int,Int}()
+        ins.channels[ch][Queue] = Dict{Int,Int}()
     end
+    nothing
 end

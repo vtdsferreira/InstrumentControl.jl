@@ -288,9 +288,9 @@ end
 A queue responsible for prioritizing sweeps and executing them accordingly. The
 queue holds `SweepJob` objects, and "indexes" them by their `job_id`. It prioritizes
 jobs based on their priorities; for equal priority values, the job submitted earlier
-takes precedent. The queue keeps track of which job is running (if any) by it's
+takes precedent. The queue keeps track of which job is running (if any) by its
 `running_id` `Channel`. The queue keeps track of the last finished job by the
-`last_finished_id channel`, for easy access to the data of the last finished job.
+`last_finished_id` channel, for easy access to the data of the last finished job.
 Other fields are used for intertask communication. Note that a `running_id of` -1
 signifies that no job is running.
 
@@ -535,7 +535,7 @@ end
 Abort a sweep job. Practically, the status of the job is changed to "Aborted",
 and the job is put into the update_channel of the default `SweepJobQueue` object.
 This automatically leads to: update of job metadata in the `SweepJob` object
-as well as in the ICDataServer, update of queue metadata, archieving of the job's
+as well as in the ICDataServer, update of queue metadata, archiving of the job's
 result array, and start of the highest priority job in the default sweep job queue.
 Thus, aborting a job is guaranteed to bail out of the sweep in such a way that the
 data that has been measured for most recent sourcing of a stimulus, i.e. at the very

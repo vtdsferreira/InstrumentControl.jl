@@ -1,6 +1,6 @@
 export set_user, get_user
 
-# Parses JSON config.json file which has username information, ICDataserver address,
+# Parses JSON config.json file which has username information, ICDataServer address,
 # and a path for saving data. This script checks if config.json file has all necessary
 # information, and loads this information into the dictionary confd. If some
 # information is missing, an error is thrown

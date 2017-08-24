@@ -19,13 +19,13 @@ export InsDigitizerM3102A
 """
 ```
 mutable struct InsDigitizerM3102A
-  serial_num::String
-  product_name::String
-  index::Int
-  chassis_num::Int
-  slot_num::Int
-  channels::Dict{Int,Dict{Any,Any}}
-  clock_mode::Symbol
+    serial_num::String
+    product_name::String
+    index::Int
+    chassis_num::Int
+    slot_num::Int
+    channels::Dict{Int,Dict{Any,Any}}
+    clock_mode::Symbol
 end
 ```
 Object representing an DigitizerM3102A instrument. It holds, as fields, instrument
@@ -54,44 +54,44 @@ channels properties to some standard values and records them in the `channels`
 dictionary through the `configure_channels!` function
 """
 mutable struct InsDigitizerM3102A
-  serial_num::String
-  product_name::String
-  index::Int
-  chassis_num::Int
-  slot_num::Int
-  channels::Dict{Int,Dict{Any,Any}}
-  clock_mode::Symbol
+    serial_num::String
+    product_name::String
+    index::Int
+    chassis_num::Int
+    slot_num::Int
+    channels::Dict{Int,Dict{Any,Any}}
+    clock_mode::Symbol
 
-  InsDigitizerM3102A(serial::AbstractString) = begin
-    ins = new()
-    ins.serial_num = serial
-    ins.product_name = "M3102A"
-    #below we simultaneously "open" the device and get its index
-    ins.index = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
-    ins.chassis_num  = SD_Module_getChassis(ins.index)
-    ins.slot_num = SD_Module_getSlot(ins.index)
-    ins.clock_mode = :LowJitter
-    SD_AIN_clockSetFrequency(ins.index, SD_AIN_clockGetFrequency(ins.index),
-                            symbol_to_keysight(ins.clock_mode))
-    ins.channels = Dict{Int, Dict{Any, Any}}()
-    configure_channels!(ins)
-    return ins
-  end
+    InsDigitizerM3102A(serial::AbstractString) = begin
+        ins = new()
+        ins.serial_num = serial
+        ins.product_name = "M3102A"
+        #below we simultaneously "open" the device and get its index
+        ins.index = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
+        ins.chassis_num  = SD_Module_getChassis(ins.index)
+        ins.slot_num = SD_Module_getSlot(ins.index)
+        ins.clock_mode = :LowJitter
+        SD_AIN_clockSetFrequency(ins.index, SD_AIN_clockGetFrequency(ins.index),
+                                symbol_to_keysight(ins.clock_mode))
+        ins.channels = Dict{Int, Dict{Any, Any}}()
+        configure_channels!(ins)
+        return ins
+    end
 
-  InsDigitizerM3102A(chassis::Integer,slot::Integer) = begin
-    ins = new()
-    ins.chassis_num = chassis
-    ins.slot_num = slot
-    ins.index = SD_Module_openWithSlot(ins.product_name, ins.chassis_num,ins.slot_num)
-    ins.product_name = SD_Module_getProductNameByIndex(ins.index)
-    ins.serial_num = SD_Module_getSerialNumberByIndex(ins.index)
-    ins.clock_mode = :LowJitter
-    SD_AIN_clockSetFrequency(ins.index, SD_AIN_clockGetFrequency(ins.index),
-                            symbol_to_keysight(ins.clock_mode))
-    ins.channels = Dict{Int, Dict{Any, Any}}()
-    configure_channels!(ins)
-    return ins
-  end
+    InsDigitizerM3102A(chassis::Integer,slot::Integer) = begin
+        ins = new()
+        ins.chassis_num = chassis
+        ins.slot_num = slot
+        ins.index = SD_Module_openWithSlot(ins.product_name, ins.chassis_num,ins.slot_num)
+        ins.product_name = SD_Module_getProductNameByIndex(ins.index)
+        ins.serial_num = SD_Module_getSerialNumberByIndex(ins.index)
+        ins.clock_mode = :LowJitter
+        SD_AIN_clockSetFrequency(ins.index, SD_AIN_clockGetFrequency(ins.index),
+                                symbol_to_keysight(ins.clock_mode))
+        ins.channels = Dict{Int, Dict{Any, Any}}()
+        configure_channels!(ins)
+        return ins
+    end
 end
 
 include("Properties.jl")
@@ -113,13 +113,13 @@ function chs_to_mask(chs...)
     length = size(chs_vec)[1]
     mask = "0b01"
     for i=0:(length-2)
-      zeros_num = chs_vec[length-i]-chs_vec[length-i-1]-1
-      if zeros_num>0
-        zeros = repeat("0",zeros_num)
-        mask = mask*zeros*"1"
-      else
-        mask = mask*"1"
-      end
+        zeros_num = chs_vec[length-i]-chs_vec[length-i-1]-1
+        if zeros_num>0
+            zeros = repeat("0",zeros_num)
+            mask = mask*zeros*"1"
+        else
+            mask = mask*"1"
+        end
     end
     mask = mask*repeat("0",chs_vec[1]-1)
     mask = Int(parse(mask))

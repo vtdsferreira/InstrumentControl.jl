@@ -52,44 +52,44 @@ C functions that control the digitizer directly.
 function symbol_to_keysight(sym::Symbol)
     #digitizer input mode
     if sym == :DC
-      return KSI.AIN_COUPLING_DC
+        return KSI.AIN_COUPLING_DC
     elseif sym == :AC
-      return KSI.AIN_COUPLING_AC
+        return KSI.AIN_COUPLING_AC
     #generated analog trigger configuration
     elseif sym == :RisingAnalog
-      return KSI.AIN_RISING_EDGE
+        return KSI.AIN_RISING_EDGE
     elseif sym == :FallingAnalog
-      reurn KSI.AIN_FALLING_EDGE
+        return KSI.AIN_FALLING_EDGE
     elseif sym == :BothAnalog
-      return KSI.AIN_BOTH_EDGES
+        return KSI.AIN_BOTH_EDGES
     #daq cycle trigger configuration
     elseif sym == :Immediate
-      return KSI.AUTOTRIG
+        return KSI.AUTOTRIG
     elseif sym == :Software_HVI
-      return KSI.SWHVITRIG
+        return KSI.SWHVITRIG
     elseif sym == :Digital
-      retun KSI.HWDIGTRIG
+        return KSI.HWDIGTRIG
     elseif sym == :Analog
-      return KSI.HWANATRIG
+        return KSI.HWANATRIG
     #digital trigger source
     elseif sym == :TRGPort
-      return KSI.TRIG_EXTERNAL
+        return KSI.TRIG_EXTERNAL
     elseif sym == :PXI
-      return KSI.TRIG_PXI
+        return KSI.TRIG_PXI
     #digital trigger behavior
     elseif sym == :High
-      return KSI.TRIG_HIGH
+        return KSI.TRIG_HIGH
     elseif sym == :Low
-      return KSI.TRIG_LOW
+        return KSI.TRIG_LOW
     elseif sym == :Rising
-      return KSI.TRIG_RISE
+        return KSI.TRIG_RISE
     elseif sym == :Falling
-      return KSI.TRIG_FALL
+        return KSI.TRIG_FALL
     #module clock mode
     elseif sym == :LowJitter
-      return KSI.CLK_LOW_JITTER
+        return KSI.CLK_LOW_JITTER
     elseif sym == :FastTune
-      return KSI.CLK_FAST_TUNE
+        return KSI.CLK_FAST_TUNE
     else
-      error("Symbol input not acceptable")
+        error("Symbol input not acceptable")
 end
