@@ -15,7 +15,7 @@ function getindex(ins::InsAWGM320XA,
     if T == ClockMode
         return ins.clock_mode
     elseif T == ClockFrequency
-        return SD_AIN_clockGetFrequency(ins.index)
+        return @error_handler SD_AIN_clockGetFrequency(ins.index)
     else
         channels_list=[]
         for ch in keys(ins.channels)

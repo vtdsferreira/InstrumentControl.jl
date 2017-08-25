@@ -22,18 +22,19 @@ function configure_channels!(ins::InsDigitizerM3102A, num_of_channels::Integer =
         #using the overloaded setindex! methods, because some of these functions
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
-        SD_AIN_channelInputConfig(ins.index, ch, 0.1, symbol_to_keysight(:AC))
+        @error_handler SD_AIN_channelInputConfig(ins.index, ch, 0.1, symbol_to_keysight(:AC))
         ins.channels[ch][ChannelInputMode] = :AC
         ins.channels[ch][ChannelScale] = 0.1
-        D_AIN_channelTriggerConfig(ins.index, ch, symbol_to_keysight(:RisingAnalog), 2)
+        @error_handler SD_AIN_channelTriggerConfig(ins.index, ch,
+                                            symbol_to_keysight(:RisingAnalog), 2)
         ins.channels[ch][ChAnalogTrigBehavior] = :RisingAnalog
         ins.channels[ch][ChAnalogTrigThreshold] = 2
-        SD_AIN_DAQconfig(ins.index, ch, 1000, 0, 0, symbol_to_keysight(:Digital))
+        @error_handler SD_AIN_DAQconfig(ins.index, ch, 1000, 0, 0, symbol_to_keysight(:Digital))
         ins.channels[ch][DAQTrigMode] = :Digital
         ins.channels[ch][DAQCycles] = 0
         ins.channels[ch][DAQTrigDelay] = 0
         ins.channels[ch][DAQPointsPerCycle] = 1000
-        SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(:PXI),
+        @error_handler SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(:PXI),
                                      0, symbol_to_keysight(:Rising))
         ins.channels[ch][DAQTrigSource] = :PXI
         ins.channels[ch][DAQTrigMode] = :Rising
@@ -48,7 +49,8 @@ end
 function setindex!(ins::InsDigitizerM3102A, fullscale::Float64,
                   ::Type{ChannelScale}, ch::Integer)
     mode = ins.channels[ch][ChannelInputMode]
-    SD_AIN_channelInputConfig(ins.index, ch, fullscale, symbol_to_keysight(mode))
+    @error_handler SD_AIN_channelInputConfig(ins.index, ch, fullscale,
+                                             symbol_to_keysight(mode))
     ins.channels[ch][ChannelScale] = fullscale
     nothing
 end
@@ -56,14 +58,15 @@ end
 function setindex!(ins::InsDigitizerM3102A, mode::Symbol,
                   ::Type{ChannelInputMode}, ch::Integer)
     fullscale = ins.channels[ch][ChannelScale]
-    SD_AIN_channelInputConfig(ins.index, ch, fullscale, symbol_to_keysight(mode))
+    @error_handler SD_AIN_channelInputConfig(ins.index, ch, fullscale,
+                                             symbol_to_keysight(mode))
     ins.channels[ch][ChannelInputMode] = mode
     nothing
 end
 
 function setindex!(ins::InsDigitizerM3102A, prescaler::Integer,
                   ::Type{ChannelPrescaler}, ch::Integer)
-    SD_AIN_channelPrescalerConfig(ins.index, ch, prescaler)
+    @error_handler SD_AIN_channelPrescalerConfig(ins.index, ch, prescaler)
     ins.channels[ch][ChannelPrescaler] = prescaler
     nothing
 end
@@ -71,7 +74,8 @@ end
 function setindex!(ins::InsDigitizerM3102A, trig_mode::Symbol,
                   ::Type{ChAnalogTrigBehavior}, ch::Integer)
     threshold = ins.channels[ch][ChAnalogTrigThreshold]
-    SD_AIN_channelTriggerConfig(ins.index, ch, symbol_to_keysight(trig_mode), threshold)
+    @error_handler SD_AIN_channelTriggerConfig(ins.index, ch,
+                                        symbol_to_keysight(trig_mode), threshold)
     ins.channels[ch][ChAnalogTrigBehavior] = trig_mode
     nothing
 end
@@ -79,7 +83,8 @@ end
 function setindex!(ins::InsDigitizerM3102A, threshold::Float64,
                   ::Type{ChAnalogTrigThreshold}, ch::Integer)
     trig_mode = ins.channels[ch][ChAnalogTrigBehavior]
-    SD_AIN_channelTriggerConfig(ins.index, ch, symbol_to_keysight(trig_mode), threshold)
+    @error_handler SD_AIN_channelTriggerConfig(ins.index, ch,
+                                        symbol_to_keysight(trig_mode), threshold)
     ins.channels[ch][ChAnalogTrigThreshold] = threshold
     nothing
 end
@@ -89,8 +94,8 @@ function setindex!(ins::InsDigitizerM3102A, daq_mode::Symbol,
     daq_delay = ins.channels[ch][DAQTrigDelay]
     daq_points = ins.channels[ch][DAQPointsPerCycle]
     daq_cycles = ins.channels[ch][DAQCycles]
-    SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
-                    symbol_to_keysight(daq_mode))
+    @error_handler SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
+                                    symbol_to_keysight(daq_mode))
     ins.channels[ch][DAQTrigMode] = daq_mode
     nothing
 end
@@ -100,8 +105,8 @@ function setindex!(ins::InsDigitizerM3102A, daq_delay::Integer,
     daq_mode = ins.channels[ch][DAQTrigMode]
     daq_points = ins.channels[ch][DAQPointsPerCycle]
     daq_cycles = ins.channels[ch][DAQCycles]
-    SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
-                    symbol_to_keysight(daq_mode))
+    @error_handler SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
+                                    symbol_to_keysight(daq_mode))
     ins.channels[ch][DAQTrigDelay] = daq_delay
     nothing
 end
@@ -111,8 +116,8 @@ function setindex!(ins::InsDigitizerM3102A, daq_points::Integer,
     daq_mode = ins.channels[ch][DAQTrigMode]
     daq_delay = ins.channels[ch][DAQTrigDelay]
     daq_cycles = ins.channels[ch][DAQCycles]
-    SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
-                    symbol_to_keysight(daq_mode))
+    @error_handler SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
+                                    symbol_to_keysight(daq_mode))
     ins.channels[ch][DAQPointsPerCycle] = daq_points
     nothing
 end
@@ -122,8 +127,8 @@ function setindex!(ins::InsDigitizerM3102A, daq_cycles::Integer,
     daq_mode = ins.channels[ch][DAQTrigMode]
     daq_delay = ins.channels[ch][DAQTrigDelay]
     daq_points = ins.channels[ch][DAQPointsPerCycle]
-    SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
-                    symbol_to_keysight(daq_mode))
+    @error_handler SD_AIN_DAQconfig(ins.index, ch, daq_points, daq_cycles, daq_delay,
+                                    symbol_to_keysight(daq_mode))
     ins.channels[ch][DAQCycles] = daq_cycles
     nothing
 end
@@ -133,10 +138,10 @@ function setindex!(ins::InsDigitizerM3102A, source::Symbol,
     number = ins.channels[ch][DAQTrigPXINumber]
     behavior = ins.channels[ch][DAQTrigBehavior]
     if source == :TRGPort
-      SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
+      @error_handler SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
                                    KSI.TRIG_EXTERNAL, symbol_to_keysight(behavior))
     elseif source == :PXI
-      SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
+      @error_handler SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
                                    number, symbol_to_keysight(behavior))
     ins.channels[ch][DAQTrigSource] = source
     nothing
@@ -146,7 +151,7 @@ function setindex!(ins::InsDigitizerM3102A, number::Integer,
                   ::Type{DAQTrigPXINumber}, ch::Integer)
     source = ins.channels[ch][DAQTrigSource]
     behavior = ins.channels[ch][DAQTrigBehavior]
-    SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
+    @error_handler SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
                                    number, symbol_to_keysight(behavior))
     ins.channels[ch][DAQTrigPXINumber] = number
     nothing
@@ -156,7 +161,7 @@ function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
                   ::Type{DAQTrigBehavior}, ch::Integer)
     source= ins.channels[ch][DAQTrigSource]
     number = ins.channels[ch][DAQTrigPXINumber]
-    SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
+    @error_handler SD_AIN_DAQdigitalTriggerConfig(ins.index, ch, symbol_to_keysight(source),
                                    number, symbol_to_keysight(behavior))
     ins.channels[ch][DAQTrigBehavior] = behavior
     nothing
@@ -164,7 +169,7 @@ end
 
 function setindex!(ins::InsDigitizerM3102A, number::Integer,
                   ::Type{DAQAnalogTrigSource}, ch::Integer)
-    SD_AIN_DAQanalogTriggerConfig(ins.index,ch,number)
+    @error_handler SD_AIN_DAQanalogTriggerConfig(ins.index,ch,number)
     ins.channels[ch][DAQAnalogTrigSource] = number
     nothing
 end
@@ -177,14 +182,15 @@ end
 # the passed property_val argument
 function setindex!(ins::InsDigitizerM3102A, property_val::Any,
                   ::Type{T}) where {T<:InstrumentProperty}
-    if T == ClockMode
-        frequency = ins.clock_frequency
-        SD_AIN_clockSetFrequency(ins.index, frequency, symbol_to_keysight(property_val))
-        ins.clock_mode = mode
-    elseif T == ClockFrequency
+    if T == ClockMode && typeof(property_val) == Symbol
+        @error_handler SD_AIN_clockSetFrequency(ins.index,
+                            @error_handler SD_AIN_clockGetFrequency(ins.index),
+                            symbol_to_keysight(property_val))
+        ins.clock_mode = property_val
+    elseif T == ClockFrequency && typeof(property_val) == Float64
         mode = ins.clock_mode
-        SD_AIN_clockSetFrequency(ins.index, property_val, symbol_to_keysight(mode))
-        ins.clock_frequency = frequency
+        @error_handler SD_AIN_clockSetFrequency(ins.index, property_val,
+                                              symbol_to_keysight(mode))
     else
         for ch in keys(ins.channels)
             setindex!(ins,property_val,T,ch)

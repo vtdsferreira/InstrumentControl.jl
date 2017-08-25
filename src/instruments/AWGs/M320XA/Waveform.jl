@@ -97,10 +97,11 @@ function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::In
     length = size(waveformPoints)
     temp_id = SD_Wave_newFromArrayDouble(symbol_to_Keysight(waveform_type), length,
       waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
+    temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
-        SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
     else
-        SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
     end
     new_waveform = Waveform(waveformValues, name)
     ins.waveforms[id] = new_waveform
@@ -110,10 +111,11 @@ end
 function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
     temp_id = SD_Wave_newFromFile(waveformFile)
+    temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
-        SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
     else
-        SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
     end
     #read csv file and extract waveformValues; NEEDS WORK
     temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
@@ -142,7 +144,7 @@ function queue_waveform end
 function queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer,
                         trigger_mode::Symbol; repetitions::Integer = 1,
                         delay::Integer = 0, prescaler::Integer = 0 )
-    SD_AOU_AWGqueueWaveform(ins.index, ch, id,
+    @error_handler SD_AOU_AWGqueueWaveform(ins.index, ch, id,
                             symbol_to_keysight(trigger_mode), delay,
                             repetitions, prescaler)
     waveform = ins.waveforms[id]
@@ -234,7 +236,7 @@ Empties the queue of an AWG channel. This function both: uses the native C
 queue in the object as well.
 """
 function queue_flush(ins::InsAWGM320XA, ch::Integer)
-    SD_AOU_AWGflush(ins.index, ch)
+    @error_handler SD_AOU_AWGflush(ins.index, ch)
     ins.channels[ch][Queue] = Dict{Int, Int}()
     for waveform in ins.waveforms
         ch_properties[ch] = Dict{Any, Any}()
@@ -253,7 +255,7 @@ all channels, erasing the record of the queue in the `InsAWGM30XA` object as wel
 and re-initializes `ins.waveforms` as a blank dictionary
 """
 function waveforms_flush(ins::InsAWGM320XA)
-    SD_AOU_waveformFlush(ins.index)
+    @error_handler SD_AOU_waveformFlush(ins.index)
     ins.waveforms = Dict{Int, Waveform}()
     for ch in keys(ins.channels)
         ins.channels[ch][Queue] = Dict{Int,Int}()
