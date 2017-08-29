@@ -11,8 +11,7 @@ import ICCommon: Stimulus,
     measure,
     axisname,
     axislabel
-importall KeysightInstruments.SD_Module
-importall KeysightInstruments.SD_AIN
+
 
 export InsAWGM320XA
 """
@@ -78,12 +77,15 @@ mutable struct InsAWGM320XA
         ins.serial_num = serial
         ins.product_name = name
         #below we simultaneously "open" the device and get its index
-        ins.index = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
-        ins.chassis_num  = SD_Module_getChassis(ins.index)
-        ins.slot_num = SD_Module_getSlot(ins.index)
+        SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
+        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
+        ins.index = SD_open_result
+        ins.chassis_num  = @error_handler SD_Module_getChassis(ins.index)
+        ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
         ins.clock_mode = :LowJitter
-        SD_AIN_clockSetFrequency(ins.index, SD_AIN_clockGetFrequency(ins.index),
-                                symbol_to_keysight(ins.clock_mode))
+        @error_handler SD_AOU_clockSetFrequency(ins.index,
+                            @error_handler SD_AOU_clockGetFrequency(ins.index),
+                                            symbol_to_keysight(ins.clock_mode))
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
@@ -94,12 +96,15 @@ mutable struct InsAWGM320XA
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot
-        ins.index = SD_Module_openWithSlot(ins.product_name, ins.chassis_num,ins.slot_num)
-        ins.product_name = SD_Module_getProductNameByIndex(ins.index)
-        ins.serial_num = SD_Module_getSerialNumberByIndex(ins.index)
+        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
+        SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
+        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
+        ins.index = SD_open_result
+        ins.serial_num = @error_handler SD_Module_getSerialNumberByIndex(ins.index)
         ins.clock_mode = :LowJitter
-        SD_AIN_clockSetFrequency(ins.index, SD_AIN_clockGetFrequency(ins.index),
-                                symbol_to_keysight(ins.clock_mode))
+        @error_handler SD_AOU_clockSetFrequency(ins.index,
+                            @error_handler SD_AOU_clockGetFrequency(ins.index),
+                                            symbol_to_keysight(ins.clock_mode))
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
@@ -111,6 +116,32 @@ include("Properties.jl")
 include("Configure.jl")
 include("Inspect.jl")
 include("Waveform.jl")
+
+#InstrumentException type defined in src/Definitions.jl in InstrumentControl
+InstrumentException(ins::InsAWGM320XA, error_code::Integer) =
+    InstrumentException(ins, error_code, keysight_error(error_code))
+
+"""
+    @error_handler(expr)
+
+Takes an KeysightInstruments API call and brackets it with some error checking.
+Throws an InstrumentException if there is an error. This macro is compatible with
+all SD_AOU functions, most but not all SD_Module functions, and it is NOT compatible
+with SD_Wave functions
+"""
+macro error_handler(expr)
+    quote
+        SD_call_result = $(esc(expr))
+        if typeof(SD_call_result) <: Integer
+            SD_call_result < 0 &&
+            #the expression will be a call to a KeysightInstruments SD function,
+            #where the function signature will be SD_name(ins.index, args...);
+            # expr.args[2] is ins.index; expr.args[2].args[1] is ins
+            throw(InstrumentException($(esc(expr.args[2].args[1])), SD_call_result))
+        SD_call_result
+    end
+end
+
 
 #Miscallenous
 """
@@ -139,3 +170,5 @@ function nums_to_mask(chs...)
     mask = Int(parse(mask))
     return mask
 end
+
+end #module

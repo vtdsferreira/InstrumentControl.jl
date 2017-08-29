@@ -1,3 +1,8 @@
+export IQwithFPGAResponse
+export SingleChStream
+export SingleChPXITrig
+export IQTrigResponse
+
 mutable struct IQwithFPGAResponse <: Response
     ins::InsDigitizerM3102A
     I_ch::Int #ch for channel
@@ -19,13 +24,13 @@ function measure(IQwithFPGAResponse)
     end
     for ch in [resp.I_ch, resp.Q_ch]
         buffer = Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-        SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points)
-        SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points, timeout)
+        @error_handler SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points)
+        @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points, timeout)
     end
     mask = chs_to_mask(resp.I_ch, resp.Q_ch)
-    SD_AIN_DAQstartMultiple(ins.index, mask)
-    I_data =  SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, timeout)
-    Q_data = SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, timeout)
+    @error_handler SD_AIN_DAQstartMultiple(ins.index, mask)
+    I_data = @error_handler SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, timeout)
+    Q_data = @error_handler SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, timeout)
 end
 
 
@@ -44,15 +49,15 @@ function measure(resp::SingleChStream)
 
     #SET UP BUFFERS, NEEDS WORK
     buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-    SD_AIN_DAQbufferAdd(ins.index, resp.ch, buffer, resp.daq_points)
+    @error_handler SD_AIN_DAQbufferAdd(ins.index, resp.ch, buffer, resp.daq_points)
     #Below I assume one buffer is needed for this type of measurement, which is
     #what the manual implies I think
-    SD_AIN_DAQbufferPoolConfig(ins.index, resp.ch, resp.daq_points, 0)
+    @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, resp.ch, resp.daq_points, 0)
     #I set the buffer timeout to zero since DAQ read has its own timeout?
     #I think this is what the manual implies
     #if using multiple smaller buffers, maybe make their timeout infinity
-    SD_AIN_DAQstart(ins.index, resp.ch)
-    data = SD_AIN_DAQread(ins.index, resp.ch, resp.daq_points, resp.timeout)
+    @error_handler SD_AIN_DAQstart(ins.index, resp.ch)
+    data = @error_handler SD_AIN_DAQread(ins.index, resp.ch, resp.daq_points, resp.timeout)
     return data
 end
 
@@ -76,20 +81,20 @@ function measure(resp::SingleChTriggered)
     #SET UP BUFFERS, NEEDS WORK
     if daq_points*2 < 2e9
         buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-        SD_AIN_DAQbufferAdd(ins.index, resp.ch, buffer, daq_points)
-        SD_AIN_DAQbufferPoolConfig(ins.index, resp.ch, daq_points, 0)
-        SD_AIN_DAQstart(ins.index, resp.ch)
-        data = SD_AIN_DAQread(ins.index, resp.ch, daq_points, 0)
+        @error_handler SD_AIN_DAQbufferAdd(ins.index, resp.ch, buffer, daq_points)
+        @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, resp.ch, daq_points, 0)
+        @error_handler SD_AIN_DAQstart(ins.index, resp.ch)
+        data = @error_handler SD_AIN_DAQread(ins.index, resp.ch, daq_points, 0)
         return data
     else
         total_data = []
         num_buffers = ceil(daq_points/2e9)
         for i in 1:num_buffers
             buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-            SD_AIN_DAQbufferAdd(ins.index, resp.ch, buffer, daq_points/num_buffers)
-            SD_AIN_DAQbufferPoolConfig(ins.index, resp.ch, daq_points/num_buffers, 0)
-            SD_AIN_DAQstart(ins.index, resp.ch)
-            data = SD_AIN_DAQread(ins.index, resp.ch, daq_points/num_buffers, 0)
+            @error_handler SD_AIN_DAQbufferAdd(ins.index, resp.ch, buffer, daq_points/num_buffers)
+            @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, resp.ch, daq_points/num_buffers, 0)
+            @error_handler SD_AIN_DAQstart(ins.index, resp.ch)
+            data = @error_handler SD_AIN_DAQread(ins.index, resp.ch, daq_points/num_buffers, 0)
             push!(total_data, data)
         end
         return total_data
@@ -121,13 +126,13 @@ function measure(resp::IQTrigResponse)
     if daq_points*2 < 2e-9
         for ch in [resp.I_ch, resp.Q_ch]
             buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-            SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points)
-            SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points, 0)
+            @error_handler SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points)
+            @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points, 0)
         end
         mask=chs_to_mask(resp.I_ch, resp.Q_ch)
-        SD_AIN_DAQstartMultiple(ins.index, mask)
-        I_data =  SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, 0)
-        Q_data = SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, 0)
+        @error_handler SD_AIN_DAQstartMultiple(ins.index, mask)
+        I_data =  @error_handler SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, 0)
+        Q_data = @error_handler SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, 0)
         #process I_data and Q_data
     else
         total_I_data = []
@@ -136,13 +141,13 @@ function measure(resp::IQTrigResponse)
         for i in 1:num_buffers
             for ch in [resp.I_ch, resp.Q_ch]
                 buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-                SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points/num_buffers)
-                SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points/num_buffers, 0)
+                @error_handler SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points/num_buffers)
+                @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points/num_buffers, 0)
             end
             mask=chs_to_mask(resp.I_ch, resp.Q_ch)
-            SD_AIN_DAQstartMultiple(ins.index, mask)
-            I_data =  SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, 0)
-            Q_data = SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, 0)
+            @error_handler SD_AIN_DAQstartMultiple(ins.index, mask)
+            I_data =  @error_handler SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, 0)
+            Q_data = @error_handler SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, 0)
             push!(total_I_data, I_data)
             push!(total_Q_data, Q_data)
         end
