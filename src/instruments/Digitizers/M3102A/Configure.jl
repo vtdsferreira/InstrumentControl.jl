@@ -174,27 +174,11 @@ function setindex!(ins::InsDigitizerM3102A, number::Integer,
     nothing
 end
 
-# if no channel is specified, then the setindex! method is either going to change
-# the non-channel specific settings :ClockMode and ClockFrequency, or it will change
-# all channel properties at once. This method then checks if T == ClockMode or ClockFrequency,
-# and changes that accordingly if it is. If not, it is assumed that T is a channel
-# specific channel property, and the method configures T for all channels to be
-# the passed property_val argument
+# method configures T for all channels to be the passed property_val argument
 function setindex!(ins::InsDigitizerM3102A, property_val::Any,
                   ::Type{T}) where {T<:InstrumentProperty}
-    if T == ClockMode && typeof(property_val) == Symbol
-        @error_handler SD_AIN_clockSetFrequency(ins.index,
-                            @error_handler SD_AIN_clockGetFrequency(ins.index),
-                            symbol_to_keysight(property_val))
-        ins.clock_mode = property_val
-    elseif T == ClockFrequency && typeof(property_val) == Float64
-        mode = ins.clock_mode
-        @error_handler SD_AIN_clockSetFrequency(ins.index, property_val,
-                                              symbol_to_keysight(mode))
-    else
-        for ch in keys(ins.channels)
-            setindex!(ins,property_val,T,ch)
-        end
+    for ch in keys(ins.channels)
+        setindex!(ins,property_val,T,ch)
     end
     nothing
 end

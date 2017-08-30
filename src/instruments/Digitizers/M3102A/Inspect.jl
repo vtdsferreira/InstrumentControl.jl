@@ -12,9 +12,7 @@ end
 # depending on the passed type T
 function getindex(ins::InsDigitizerM3102A,
                   ::Type{T}) where {T<:InstrumentProperty}
-    if T == ClockMode
-        return ins.clock_mode
-    elseif T == ClockFrequency
+    if T == ClockFrequency
         return @error_handler SD_AIN_clockGetFrequency(ins.index)
     else
         channels_list=[]

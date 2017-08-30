@@ -1,5 +1,4 @@
-export InsAWGM3202A
-export ClockMode
+
 export ClockFrequency
 export WaveformType
 export FGFrequency
@@ -13,7 +12,6 @@ export QueueCycleMode
 export QueueSyncMode
 
 #AWG properties
-abstract type ClockMode <: InstrumentProperty end
 abstract type ClockFrequency <: InstrumentProperty end
 
 #channel properties
@@ -27,7 +25,10 @@ abstract type TrigBehavior <: InstrumentProperty end
 abstract type Queue <: InstrumentProperty end
 abstract type QueueCycleMode <: InstrumentProperty end
 abstract type QueueSyncMode <: InstrumentProperty end
-
+abstract type AmpModMode <: InstrumentProperty end
+abstract type AngModMode <: InstrumentProperty end
+abstract type AmpModGain <: InstrumentProperty end
+abstract type AngModGain <: InstrumentProperty end
 """
     symbol_to_keysight(sym::Symbol)
 
@@ -115,6 +116,16 @@ function symbol_to_keysight(sym::Symbol)
         return Cint(0)
     elseif sym == :CLKPXI
         return Cint(1)
+    elseif sym == :NoMod
+        return KSI.AOU_MOD_OFF
+    elseif sym == :AmplitudeMod
+        return KSI.AOU_MOD_AM
+    elseif sym == :DCMod
+        return KSI.AOU_MOD_OFFSET
+    elseif sym == :FrequencyMod
+        return KSI.AOU_MOD_FM
+    elseif sym == :PhaseMode
+        return KSI. AOU_MOD_PM
     else
         error("Symbol input not acceptable")
     end

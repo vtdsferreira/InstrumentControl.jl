@@ -1,4 +1,4 @@
-module AWGM310XA
+module AWGM320XA
 
 using KeysightInstruments
 KSI = KeysightInstruments
@@ -24,8 +24,6 @@ mutable struct InsAWGM320XA
     slot_num::Int
     channels::Dict{Int, Dict{Any, Any}}
     waveforms::Dict{Int, Waveform}
-    clock_mode::Symbol
-    clock_frequency::Float64
 end
 ```
 Object representing an AWGM320XA instrument. It holds, as fields, instrument
@@ -33,11 +31,7 @@ information such as AWG instrument index, slot number, chassis number, serial nu
 product name, etc. We take this object to represent both M3202A AWGs and M3201A AWGs,
 since they have the exact same functionality, they only have different specs. The
 `product_name` field can be used to distinguish wether an object of type `InsAWGM320XA`
-correponds to an M3202A or M3101A AWG via its "name". Also, the instrument property
-`ClockMode` (which is a subtype of `InstrumentProperty`) is made an explicit field of the
-InsAWGM320XA type because there is no native function to query which clock mode
-the AWG is configured to, thus we record this information as a type field
-in order to "query the AWG" which clock mode it is configured to.
+correponds to an M3202A or M3101A AWG via its "name".
 
 In addition, the AWG object holds all the waveforms stored in its RAM in a dictionary,
 named `waveforms`,  where the waveforms are indexed by their identifier number,
@@ -55,9 +49,8 @@ in the digitizer.
 Two inner constructors are provided: one which initializes the object with a given
 slot number and chassis number, and one which initializes the object with a given
 serial number and name. When the object is initialized, it obtains all other instrument
-information described above with the passed arguments, initializes the clock mode
-as "Low Jitter" and records it in the `clock_mode` field, initializes the `waveforms`
-dictionary, and finnaly, initializes all the channels properties to some standard
+information described above with the passed arguments, initializes the `waveforms`
+dictionary, and initializes all the channels properties to some standard
 values and records them in the `channels` dictionary through the `configure_channels!`
 function
 """
@@ -70,7 +63,6 @@ mutable struct InsAWGM320XA
     channels::Dict{Int, Dict{Any, Any}}
     #the methods that change this channels[int] will only allow InstrumentProperty keys
     waveforms::Dict{Int, Waveform}
-    clock_mode::Symbol
 
     InsAWGM320XA(serial::AbstractString, name::AbstractString) = begin
         ins = new()
@@ -82,10 +74,6 @@ mutable struct InsAWGM320XA
         ins.index = SD_open_result
         ins.chassis_num  = @error_handler SD_Module_getChassis(ins.index)
         ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
-        ins.clock_mode = :LowJitter
-        @error_handler SD_AOU_clockSetFrequency(ins.index,
-                            @error_handler SD_AOU_clockGetFrequency(ins.index),
-                                            symbol_to_keysight(ins.clock_mode))
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
@@ -101,10 +89,6 @@ mutable struct InsAWGM320XA
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
         ins.index = SD_open_result
         ins.serial_num = @error_handler SD_Module_getSerialNumberByIndex(ins.index)
-        ins.clock_mode = :LowJitter
-        @error_handler SD_AOU_clockSetFrequency(ins.index,
-                            @error_handler SD_AOU_clockGetFrequency(ins.index),
-                                            symbol_to_keysight(ins.clock_mode))
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)

@@ -24,16 +24,11 @@ mutable struct InsDigitizerM3102A
     chassis_num::Int
     slot_num::Int
     channels::Dict{Int,Dict{Any,Any}}
-    clock_mode::Symbol
 end
 ```
 Object representing an DigitizerM3102A instrument. It holds, as fields, instrument
 information such as digitizer card instrument index, slot number, chassis number,
-serial number, product name, etc.  Also, the instrument property `ClockMode`
-(which is a subtype of `InstrumentProperty`) is made an explicit field of the
-InsDigitizerM3102A type because there is no native function to query which clock mode
-the digitizer is configured to, thus we record this information as a type field
-in order to "query the digitizer" which clock mode it is configured to.
+serial number, product name, etc.
 
 This object also holds individual channel properties in a dictionary named `channels`,
 where in the type's implementation, the values of the dictionaries are themselves
@@ -47,8 +42,7 @@ in the digitizer.
 Two inner constructors are provided: one which initializes the object with a given
 slot number and chassis number, and one which initializes the object with a given
 serial number. When the object is initialized, it obtains all other instrument
-information described above with the passed arguments, initializes the clock mode
-as "Low Jitter" and records it in the `clock_mode` field, and initializes all the
+information described above with the passed arguments, and initializes all the
 channels properties to some standard values and records them in the `channels`
 dictionary through the `configure_channels!` function
 """
@@ -59,7 +53,6 @@ mutable struct InsDigitizerM3102A
     chassis_num::Int
     slot_num::Int
     channels::Dict{Int,Dict{Any,Any}}
-    clock_mode::Symbol
 
     InsDigitizerM3102A(serial::AbstractString) = begin
         ins = new()
@@ -71,10 +64,6 @@ mutable struct InsDigitizerM3102A
         ins.index = SD_open_result
         ins.chassis_num  = @error_handler SD_Module_getChassis(ins.index)
         ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
-        ins.clock_mode = :LowJitter
-        @error_handler SD_AIN_clockSetFrequency(ins.index,
-                            @error_handler SD_AIN_clockGetFrequency(ins.index),
-                                            symbol_to_keysight(ins.clock_mode))
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
         return ins
@@ -89,10 +78,6 @@ mutable struct InsDigitizerM3102A
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
         ins.index = SD_open_result
         ins.serial_num = @error_handler SD_Module_getSerialNumberByIndex(ins.index)
-        ins.clock_mode = :LowJitter
-        @error_handler SD_AIN_clockSetFrequency(ins.index,
-                            @error_handler SD_AIN_clockGetFrequency(ins.index),
-                                            symbol_to_keysight(ins.clock_mode))
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
         return ins
