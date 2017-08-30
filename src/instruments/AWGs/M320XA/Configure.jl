@@ -26,12 +26,16 @@ function configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
         @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch, 4000,
                                                     symbol_to_keysight(:Rising))
         ins.channels[ch][TrigSource] = 0
-        ins.channels[ch][TrigBehavior] = :Rising
+        ins.channels[ch][TrigBehavior] = :Falling
+        ins.channel[ch][AmpModGain] = 0
+        ins.channel[ch][AngModGain] = 0
+        ins.channel[ch][AmpModMode] = :NoMod
+        ins.channel[ch][AngModeMode] = :NoMod
     end
-    ins[WaveformShape] = :Arbitrary
+    ins[WaveformShape] = :Off
     ins[FGFrequency] = 1e8
     ins[FGPhase] = 0
-    ins[WaveAmplitude] = 0.2 #NEEDS CHANGING
+    ins[WaveAmplitude] = 0 #NEEDS CHANGING
     ins[DCOffset] = 0
     ins[QueueCycleMode] = :Cyclic
     ins[QueueSyncMode] = :CLKPXI
@@ -72,6 +76,42 @@ function setindex!(ins::InsAWGM320XA, phase::Float64,
                   ::Type{FGPhase}, ch::Integer)
     @error_handler SD_AOU_channelPhase(ins.index, ch, phase)
     ins.channels[ch][FGPhase] = phase
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, mode::Symbol, ::Type{AmpModMode},
+                  ch::Integer)
+    amp_gain = ins.channels[ch][AmpModGain]
+    @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
+                                                amp_gain)
+    ins.channel[ch][AmpModMode] =  mode
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, amp_gain::Integer, ::Type{AmpModGain},
+                  ch::Integer)
+    mode = ins.channels[ch][AmpModMode]
+    @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
+                                                amp_gain)
+    ins.channel[ch][AmpModGain] =  amp_gain
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, mode::Symbol, ::Type{AngModMode},
+                  ch::Integer)
+    ang_gain = ins.channels[ch][AngModGain]
+    @error_handler SD_AOU_modulationAngleConfig(ins.index, ch, symbol_to_keysight(mode),
+                                                ang_gain)
+    ins.channel[ch][AngModMode] =  mode
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, ang_gain::Integer, ::Type{AngModGain},
+                  ch::Integer)
+    mode = ins.channels[ch][AngModMode]
+    @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
+                                                ang_gain)
+    ins.channel[ch][AngModGain] =  ang_gain
     nothing
 end
 
@@ -125,27 +165,19 @@ function setindex!(ins::InsAWGM320XA, queue_sync_mode::Symbol,
     nothing
 end
 
-# if no channel is specified, then the setindex! method is either going to change
-# the non-channel specific settings :ClockMode and ClockFrequency, or it will change
-# all channel properties at once. This method then checks if T == ClockMode or ClockFrequency,
-# and changes that accordingly if it is. If not, it is assumed that T is a channel
-# specific channel property, and the method configures T for all channels to be
-# the passed property_val argument
+function setindex!(ins::InsAWGM320XA, property_val::Any,
+                  ::Type{T}, chs::Vararg{Integer}) where {T<:InstrumentProperty}
+    for ch in chs
+        setindex!(ins,property_val,T,ch)
+    end
+    nothing
+end
+
+# method configures T for all channels to be the passed property_val argument
 function setindex!(ins::InsAWGM320XA, property_val::Any,
                   ::Type{T}) where {T<:InstrumentProperty}
-    if T == ClockMode && typeof(property_val) == Symbol
-        @error_handler SD_AOU_clockSetFrequency(ins.index,
-                              @error_handler SD_AOU_clockGetFrequency(ins.index),
-                              symbol_to_keysight(property_val))
-        ins.clock_mode = property_val
-    elseif T == ClockFrequency && typeof(property_val) == Float64
-        mode = ins.clock_mode
-        @error_handler SD_AOU_clockSetFrequency(ins.index, property_val,
-                                                symbol_to_keysight(mode))
-    else
-        for ch in keys(ins.channels)
-            setindex!(ins,property_val,T,ch)
-        end
+    for ch in keys(ins.channels)
+        setindex!(ins,property_val,T,ch)
     end
     nothing
 end

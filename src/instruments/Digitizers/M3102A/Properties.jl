@@ -1,4 +1,3 @@
-export ClockMode
 export ClockFrequency
 export ChannelScale
 export ChannelInputMode
@@ -16,7 +15,6 @@ export DAQAnalogTrigSource
 
 # digitizer properties
 abstract type ClockFrequency <: InstrumentProperty end
-abstract type ClockMode <: InstrumentProperty end
 
 # channel properties
 abstract type ChannelScale <: InstrumentProperty end

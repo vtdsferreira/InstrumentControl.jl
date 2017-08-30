@@ -75,7 +75,6 @@ abstract type WavPrescaler <: WaveChProperty end
 """
     load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
                        name::AbstractString; waveform_type::Symbol = :Digital)
-
     load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
 
@@ -92,20 +91,26 @@ in `ins.waveforms`, indexed by it's user-specified id.
 """
 function load_waveform end
 
-function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
-                       name::AbstractString = string(id); waveform_type::Symbol = :Analog32)
-    length = size(waveformPoints)
+function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer,
+                       name::AbstractString = waveform.name; waveform_type::Symbol = :Analog32)
+    waveformValues = waveform.waveformValues
+    length = size(waveformValues)
     temp_id = SD_Wave_newFromArrayDouble(symbol_to_Keysight(waveform_type), length,
-      waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
+              waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
     temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
         @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
     else
         @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
     end
-    new_waveform = Waveform(waveformValues, name)
-    ins.waveforms[id] = new_waveform
+    ins.waveforms[id] = waveform
     return ins.waveforms[id]
+end
+
+function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
+                       name::AbstractString = string(id); waveform_type::Symbol = :Analog32)
+    waveform = Waveform(waveformValues, name)
+    load_waveform(ins, waveform, id, name, waveform_type = waveform_type)
 end
 
 function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
@@ -121,7 +126,6 @@ function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
     temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
     waveformValues = convert(Array, temp_data)
     new_waveform = Waveform(waveformValues, name)
-
     ins.waveforms[id] = new_waveform
     return ins.waveforms[id]
 end
@@ -195,7 +199,7 @@ function queue_sequence end
 # I flesh out the method with wavsForQueue::Vector{Waveform}, rather than the other
 # ones, because it is easier/convenient to convert other wavsForQueue types to this type
 function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Waveform},
-                        trigger_mode::Symbol = :Software_HVI)
+                        trigger_mode::Symbol = :Auto)
     queue_waveform(ins, wavsForQueue[1], ch::Integer, trigger_mode)
     for i=2::size(wavsForQueue)[1]
         queue_waveform(ins, wavsForQueue[i], ch::Integer, :Auto)
