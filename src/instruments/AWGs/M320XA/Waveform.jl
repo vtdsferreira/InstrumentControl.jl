@@ -14,6 +14,7 @@ export queue_waveform
 export queue_sequence
 export queue_flush
 export waveforms_flush
+export memory_size
 
 """
 '''
@@ -52,7 +53,7 @@ mutable struct Waveform
     name::String
     ch_properties::Dict{Int, Dict{Any, Any}}
     #the methods that change this ch_properties[int] will only allow WaveChProperty keys
-    Waveform(waveformValues::Array{Float64}, name::String) = begin
+    Waveform(waveformValues::Array{Real}, name::String) = begin
         wav = new()
         wav.name = name
         wav.waveformValues = waveformValues
@@ -73,7 +74,7 @@ abstract type QueuePosition <: WaveChProperty end
 abstract type WavPrescaler <: WaveChProperty end
 
 """
-    load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
+    load_waveform(ins::InsAWGM320XA, waveformValues::Array{Real}, id::Integer,
                        name::AbstractString; waveform_type::Symbol = :Digital)
     load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
@@ -99,15 +100,15 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer,
               waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
     temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
-        @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id)
     else
-        @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id)
     end
     ins.waveforms[id] = waveform
     return ins.waveforms[id]
 end
 
-function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
+function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Real}, id::Integer,
                        name::AbstractString = string(id); waveform_type::Symbol = :Analog32)
     waveform = Waveform(waveformValues, name)
     load_waveform(ins, waveform, id, name, waveform_type = waveform_type)
@@ -118,9 +119,9 @@ function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
     temp_id = SD_Wave_newFromFile(waveformFile)
     temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
-        @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id)
     else
-        @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id, 0)
+        @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id)
     end
     #read csv file and extract waveformValues; NEEDS WORK
     temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
@@ -265,4 +266,30 @@ function waveforms_flush(ins::InsAWGM320XA)
         ins.channels[ch][Queue] = Dict{Int,Int}()
     end
     nothing
+end
+
+"""
+    memory_size(ins::InsAWGM320XA, wav::Waveform)
+    memory_size(ins::InsAWGM320XA, id::Integer)
+Obtain size of waveform in memory
+"""
+function memory_size end
+
+memory_size(ins::InsAWGM320XA, id::Integer) = @error_handler SD_AOU_waveformGetMemorySize(ins, id)
+
+function memory_size(ins::InsAWGM320XA, wav::Waveform)
+    #finding the id of the waveform object with which the waveform was loaded to RAM
+    for key in keys(ins.waveforms)
+        if ins.waveforms[key] == wav
+            id = key
+            break
+        end
+    end
+    return memory_size(ins, id)
+end
+
+#function that returns properties of queued waveform
+function getindex(wav::Waveform, ::Type{T},
+                  ch::Integer) where {T<:WaveChProperty}
+    return wav.ch_properties[ch][T]
 end
