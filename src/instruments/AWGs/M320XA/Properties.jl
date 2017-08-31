@@ -7,6 +7,7 @@ export WaveAmplitude
 export DCOffset
 export TrigSource
 export TrigBehavior
+export TrigSync
 export Queue
 export QueueCycleMode
 export QueueSyncMode
@@ -22,6 +23,7 @@ abstract type WaveAmplitude <: InstrumentProperty end
 abstract type DCOffset <: InstrumentProperty end
 abstract type TrigSource <: InstrumentProperty end
 abstract type TrigBehavior <: InstrumentProperty end
+abstract type TrigSync <: InstrumentProperty end
 abstract type Queue <: InstrumentProperty end
 abstract type QueueCycleMode <: InstrumentProperty end
 abstract type QueueSyncMode <: InstrumentProperty end
@@ -111,11 +113,12 @@ function symbol_to_keysight(sym::Symbol)
         return Cint(0)
     elseif sym == :Cyclic
         return Cint(1)
-    #AWG queue sync mode
-    elseif sym == :CLKSys
-        return Cint(0)
-    elseif sym == :CLKPXI
-        return Cint(1)
+    #sync mode
+    elseif sym == :CLKsys
+        return KSI.SYNC_NONE
+    elseif sym == :CLK10
+        return  KSI.SYNC_CLK_0
+    #amplitude modulation
     elseif sym == :NoMod
         return KSI.AOU_MOD_OFF
     elseif sym == :AmplitudeMod

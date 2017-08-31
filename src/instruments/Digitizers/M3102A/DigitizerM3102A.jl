@@ -62,14 +62,14 @@ mutable struct InsDigitizerM3102A
         SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
         ins.index = SD_open_result
-        ins.chassis_num  = @error_handler SD_Module_getChassis(ins.index)
-        ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
+        ins.chassis_num  = @error_handler SD_Module_getChassisByIndex(ins.index)
+        ins.slot_num = @error_handler SD_Module_getSlotByIndex(ins.index)
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
         return ins
     end
 
-    InsDigitizerM3102A(chassis::Integer,slot::Integer) = begin
+    InsDigitizerM3102A(chassis::Integer = 1, slot::Integer) = begin
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot

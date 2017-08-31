@@ -1,7 +1,8 @@
 export ClockFrequency
-export ChannelScale
-export ChannelInputMode
-export ChannelPrescaler
+export ChScale
+export ChInputMode
+export ChImpedance
+export ChPrescaler
 export ChAnalogTrigBehavior
 export ChAnalogTrigThreshold
 export DAQTrigMode
@@ -9,7 +10,6 @@ export DAQTrigDelay
 export DAQPointsPerCycle
 export DAQCycles
 export DAQTrigSource
-export DAQTrigPXINumber
 export DAQTrigBehavior
 export DAQAnalogTrigSource
 
@@ -17,9 +17,10 @@ export DAQAnalogTrigSource
 abstract type ClockFrequency <: InstrumentProperty end
 
 # channel properties
-abstract type ChannelScale <: InstrumentProperty end
-abstract type ChannelInputMode <: InstrumentProperty end
-abstract type ChannelPrescaler <: InstrumentProperty end
+abstract type ChScale <: InstrumentProperty end
+abstract type ChInputMode <: InstrumentProperty end
+abstract type ChImpedance <: InstrumentProperty end
+abstract type ChPrescaler <: InstrumentProperty end
 abstract type ChAnalogTrigBehavior <: InstrumentProperty end
 abstract type ChAnalogTrigThreshold <: InstrumentProperty end
 abstract type DAQTrigMode <: InstrumentProperty end
@@ -27,7 +28,6 @@ abstract type DAQTrigDelay <: InstrumentProperty end
 abstract type DAQPointsPerCycle <: InstrumentProperty end
 abstract type DAQCycles <: InstrumentProperty end
 abstract type DAQTrigSource <: InstrumentProperty end
-abstract type DAQTrigPXINumber <: InstrumentProperty end
 abstract type DAQTrigBehavior <: InstrumentProperty end
 abstract type DAQAnalogTrigSource <: InstrumentProperty end
 
@@ -48,11 +48,15 @@ methods/types to the appropriate constants that need to be passed to the native
 C functions that control the digitizer directly.
 """
 function symbol_to_keysight(sym::Symbol)
-    #digitizer input mode
+    #digitizer channel configuration
     if sym == :DC
         return KSI.AIN_COUPLING_DC
     elseif sym == :AC
         return KSI.AIN_COUPLING_AC
+    elseif sym == :Ohm_50
+        return KSI.AIN_IMPEDANCE_50
+    elseif sym == :Ohm_High
+        return AIN_IMPEDANCE_HZ
     #generated analog trigger configuration
     elseif sym == :RisingAnalog
         return KSI.AIN_RISING_EDGE

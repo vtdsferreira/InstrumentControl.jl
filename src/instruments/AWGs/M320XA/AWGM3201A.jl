@@ -72,15 +72,15 @@ mutable struct InsAWGM320XA
         SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
         ins.index = SD_open_result
-        ins.chassis_num  = @error_handler SD_Module_getChassis(ins.index)
-        ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
+        ins.chassis_num  = @error_handler SD_Module_getChassisByIndex(ins.index)
+        ins.slot_num = @error_handler SD_Module_getSlotByIndex(ins.index)
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins)
         return ins
   end
 
-    InsAWGM320XA(chassis::Integer,slot::Integer) = begin
+    InsAWGM320XA(slot::Integer,chassis::Integer = 1) = begin
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot

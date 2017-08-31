@@ -24,9 +24,10 @@ function configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
         @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch, 4000,
-                                                    symbol_to_keysight(:Rising))
+                        symbol_to_keysight(:Falling), symbol_to_keysight(:CLKsys))
         ins.channels[ch][TrigSource] = 0
         ins.channels[ch][TrigBehavior] = :Falling
+        ins.channels[ch][TrigSync] = :CLKsys
         ins.channel[ch][AmpModGain] = 0
         ins.channel[ch][AngModGain] = 0
         ins.channel[ch][AmpModMode] = :NoMod
@@ -35,10 +36,10 @@ function configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
     ins[WaveformShape] = :Off
     ins[FGFrequency] = 1e8
     ins[FGPhase] = 0
-    ins[WaveAmplitude] = 0 #NEEDS CHANGING
+    ins[WaveAmplitude] = 0
     ins[DCOffset] = 0
     ins[QueueCycleMode] = :Cyclic
-    ins[QueueSyncMode] = :CLKPXI
+    ins[QueueSyncMode] = :CLK10
     nothing
 end
 
@@ -51,28 +52,28 @@ function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, amplitude::Float64,
+function setindex!(ins::InsAWGM320XA, amplitude::Real,
                   ::Type{WaveAmplitude}, ch::Integer)
     @error_handler SD_AOU_channelAmplitude(ins.index, ch, amplitude)
     ins.channels[ch][WaveAmplitude] = amplitude
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, offset::Float64,
+function setindex!(ins::InsAWGM320XA, offset::Real,
                   ::Type{DCOffset}, ch::Integer)
     @error_handler SD_AOU_channelOffset(ins.index, ch, offset)
     ins.channels[ch][DCOffset] = offset
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, frequency::Float64,
+function setindex!(ins::InsAWGM320XA, frequency::Real,
                   ::Type{FGFrequency}, ch::Integer)
     @error_handler SD_AOU_channelFrequency(ins.index, ch, frequency)
     ins.channels[ch][FGFrequency] = frequency
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, phase::Float64,
+function setindex!(ins::InsAWGM320XA, phase::Real,
                   ::Type{FGPhase}, ch::Integer)
     @error_handler SD_AOU_channelPhase(ins.index, ch, phase)
     ins.channels[ch][FGPhase] = phase
@@ -88,7 +89,7 @@ function setindex!(ins::InsAWGM320XA, mode::Symbol, ::Type{AmpModMode},
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, amp_gain::Integer, ::Type{AmpModGain},
+function setindex!(ins::InsAWGM320XA, amp_gain::Real, ::Type{AmpModGain},
                   ch::Integer)
     mode = ins.channels[ch][AmpModMode]
     @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
@@ -106,7 +107,7 @@ function setindex!(ins::InsAWGM320XA, mode::Symbol, ::Type{AngModMode},
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, ang_gain::Integer, ::Type{AngModGain},
+function setindex!(ins::InsAWGM320XA, ang_gain::Real, ::Type{AngModGain},
                   ch::Integer)
     mode = ins.channels[ch][AngModMode]
     @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
@@ -118,53 +119,67 @@ end
 function setindex!(ins::InsAWGM320XA, PXI_trig_num::Integer,
                   ::Type{TrigSource}, ch::Integer)
     behavior = ins.channels[ch][TrigBehavior]
+    sync = ins.channels[ch][TrigSync]
     @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch,
                                                 PXI_trig_num + KSI.TRIG_PXI_AWG,
-                                                symbol_to_keysight(behavior))
+                            symbol_to_keysight(behavior), symbol_to_keysight(sync))
     ins.channels[ch][TrigSource] = PXI_trig_num
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, source::Symbol,
-                  ::Type{TrigSource}, ch::Integer)
+function setindex!(ins::InsAWGM320XA, source::Symbol, ::Type{TrigSource}, ch::Integer)
     behavior = ins.channels[ch][TrigBehavior]
+    sync = ins.channels[ch][TrigSync]
     @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch,
-                                                   symbol_to_keysight(source),
-                                                   symbol_to_keysight(behavior))
+        symbol_to_keysight(source), symbol_to_keysight(behavior), symbol_to_keysight(sync))
     ins.channels[ch][TrigSource] = source
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, behavior::Symbol,
-                  ::Type{TrigBehavior, ch::Integer})
+function setindex!(ins::InsAWGM320XA, behavior::Symbol, ::Type{TrigBehavior}, ch::Integer)
     source = ins.channels[ch][TrigSource]
+    sync = ins.channels[ch][TrigSync]
     if typeof(source) == Symbol
         @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch,
-                                                       symbol_to_keysight(source)
-                                                       symbol_to_keysight(behavior))
+            symbol_to_keysight(source), symbol_to_keysight(behavior), symbol_to_keysight(sync))
     else
         @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch, source + 4000,
-                                                    symbol_to_keysight(behavior))
+            symbol_to_keysight(behavior), symbol_to_keysight(sync))
     end
     ins.channels[ch][TrigBehavior] = behavior
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, queue_mode::Symbol,
-                  ::Type{QueueCycleMode}, ch::Integer)
-    @error_handler SD_AOU_AWGqueueConfig(ins.index, ch, symbol_to_keysight(queue_mode))
-    ins.channels[ch][QueueCycleMode] = queue_mode
+function setindex!(InsAWGM320XA, sync::Symbol, ::Type{TrigSync}, ch::Integer)
+    source = ins.channels[ch][TrigSource]
+    behavior = ins.channels[ch][TrigBehavior]
+    if typeof(source) == Symbol
+        @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch,
+            symbol_to_keysight(source), symbol_to_keysight(behavior), symbol_to_keysight(sync))
+    else
+        @error_handler SD_AOU_AWGtriggerExternalConfig(ins.index, ch, source + 4000,
+            symbol_to_keysight(behavior), symbol_to_keysight(sync))
+    end
+    ins.channels[ch][TrigSync] = sync
     nothing
 end
 
-function setindex!(ins::InsAWGM320XA, queue_sync_mode::Symbol,
+function setindex!(ins::InsAWGM320XA, cycle_mode::Symbol,
+                  ::Type{QueueCycleMode}, ch::Integer)
+    @error_handler SD_AOU_AWGqueueConfig(ins.index, ch, symbol_to_keysight(cycle_mode))
+    ins.channels[ch][QueueCycleMode] = cycle_mode
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, sync_mode::Symbol,
                   ::Type{QueueSyncMode}, ch::Integer)
     @error_handler SD_AOU_AWGqueueSyncMode(ins.index, ch,
-                                           symbol_to_keysight(queue_sync_mode))
-    ins.channels[ch][QueueSyncMode] = queue_sync_mode
+                                           symbol_to_keysight(sync_mode))
+    ins.channels[ch][QueueSyncMode] = sync_mode
     nothing
 end
 
+#this method configures T for some channels passed
 function setindex!(ins::InsAWGM320XA, property_val::Any,
                   ::Type{T}, chs::Vararg{Integer}) where {T<:InstrumentProperty}
     for ch in chs

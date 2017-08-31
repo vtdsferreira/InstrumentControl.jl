@@ -1,38 +1,9 @@
-export IQwithFPGAResponse
+# these are examples of response types and measure functions for those types
+# these are meant to illustrate, in general, how one sets up the Digitizer for readout
+
 export SingleChStream
 export SingleChPXITrig
 export IQTrigResponse
-
-mutable struct IQwithFPGAResponse <: Response
-    ins::InsDigitizerM3102A
-    I_ch::Int #ch for channel
-    Q_ch::Int
-    daq_points::Int
-    PXI_trig_source::Int
-end
-
-function measure(IQwithFPGAResponse)
-    ins = resp.ins
-    timeout = 0
-    for ch in [resp.I_ch, resp.Q_ch]
-        ins[DAQTrigMode, ch] = :Digital
-        ins[DAQTrigSource, ch] = :PXI
-        ins[DAQTrigBehavior] = :Rising
-        ins[DAQTrigPXINumber, ch] = PXI_trig_source
-        ins[DAQPointsPerCycle, ch] = 1
-        ins[DAQCycles, ch] = 0
-    end
-    for ch in [resp.I_ch, resp.Q_ch]
-        buffer = Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-        @error_handler SD_AIN_DAQbufferAdd(ins.index, ch, buffer, daq_points)
-        @error_handler SD_AIN_DAQbufferPoolConfig(ins.index, ch, daq_points, timeout)
-    end
-    mask = chs_to_mask(resp.I_ch, resp.Q_ch)
-    @error_handler SD_AIN_DAQstartMultiple(ins.index, mask)
-    I_data = @error_handler SD_AIN_DAQread(ins.index, resp.I_ch, daq_points, timeout)
-    Q_data = @error_handler SD_AIN_DAQread(ins.index, resp.Q_ch, daq_points, timeout)
-end
-
 
 mutable struct SingleChStream <: Response
     ins::InsDigitizerM3102A
