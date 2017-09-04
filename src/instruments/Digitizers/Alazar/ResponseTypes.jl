@@ -35,15 +35,12 @@ Response type implementing the "continuous streaming mode" of the Alazar API.
 mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
-
     m::AlazarMode
 
-    function ContinuousStreamResponse{T}(a,b) where {T}
-        b <= 0 && error("Need at least one sample.")
-        r = new{T}(a,b)
-        r.m = ContinuousStreamMode(r.samples_per_ch *
-                                   r.ins[ChannelCount])
-        return r
+    function ContinuousStreamResponse{T}(ins,samples_per_ch) where {T}
+        @assert samples_per_ch > 0
+        return new{T}(ins, samples_per_ch,
+            ContinuousStreamMode(samples_per_ch * ins[ChannelCount]))
     end
 end
 ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
@@ -56,15 +53,12 @@ Response type implementing the "triggered streaming mode" of the Alazar API.
 mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
-
     m::AlazarMode
 
-    function TriggeredStreamResponse{T}(a,b) where {T}
-        b <= 0 && error("Need at least one sample.")
-        r = new{T}(a,b)
-        r.m = TriggeredStreamMode(r.samples_per_ch *
-                                  r.ins[ChannelCount])
-        return r
+    function TriggeredStreamResponse{T}(ins, samples_per_ch) where {T}
+        @assert samples_per_ch > 0
+        return new{T}(ins, samples_per_ch,
+            TriggeredStreamMode(samples_per_ch * ins[ChannelCount]))
     end
 end
 TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
@@ -78,16 +72,13 @@ mutable struct NPTRecordResponse{T} <: RecordResponse{T}
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
     total_recs::Int
-
     m::AlazarMode
 
-    function NPTRecordResponse{T}(a,b,c) where {T}
-        b <= 0 && error("Need at least one sample.")
-        c <= 0 && error("Need at least one record.")
-        r = new{T}(a,b,c)
-        r.m = NPTRecordMode(r.sam_per_rec_per_ch * r.ins[ChannelCount],
-                            r.total_recs)
-        return r
+    function NPTRecordResponse{T}(ins, sam_per_rec_per_ch, total_recs) where {T}
+        @assert sam_per_rec_per_ch > 0
+        @assert total_recs > 0
+        return new{T}(ins, sam_per_rec_per_ch, total_recs,
+            NPTRecordMode(sam_per_rec_per_ch * ins[ChannelCount], total_recs))
     end
 end
 NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
@@ -103,19 +94,16 @@ mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
     sam_per_fft::Int
     total_recs::Int
     output_eltype::DataType
-
     m::AlazarMode
 
-    function FFTHardwareResponse{T}(a,b,c,d,e::Type{S}) where {T,S<:Alazar.AlazarFFTBits}
-        b <= 0 && error("Need at least one sample.")
-        c == 0 && error("FFT length (samples) too short.")
-        !ispow2(c) && error("FFT length (samples) not a power of 2.")
-        d <= 0 && error("Need at least one record.")
-        !(e <: Alazar.AlazarFFTBits) && error("Takes an AlazarFFTBits type.")
-        r = new{T}(a,b,c,d,e)
-        r.m = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
-                            r.total_recs, r.output_eltype)
-        return r
+    function (FFTHardwareResponse{T}(ins, sam_per_rec, sam_per_fft, total_recs, ::Type{S})
+            where {T,S<:Alazar.AlazarFFTBits})
+        @assert sam_per_rec > 0
+        @assert sam_per_fft > 0
+        @assert ispow2(sam_per_fft)
+        @assert total_recs > 0
+        return new{T}(ins, sam_per_rec, sam_per_fft, total_recs, S,
+            FFTRecordMode(sam_per_rec, sam_per_fft, total_recs, S))
     end
 end
 FFTHardwareResponse(a,b,c,d,e::Type{S}) where {S <: Alazar.AlazarFFTBits} =
@@ -132,16 +120,13 @@ mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
     sam_per_rec_per_ch::Int
     total_recs::Int
     f::Float64
-
     m::AlazarMode
 
-    function IQSoftwareResponse{T}(a,b,c,d) where {T}
-        b <= 0 && error("Need at least one sample.")
-        c <= 0 && error("Need at least one record.")
-        r = new{T}(a,b,c,d)
-        r.m = NPTRecordMode(r.sam_per_rec_per_ch * (r.ins)[ChannelCount],
-                            r.total_recs)
-        r
+    function IQSoftwareResponse{T}(ins, sam_per_rec_per_ch, total_recs, f) where {T}
+        @assert sam_per_rec_per_ch > 0
+        @assert total_recs > 0
+        return new{T}(ins, sam_per_rec_per_ch, total_recs, f,
+            NPTRecordMode(sam_per_rec_per_ch * ins[ChannelCount], total_recs))
     end
 end
 IQSoftwareResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs, f) =
