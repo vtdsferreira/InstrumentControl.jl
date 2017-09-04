@@ -35,7 +35,7 @@ Response type implementing the "continuous streaming mode" of the Alazar API.
 mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
-    m::AlazarMode
+    m::ContinuousStreamMode
 
     function ContinuousStreamResponse{T}(ins,samples_per_ch) where {T}
         @assert samples_per_ch > 0
@@ -44,7 +44,7 @@ mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
     end
 end
 ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
-    ContinuousStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
+    ContinuousStreamResponse{Vector{Float16}}(a, samples_per_ch)
 
 """
     mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
@@ -53,7 +53,7 @@ Response type implementing the "triggered streaming mode" of the Alazar API.
 mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
     ins::InstrumentAlazar
     samples_per_ch::Int
-    m::AlazarMode
+    m::TriggeredStreamMode
 
     function TriggeredStreamResponse{T}(ins, samples_per_ch) where {T}
         @assert samples_per_ch > 0
@@ -62,7 +62,7 @@ mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
     end
 end
 TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
-    TriggeredStreamResponse{SharedArray{Float16,1}}(a, samples_per_ch)
+    TriggeredStreamResponse{Vector{Float16}}(a, samples_per_ch)
 
 """
     mutable struct NPTRecordResponse{T} <: RecordResponse{T}
@@ -72,7 +72,7 @@ mutable struct NPTRecordResponse{T} <: RecordResponse{T}
     ins::InstrumentAlazar
     sam_per_rec_per_ch::Int
     total_recs::Int
-    m::AlazarMode
+    m::NPTRecordMode
 
     function NPTRecordResponse{T}(ins, sam_per_rec_per_ch, total_recs) where {T}
         @assert sam_per_rec_per_ch > 0
@@ -82,7 +82,7 @@ mutable struct NPTRecordResponse{T} <: RecordResponse{T}
     end
 end
 NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
-    NPTRecordResponse{SharedArray{Float16,2}}(a, sam_per_rec_per_ch, total_recs)
+    NPTRecordResponse{Matrix{Float16}}(a, sam_per_rec_per_ch, total_recs)
 
 """
     mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
@@ -94,7 +94,7 @@ mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
     sam_per_fft::Int
     total_recs::Int
     output_eltype::DataType
-    m::AlazarMode
+    m::FFTRecordMode
 
     function (FFTHardwareResponse{T}(ins, sam_per_rec, sam_per_fft, total_recs, ::Type{S})
             where {T,S<:Alazar.AlazarFFTBits})
@@ -107,7 +107,7 @@ mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
     end
 end
 FFTHardwareResponse(a,b,c,d,e::Type{S}) where {S <: Alazar.AlazarFFTBits} =
-    FFTHardwareResponse{SharedArray{S,2}}(a,b,c,d,e)
+    FFTHardwareResponse{Matrix{S}}(a,b,c,d,e)
 
 """
     mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
@@ -120,7 +120,7 @@ mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
     sam_per_rec_per_ch::Int
     total_recs::Int
     f::Float64
-    m::AlazarMode
+    m::NPTRecordMode
 
     function IQSoftwareResponse{T}(ins, sam_per_rec_per_ch, total_recs, f) where {T}
         @assert sam_per_rec_per_ch > 0
@@ -130,4 +130,4 @@ mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
     end
 end
 IQSoftwareResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs, f) =
-    IQSoftwareResponse{SharedArray{Float32,2}}(a, sam_per_rec_per_ch, total_recs, f)
+    IQSoftwareResponse{Matrix{Float32}}(a, sam_per_rec_per_ch, total_recs, f)
