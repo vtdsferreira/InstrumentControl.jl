@@ -12,7 +12,10 @@
 
 module AlazarModule
 
-"Flag indicating whether the AlazarTech shared library has been opened."
+"""
+    lib_opened
+Flag indicating whether the AlazarTech shared library has been opened.
+"""
 lib_opened = false
 
 using Alazar
@@ -29,10 +32,14 @@ import ICCommon: Stimulus,
 export InstrumentAlazar
 export inf_records
 
-"Alazar API representation of an infinite number of records."
+"""
+    const inf_records = U32(0x7FFFFFFF)
+Alazar API representation of an infinite number of records.
+"""
 const inf_records = U32(0x7FFFFFFF)
 
 """
+    abstract type InstrumentAlazar <: Instrument
 Abstract type representing an AlazarTech digitizer.
 """
 abstract type InstrumentAlazar <: Instrument end
