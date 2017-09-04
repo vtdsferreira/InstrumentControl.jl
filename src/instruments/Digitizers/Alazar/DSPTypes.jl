@@ -12,8 +12,9 @@ export DSPModule
 export DSPModuleInfo
 
 """
-Abstract parametric type representing a windowing function for DSP.
-The parameter determines the method of window generation:
+    abstract type DSPWindow{T}
+Abstract type representing a windowing function for DSP. The parameter determines the
+method of window generation:
 
 - `:alazar`: Use the AlazarDSP to synthesize the window
 - No parameter: Use default software method
@@ -22,37 +23,75 @@ In the future, other methods may be added.
 """
 abstract type DSPWindow{T} end
 
-"Flat window (ones). Implemented in AlazarDSP."
+"""
+    abstract type WindowNone{T} <: DSPWindow{T}
+Flat window (ones). Implemented in AlazarDSP.
+"""
 abstract type WindowNone{T} <: DSPWindow{T} end
 
-"Hanning window. Implemented in AlazarDSP."
+"""
+    abstract type WindowHanning{T} <: DSPWindow{T}
+Hanning window. Implemented in AlazarDSP.
+"""
 abstract type WindowHanning{T} <: DSPWindow{T} end
 
-"Hamming window. Implemented in AlazarDSP."
+"""
+    abstract type WindowHamming{T} <: DSPWindow{T}
+Hamming window. Implemented in AlazarDSP.
+"""
 abstract type WindowHamming{T} <: DSPWindow{T} end
 
-"Blackman window. Implemented in AlazarDSP."
+"""
+    abstract type WindowBlackman{T} <: DSPWindow{T}
+Blackman window. Implemented in AlazarDSP.
+"""
 abstract type WindowBlackman{T} <: DSPWindow{T} end
 
-"Blackman-Harris window. Implemented in AlazarDSP."
+"""
+    abstract type WindowBlackmanHarris{T} <: DSPWindow{T}
+Blackman-Harris window. Implemented in AlazarDSP.
+"""
 abstract type WindowBlackmanHarris{T} <: DSPWindow{T} end
 
-"Bartlett window. Implemented in AlazarDSP."
+"""
+    abstract type WindowBartlett{T} <: DSPWindow{T}
+Bartlett window. Implemented in AlazarDSP.
+"""
 abstract type WindowBartlett{T} <: DSPWindow{T} end
 
-"Flat window (zeroes!)."
+"""
+    abstract type WindowZeroes{T} <: DSPWindow{T}
+Flat window (zeroes!).
+"""
 abstract type WindowZeroes{T} <: DSPWindow{T} end
 
-"Type alias for `WindowNone`."
+"""
+    const WindowOnes{T} = WindowNone{T}
+Type alias for `WindowNone`.
+"""
 const WindowOnes{T} = WindowNone{T}
 
-"Represents a DSP module of an AlazarTech digitizer."
+"""
+    mutable struct DSPModule
+        ins::InstrumentAlazar
+        handle::dsp_module_handle
+    end
+Represents a DSP module of an AlazarTech digitizer.
+"""
 mutable struct DSPModule
     ins::InstrumentAlazar
     handle::dsp_module_handle
 end
 
-"Encapsulates DSP module information: type, version, and max record length."
+"""
+    struct DSPModuleInfo
+        dsp_module_id::U32
+        version_major::U16
+        version_minor::U16
+        max_record_length::U32
+    end
+Encapsulates DSP module information: type, version, and max record length.
+"""
 struct DSPModuleInfo
     dsp_module_id::U32
     version_major::U16

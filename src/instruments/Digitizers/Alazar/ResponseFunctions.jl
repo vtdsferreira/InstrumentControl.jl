@@ -1,3 +1,8 @@
+"""
+    initmodes(r::AlazarResponse)
+Should be called at the beginning of a measure method to initialize the AlazarMode objects.
+"""
+function initmodes end
 
 function initmodes(r::StreamResponse)
     r.m.total_samples = r.samples_per_ch * (r.ins)[ChannelCount]
@@ -16,13 +21,10 @@ function initmodes(r::RecordResponse)
 end
 
 """
-Should be called at the beginning of a measure method to initialize the
-AlazarMode objects.
+    measure(ch::AlazarResponse; diagnostic::Bool=false)
+Largely generic method for measuring `AlazarResponse`. Can be considered a
+prototype for more complicated user-defined methods.
 """
-initmodes
-
-"Largely generic method for measuring `AlazarResponse`. Can be considered a
-prototype for more complicated user-defined methods."
 function measure(ch::AlazarResponse; diagnostic::Bool=false)
     a = ch.ins
     m = ch.m
@@ -111,6 +113,7 @@ function measure(ch::AlazarResponse; diagnostic::Bool=false)
 end
 
 """
+    measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
 Assume two-channel IQ FFT acquisition.
 """
 function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
@@ -277,8 +280,8 @@ function postprocess(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.DMA
     convert(SharedArray, array)::SharedArray{T,2}
 end
 
-function postprocess(
-        ch::IQSoftwareResponse, fft_array::SharedArray{T,2}) where {T <: Union{Float32, Float64}}
+function postprocess(ch::IQSoftwareResponse, fft_array::SharedArray{T,2}) where
+        {T <: Union{Float32,Float64}}
 
     data = sdata(fft_array)
     array = reinterpret(Complex{T}, data, (Int(size(data)[1]/2), size(data)[2]))
