@@ -38,12 +38,12 @@ mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
 
     m::AlazarMode
 
-    (::Type{ContinuousStreamResponse{T}}){T}(a,b) = begin
+    function ContinuousStreamResponse{T}(a,b) where {T}
         b <= 0 && error("Need at least one sample.")
         r = new{T}(a,b)
         r.m = ContinuousStreamMode(r.samples_per_ch *
                                    r.ins[ChannelCount])
-        r
+        return r
     end
 end
 ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
@@ -59,12 +59,12 @@ mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
 
     m::AlazarMode
 
-    (::Type{TriggeredStreamResponse{T}}){T}(a,b) = begin
+    function TriggeredStreamResponse{T}(a,b) where {T}
         b <= 0 && error("Need at least one sample.")
         r = new{T}(a,b)
         r.m = TriggeredStreamMode(r.samples_per_ch *
                                   r.ins[ChannelCount])
-        r
+        return r
     end
 end
 TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
@@ -81,13 +81,13 @@ mutable struct NPTRecordResponse{T} <: RecordResponse{T}
 
     m::AlazarMode
 
-    (::Type{NPTRecordResponse{T}}){T}(a,b,c) = begin
+    function NPTRecordResponse{T}(a,b,c) where {T}
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
         r = new{T}(a,b,c)
         r.m = NPTRecordMode(r.sam_per_rec_per_ch * r.ins[ChannelCount],
                             r.total_recs)
-        r
+        return r
     end
 end
 NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
@@ -106,7 +106,7 @@ mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
 
     m::AlazarMode
 
-    (::Type{FFTHardwareResponse{T}}){T,S<:Alazar.AlazarFFTBits}(a,b,c,d,e::Type{S}) = begin
+    function FFTHardwareResponse{T}(a,b,c,d,e::Type{S}) where {T,S<:Alazar.AlazarFFTBits}
         b <= 0 && error("Need at least one sample.")
         c == 0 && error("FFT length (samples) too short.")
         !ispow2(c) && error("FFT length (samples) not a power of 2.")
@@ -115,7 +115,7 @@ mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
         r = new{T}(a,b,c,d,e)
         r.m = FFTRecordMode(r.sam_per_rec, r.sam_per_fft,
                             r.total_recs, r.output_eltype)
-        r
+        return r
     end
 end
 FFTHardwareResponse(a,b,c,d,e::Type{S}) where {S <: Alazar.AlazarFFTBits} =
@@ -135,7 +135,7 @@ mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
 
     m::AlazarMode
 
-    (::Type{IQSoftwareResponse{T}}){T}(a,b,c,d) = begin
+    function IQSoftwareResponse{T}(a,b,c,d) where {T}
         b <= 0 && error("Need at least one sample.")
         c <= 0 && error("Need at least one record.")
         r = new{T}(a,b,c,d)

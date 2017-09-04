@@ -123,7 +123,7 @@ function __init__()
     # VISA resource manager
     resourcemanager[] = VISA.viOpenDefaultRM()
 
-    # Finally, set up and initialize a sweep queue.
+    # Set up and initialize a sweep queue.
     sweepjobqueue[] = SweepJobQueue()
 end
 

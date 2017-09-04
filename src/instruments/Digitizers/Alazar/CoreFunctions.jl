@@ -147,10 +147,7 @@ function bufferarray end
 
 function bufferarray(a::InstrumentAlazar, m::AlazarMode)
     bits = bits_per_sample(a)
-    btype = begin # which does not introduce a new scope block, fyi
-        bits == 8 ? Alazar8Bit :
-        (bits == 12 ? Alazar12Bit : Alazar16Bit)
-    end
+    btype = (bits == 8 ? Alazar8Bit : (bits == 12 ? Alazar12Bit : Alazar16Bit))
     return Alazar.DMABufferArray{btype}(m.buf_size, m.buf_count)
 end
 
