@@ -529,8 +529,8 @@ function fft_fpga_setup(a::InstrumentAlazar, m::FFTRecordMode)
                                        m.sam_per_rec,
                                        m.sam_per_fft - m.sam_per_rec)
 
-    m.re_window = convert(Array{Cfloat,1},re_window)
-    m.im_window = convert(Array{Cfloat,1},im_window)
+    m.re_window = convert(Vector{Cfloat}, re_window)
+    m.im_window = convert(Vector{Cfloat}, im_window)
 
     r = AlazarFFTSetWindowFunction(dspmodule.handle,
         m.sam_per_fft, m.re_window, m.im_window)

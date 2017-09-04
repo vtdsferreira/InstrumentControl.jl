@@ -94,8 +94,8 @@ mutable struct FFTRecordMode <: RecordMode
     total_recs::Int
     output_eltype::DataType
 
-    re_window::Array{Cfloat}
-    im_window::Array{Cfloat}
+    re_window::Vector{Cfloat}
+    im_window::Vector{Cfloat}
     by_rec::U32
     buf_size::Int
     buf_count::Int
