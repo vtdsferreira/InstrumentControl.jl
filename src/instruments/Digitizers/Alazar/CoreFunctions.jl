@@ -512,11 +512,7 @@ end
 If necessary, performs `AlazarFFTSetup`, which should be called before
 `AlazarBeforeAsyncRead`.
 """
-function fft_fpga_setup end
-
-function fft_fpga_setup(a::InstrumentAlazar, m::AlazarMode)
-    nothing
-end
+fft_fpga_setup(a::InstrumentAlazar, m::AlazarMode) = nothing
 
 function fft_fpga_setup(a::InstrumentAlazar, m::FFTRecordMode)
 
