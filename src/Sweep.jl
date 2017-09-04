@@ -626,13 +626,8 @@ function sweep(dep::Response, indep::Vararg{Tuple{Stimulus, AbstractVector}, N};
     dbsocket()
     qsocket()
 
-    #Check if measure function has been appropriately defined
-    Ts = Base.return_types(measure, (typeof(dep),))
-    length(Ts) == 0 && error(string("measure(::", typeof(dep), ") appears to have no ",
-        "return types. Did you define this method?"))
-    length(Ts) > 1 && error(string("measure(::", typeof(dep), ") has multiple return ",
-        "types somehow."))
-    T = Ts[1] #the return type of the measure function, which should be an array with some dimension
+    # Check if measure function has been appropriately defined
+    T = Base.promote_op(measure, typeof(dep))
     !isleaftype(T) && error(string("measure(::", typeof(dep), ") must return a leaf type. ",
         "Is this method type-stable?"))
 
