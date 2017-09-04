@@ -21,11 +21,11 @@ function initmodes(r::RecordResponse)
 end
 
 """
-    measure(ch::AlazarResponse; diagnostic::Bool=false)
+    measure(ch::AlazarResponse, diagnostic::Bool=false)
 Largely generic method for measuring `AlazarResponse`. Can be considered a
 prototype for more complicated user-defined methods.
 """
-function measure(ch::AlazarResponse; diagnostic::Bool=false)
+function measure(ch::AlazarResponse, diagnostic::Bool=false)
     a = ch.ins
     m = ch.m
 
@@ -113,10 +113,10 @@ function measure(ch::AlazarResponse; diagnostic::Bool=false)
 end
 
 """
-    measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
+    measure(ch::IQSoftwareResponse, diagnostic::Bool=false)
 Assume two-channel IQ FFT acquisition.
 """
-function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
+function measure(ch::IQSoftwareResponse, diagnostic::Bool=false)
     a = ch.ins
     m = ch.m
 
