@@ -134,15 +134,15 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     tstep = 1/a[SampleRate]
     ftbase = ch.f*linspace(0., tstep*(N-1), N)
 
-    imix0 = Array{Float32}(2, N)
+    imix0 = Matrix{Float32}(2, N)
     imix0[1,:] .= cos.(2pi*ftbase)
     imix0[2,:] .= sin.(2pi*ftbase)
 
     # Multiply by a Hann window function
     hann = Float32[(0.5*(1-cos(2π*i/N))) for i in 1:N]'
-    imix0 = (imix0.*hann)::Array{Float32,2}
+    imix0 = (imix0.*hann)::Matrix{Float32}
 
-    qmix0 = Array{Float32}(2, N)
+    qmix0 = Matrix{Float32}(2, N)
     qmix0[1,:] = imix0[2,:] .* -1
     qmix0[2,:] = imix0[1,:]
 
@@ -167,7 +167,6 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
 
     # Allocate memory for DMA buffers.
     buf_array = bufferarray(a,m)
-    backing = buf_array.backing
 
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array
@@ -179,10 +178,10 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
     rec_per_buf = records_per_buffer(a,m)
 
     # We will need an array to store the 32-bit floats.
-    fft_buffer = SharedArray{Float32}(sam_per_buf)
+    fft_buffer = Vector{Float32}(sam_per_buf)
 
     # We also preallocate the output array.
-    iqout = Array{Complex{Float32}}(m.total_recs)
+    iqout = Vector{Complex{Float32}}(m.total_recs)
 
     try
         # FIRST turn off output to AUX I/O
@@ -200,17 +199,8 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
 
         for dmaptr in buf_array
             wait_buffer(a, m, dmaptr, timeout_ms)
-            tofloat!(backing, fft_buffer, sam_per_buf, buf_completed)
-            @sync begin
-                for p in procs(fft_buffer)
-                    @async begin
-                        remotecall_wait(InstrumentControl.worker_dotminus!, p,
-                            fft_buffer, mean(fft_buffer))
-                    end
-                end
-            end
-            iqfft(fft_buffer, imix, qmix, iqout,
-                sam_per_buf, rec_per_buf, buf_completed)
+            prep_fft_buffer!(fft_buffer, backing)
+            iqfft(fft_buffer, imix, qmix, iqout, sam_per_buf, rec_per_buf, buf_completed)
 
             buf_completed += 1
         end
@@ -224,28 +214,19 @@ function measure(ch::IQSoftwareResponse; diagnostic::Bool=false)
 end
 
 """
-Arrange multithreaded conversion of the Alazar formats to the usual IEEE
-floating-point format.
+Arrange conversion of the Alazar formats to the usual IEEE floating-point format.
 """
-function tofloat!(backing::SharedArray, fft_buffer::SharedArray,
-    sam_per_buf, buf_completed)
-    @sync begin
-        samplerange = ((1:sam_per_buf) + buf_completed*sam_per_buf)
-        for p in procs(backing)
-            @async begin
-                remotecall_wait(InstrumentControl.worker_tofloat!, p,
-                    backing, samplerange, fft_buffer)
-            end
-        end
-    end
+function prep_fft_buffer!(fft_buffer::AbstractVector{T},
+        backing::AbstractVector{<:AlazarBits}) where {T<:AbstractFloat}
+    fft_buffer .= convert.(T, backing)
+    fft_buffer .-= mean(fft_buffer)
+    return nothing
 end
 
 """
 Multiply the measurement with imix
 """
-function iqfft(fft_buffer::SharedArray, imix, qmix, iqout,
-    sam_per_buf, rec_per_buf, buf_completed)
-
+function iqfft(fft_buffer, imix, qmix, iqout, sam_per_buf, rec_per_buf, buf_completed)
     sam_per_rec = Int(sam_per_buf/rec_per_buf)
     rng = 1:sam_per_rec
 
@@ -260,29 +241,24 @@ function iqfft(fft_buffer::SharedArray, imix, qmix, iqout,
 end
 
 """
-Arrange for reinterpretation or conversion of the data stored in the
-DMABuffers (backed by SharedArrays) to the desired return type.
+    postprocess
+Arrange for reinterpretation or conversion of the data stored in a `DMABufferVector`
+to the desired return type.
 """
 function postprocess end
 
-function postprocess(ch::AlazarResponse{SharedArray{T,1}}, buf_array::Alazar.DMABufferArray) where {T}
-    backing = buf_array.backing
-    SharedArray{T,1}(sdata(backing))
+function postprocess(ch::AlazarResponse{Vector{T}}, bufs::Alazar.DMABufferVector) where {T}
+    Vector{T}(bufs.backing)
 end
 
-function postprocess(ch::AlazarResponse{SharedArray{T,2}}, buf_array::Alazar.DMABufferArray) where {T}
-    backing = buf_array.backing
-    array = Array{T}(sdata(backing))
-
+function postprocess(ch::AlazarResponse{Matrix{T}}, bufs::Alazar.DMABufferVector) where {T}
     sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
     rec_per_acq = records_per_acquisition(ch.ins, ch.m)
-    array = reshape(array, sam_per_rec, rec_per_acq)
-    convert(SharedArray, array)::SharedArray{T,2}
+    convert(Matrix{T}, reshape(bufs.backing, sam_per_rec, rec_per_acq))
 end
 
 function postprocess(ch::IQSoftwareResponse, fft_array::SharedArray{T,2}) where
         {T <: Union{Float32,Float64}}
-
     data = sdata(fft_array)
     array = reinterpret(Complex{T}, data, (Int(size(data)[1]/2), size(data)[2]))
 end

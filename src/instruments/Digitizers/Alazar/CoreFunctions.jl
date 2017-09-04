@@ -139,7 +139,7 @@ boardkind(handle::U32) = AlazarGetBoardKind(handle)
 
 """
     bufferarray(a::InstrumentAlazar, m::AlazarMode)
-Given and `InstrumentAlazar` and `AlazarMode`, returns a `DMABufferArray`
+Given and `InstrumentAlazar` and `AlazarMode`, returns a `DMABufferVector`
 with the correct number of buffers and buffer sizes. `buffersizing` should have
 been called before this function.
 """
@@ -148,11 +148,11 @@ function bufferarray end
 function bufferarray(a::InstrumentAlazar, m::AlazarMode)
     bits = bits_per_sample(a)
     btype = (bits == 8 ? Alazar8Bit : (bits == 12 ? Alazar12Bit : Alazar16Bit))
-    return Alazar.DMABufferArray{btype}(m.buf_size, m.buf_count)
+    return DMABufferVector(PageAlignedVector{btype}, m.buf_size, m.buf_count)
 end
 
 function bufferarray(a::InstrumentAlazar, m::FFTRecordMode)
-    return Alazar.DMABufferArray{m.output_eltype}(m.buf_size, m.buf_count)
+    return DMABufferVector(PageAlignedVector{m.output_eltype}, m.buf_size, m.buf_count)
 end
 
 """
