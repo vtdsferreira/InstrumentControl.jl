@@ -1,19 +1,18 @@
 """
-    bufferarray(ch::AlazarResponse{S,T}, m::AlazarMode) where {S,T}
-Given an `AlazarResponse` and `AlazarMode`, returns a `DMABufferVector` with the correct
-number of buffers and buffer sizes. `buffersizing` should have been called before this
-function.
+    bufferarray(ch::AlazarResponse{S,T}) where {S,T}
+Given an `AlazarResponse`, returns a `DMABufferVector` with the correct number of buffers
+and buffer sizes. `buffersizing` should have been called before this function.
 """
 function bufferarray end
 
-bufferarray(ch::AlazarResponse{S,8}, m::AlazarMode) where {S} =
-    return DMABufferVector(PageAlignedVector{Alazar8Bit}, m.buf_size, m.buf_count)
-bufferarray(ch::AlazarResponse{S,12}, m::AlazarMode) where {S} =
-    return DMABufferVector(PageAlignedVector{Alazar12Bit}, m.buf_size, m.buf_count)
-bufferarray(ch::AlazarResponse{S,16}, m::AlazarMode) where {S} =
-    return DMABufferVector(PageAlignedVector{Alazar16Bit}, m.buf_size, m.buf_count)
-bufferarray(a::FFTHardwareResponse{S,T,U}, m::FFTRecordMode{U}) where {S,T,U} =
-    return DMABufferVector(PageAlignedVector{U}, m.buf_size, m.buf_count)
+bufferarray(ch::AlazarResponse{S,8}) where {S} =
+    return DMABufferVector(PageAlignedVector{Alazar8Bit}, ch.m.buf_size, ch.m.buf_count)
+bufferarray(ch::AlazarResponse{S,12}) where {S} =
+    return DMABufferVector(PageAlignedVector{Alazar12Bit}, ch.m.buf_size, ch.m.buf_count)
+bufferarray(ch::AlazarResponse{S,16}) where {S} =
+    return DMABufferVector(PageAlignedVector{Alazar16Bit}, ch.m.buf_size, ch.m.buf_count)
+bufferarray(a::FFTHardwareResponse{S,T,U}) where {S,T,U} =
+    return DMABufferVector(PageAlignedVector{U}, ch.m.buf_size, ch.m.buf_count)
 
 """
     initmodes(r::AlazarResponse)
@@ -77,7 +76,7 @@ function measure(ch::AlazarResponse, diagnostic::Bool=false)
     transfertime_s = 0
 
     # Allocate memory for DMA buffers
-    buf_array = bufferarray(ch,m)
+    buf_array = bufferarray(ch)
 
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array
@@ -188,7 +187,7 @@ function measure(ch::IQSoftwareResponse, diagnostic::Bool=false)
     buf_completed = 0
 
     # Allocate memory for DMA buffers.
-    buf_array = bufferarray(ch,m)
+    buf_array = bufferarray(ch)
 
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array
