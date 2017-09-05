@@ -1,20 +1,43 @@
 """
-    initmodes(r::AlazarResponse)
-Should be called at the beginning of a measure method to initialize the AlazarMode objects.
+    bufferarray(ch::AlazarResponse{S,T}, m::AlazarMode) where {S,T}
+Given an `AlazarResponse` and `AlazarMode`, returns a `DMABufferVector` with the correct
+number of buffers and buffer sizes. `buffersizing` should have been called before this
+function.
 """
-function initmodes end
+function bufferarray end
 
-function initmodes(r::StreamResponse)
+bufferarray(ch::AlazarResponse{S,8}, m::AlazarMode) where {S} =
+    return DMABufferVector(PageAlignedVector{Alazar8Bit}, m.buf_size, m.buf_count)
+bufferarray(ch::AlazarResponse{S,12}, m::AlazarMode) where {S} =
+    return DMABufferVector(PageAlignedVector{Alazar12Bit}, m.buf_size, m.buf_count)
+bufferarray(ch::AlazarResponse{S,16}, m::AlazarMode) where {S} =
+    return DMABufferVector(PageAlignedVector{Alazar16Bit}, m.buf_size, m.buf_count)
+bufferarray(a::FFTHardwareResponse{S,T,U}, m::FFTRecordMode{U}) where {S,T,U} =
+    return DMABufferVector(PageAlignedVector{U}, m.buf_size, m.buf_count)
+
+"""
+    initmodes(r::AlazarResponse)
+Should be called at the beginning of a measure method to do initial checks and initialize
+the AlazarMode objects.
+"""
+function initmodes(r::AlazarResponse)
+    declared_bits(r) != bits_per_sample(r.ins) &&
+        error("bits/sample does not match digitizer. ",
+              "To fix, make a new AlazarResponse object.")
+    _initmodes(r)
+end
+
+function _initmodes(r::StreamResponse)
     r.m.total_samples = r.samples_per_ch * (r.ins)[ChannelCount]
 end
 
-function initmodes(r::FFTResponse)
+function _initmodes(r::FFTResponse)
     r.m.sam_per_rec = r.sam_per_rec
     r.m.sam_per_fft = r.sam_per_fft
     r.m.total_recs = r.total_recs
 end
 
-function initmodes(r::RecordResponse)
+function _initmodes(r::RecordResponse)
     r.m.sam_per_rec = r.sam_per_rec_per_ch * (r.ins)[ChannelCount]
     r.m.total_recs = r.total_recs
 end
@@ -54,7 +77,7 @@ function measure(ch::AlazarResponse, diagnostic::Bool=false)
     transfertime_s = 0
 
     # Allocate memory for DMA buffers
-    buf_array = bufferarray(a,m)
+    buf_array = bufferarray(ch,m)
 
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array
@@ -165,7 +188,7 @@ function measure(ch::IQSoftwareResponse, diagnostic::Bool=false)
     buf_completed = 0
 
     # Allocate memory for DMA buffers.
-    buf_array = bufferarray(a,m)
+    buf_array = bufferarray(ch,m)
 
     # Add the buffers to a list of buffers available to be filled by the board
     for dmaptr in buf_array

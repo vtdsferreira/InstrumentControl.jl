@@ -137,10 +137,7 @@ mutable struct AlazarATS9870 <: InstrumentAlazar
 end
 
 """
-```
-setindex!(a::AlazarATS9870, rate::Real, ::Type{SampleRate})
-```
-
+    setindex!(a::AlazarATS9870, rate::Real, ::Type{SampleRate})
 Configures the ATS9870 to 10 MHz PLL external clock mode. The resulting 1 GS/s
 sample rate can be decimated by a factor of 1, 2, 4, or any multiple of 10 up
 to 100000. The nearest possible sample rate above or equal to what is requested
@@ -182,10 +179,7 @@ end
 # Romain Deterre at AlazarTech claims Table 8 is samples / record / channel,
 # but that does not explain the observed behavior with MinSamplesPerRecord.
 """
-```
-getindex(a::AlazarATS9870, ::Type{MinSamplesPerRecord})
-```
-
+    getindex(a::AlazarATS9870, ::Type{MinSamplesPerRecord})
 Minimum samples per record. Observed behavior deviates from Table 8 of the
 Alazar API.
 """
@@ -193,29 +187,20 @@ getindex(a::AlazarATS9870, ::Type{MinSamplesPerRecord}) =
     Int(512 / a[ChannelCount])
 
 """
-```
-getindex(a::AlazarATS9870, ::Type{MaxBufferBytes})
-```
-
+    getindex(a::AlazarATS9870, ::Type{MaxBufferBytes})
 Maximum number of bytes for a given DMA buffer.
 """
 getindex(a::AlazarATS9870, ::Type{MaxBufferBytes}) = 64*1024*1024  # 64 MB
 
 """
-```
-getindex(a::AlazarATS9870, ::Type{MaxFFTSamples})
-```
-
+    getindex(a::AlazarATS9870, ::Type{MaxFFTSamples})
 Maximum number of samples in an FPGA-based FFT. Can be obtained from `dsp_getinfo`
 but we have hardcoded since it should not change for this model of digitizer.
 """
 getindex(a::AlazarATS9870, ::Type{MaxFFTSamples}) = 0
 
 """
-```
-getindex(a::AlazarATS9870, ::Type{BufferAlignment})
-```
-
+    getindex(a::AlazarATS9870, ::Type{BufferAlignment})
 Returns the buffer alignment requirement (samples / record / channel).
 Note that buffers must also be page-aligned.
 From Table 8 of the Alazar API.
@@ -223,33 +208,25 @@ From Table 8 of the Alazar API.
 getindex(a::AlazarATS9870, ::Type{BufferAlignment}) = 64 * a[ChannelCount]
 
 """
-```
-getindex(a::AlazarATS9870, ::Type{PretriggerAlignment})
-```
-
+    getindex(a::AlazarATS9870, ::Type{PretriggerAlignment})
 Returns the pretrigger alignment requirement (samples / record / channel).
 From Table 8 of the Alazar API.
 """
 getindex(a::AlazarATS9870, ::Type{PretriggerAlignment}) = 64 * a[ChannelCount]
 
 """
-```
-bits_per_sample(a::AlazarATS9870)
-```
-
+    bits_per_sample(a::AlazarATS9870)
 Always 8 bits per sample for this digitizer.
 """
 bits_per_sample(a::AlazarATS9870) = 0x08
 
 """
-```
-bytes_per_sample(a::AlazarATS9870)
-```
-
+    bytes_per_sample(a::AlazarATS9870)
 Always one byte per sample for this digitizer.
 """
 bytes_per_sample(a::AlazarATS9870) = 1
 
+# TODO: docs inaccurate here, why the commenting out?
 """
 Returns a UInt32 in the range 0--255 given a desired trigger level in Volts.
 """

@@ -19,7 +19,6 @@ export wait_buffer
 export windowfunction
 
 # eventually we will not export these:
-export bufferarray
 export buffersizing
 export recordsizing
 export windowing
@@ -136,24 +135,6 @@ Returns the kind of digitizer; corresponds to a constant in AlazarConstants.jl i
 Alazar.jl package.
 """
 boardkind(handle::U32) = AlazarGetBoardKind(handle)
-
-"""
-    bufferarray(a::InstrumentAlazar, m::AlazarMode)
-Given and `InstrumentAlazar` and `AlazarMode`, returns a `DMABufferVector`
-with the correct number of buffers and buffer sizes. `buffersizing` should have
-been called before this function.
-"""
-function bufferarray end
-
-function bufferarray(a::InstrumentAlazar, m::AlazarMode)
-    bits = bits_per_sample(a)
-    btype = (bits == 8 ? Alazar8Bit : (bits == 12 ? Alazar12Bit : Alazar16Bit))
-    return DMABufferVector(PageAlignedVector{btype}, m.buf_size, m.buf_count)
-end
-
-function bufferarray(a::InstrumentAlazar, m::FFTRecordMode{T}) where {T}
-    return DMABufferVector(PageAlignedVector{T}, m.buf_size, m.buf_count)
-end
 
 """
     buffersizing(a::InstrumentAlazar, m::AlazarMode)
