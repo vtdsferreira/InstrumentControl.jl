@@ -178,13 +178,13 @@ function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
 end
 
 """
-    queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Waveform},
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
                             trigger_mode::Symbol = :Software_HVI)
-    queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Waveform},
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
                             trigger_mode::Symbol = :Software_HVI)
-    queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Waveform},
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
                             trigger_mode::Symbol = :Software_HVI)
-    queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Waveform},
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
                             trigger_mode::Symbol = :Software_HVI)
 
 Queues a sequence of waveforms into the queue of channel `ch`. The sequence of
@@ -199,7 +199,7 @@ function queue_sequence end
 
 # I flesh out the method with wavsForQueue::Vector{Waveform}, rather than the other
 # ones, because it is easier/convenient to convert other wavsForQueue types to this type
-function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Waveform},
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
                         trigger_mode::Symbol = :Auto)
     queue_waveform(ins, wavsForQueue[1], ch::Integer, trigger_mode)
     for i=2::size(wavsForQueue)[1]
@@ -208,7 +208,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Wa
     nothing
 end
 
-function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{Waveform},
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vararg{Waveform},
                         trigger_mode::Symbol = :Software_HVI)
     wavsForQueue = collect(wavsForQueue) #turn tuple of waveforms into vector of waveforms
     #calling upon wavsForQueue::Vector{Waveform} method
@@ -216,7 +216,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{Wa
     nothing
 end
 
-function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{Integer},
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Integer},
                         trigger_mode::Symbol = :Software_HVI)
     wavsForQueue = map(x-->ins.waveforms[x], wavsForQueue)
     #calling upon wavsForQueue::Vector{Waveform} method
@@ -224,7 +224,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vector{In
     nothing
 end
 
-function queue_sequence(ins::InsAWGM320XA ,ch::Interger, wavsForQueue::Vararg{Integer},
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vararg{Integer},
                         trigger_mode::Symbol = :Software_HVI)
     wavsForQueue = collect(wavsForQueue) #turn tuple of integers into vector of integers
     #calling upon wavsForQueue::Vector{Integer} method
