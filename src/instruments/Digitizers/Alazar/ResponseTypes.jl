@@ -35,7 +35,7 @@ abstract type FFTResponse{T} <: AlazarResponse{T} end
 Response type implementing the "continuous streaming mode" of the Alazar API.
 """
 mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
-    ins::InstrumentAlazar
+    ins::T
     samples_per_ch::Int
     m::ContinuousStreamMode
 
@@ -54,7 +54,7 @@ return_type(::ContinuousStreamResponse) = Vector{Float16}
 Response type implementing the "triggered streaming mode" of the Alazar API.
 """
 mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
-    ins::InstrumentAlazar
+    ins::T
     samples_per_ch::Int
     m::TriggeredStreamMode
 
@@ -73,7 +73,7 @@ return_type(::TriggeredStreamResponse) = Vector{Float16}
 Response type implementing the "NPT record mode" of the Alazar API.
 """
 mutable struct NPTRecordResponse{T} <: RecordResponse{T}
-    ins::InstrumentAlazar
+    ins::T
     sam_per_rec_per_ch::Int
     total_recs::Int
     m::NPTRecordMode
@@ -94,7 +94,7 @@ return_type(::NPTRecordResponse) = Matrix{Float16}
 Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
 """
 mutable struct FFTHardwareResponse{T,S} <: FFTResponse{T}
-    ins::InstrumentAlazar
+    ins::T
     sam_per_rec::Int
     sam_per_fft::Int
     total_recs::Int
@@ -122,7 +122,7 @@ return the FFT. Slower than doing it with the FPGA, but ultimately necessary if
 we want to use both channels as inputs to the FFT.
 """
 mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
-    ins::InstrumentAlazar
+    ins::T
     sam_per_rec_per_ch::Int
     total_recs::Int
     f::Float64
