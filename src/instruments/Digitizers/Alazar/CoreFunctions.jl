@@ -151,8 +151,8 @@ function bufferarray(a::InstrumentAlazar, m::AlazarMode)
     return DMABufferVector(PageAlignedVector{btype}, m.buf_size, m.buf_count)
 end
 
-function bufferarray(a::InstrumentAlazar, m::FFTRecordMode)
-    return DMABufferVector(PageAlignedVector{m.output_eltype}, m.buf_size, m.buf_count)
+function bufferarray(a::InstrumentAlazar, m::FFTRecordMode{T}) where {T}
+    return DMABufferVector(PageAlignedVector{T}, m.buf_size, m.buf_count)
 end
 
 """
@@ -279,7 +279,7 @@ function buffersizing(a::InstrumentAlazar, m::StreamMode)
     m.buf_size = size_buf
 end
 
-function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
+function buffersizing(a::InstrumentAlazar, m::FFTRecordMode{T}) where {T}
 
     # The FFT length (samples) will *not* be resized.
     # The record length for acquisition may be resized if necessary.
@@ -302,7 +302,7 @@ function buffersizing(a::InstrumentAlazar, m::FFTRecordMode)
     pagesize = Base.Mmap.PAGESIZE
 
     by_raw_sam = bytes_per_sample(a)   # Bytes per raw (not FFT) sample
-    by_fft_sam = sizeof(m.output_eltype)        # Bytes per FFT sample
+    by_fft_sam = sizeof(T)        # Bytes per FFT sample
     # by_raw_rec may change depending on how we resize the records
     by_fft_rec = m.by_rec                       # Bytes per FFT record
 
@@ -514,7 +514,7 @@ If necessary, performs `AlazarFFTSetup`, which should be called before
 """
 fft_fpga_setup(a::InstrumentAlazar, m::AlazarMode) = nothing
 
-function fft_fpga_setup(a::InstrumentAlazar, m::FFTRecordMode)
+function fft_fpga_setup(a::InstrumentAlazar, m::FFTRecordMode{T}) where {T}
 
     dspmodule = dsp_modules(a)[1]
 
@@ -537,7 +537,7 @@ function fft_fpga_setup(a::InstrumentAlazar, m::FFTRecordMode)
 
     recordLength_samples = m.sam_per_rec
     fftLength_samples = m.sam_per_fft
-    outputFormat = outputformat(m.output_eltype)
+    outputFormat = outputformat(T)
     footer = Alazar.FFT_FOOTER_NONE
 
     bytesPerOutputRecord = Array(U32,1)

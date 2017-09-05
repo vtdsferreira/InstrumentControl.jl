@@ -82,17 +82,15 @@ mutable struct TraditionalRecordMode <: RecordMode
 end
 
 """
-    mutable struct FFTRecordMode <: RecordMode
+    mutable struct FFTRecordMode{T} <: RecordMode
 See the AlazarTech documentation. Need to set samples per record `sam_per_rec`, samples per
-FFT `sam_per_fft` (which should be bigger than `sam_per_rec`), total number of records
-`total_recs`, and the FFT output type `output_eltype`. Some parameters must meet certain
-requirements.
+FFT `sam_per_fft` (which should be bigger than `sam_per_rec`), and total number of records
+`total_recs`. The FFT output type is `T`. Some parameters must meet certain requirements.
 """
-mutable struct FFTRecordMode <: RecordMode
+mutable struct FFTRecordMode{T} <: RecordMode
     sam_per_rec::Int
     sam_per_fft::Int
     total_recs::Int
-    output_eltype::DataType
 
     re_window::Vector{Cfloat}
     im_window::Vector{Cfloat}
@@ -100,7 +98,7 @@ mutable struct FFTRecordMode <: RecordMode
     buf_size::Int
     buf_count::Int
 
-    FFTRecordMode(sam_per_rec, sam_per_fft, total_recs, output_eltype) =
-        new(sam_per_rec, sam_per_fft, total_recs, output_eltype,
+    FFTRecordMode{T}(sam_per_rec, sam_per_fft, total_recs) where {T} =
+        new{T}(sam_per_rec, sam_per_fft, total_recs,
             Array(Cfloat, 0), Array(Cfloat, 0), 0, 0, 0)
 end

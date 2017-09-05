@@ -6,7 +6,9 @@ export IQSoftwareResponse
 
 """
     abstract type AlazarResponse{T} <: Response
-Abstract `Response` from an Alazar digitizer instrument.
+Abstract `Response` from an Alazar digitizer instrument. Subtypes should implement
+`return_type` to specify the output array type if they rely on the generic method
+`measure(::AlazarResponse)`.
 """
 abstract type AlazarResponse{T} <: Response end
 
@@ -37,14 +39,15 @@ mutable struct ContinuousStreamResponse{T} <: StreamResponse{T}
     samples_per_ch::Int
     m::ContinuousStreamMode
 
-    function ContinuousStreamResponse{T}(ins,samples_per_ch) where {T}
+    function ContinuousStreamResponse{T}(ins, samples_per_ch) where {T}
         @assert samples_per_ch > 0
         return new{T}(ins, samples_per_ch,
             ContinuousStreamMode(samples_per_ch * ins[ChannelCount]))
     end
 end
 ContinuousStreamResponse(a::InstrumentAlazar, samples_per_ch) =
-    ContinuousStreamResponse{Vector{Float16}}(a, samples_per_ch)
+    ContinuousStreamResponse{typeof(a)}(a, samples_per_ch)
+return_type(::ContinuousStreamResponse) = Vector{Float16}
 
 """
     mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
@@ -62,7 +65,8 @@ mutable struct TriggeredStreamResponse{T} <: StreamResponse{T}
     end
 end
 TriggeredStreamResponse(a::InstrumentAlazar, samples_per_ch) =
-    TriggeredStreamResponse{Vector{Float16}}(a, samples_per_ch)
+    TriggeredStreamResponse{typeof(a)}(a, samples_per_ch)
+return_type(::TriggeredStreamResponse) = Vector{Float16}
 
 """
     mutable struct NPTRecordResponse{T} <: RecordResponse{T}
@@ -82,32 +86,34 @@ mutable struct NPTRecordResponse{T} <: RecordResponse{T}
     end
 end
 NPTRecordResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs) =
-    NPTRecordResponse{Matrix{Float16}}(a, sam_per_rec_per_ch, total_recs)
+    NPTRecordResponse{typeof(a)}(a, sam_per_rec_per_ch, total_recs)
+return_type(::NPTRecordResponse) = Matrix{Float16}
 
 """
-    mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
+    mutable struct FFTHardwareResponse{T,S} <: FFTResponse{T}
 Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
 """
-mutable struct FFTHardwareResponse{T} <: FFTResponse{T}
+mutable struct FFTHardwareResponse{T,S} <: FFTResponse{T}
     ins::InstrumentAlazar
     sam_per_rec::Int
     sam_per_fft::Int
     total_recs::Int
-    output_eltype::DataType
-    m::FFTRecordMode
+    m::FFTRecordMode{S}
 
-    function (FFTHardwareResponse{T}(ins, sam_per_rec, sam_per_fft, total_recs, ::Type{S})
+    function (FFTHardwareResponse{T,S}(ins, sam_per_rec, sam_per_fft, total_recs)
             where {T,S<:Alazar.AlazarFFTBits})
         @assert sam_per_rec > 0
         @assert sam_per_fft > 0
         @assert ispow2(sam_per_fft)
         @assert total_recs > 0
-        return new{T}(ins, sam_per_rec, sam_per_fft, total_recs, S,
-            FFTRecordMode(sam_per_rec, sam_per_fft, total_recs, S))
+        return new{T,S}(ins, sam_per_rec, sam_per_fft, total_recs,
+            FFTRecordMode{S}(sam_per_rec, sam_per_fft, total_recs))
     end
 end
-FFTHardwareResponse(a,b,c,d,e::Type{S}) where {S <: Alazar.AlazarFFTBits} =
-    FFTHardwareResponse{Matrix{S}}(a,b,c,d,e)
+(FFTHardwareResponse(a::InstrumentAlazar, sam_per_rec, sam_per_fft, total_recs, ::Type{S})
+    where {S <: Alazar.AlazarFFTBits}) =
+        FFTHardwareResponse{typeof(a), S}(a, sam_per_rec, sam_per_fft, total_recs)
+return_type(::FFTHardwareResponse{T,S}) where {T,S} = Matrix{S}
 
 """
     mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
@@ -130,4 +136,4 @@ mutable struct IQSoftwareResponse{T} <: RecordResponse{T}
     end
 end
 IQSoftwareResponse(a::InstrumentAlazar, sam_per_rec_per_ch, total_recs, f) =
-    IQSoftwareResponse{Matrix{Float32}}(a, sam_per_rec_per_ch, total_recs, f)
+    IQSoftwareResponse{typeof(a)}(a, sam_per_rec_per_ch, total_recs, f)

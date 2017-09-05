@@ -12,7 +12,6 @@ function initmodes(r::FFTResponse)
     r.m.sam_per_rec = r.sam_per_rec
     r.m.sam_per_fft = r.sam_per_fft
     r.m.total_recs = r.total_recs
-    r.m.output_eltype = r.output_eltype
 end
 
 function initmodes(r::RecordResponse)
@@ -224,65 +223,52 @@ function prep_fft_buffer!(fft_buffer::AbstractVector{T},
 end
 
 """
-Multiply the measurement with imix
+Multiply the measurement with iqfft
 """
 function iqfft(fft_buffer, imix, qmix, iqout, sam_per_buf, rec_per_buf, buf_completed)
-    sam_per_rec = Int(sam_per_buf/rec_per_buf)
+    sam_per_rec = div(sam_per_buf, rec_per_buf)
     rng = 1:sam_per_rec
-
-    k = rec_per_buf*buf_completed
+    k = rec_per_buf * buf_completed
     for j in 1:rec_per_buf
         k += 1
-        I = sum(fft_buffer[rng] .* imix)
-        Q = sum(fft_buffer[rng] .* qmix)
+        I = sum(i .* imix for i in @view fft_buffer[rng])
+        Q = sum(q .* qmix for q in @view fft_buffer[rng])
         iqout[k] = Complex(I,Q)
         rng += sam_per_rec
     end
 end
 
 """
-    postprocess
+    postprocess(ch::AlazarResponse, bufs::Alazar.DMABufferVector)
 Arrange for reinterpretation or conversion of the data stored in a `DMABufferVector`
 to the desired return type.
 """
-function postprocess end
-
-function postprocess(ch::AlazarResponse{Vector{T}}, bufs::Alazar.DMABufferVector) where {T}
-    Vector{T}(bufs.backing)
+function postprocess(ch::AlazarResponse, bufs::Alazar.DMABufferVector)
+    _postprocess(return_type(ch), ch, bufs)
 end
 
-function postprocess(ch::AlazarResponse{Matrix{T}}, bufs::Alazar.DMABufferVector) where {T}
+function _postprocess(T::Type{<:AbstractVector}, ch, bufs)
+    T(bufs.backing)
+end
+
+function _postprocess(T::Type{<:AbstractMatrix}, ch, bufs)
     sam_per_rec = samples_per_record_returned(ch.ins, ch.m)
     rec_per_acq = records_per_acquisition(ch.ins, ch.m)
-    convert(Matrix{T}, reshape(bufs.backing, sam_per_rec, rec_per_acq))
+    convert(T, reshape(bufs.backing, sam_per_rec, rec_per_acq))
 end
 
-function postprocess(ch::IQSoftwareResponse, fft_array::SharedArray{T,2}) where
-        {T <: Union{Float32,Float64}}
-    data = sdata(fft_array)
-    array = reinterpret(Complex{T}, data, (Int(size(data)[1]/2), size(data)[2]))
-end
-
-# Triangular dispatch would be nice here (waiting for Julia 0.6)
-# scaling{T, S<:AbstractArray{T,2}}(resp::FFTRecordResponse{S}, ...
-"Returns the axis scaling for an FFT response."
-function scaling(resp::FFTResponse{T},
-        whichaxis::Integer=1) where {T <: AbstractArray}
-
+"""
+    scaling(resp::FFTResponse, whichaxis::Integer = 1)
+Returns the axis scaling for an FFT response.
+"""
+function scaling(resp::FFTResponse, whichaxis::Integer = 1)
     rate = (resp.ins)[SampleRate]
     npts = resp.m.sam_per_fft # single-sided
-    dims = T.parameters[2]::Int
-    if dims == 1
-        @assert whichaxis == 1
-        return repeat(collect(0:rate/npts:(rate/2-rate/npts)),
-                      outer=[resp.m.total_recs])
-    elseif dims == 2
-        @assert 1<=whichaxis<=2
-        if whichaxis == 1
-            return collect(0:rate/npts:(rate/2-rate/npts))
-        else
-            return collect(1:resp.m.total_recs)
-        end
-    end
 
+    @assert 1 <= whichaxis <= 2
+    if whichaxis == 1
+        return collect(0:rate/npts:(rate/2-rate/npts))
+    else
+        return collect(1:resp.m.total_recs)
+    end
 end
