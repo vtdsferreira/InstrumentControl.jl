@@ -253,8 +253,8 @@ function iqfft(fft_buffer, imix, qmix, iqout, sam_per_buf, rec_per_buf, buf_comp
     k = rec_per_buf * buf_completed
     for j in 1:rec_per_buf
         k += 1
-        I = sum(i .* imix for i in @view fft_buffer[rng])
-        Q = sum(q .* qmix for q in @view fft_buffer[rng])
+        I = sum(fft_buffer[rng] .* imix)
+        Q = sum(fft_buffer[rng] .* qmix)
         iqout[k] = Complex(I,Q)
         rng += sam_per_rec
     end
