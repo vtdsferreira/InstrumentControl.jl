@@ -1,31 +1,60 @@
+```@meta
+CurrentModule = InstrumentControl.AlazarModule
+DocTestSetup = quote
+    using InstrumentControl
+end
+```
+
 # Alazar digitizers
 
-We put all Alazar digitizers in module `Alazar`; the feature set and API is so similar for
-the various models that just one module makes sense.
+We put all Alazar digitizers in module `AlazarModule`; the feature set and API is so similar
+for the various models that just one module makes sense.
 
-A response type is given for each measurement mode: continuous streaming
-(`ContinuousStreamResponse`), triggered streaming (`TriggeredStreamResponse`), NPT records
-(`NPTRecordResponse`), and FPGA-based FFT calculations (`FFTHardwareResponse`). Traditional
-record mode has not been implemented yet for lack of immediate need.
-
-Looking at the source code, it would seem that there is some redundancy in the types, for
-instance there is an `NPTRecordMode` and an `NPTRecordResponse` object. The difference is
-that the former is used internally in the code to denote a particular method of configuring
-the instrument, allocating buffers, etc., whereas the latter specifies what you actually
-want to do: retrieve NPT records from the digitizer, perhaps doing some post-processing or
-processing during acquisition along the way. Perhaps different responses would dictate
-different processing behavior, while the instrument is ultimately configured the same way.
+An [`AlazarResponse`](@ref) type is given for each measurement mode of the digitizer.
+("Traditional record mode" has not been implemented yet for lack of immediate need.)
+Additionally, one can define custom `AlazarResponse` types so that some custom computations
+or data reductions can be performed during acquisition. [`IQSoftwareResponse`](@ref) is
+a good example of this.
 
 In the following discussion, it is important to understand some Alazar terminology. Newer
 Alazar digitizers use direct memory access (DMA) to stream data into a computer's RAM. A
 single *acquisition* uses one or many *buffers*, which constitute preallocated regions in
 the computer's physical memory. Each buffer contains one or many *records*. Each *record*
-contains many *samples*, which are the voltages measured by the digitizer.
+contains many *samples*, which are the voltages measured by the digitizer. In streaming
+mode, there is only one record per buffer, but in other modes there can be many records per
+buffer.
 
-In streaming mode, there is only one record per buffer, but in other modes there can be many
-records per buffer.
+Looking at the source code, it would seem that there is some redundancy in the types, for
+instance there is an `NPTRecordMode` and an `NPTRecordResponse` object. The former is used
+internally in the code to denote a particular method of configuring the instrument,
+mirroring the terminology used in the Alazar API documentation. The latter specifies what
+you actually want to do using that configuration of the instrument. Perhaps you want to
+measure in a given mode, but do some custom post-processing or processing during
+acquisition. `IQSoftwareResponse` is an example of this: it uses `NPTRecordMode` but
+reduces the data during measurement. Typically the user doesn't have to deal with the
+various mode objects, unless developing a new `AlazarResponse` type.
 
-## Buffer allocation
+## Usage
+
+Here are the currently defined `AlazarResponse` types you can use:
+
+```@docs
+    ContinuousStreamResponse
+    TriggeredStreamResponse
+    NPTRecordResponse
+    FFTHardwareResponse
+    IQSoftwareResponse
+```
+
+These definitions referenced some abstract types, described here:
+
+```@docs
+    AlazarResponse
+    StreamResponse
+    RecordResponse
+```
+
+## Technical details
 
 ### Digitizer requirements
 

@@ -34,6 +34,14 @@ abstract type FFTResponse{S,T} <: AlazarResponse{S,T} end
 """
     mutable struct ContinuousStreamResponse{S,T} <: StreamResponse{S,T}
 Response type implementing the "continuous streaming mode" of the Alazar API.
+
+Usage example:
+```
+ats = AlazarATS9870()
+samples_per_ch = 1024
+res = ContinuousStreamResponse(ats, samples_per_ch)
+measure(res)
+```
 """
 mutable struct ContinuousStreamResponse{S,T} <: StreamResponse{S,T}
     ins::S
@@ -53,6 +61,14 @@ return_type(::ContinuousStreamResponse) = Vector{Float16}
 """
     mutable struct TriggeredStreamResponse{S,T} <: StreamResponse{S,T}
 Response type implementing the "triggered streaming mode" of the Alazar API.
+
+Usage example:
+```
+ats = AlazarATS9870()
+samples_per_ch = 1024
+res = TriggeredStreamResponse(ats, samples_per_ch)
+measure(res)
+```
 """
 mutable struct TriggeredStreamResponse{S,T} <: StreamResponse{S,T}
     ins::S
@@ -72,6 +88,15 @@ return_type(::TriggeredStreamResponse) = Vector{Float16}
 """
     mutable struct NPTRecordResponse{S,T} <: RecordResponse{S,T}
 Response type implementing the "NPT record mode" of the Alazar API.
+
+Usage example:
+```
+ats = AlazarATS9870()
+samples_per_rec_per_ch = 1024
+total_recs = 10
+res = NPTRecordResponse(ats, sam_per_rec_per_ch, total_recs)
+measure(res)
+```
 """
 mutable struct NPTRecordResponse{S,T} <: RecordResponse{S,T}
     ins::S
@@ -92,7 +117,18 @@ return_type(::NPTRecordResponse) = Matrix{Float16}
 
 """
     mutable struct FFTHardwareResponse{S,T,U} <: FFTResponse{S,T}
-Response type implementing the FPGA-based "FFT record mode" of the Alazar API.
+Response type implementing the FPGA-based "FFT record mode" of the Alazar API. Not all
+Alazar digitizers support this mode.
+
+Usage example:
+```
+ats = AlazarATS9360()
+samples_per_rec = 1024
+sam_per_fft = 512
+total_recs = 10
+res = FFTHardwareResponse(ats, sam_per_rec, sam_per_fft, total_recs, Alazar.S32Real)
+measure(res)
+```
 """
 mutable struct FFTHardwareResponse{S,T,U} <: FFTResponse{S,T}
     ins::S
@@ -118,9 +154,19 @@ return_type(::FFTHardwareResponse{S,T,U}) where {S,T,U} = Matrix{U}
 
 """
     mutable struct IQSoftwareResponse{S,T} <: RecordResponse{S,T}
-Response type for measuring with NPT record mode, then using Julia's FFTW to
-return the FFT. Slower than doing it with the FPGA, but ultimately necessary if
-we want to use both channels as inputs to the FFT.
+Response type for measuring with NPT record mode and mixing in software to find the phase
+and amplitude of a component at frequency `f`. Slower than doing it in an FPGA, but
+ultimately necessary if we want to use both channels as inputs to the FFT.
+
+Usage example:
+```
+ats = AlazarATS9870()
+samples_per_rec_per_ch = 1024
+total_recs = 10
+f = 100e6
+res = IQSoftwareResponse(ats, samples_per_rec_per_ch, total_recs, f)
+measure(res)
+```
 """
 mutable struct IQSoftwareResponse{S,T} <: RecordResponse{S,T}
     ins::S
