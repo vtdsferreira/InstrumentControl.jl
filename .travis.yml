@@ -2,8 +2,7 @@ language: julia
 os:
   - linux
 env:
-  - ICTESTMODE=true
-  - VISA_JL_NO_LOAD=true
+  - ICTESTMODE=true VISA_JL_NO_LOAD=true
 sudo: required
 julia:
   - 0.6
