@@ -14,12 +14,12 @@ matrix:
   - julia: nightly
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd())'
   - julia -e 'Pkg.clone("https://github.com/PainterQubits/VISA.jl.git")'
   - julia -e 'Pkg.clone("https://github.com/PainterQubits/Alazar.jl.git")'
   - julia -e 'Pkg.clone("https://github.com/PainterQubits/ICCommon.jl.git")'
   - julia -e 'Pkg.clone("https://github.com/PainterQubits/KeysightInstruments.jl.git")'
-  - julia -e 'Pkg.test("InstrumentControl")'
+  - julia -e 'Pkg.clone(pwd())'
+  - julia -e 'Pkg.test("InstrumentControl"; coverage=true)'
 after_success:
   - julia -e 'cd(Pkg.dir("InstrumentControl")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   - julia -e 'cd(Pkg.dir("InstrumentControl")); using Coverage; Codecov.submit(process_folder())'
