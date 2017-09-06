@@ -1,6 +1,5 @@
 __precompile__(true)
 module InstrumentControl
-using ComputationalResources
 importall ICCommon
 import JSON, ZMQ
 
@@ -121,11 +120,17 @@ function __init__()
     # ZeroMQ context for communication with ICDataServer
     ctx[] = ZMQ.Context()
 
-    # VISA resource manager
-    resourcemanager[] = VISA.viOpenDefaultRM()
-
     # Set up and initialize a sweep queue.
     sweepjobqueue[] = SweepJobQueue()
+
+    # Check for an environment variable ICTESTMODE. If it is set, then don't try to
+    # use the VISA library. The purpose of this is simply that NI-VISA library cannot
+    # be downloaded and installed with e.g. BinDeps, since it is behind a registration wall
+    # on the National Instruments website only. Perhaps there is another VISA lib...
+    if !haskey(ENV, "ICTESTMODE")
+        # VISA resource manager
+        resourcemanager[] = VISA.viOpenDefaultRM()
+    end
 end
 
 end

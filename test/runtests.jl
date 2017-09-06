@@ -1,6 +1,7 @@
 using InstrumentControl
 using Base.Test
-#
+
+@test 1==1
 # import ICCommon: Response
 # import ICCommon: measure
 #
