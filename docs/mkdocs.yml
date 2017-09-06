@@ -39,6 +39,6 @@ pages:
         - 'VNAs': vna/vna.md
         - 'E5071C': vna/e5071c.md
 - Miscellaneous:
-    - 'Documentation building': docbuild.md
+    - 'Documentation and testing': docbuild.md
     - 'Release notes': releases.md
     - 'License': LICENSE.md
