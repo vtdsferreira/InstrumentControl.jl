@@ -3,8 +3,8 @@ using Documenter, InstrumentControl
 makedocs()
 
 deploydocs(
-    deps   = Deps.pip("mkdocs", "python-markdown-math"),
-    repo   = "github.com/PainterQubits/InstrumentControl.jl.git",
+    deps   = Deps.pip("mkdocs", "mkdocs-material", "python-markdown-math"),
     julia  = "0.6",
-    osname = "linux"
+    osname = "linux",
+    repo   = "github.com/PainterQubits/InstrumentControl.jl.git"
 )
