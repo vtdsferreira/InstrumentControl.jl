@@ -1,3 +1,4 @@
+#test
 module AWGM320XA
 
 using KeysightInstruments
