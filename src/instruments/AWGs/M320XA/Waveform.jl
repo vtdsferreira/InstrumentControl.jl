@@ -53,7 +53,7 @@ mutable struct Waveform
     name::String
     ch_properties::Dict{Int, Dict{Any, Any}}
     #the methods that change this ch_properties[int] will only allow WaveChProperty keys
-    Waveform(waveformValues::Array{Real}, name::String) = begin
+    Waveform(waveformValues::Array{Float64}, name::String)
         wav = new()
         wav.name = name
         wav.waveformValues = waveformValues
@@ -74,7 +74,7 @@ abstract type QueuePosition <: WaveChProperty end
 abstract type WavPrescaler <: WaveChProperty end
 
 """
-    load_waveform(ins::InsAWGM320XA, waveformValues::Array{Real}, id::Integer,
+    load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
                        name::AbstractString; waveform_type::Symbol = :Digital)
     load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
@@ -108,7 +108,7 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer,
     return ins.waveforms[id]
 end
 
-function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Real}, id::Integer,
+function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
                        name::AbstractString = string(id); waveform_type::Symbol = :Analog32)
     waveform = Waveform(waveformValues, name)
     load_waveform(ins, waveform, id, name, waveform_type = waveform_type)
