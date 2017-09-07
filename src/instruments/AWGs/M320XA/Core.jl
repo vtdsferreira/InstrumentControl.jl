@@ -62,7 +62,7 @@ mutable struct Waveform
         wav.name = name
         wav.waveformValues = waveformValues
         wav.ch_properties = Dict{Int, Dict{Any, Any}}()
-        for i = 1:CHANNELS
+        for ch = 1:CHANNELS
             wav.ch_properties[ch] = Dict{Any, Any}()
         end
         return wav
@@ -71,7 +71,7 @@ end
 
 """
 ```
-mutable struct InsAWGM320XA
+mutable struct InsAWGM320XA <: Instrument
     serial_num::String
     product_name::String
     index::Int
@@ -109,7 +109,7 @@ dictionary, and initializes all the channels properties to some standard
 values and records them in the `channels` dictionary through the `configure_channels!`
 function
 """
-mutable struct InsAWGM320XA
+mutable struct InsAWGM320XA <: Instrument
     serial_num::String
     product_name::String
     index::Int

@@ -1,6 +1,5 @@
 
-export ClockFrequency
-export WaveformType
+export WaveformShape
 export FGFrequency
 export FGPhase
 export WaveAmplitude
@@ -11,6 +10,10 @@ export TrigSync
 export Queue
 export QueueCycleMode
 export QueueSyncMode
+export AmpModMode
+export AngModMode
+export AmpModGain
+export AngModGain
 
 #channel properties
 abstract type WaveformShape <: InstrumentProperty end
@@ -124,7 +127,7 @@ function symbol_to_keysight(sym::Symbol)
         return KSI.AOU_MOD_OFFSET
     elseif sym == :FrequencyMod
         return KSI.AOU_MOD_FM
-    elseif sym == :PhaseMode
+    elseif sym == :PhaseMod
         return KSI. AOU_MOD_PM
     else
         error("Symbol input not acceptable")

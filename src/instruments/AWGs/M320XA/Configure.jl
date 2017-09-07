@@ -16,9 +16,10 @@ native C functions to configure.
 """
 function configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
     global const CHANNELS = num_of_channels
-    for i = 1:CHANNELS
+    for ch = 1:CHANNELS
         ins.channels[ch] = Dict{Any, Any}()
         ins.channels[ch][Queue] = Dict{Int, Int}()
+        ins.channels[ch][Queue][0] = -1 #initializing the Queue dictionary with a key
         #I configure these settings and populate ins.channels manually, instead of
         #using the overloaded setindex! methods, because some of these functions
         #only set two or more properties at once, so you can't just set one setting
@@ -28,10 +29,10 @@ function configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
         ins.channels[ch][TrigSource] = 0
         ins.channels[ch][TrigBehavior] = :Falling
         ins.channels[ch][TrigSync] = :CLKsys
-        ins.channel[ch][AmpModGain] = 0
-        ins.channel[ch][AngModGain] = 0
-        ins.channel[ch][AmpModMode] = :NoMod
-        ins.channel[ch][AngModeMode] = :NoMod
+        ins.channels[ch][AmpModGain] = 0
+        ins.channels[ch][AngModGain] = 0
+        ins.channels[ch][AmpModMode] = :NoMod
+        ins.channels[ch][AngModMode] = :NoMod
     end
     ins[WaveformShape] = :Off
     ins[FGFrequency] = 1e8
@@ -85,7 +86,7 @@ function setindex!(ins::InsAWGM320XA, mode::Symbol, ::Type{AmpModMode},
     amp_gain = ins.channels[ch][AmpModGain]
     @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
                                                 amp_gain)
-    ins.channel[ch][AmpModMode] =  mode
+    ins.channels[ch][AmpModMode] =  mode
     nothing
 end
 
@@ -94,7 +95,7 @@ function setindex!(ins::InsAWGM320XA, amp_gain::Real, ::Type{AmpModGain},
     mode = ins.channels[ch][AmpModMode]
     @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
                                                 amp_gain)
-    ins.channel[ch][AmpModGain] =  amp_gain
+    ins.channels[ch][AmpModGain] =  amp_gain
     nothing
 end
 
@@ -103,7 +104,7 @@ function setindex!(ins::InsAWGM320XA, mode::Symbol, ::Type{AngModMode},
     ang_gain = ins.channels[ch][AngModGain]
     @error_handler SD_AOU_modulationAngleConfig(ins.index, ch, symbol_to_keysight(mode),
                                                 ang_gain)
-    ins.channel[ch][AngModMode] =  mode
+    ins.channels[ch][AngModMode] =  mode
     nothing
 end
 
@@ -112,7 +113,7 @@ function setindex!(ins::InsAWGM320XA, ang_gain::Real, ::Type{AngModGain},
     mode = ins.channels[ch][AngModMode]
     @error_handler SD_AOU_modulationAmplitudeConfig(ins.index, ch, symbol_to_keysight(mode),
                                                 ang_gain)
-    ins.channel[ch][AngModGain] =  ang_gain
+    ins.channels[ch][AngModGain] =  ang_gain
     nothing
 end
 
@@ -150,7 +151,7 @@ function setindex!(ins::InsAWGM320XA, behavior::Symbol, ::Type{TrigBehavior}, ch
     nothing
 end
 
-function setindex!(InsAWGM320XA, sync::Symbol, ::Type{TrigSync}, ch::Integer)
+function setindex!(ins::InsAWGM320XA, sync::Symbol, ::Type{TrigSync}, ch::Integer)
     source = ins.channels[ch][TrigSource]
     behavior = ins.channels[ch][TrigBehavior]
     if typeof(source) == Symbol

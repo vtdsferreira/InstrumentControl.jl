@@ -1,4 +1,3 @@
-export ClockFrequency
 export ChScale
 export ChInputMode
 export ChImpedance

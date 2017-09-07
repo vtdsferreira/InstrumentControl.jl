@@ -43,12 +43,10 @@ in `ins.waveforms`, indexed by it's user-specified id.
 """
 function load_waveform end
 
-function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer,
-                       name::AbstractString = waveform.name; waveform_type::Symbol = :Analog32)
+function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
+                       waveform_type::Symbol = :Analog16)
     waveformValues = waveform.waveformValues
-    length = size(waveformValues)
-    temp_id = SD_Wave_newFromArrayDouble(symbol_to_Keysight(waveform_type), length,
-              waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
+    temp_id = SD_Wave_newFromArrayDouble(symbol_to_keysight(waveform_type), waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
     temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
         @error_handler SD_AOU_waveformReLoad(ins.index, temp_id, id)
@@ -60,9 +58,9 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer,
 end
 
 function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
-                       name::AbstractString = string(id); waveform_type::Symbol = :Analog32)
+                       name::AbstractString = string(id); waveform_type::Symbol = :Analog16)
     waveform = Waveform(waveformValues, name)
-    load_waveform(ins, waveform, id, name, waveform_type = waveform_type)
+    load_waveform(ins, waveform, id, waveform_type = waveform_type)
 end
 
 function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
@@ -108,7 +106,7 @@ function queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer,
     waveform.ch_properties[ch][WavDelay] = delay
     waveform.ch_properties[ch][WavRepetitions] = repetitions
     waveform.ch_properties[ch][WavPrescaler] = prescaler
-    next_queue_position = sort(collect(keys(ins.channels[Queue])))[end] + 1
+    next_queue_position = sort(collect(keys(ins.channels[ch][Queue])))[end] + 1
     ins.channels[ch][Queue][next_queue_position] = id
     nothing
 end
@@ -117,13 +115,15 @@ function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
                         trigger_mode::Symbol; repetitions::Integer = 1,
                         delay::Integer = 0, prescaler::Integer = 0)
     #finding the id of the waveform object with which the waveform was loaded to RAM
+    id = -1 #initializing id
+    wav in values(ins.waveforms) || error("waveform not loaded")
     for key in keys(ins.waveforms)
         if ins.waveforms[key] == wav
             id = key
             break
         end
     end
-    queue_waveform(ins, id, ch, trigger_mode; repetitions = repititions,
+    queue_waveform(ins, id, ch, trigger_mode; repetitions = repetitions,
                     delay = delay, prescaler = prescaler)
     nothing
 end
@@ -155,9 +155,9 @@ function queue_sequence end
 # ones, because it is easier/convenient to convert other wavsForQueue types to this type
 function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
                         wavsForQueue::Vector{Waveform})
-    queue_waveform(ins, wavsForQueue[1], ch::Integer, trigger_mode)
-    for i=2::size(wavsForQueue)[1]
-        queue_waveform(ins, wavsForQueue[i], ch::Integer, :Auto)
+    queue_waveform(ins, wavsForQueue[1], ch, trigger_mode)
+    for i=2:size(wavsForQueue)[1]
+        queue_waveform(ins, wavsForQueue[i], ch, :Auto)
     end
     nothing
 end
@@ -171,7 +171,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
 end
 
 function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                        wavsForQueue::Vector{Integer})
+                        wavsForQueue::Vector{Int})
     wavsForQueue = map(x->ins.waveforms[x], wavsForQueue)
     #calling upon wavsForQueue::Vector{Waveform} method
     queue_sequence(ins, ch, trigger_mode, wavsForQueue)
@@ -179,7 +179,7 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
 end
 
 function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                        wavsForQueue::Vararg{Integer})
+                        wavsForQueue::Vararg{Int})
     wavsForQueue = collect(wavsForQueue) #turn tuple of integers into vector of integers
     #calling upon wavsForQueue::Vector{Integer} method
     queue_sequence(ins, ch, trigger_mode, wavsForQueue)
@@ -197,8 +197,9 @@ queue in the object as well.
 function queue_flush(ins::InsAWGM320XA, ch::Integer)
     @error_handler SD_AOU_AWGflush(ins.index, ch)
     ins.channels[ch][Queue] = Dict{Int, Int}()
-    for waveform in ins.waveforms
-        ch_properties[ch] = Dict{Any, Any}()
+    ins.channels[ch][Queue][0] = -1 #initializing dict with a value
+    for waveform in values(ins.waveforms)
+        waveform.ch_properties[ch] = Dict{Any, Any}()
     end
     nothing
 end
@@ -218,6 +219,7 @@ function waveforms_flush(ins::InsAWGM320XA)
     ins.waveforms = Dict{Int, Waveform}()
     for ch in keys(ins.channels)
         ins.channels[ch][Queue] = Dict{Int,Int}()
+        ins.channels[ch][Queue][0] = -1 #initializing dict with a value
     end
     nothing
 end
@@ -233,6 +235,7 @@ memory_size(ins::InsAWGM320XA, id::Integer) = @error_handler SD_AOU_waveformGetM
 
 function memory_size(ins::InsAWGM320XA, wav::Waveform)
     #finding the id of the waveform object with which the waveform was loaded to RAM
+    id = -1 initializing id
     for key in keys(ins.waveforms)
         if ins.waveforms[key] == wav
             id = key

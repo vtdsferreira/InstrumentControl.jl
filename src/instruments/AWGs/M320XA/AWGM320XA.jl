@@ -24,7 +24,8 @@ include("Inspect.jl")
 InstrumentException(ins::InsAWGM320XA, error_code::Integer) =
     InstrumentException(ins, error_code, keysight_error(error_code))
 
-
+make(ins::InsAWGM320XA) = "Keysight"
+model(ins::InsAWGM320XA) = ins.product_name
 
 #Miscallenous
 """

@@ -16,7 +16,7 @@ native C functions to configure.
 """
 function configure_channels!(ins::InsDigitizerM3102A, num_of_channels::Integer = 4)
     global const CHANNELS = num_of_channels
-    for i = 1:CHANNELS
+    for ch = 1:CHANNELS
         ins.channels[ch] = Dict{Any, Any}()
         #I configure these settings and populate ins.channels manually, instead of
         #using the overloaded setindex! methods, because some of these functions
@@ -36,10 +36,9 @@ function configure_channels!(ins::InsDigitizerM3102A, num_of_channels::Integer =
         ins.channels[ch][DAQCycles] = 0
         ins.channels[ch][DAQTrigDelay] = 0
         ins.channels[ch][DAQPointsPerCycle] = 1000
-        @error_handler SD_AIN_DAQtriggerExternalConfig(ins.index, ch, symbol_to_keysight(:PXI),
-                                     0, symbol_to_keysight(:Rising))
+        @error_handler SD_AIN_DAQtriggerExternalConfig(ins.index, ch, 0, symbol_to_keysight(:Rising))
         ins.channels[ch][DAQTrigSource] = :PXI
-        ins.channels[ch][DAQTrigMode] = :Rising
+        ins.channels[ch][DAQTrigBehavior] = :Rising
     end
     ins[ChPrescaler] = 0
     ins[DAQAnalogTrigSource] = 1

@@ -38,7 +38,7 @@ end
 
 """
 ```
-mutable struct InsDigitizerM3102A
+mutable struct InsDigitizerM3102A <: Instrument
     serial_num::String
     product_name::String
     index::Int
@@ -67,7 +67,7 @@ information described above with the passed arguments, and initializes all the
 channels properties to some standard values and records them in the `channels`
 dictionary through the `configure_channels!` function
 """
-mutable struct InsDigitizerM3102A
+mutable struct InsDigitizerM3102A <: Instrument
     serial_num::String
     product_name::String
     index::Int
@@ -109,6 +109,9 @@ include("Properties.jl")
 include("Configure.jl")
 include("Inspect.jl")
 include("Response.jl")
+
+make(ins::InsDigitizerM3102A) = "Keysight"
+model(ins::InsDigitizerM3102A) = ins.product_name
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsDigitizerM3102A, error_code::Integer) =
