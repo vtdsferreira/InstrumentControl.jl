@@ -136,7 +136,7 @@ function setindex!(ins::InsDigitizerM3102A, cycle_points::Integer,
 end
 
 function setindex!(ins::InsDigitizerM3102A, daq_cycles::Integer,
-                  ::Type{DAQCycles}, ch::Integer))
+                  ::Type{DAQCycles}, ch::Integer)
     daq_mode = ins.channels[ch][DAQTrigMode]
     daq_delay = ins.channels[ch][DAQTrigDelay]
     cycle_points = ins.channels[ch][DAQPointsPerCycle]

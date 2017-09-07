@@ -94,4 +94,5 @@ function symbol_to_keysight(sym::Symbol)
         return KSI.CLK_FAST_TUNE
     else
         error("Symbol input not acceptable")
+    end
 end

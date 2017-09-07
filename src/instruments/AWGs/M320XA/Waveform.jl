@@ -16,55 +16,6 @@ export queue_flush
 export waveforms_flush
 export memory_size
 
-"""
-'''
-mutable struct Waveform
-    waveformValues::Array{Float64}
-    name::String
-    ch_properties::Dict{Int, Dict{Any, Any}}
-end
-'''
-
-Object representing a waveform; it holds as fields a waveform name, the actual
-waveform digital values, and  individual channel properties in a dictionary named
-`ch_properties`. When waveforms are queued in an AWG channel from the RAM, various
-settings pertaining to when and how the waveform will be generated and outputted
-must be specified, such as: what triggers the waveform to start, how many times it
-should repeat in a cycle, what is the delay between the trigger and the generation
-of the waveform, etc. These settings can also vary from channel to channel, and cannot
-be queried directly from the instrument
-
-Thus, we store this waveform channel configuration information in the dictionary
-`ch_properties`. In this type's implementation, the values of the dictionaries are
-themselves dictionaries that hold all configuration information particular to a
-channel.For example, for an object `wav::Waveform`, `wav.ch_properties[1]`
-will return a dictionary that holds all configuration information specific to
-channel 1. Its keys will be subtypes of the `WaveChProperty` abstract type, and
-its values will be the values which the channel property associated that subtype
-are configured to for the waveform.
-
-The inner constructor provided takes an array of points and a waveform name, and
-initializes a blank `ch_properties` dictionary, with corresponding blank dictionaries
-for each channel. It knows how many channels there will be from the module global
-constant `CHANNELS` defined in the InsAWGM320XA constructor.
-"""
-mutable struct Waveform
-    waveformValues::Array{Float64}
-    name::String
-    ch_properties::Dict{Int, Dict{Any, Any}}
-    #the methods that change this ch_properties[int] will only allow WaveChProperty keys
-    Waveform(waveformValues::Array{Float64}, name::String)
-        wav = new()
-        wav.name = name
-        wav.waveformValues = waveformValues
-        wav.ch_properties = Dict{Int, Dict{Any, Any}}()
-        for i = 1:CHANNELS
-            wav.ch_properties[ch] = Dict{Any, Any}()
-        end
-        return wav
-    end
-end
-
 abstract type WaveChProperty end
 
 abstract type WavTrigMode <: WaveChProperty end
@@ -178,14 +129,17 @@ function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
 end
 
 """
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
-                            trigger_mode::Symbol = :Software_HVI)
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
-                            trigger_mode::Symbol = :Software_HVI)
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
-                            trigger_mode::Symbol = :Software_HVI)
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
-                            trigger_mode::Symbol = :Software_HVI)
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                    wavsForQueue::Vector{Waveform})
+
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                    wavsForQueue::Vector{Waveform})
+
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                    wavsForQueue::Vector{Waveform})
+
+    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                    wavsForQueue::Vector{Waveform})
 
 Queues a sequence of waveforms into the queue of channel `ch`. The sequence of
 waveforms can either be a tuple or vector, of either waveform id's or waveform
@@ -199,8 +153,8 @@ function queue_sequence end
 
 # I flesh out the method with wavsForQueue::Vector{Waveform}, rather than the other
 # ones, because it is easier/convenient to convert other wavsForQueue types to this type
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Waveform},
-                        trigger_mode::Symbol = :Auto)
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                        wavsForQueue::Vector{Waveform})
     queue_waveform(ins, wavsForQueue[1], ch::Integer, trigger_mode)
     for i=2::size(wavsForQueue)[1]
         queue_waveform(ins, wavsForQueue[i], ch::Integer, :Auto)
@@ -208,27 +162,27 @@ function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Wav
     nothing
 end
 
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vararg{Waveform},
-                        trigger_mode::Symbol = :Software_HVI)
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                        wavsForQueue::Vararg{Waveform})
     wavsForQueue = collect(wavsForQueue) #turn tuple of waveforms into vector of waveforms
     #calling upon wavsForQueue::Vector{Waveform} method
-    queue_sequence(ins, ch, wavsForQueue, trigger_mode)
+    queue_sequence(ins, ch, trigger_mode, wavsForQueue)
     nothing
 end
 
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vector{Integer},
-                        trigger_mode::Symbol = :Software_HVI)
-    wavsForQueue = map(x-->ins.waveforms[x], wavsForQueue)
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                        wavsForQueue::Vector{Integer})
+    wavsForQueue = map(x->ins.waveforms[x], wavsForQueue)
     #calling upon wavsForQueue::Vector{Waveform} method
-    queue_sequence(ins, ch, wavsForQueue, trigger_mode)
+    queue_sequence(ins, ch, trigger_mode, wavsForQueue)
     nothing
 end
 
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, wavsForQueue::Vararg{Integer},
-                        trigger_mode::Symbol = :Software_HVI)
+function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
+                        wavsForQueue::Vararg{Integer})
     wavsForQueue = collect(wavsForQueue) #turn tuple of integers into vector of integers
     #calling upon wavsForQueue::Vector{Integer} method
-    queue_sequence(ins, ch, wavsForQueue, trigger_mode)
+    queue_sequence(ins, ch, trigger_mode, wavsForQueue)
     nothing
 end
 
@@ -275,7 +229,7 @@ Obtain size of waveform in memory
 """
 function memory_size end
 
-memory_size(ins::InsAWGM320XA, id::Integer) = @error_handler SD_AOU_waveformGetMemorySize(ins, id)
+memory_size(ins::InsAWGM320XA, id::Integer) = @error_handler SD_AOU_waveformGetMemorySize(ins.index, id)
 
 function memory_size(ins::InsAWGM320XA, wav::Waveform)
     #finding the id of the waveform object with which the waveform was loaded to RAM

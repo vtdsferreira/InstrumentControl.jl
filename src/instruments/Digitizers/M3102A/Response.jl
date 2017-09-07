@@ -40,7 +40,7 @@ mutable struct SingleChPXITrig <: Response
     PXI_trig_source::Int
 end
 
-function measure(resp::SingleChTriggered)
+function measure(resp::SingleChPXITrig)
     ins = resp.ins
     ins[DAQTrigMode, ch] = :Digital
     ins[DAQTrigSource, ch] = :PXI
