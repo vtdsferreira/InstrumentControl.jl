@@ -1,5 +1,5 @@
 import Base: setindex!
-export configure_channels!
+
 
 """
     configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)

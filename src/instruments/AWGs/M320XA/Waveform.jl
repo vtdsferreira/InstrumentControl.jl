@@ -1,6 +1,6 @@
 import DataFrames
 
-export Waveform
+#export Waveform
 export WaveChProperty
 
 export WavTrigMode

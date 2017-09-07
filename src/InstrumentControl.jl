@@ -55,6 +55,8 @@ importall .E5071C
 importall .E8257D
 importall .GS200
 importall .SMB100A
+importall .AWGM320XA
+importall .DigitizerM3102A
 # importall .ZNB20Module
 
 # INITIALIZATION CODE FOLLOWS

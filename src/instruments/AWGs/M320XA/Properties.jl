@@ -12,9 +12,6 @@ export Queue
 export QueueCycleMode
 export QueueSyncMode
 
-#AWG properties
-abstract type ClockFrequency <: InstrumentProperty end
-
 #channel properties
 abstract type WaveformShape <: InstrumentProperty end
 abstract type FGFrequency <: InstrumentProperty end

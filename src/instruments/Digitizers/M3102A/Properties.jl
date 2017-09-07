@@ -13,9 +13,6 @@ export DAQTrigSource
 export DAQTrigBehavior
 export DAQAnalogTrigSource
 
-# digitizer properties
-abstract type ClockFrequency <: InstrumentProperty end
-
 # channel properties
 abstract type ChScale <: InstrumentProperty end
 abstract type ChInputMode <: InstrumentProperty end

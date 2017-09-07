@@ -46,7 +46,6 @@ export Amplitude
 export ExtInputAddsToOutput
 export SequenceWaveform
 export WaitingForTrigger
-export Waveform
 
 export runapplication, applicationstate, validate
 export load_awg_settings, save_awg_settings

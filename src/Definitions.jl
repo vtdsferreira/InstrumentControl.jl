@@ -6,6 +6,7 @@ export AveragingTrigger
 export FrequencyStart, FrequencyStop
 export SampleRate, SweepTime
 export Timeout
+export ClockFrequency
 export InstrumentException
 
 # Miscellaneous stuff
@@ -35,6 +36,9 @@ abstract type SweepTime <: InstrumentProperty end
 
 "Time to wait for an instrument to reply before bailing out."
 abstract type Timeout <: InstrumentProperty end
+
+"Frequency of the internal clocks of the Keysight AWG and Digitizer module cards"
+abstract type ClockFrequency <: InstrumentProperty end
 
 """
 Exception to be thrown by an instrument. Fields include the instrument in error
