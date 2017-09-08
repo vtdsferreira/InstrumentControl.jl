@@ -235,7 +235,7 @@ memory_size(ins::InsAWGM320XA, id::Integer) = @error_handler SD_AOU_waveformGetM
 
 function memory_size(ins::InsAWGM320XA, wav::Waveform)
     #finding the id of the waveform object with which the waveform was loaded to RAM
-    id = -1 initializing id
+    id = -1 #initializing id
     for key in keys(ins.waveforms)
         if ins.waveforms[key] == wav
             id = key

@@ -14,6 +14,7 @@ import ICCommon: Stimulus,
 
 export InsAWGM320XA
 
+
 include("Core.jl")
 include("Waveform.jl")
 include("Properties.jl")
