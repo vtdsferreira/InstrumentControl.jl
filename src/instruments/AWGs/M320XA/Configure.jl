@@ -1,4 +1,4 @@
-ins.IDimport Base: setindex!
+import Base: setindex!
 
 
 """
@@ -17,8 +17,7 @@ native C functions to configure.
 function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
     for ch = 1:num_channels
         ins.channels[ch] = Dict{Any, Any}()
-        ins.channels[ch][Queue] = Dict{Int, Int}()
-        ins.channels[ch][Queue][0] = -1 #initializing the Queue dictionary with a key
+        ins.channels[ch][Queue] = Vector{Int}()
         #I configure these settings and populate ins.channels manually, instead of
         #using the overloaded setindex! methods, because some of these functions
         #only set two or more properties at once, so you can't just set one setting
@@ -33,11 +32,11 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
         ins.channels[ch][AmpModMode] = :NoMod
         ins.channels[ch][AngModMode] = :NoMod
     end
-    ins[WaveformShape] = :Off
+    ins[Amplitude] = 0
+    ins[DCOffset] = 0
+    ins[OutputMode] = :Off
     ins[FGFrequency] = 1e8
     ins[FGPhase] = 0
-    ins[WaveAmplitude] = 0
-    ins[DCOffset] = 0
     ins[QueueCycleMode] = :Cyclic
     ins[QueueSyncMode] = :CLK10
     nothing
@@ -45,17 +44,10 @@ end
 
 
 #Below are overloaded setindex! methods for each instrument property
-function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
-                  ::Type{WaveformShape}, ch::Integer)
-    @KSerror_handler SD_AOU_channelWaveShape(ins.ID, ch, symbol_to_keysight(wav_type))
-    ins.channels[ch][WaveformShape] = wav_type
-    nothing
-end
-
 function setindex!(ins::InsAWGM320XA, amplitude::Real,
-                  ::Type{WaveAmplitude}, ch::Integer)
+                  ::Type{Amplitude}, ch::Integer)
     @KSerror_handler SD_AOU_channelAmplitude(ins.ID, ch, amplitude)
-    ins.channels[ch][WaveAmplitude] = amplitude
+    ins.channels[ch][Amplitude] = amplitude
     nothing
 end
 
@@ -63,6 +55,13 @@ function setindex!(ins::InsAWGM320XA, offset::Real,
                   ::Type{DCOffset}, ch::Integer)
     @KSerror_handler SD_AOU_channelOffset(ins.ID, ch, offset)
     ins.channels[ch][DCOffset] = offset
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
+                  ::Type{OutputMode}, ch::Integer)
+    @KSerror_handler SD_AOU_channelWaveShape(ins.ID, ch, symbol_to_keysight(wav_type))
+    ins.channels[ch][OutputMode] = wav_type
     nothing
 end
 

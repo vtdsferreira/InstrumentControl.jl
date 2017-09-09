@@ -1,9 +1,9 @@
 
-export WaveformShape
+export Amplitude
+export DCOffset
+export OutputMode
 export FGFrequency
 export FGPhase
-export WaveAmplitude
-export DCOffset
 export TrigSource
 export TrigBehavior
 export TrigSync
@@ -16,11 +16,11 @@ export AmpModGain
 export AngModGain
 
 #channel properties
-abstract type WaveformShape <: InstrumentProperty end
+abstract type Amplitude <: InstrumentProperty end
+abstract type DCOffset <: InstrumentProperty end
+abstract type OutputMode <: InstrumentProperty end
 abstract type FGFrequency <: InstrumentProperty end
 abstract type FGPhase <: InstrumentProperty end
-abstract type WaveAmplitude <: InstrumentProperty end
-abstract type DCOffset <: InstrumentProperty end
 abstract type TrigSource <: InstrumentProperty end
 abstract type TrigBehavior <: InstrumentProperty end
 abstract type TrigSync <: InstrumentProperty end

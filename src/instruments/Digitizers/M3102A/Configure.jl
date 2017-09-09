@@ -180,7 +180,7 @@ function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
         @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch,
             symbol_to_keysight(source), symbol_to_keysight(behavior))
     else
-        @KSerror_ SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, source, # + 4000?
+        @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, source, # + 4000?
             symbol_to_keysight(behavior))
     end
     ins.channels[ch][DAQTrigBehavior] = behavior
@@ -189,7 +189,7 @@ end
 
 function setindex!(ins::InsDigitizerM3102A, number::Integer,
                   ::Type{DAQAnalogTrigSource}, ch::Integer)
-    @KSerror_ SD_AIN_DAQanalogTriggerConfig(ins.ID,ch,number)
+    @KSerror_handler SD_AIN_DAQanalogTriggerConfig(ins.ID,ch,number)
     ins.channels[ch][DAQAnalogTrigSource] = number
     nothing
 end

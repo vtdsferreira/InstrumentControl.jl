@@ -26,7 +26,7 @@ abstract type WavPrescaler <: WaveChProperty end
 
 """
     load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
-                       name::AbstractString; waveform_type::Symbol = :Digital)
+                       name::AbstractString; input_type::Symbol = :Analog16)
     load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
 
@@ -34,8 +34,8 @@ Loads a waveform into the the RAM of the AWG corresponding to object `ins`.
 When loading a waveform, the user picks an id to be the identifier and handle for
 the loaded waveform. Thus, the function takes as arguments the waveform digital
 values, the user-specified id, a name for the waveform (meant to be a more descriptive
-identifier than an integer), and the type of waveform (digital, phase or amplitude
-modulated, IQ modulated, etc). The waveform digital values can be passed as an
+identifier than an integer), and the input type(refer to Table 9 of the userguide
+for discussion on input types). The waveform digital values can be passed as an
 array of values, or as a path to a file containing the values.
 
 The function returns a handle to the new `Waveform` object created and stored
@@ -44,9 +44,9 @@ in `ins.waveforms`, indexed by it's user-specified id.
 function load_waveform end
 
 function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
-                       waveform_type::Symbol = :Analog16)
+                       input_type::Symbol = :Analog16)
     waveformValues = waveform.waveformValues
-    temp_id = SD_Wave_newFromArrayDouble(symbol_to_keysight(waveform_type), waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
+    temp_id = SD_Wave_newFromArrayDouble(symbol_to_keysight(input_type), waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
     temp_id < 0 && throw(InstrumentException(ins, temp_id))
     if haskey(ins.waveforms, id)
         @KSerror_handler SD_AOU_waveformReLoad(ins.ID, temp_id, id)
@@ -63,9 +63,9 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
 end
 
 function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
-                       name::AbstractString = string(id); waveform_type::Symbol = :Analog16)
+                       name::AbstractString = string(id); input_type::Symbol = :Analog16)
     waveform = Waveform(waveformValues, name)
-    load_waveform(ins, waveform, id, waveform_type = waveform_type)
+    load_waveform(ins, waveform, id, input_type = input_type)
 end
 
 function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
@@ -116,8 +116,7 @@ function queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer,
     waveform.ch_properties[ch][WavDelay] = delay
     waveform.ch_properties[ch][WavRepetitions] = repetitions
     waveform.ch_properties[ch][WavPrescaler] = prescaler
-    next_queue_position = sort(collect(keys(ins.channels[ch][Queue])))[end] + 1
-    ins.channels[ch][Queue][next_queue_position] = id
+    push!(ins.channels[ch][Queue], id)
     nothing
 end
 
@@ -201,13 +200,12 @@ end
 
 Empties the queue of an AWG channel. This function both: uses the native C
 `SD_AOU_AWGflush` function to empty the queue in the instrument, and it re-initializes
-`ins.channels[ch][Queue]` dictionary as a blank dictionary, erasing the record of the
+`ins.channels[ch][Queue]` vector as a blank vector, erasing the record of the
 queue in the object as well.
 """
 function queue_flush(ins::InsAWGM320XA, ch::Integer)
     @KSerror_handler SD_AOU_AWGflush(ins.ID, ch)
-    ins.channels[ch][Queue] = Dict{Int, Int}()
-    ins.channels[ch][Queue][0] = -1 #initializing dict with a value
+    ins.channels[ch][Queue] = Vector{Int}()
     for waveform in values(ins.waveforms)
         waveform.ch_properties[ch] = Dict{Any, Any}()
     end
@@ -220,7 +218,7 @@ end
 Erases all waveforms stored in the RAM of the AWG, and empties the queue of
 all the channels. This function both: uses the native C `SD_AOU_waveformFlush`
 function to empty the erase the RAM and empty the queues in the instrument,
-it re-initializes `ins.channels[ch][Queue]` dictionary as a blank dictionary for
+it re-initializes `ins.channels[ch][Queue]` vector as a blank vector for
 all channels, erasing the record of the queue in the `InsAWGM30XA` object as well,
 and re-initializes `ins.waveforms` as a blank dictionary
 """
@@ -228,8 +226,7 @@ function waveforms_flush(ins::InsAWGM320XA)
     @KSerror_handler SD_AOU_waveformFlush(ins.ID)
     ins.waveforms = Dict{Int, Waveform}()
     for ch in keys(ins.channels)
-        ins.channels[ch][Queue] = Dict{Int,Int}()
-        ins.channels[ch][Queue][0] = -1 #initializing dict with a value
+        ins.channels[ch][Queue] = Vector{Int}()
     end
     nothing
 end

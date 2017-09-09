@@ -21,6 +21,9 @@ include("Properties.jl")
 include("Configure.jl")
 include("Inspect.jl")
 
+awg_start(ins::InsAWGM320XA) = @KSerror_handler SD_AOU_AWGstart(ins.ID)
+awg_is_run(ins::InsAWGM320XA) = @KSerror_handler SD_AOU_AWGisRunning(ins.ID)
+
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsAWGM320XA, error_code::Integer) =
     InstrumentException(ins, error_code, keysight_error(error_code))
