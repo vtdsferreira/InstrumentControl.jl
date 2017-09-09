@@ -40,9 +40,6 @@ mutable struct Waveform
         wav.name = name
         wav.waveformValues = waveformValues
         wav.ch_properties = Dict{Int, Dict{Any, Any}}()
-        for ch = 1:CHANNELS
-            wav.ch_properties[ch] = Dict{Any, Any}()
-        end
         return wav
     end
 end
@@ -97,7 +94,7 @@ mutable struct InsAWGM320XA <: Instrument
     #the methods that change this channels[int] will only allow InstrumentProperty keys
     waveforms::Dict{Int, Waveform}
 
-    InsAWGM320XA(serial::AbstractString, name::AbstractString) = begin
+    InsAWGM320XA(serial::AbstractString, name::AbstractString; num_channels::Integer = 4) = begin
         ins = new()
         ins.serial_num = serial
         ins.product_name = name
@@ -109,11 +106,11 @@ mutable struct InsAWGM320XA <: Instrument
         ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
-        configure_channels!(ins)
+        configure_channels!(ins, num_channels)
         return ins
     end
 
-    InsAWGM320XA(slot::Integer,chassis::Integer = 1) = begin
+    InsAWGM320XA(slot::Integer, chassis::Integer = 1; num_channels::Integer = 4) = begin
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot
@@ -124,7 +121,7 @@ mutable struct InsAWGM320XA <: Instrument
         ins.serial_num = @error_handler SD_Module_getSerialNumber(ins.index)
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
-        configure_channels!(ins)
+        configure_channels!(ins, num_channels)
         return ins
     end
 end

@@ -14,9 +14,8 @@ the standard configuration settings: either through the instrument setindex! met
 or by manually manipulating the dictionary itself for recording and using the instrument
 native C functions to configure.
 """
-function configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
-    global const CHANNELS = num_of_channels
-    for ch = 1:CHANNELS
+function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
+    for ch = 1:num_channels
         ins.channels[ch] = Dict{Any, Any}()
         ins.channels[ch][Queue] = Dict{Int, Int}()
         ins.channels[ch][Queue][0] = -1 #initializing the Queue dictionary with a key

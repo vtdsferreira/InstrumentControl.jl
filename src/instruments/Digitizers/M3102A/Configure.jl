@@ -2,7 +2,7 @@ import Base: setindex!
 
 
 """
-    configure_channels!(ins::InsAWGM320XA , num_of_channels::Integer = 4)
+    configure_channels!(ins::InsDigitizerM3102A , num_of_channels::Integer)
 
 This function configures all channel properties to default settings (NOTE:
 chosen by me Vinicius, eventually this will change to allow more initialization
@@ -14,9 +14,8 @@ the standard configuration settings: either through the instrument setindex! met
 or by manually manipulating the dictionary itself for recording and using the instrument
 native C functions to configure.
 """
-function configure_channels!(ins::InsDigitizerM3102A, num_of_channels::Integer = 4)
-    global const CHANNELS = num_of_channels
-    for ch = 1:CHANNELS
+function configure_channels!(ins::InsDigitizerM3102A, num_channels::Integer)
+    for ch = 1:num_channels
         ins.channels[ch] = Dict{Any, Any}()
         #I configure these settings and populate ins.channels manually, instead of
         #using the overloaded setindex! methods, because some of these functions

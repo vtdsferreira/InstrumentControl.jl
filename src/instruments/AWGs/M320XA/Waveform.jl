@@ -53,6 +53,11 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
     else
         @error_handler SD_AOU_waveformLoad(ins.index, temp_id, id)
     end
+    #initialize ch_properties field of waveform object with number of channels information from ins
+    num_channels = size(collect(keys(ins.channels)))[1]
+    for ch = 1:num_channels
+        waveform.ch_properties[ch] = Dict{Any, Any}()
+    end
     ins.waveforms[id] = waveform
     return ins.waveforms[id]
 end
@@ -75,8 +80,13 @@ function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
     #read csv file and extract waveformValues; NEEDS WORK
     temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
     waveformValues = convert(Array, temp_data)
-    new_waveform = Waveform(waveformValues, name)
-    ins.waveforms[id] = new_waveform
+    waveform = Waveform(waveformValues, name)
+    #initialize ch_properties field of waveform object with number of channels information from ins
+    num_channels = size(keys(ins.channels))[1]
+    for ch = 1:num_channels
+        waveform.ch_properties[ch] = Dict{Any, Any}()
+    end
+    ins.waveforms[id] = waveform
     return ins.waveforms[id]
 end
 
