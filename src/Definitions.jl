@@ -8,7 +8,7 @@ export SampleRate, SweepTime
 export Timeout
 export ClockFrequency
 export InstrumentException
-export @error_handler
+export @KSerror_handler
 
 # Miscellaneous stuff
 export VNA
@@ -69,21 +69,21 @@ end
 
 
 """
-    @error_handler(expr)
+    @KSerror_handler(expr)
 
 Takes an KeysightInstruments API call and brackets it with some error checking.
 Throws an InstrumentException if there is an error. This macro is compatible with
 all SD_AOU functions, most but not all SD_Module functions, and it is NOT compatible
 with SD_Wave functions
 """
-macro error_handler(expr)
+macro KSerror_handler(expr) #Keysight Error Handler
     quote
         SD_call_result = $(esc(expr))
         if typeof(SD_call_result) <: Integer
             SD_call_result < 0 &&
             #the expression will be a call to a KeysightInstruments SD function,
-            #where the function signature will be SD_name(ins.index, args...);
-            # expr.args[2] is ins.index; expr.args[2].args[1] is ins
+            #where the function signature will be SD_name(ins.ID, args...);
+            # expr.args[2] is ins.ID; expr.args[2].args[1] is ins
             throw(InstrumentException($(esc(expr.args[2].args[1])), SD_call_result))
         end
         SD_call_result

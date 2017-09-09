@@ -49,7 +49,7 @@ dictionary through the `configure_channels!` function
 mutable struct InsDigitizerM3102A <: Instrument
     serial_num::String
     product_name::String
-    index::Int
+    ID::Int
     chassis_num::Int
     slot_num::Int
     channels::Dict{Int,Dict{Any,Any}}
@@ -61,9 +61,9 @@ mutable struct InsDigitizerM3102A <: Instrument
         #below we simultaneously "open" the device and get its index
         SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.index = SD_open_result
-        ins.chassis_num  = @error_handler SD_Module_getChassis(ins.index)
-        ins.slot_num = @error_handler SD_Module_getSlot(ins.index)
+        ins.ID = SD_open_result
+        ins.chassis_num  = @KSerror_handler SD_Module_getChassis(ins.ID)
+        ins.slot_num = @KSerror_handler SD_Module_getSlot(ins.ID)
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins, num_channels)
         return ins
@@ -76,8 +76,8 @@ mutable struct InsDigitizerM3102A <: Instrument
         ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
         SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.index = SD_open_result
-        ins.serial_num = @error_handler SD_Module_getSerialNumber(ins.index)
+        ins.ID = SD_open_result
+        ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins, num_channels)
         return ins
