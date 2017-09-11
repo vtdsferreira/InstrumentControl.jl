@@ -1,5 +1,4 @@
 
-export Amplitude
 export DCOffset
 export OutputMode
 export FGFrequency
@@ -16,7 +15,6 @@ export AmpModGain
 export AngModGain
 
 #channel properties
-abstract type Amplitude <: InstrumentProperty end
 abstract type DCOffset <: InstrumentProperty end
 abstract type OutputMode <: InstrumentProperty end
 abstract type FGFrequency <: InstrumentProperty end

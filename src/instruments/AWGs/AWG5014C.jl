@@ -42,7 +42,6 @@ export AWG5014CData
 
 export Normalization, WaveformType
 
-export Amplitude
 export ExtInputAddsToOutput
 export SequenceWaveform
 export WaitingForTrigger
@@ -124,11 +123,6 @@ code(ins::InsAWG5014C, ::Type{WaveformType}, ::Type{Val{:RealWaveform}}) = "REAL
 function WaveformType(ins::InsAWG5014C, s::AbstractString)
     s == "INT" ? :IntWaveform : :RealWaveform
 end
-
-"""
-Amplitude for a given channel.
-"""
-abstract type Amplitude                <: InstrumentProperty end
 
 """
 Add the signal from an external input to the given channel output.

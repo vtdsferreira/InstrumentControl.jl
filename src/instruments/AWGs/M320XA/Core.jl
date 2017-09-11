@@ -35,7 +35,7 @@ mutable struct Waveform
     name::String
     ch_properties::Dict{Int, Dict{Any, Any}}
     #the methods that change this ch_properties[int] will only allow WaveChProperty keys
-    Waveform(waveformValues::Array{Float64}, name::String) = begin
+    Waveform(waveformValues, name) = begin
         wav = new()
         wav.name = name
         wav.waveformValues = waveformValues

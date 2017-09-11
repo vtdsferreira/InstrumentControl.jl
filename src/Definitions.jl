@@ -8,6 +8,7 @@ export SampleRate, SweepTime
 export Timeout
 export InstrumentException
 export @KSerror_handler
+export Amplitude
 
 # Miscellaneous stuff
 export VNA
@@ -37,6 +38,10 @@ abstract type SweepTime <: InstrumentProperty end
 "Time to wait for an instrument to reply before bailing out."
 abstract type Timeout <: InstrumentProperty end
 
+"""
+Amplitude for a given channel.
+"""
+abstract type Amplitude <: InstrumentProperty end
 
 """
 Exception to be thrown by an instrument. Fields include the instrument in error
