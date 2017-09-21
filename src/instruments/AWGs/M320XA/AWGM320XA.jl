@@ -13,6 +13,8 @@ import ICCommon: Stimulus,
     axislabel
 
 export InsAWGM320XA
+export awg_start
+export awg_is_run
 
 
 include("Core.jl")
@@ -21,8 +23,8 @@ include("Properties.jl")
 include("Configure.jl")
 include("Inspect.jl")
 
-awg_start(ins::InsAWGM320XA) = @KSerror_handler SD_AOU_AWGstart(ins.ID)
-awg_is_run(ins::InsAWGM320XA) = @KSerror_handler SD_AOU_AWGisRunning(ins.ID)
+awg_start(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGstart(awg.ID, ch)
+awg_is_run(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch)
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsAWGM320XA, error_code::Integer) =

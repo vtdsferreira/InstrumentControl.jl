@@ -49,9 +49,9 @@ function symbol_to_keysight(sym::Symbol)
     #AWG trigger settings
     if sym == :Auto
         return KSI.AUTOTRIG
-    elseif sym == :Software_HVI
+    elseif sym == :Software
         return KSI.SWHVITRIG
-    elseif sym == :SF_HVIPerCycle
+    elseif sym == :SF_PerCycle
         return KSI.SWHVITRIG_CYCLE
     elseif sym == :External
         return KSI.EXTTRIG

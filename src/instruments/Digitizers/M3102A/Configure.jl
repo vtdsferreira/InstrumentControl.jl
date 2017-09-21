@@ -28,19 +28,19 @@ function configure_channels!(ins::InsDigitizerM3102A, num_channels::Integer)
         ins.channels[ch][ChImpedance] = :Ohm_50
         @KSerror_handler SD_AIN_channelTriggerConfig(ins.ID, ch,
                                             symbol_to_keysight(:RisingAnalog), 2)
-        ins.channels[ch][ChAnalogTrigBehavior] = :RisingAnalog
-        ins.channels[ch][ChAnalogTrigThreshold] = 2
+        ins.channels[ch][AnalogTrigBehavior] = :RisingAnalog
+        ins.channels[ch][AnalogTrigThreshold] = 2
         @KSerror_handler SD_AIN_DAQconfig(ins.ID, ch, 1000, 0, 0, symbol_to_keysight(:Analog))
         ins.channels[ch][DAQTrigMode] = :Analog
         ins.channels[ch][DAQCycles] = 0
         ins.channels[ch][DAQTrigDelay] = 0
         ins.channels[ch][DAQPointsPerCycle] = 1000
         @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, 0, symbol_to_keysight(:Rising))
-        ins.channels[ch][DAQTrigSource] = :PXI
-        ins.channels[ch][DAQTrigBehavior] = :Rising
+        ins.channels[ch][ExternalTrigSource] = :PXI
+        ins.channels[ch][ExternalTrigBehavior] = :Rising
     end
     ins[ChPrescaler] = 0
-    ins[DAQAnalogTrigSource] = 1
+    ins[AnalogTrigSource] = 1
     nothing
 end
 
@@ -82,21 +82,21 @@ function setindex!(ins::InsDigitizerM3102A, prescaler::Integer,
     nothing
 end
 
-function setindex!(ins::InsDigitizerM3102A, trig_mode::Symbol,
-                  ::Type{ChAnalogTrigBehavior}, ch::Integer)
-    threshold = ins.channels[ch][ChAnalogTrigThreshold]
+function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
+                  ::Type{AnalogTrigBehavior}, ch::Integer)
+    threshold = ins.channels[ch][AnalogTrigThreshold]
     @KSerror_handler SD_AIN_channelTriggerConfig(ins.ID, ch,
-                                        symbol_to_keysight(trig_mode), threshold)
-    ins.channels[ch][ChAnalogTrigBehavior] = trig_mode
+                                        symbol_to_keysight(behavior), threshold)
+    ins.channels[ch][AnalogTrigBehavior] = behavior
     nothing
 end
 
 function setindex!(ins::InsDigitizerM3102A, threshold::Real,
-                  ::Type{ChAnalogTrigThreshold}, ch::Integer)
-    trig_mode = ins.channels[ch][ChAnalogTrigBehavior]
+                  ::Type{AnalogTrigThreshold}, ch::Integer)
+    behavior = ins.channels[ch][AnalogTrigBehavior]
     @KSerror_handler SD_AIN_channelTriggerConfig(ins.ID, ch,
-                                        symbol_to_keysight(trig_mode), threshold)
-    ins.channels[ch][ChAnalogTrigThreshold] = threshold
+                                        symbol_to_keysight(behavior), threshold)
+    ins.channels[ch][AnalogTrigThreshold] = threshold
     nothing
 end
 
@@ -145,20 +145,20 @@ function setindex!(ins::InsDigitizerM3102A, daq_cycles::Integer,
 end
 
 function setindex!(ins::InsDigitizerM3102A, source::Symbol,
-                  ::Type{DAQTrigSource}, ch::Integer)
-    behavior = ins.channels[ch][DAQTrigBehavior]
+                  ::Type{ExternalTrigSource}, ch::Integer)
+    behavior = ins.channels[ch][ExternalTrigBehavior]
     @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch,
             symbol_to_keysight(source), symbol_to_keysight(behavior))
-    ins.channels[ch][DAQTrigSource] = source
+    ins.channels[ch][ExternalTrigSource] = source
     nothing
 end
 
 function setindex!(ins::InsDigitizerM3102A, PXI_trig_num::Integer,
-                  ::Type{DAQTrigSource}, ch::Integer)
-    behavior = ins.channels[ch][DAQTrigBehavior]
+                  ::Type{ExternalTrigSource}, ch::Integer)
+    behavior = ins.channels[ch][ExternalTrigBehavior]
     @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, PXI_trig_num, #+4000?
                                                    symbol_to_keysight(behavior))
-    ins.channels[ch][DAQTrigSource] = source
+    ins.channels[ch][ExternalTrigSource] = source
     nothing
 end
 
@@ -174,8 +174,8 @@ end
 
 #fix fix fix fix
 function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
-                  ::Type{DAQTrigBehavior}, ch::Integer)
-    source= ins.channels[ch][DAQTrigSource]
+                  ::Type{ExternalTrigBehavior}, ch::Integer)
+    source= ins.channels[ch][ExternalTrigSource]
     if typeof(source) == Symbol
         @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch,
             symbol_to_keysight(source), symbol_to_keysight(behavior))
@@ -183,14 +183,14 @@ function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
         @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, source, # + 4000?
             symbol_to_keysight(behavior))
     end
-    ins.channels[ch][DAQTrigBehavior] = behavior
+    ins.channels[ch][ExternalTrigBehavior] = behavior
     nothing
 end
 
 function setindex!(ins::InsDigitizerM3102A, number::Integer,
-                  ::Type{DAQAnalogTrigSource}, ch::Integer)
+                  ::Type{AnalogTrigSource}, ch::Integer)
     @KSerror_handler SD_AIN_DAQanalogTriggerConfig(ins.ID,ch,number)
-    ins.channels[ch][DAQAnalogTrigSource] = number
+    ins.channels[ch][AnalogTrigSource] = number
     nothing
 end
 
