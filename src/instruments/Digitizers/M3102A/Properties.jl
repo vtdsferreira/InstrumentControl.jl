@@ -2,30 +2,30 @@ export ChScale
 export ChInputMode
 export ChImpedance
 export ChPrescaler
-export ChAnalogTrigBehavior
-export ChAnalogTrigThreshold
+export AnalogTrigBehavior
+export AnalogTrigThreshold
 export DAQTrigMode
 export DAQTrigDelay
 export DAQPointsPerCycle
 export DAQCycles
-export DAQTrigSource
-export DAQTrigBehavior
-export DAQAnalogTrigSource
+export ExternalTrigSource
+export ExternalTrigBehavior
+export AnalogTrigSource
 
 # channel properties
 abstract type ChScale <: InstrumentProperty end
 abstract type ChInputMode <: InstrumentProperty end
 abstract type ChImpedance <: InstrumentProperty end
 abstract type ChPrescaler <: InstrumentProperty end
-abstract type ChAnalogTrigBehavior <: InstrumentProperty end
-abstract type ChAnalogTrigThreshold <: InstrumentProperty end
+abstract type AnalogTrigBehavior <: InstrumentProperty end
+abstract type AnalogTrigThreshold <: InstrumentProperty end
 abstract type DAQTrigMode <: InstrumentProperty end
 abstract type DAQTrigDelay <: InstrumentProperty end
 abstract type DAQPointsPerCycle <: InstrumentProperty end
 abstract type DAQCycles <: InstrumentProperty end
-abstract type DAQTrigSource <: InstrumentProperty end
-abstract type DAQTrigBehavior <: InstrumentProperty end
-abstract type DAQAnalogTrigSource <: InstrumentProperty end
+abstract type ExternalTrigSource <: InstrumentProperty end
+abstract type ExternalTrigBehavior <: InstrumentProperty end
+abstract type AnalogTrigSource <: InstrumentProperty end
 
 """
     symbol_to_keysight(sym::Symbol)
@@ -61,9 +61,9 @@ function symbol_to_keysight(sym::Symbol)
     elseif sym == :BothAnalog
         return KSI.AIN_BOTH_EDGES
     #daq cycle trigger configuration
-    elseif sym == :Immediate
+    elseif sym == :Auto
         return KSI.AUTOTRIG
-    elseif sym == :Software_HVI
+    elseif sym == :Software
         return KSI.SWHVITRIG
     elseif sym == :Digital
         return KSI.HWDIGTRIG
