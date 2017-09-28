@@ -24,7 +24,9 @@ include("Configure.jl")
 include("Inspect.jl")
 
 awg_start(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGstart(awg.ID, ch)
+awg_start(awg::InsAWGM320XA, chs::Vararg{Int}) = @KSerror_handler SD_AOU_AWGstartMultiple(awg.ID, nums_to_mask(chs...))
 awg_is_run(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch)
+
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsAWGM320XA, error_code::Integer) =

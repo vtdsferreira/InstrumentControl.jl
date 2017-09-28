@@ -1,3 +1,4 @@
+export symbol_to_keysight
 
 export DCOffset
 export OutputMode

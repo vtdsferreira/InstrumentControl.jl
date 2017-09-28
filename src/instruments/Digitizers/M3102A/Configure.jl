@@ -156,9 +156,9 @@ end
 function setindex!(ins::InsDigitizerM3102A, PXI_trig_num::Integer,
                   ::Type{ExternalTrigSource}, ch::Integer)
     behavior = ins.channels[ch][ExternalTrigBehavior]
-    @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, PXI_trig_num, #+4000?
+    @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, PXI_trig_num + 4000,
                                                    symbol_to_keysight(behavior))
-    ins.channels[ch][ExternalTrigSource] = source
+    ins.channels[ch][ExternalTrigSource] = PXI_trig_num
     nothing
 end
 
@@ -172,15 +172,14 @@ end
 #     nothing
 # end
 
-#fix fix fix fix
 function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
                   ::Type{ExternalTrigBehavior}, ch::Integer)
-    source= ins.channels[ch][ExternalTrigSource]
+    source = ins.channels[ch][ExternalTrigSource]
     if typeof(source) == Symbol
         @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch,
             symbol_to_keysight(source), symbol_to_keysight(behavior))
     else
-        @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, source, # + 4000?
+        @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, source + 4000,
             symbol_to_keysight(behavior))
     end
     ins.channels[ch][ExternalTrigBehavior] = behavior
