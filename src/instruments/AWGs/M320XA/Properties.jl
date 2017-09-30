@@ -16,26 +16,98 @@ export AmpModGain
 export AngModGain
 
 #channel properties
-abstract type DCOffset <: InstrumentProperty end
+
+"""
+Configures the type of output from an AWG channel. Can be configured to be either
+:Off, :Sinusoidal, :Triangular, :Square, :DC, :Arbitrary, or :Differential
+"""
 abstract type OutputMode <: InstrumentProperty end
+
+"""
+Sets a channel's DC offset on output. Configured to be a `Float64` number.
+"""
+abstract type DCOffset <: InstrumentProperty end
+
+"""
+Sets a channel's function generator frequency. Configured to be a `Float64` number.
+"""
 abstract type FGFrequency <: InstrumentProperty end
+
+"""
+Sets a channel's function generator's relative phase. Configured to be a `Float64` number.
+"""
 abstract type FGPhase <: InstrumentProperty end
-abstract type TrigSource <: InstrumentProperty end
-abstract type TrigBehavior <: InstrumentProperty end
-abstract type TrigSync <: InstrumentProperty end
+
+"""
+Source of external trigger. Can be configured to be either a number 0-7, which
+corresponds to a PXI line on the PXI backplane, or :TrgPort, which corresponds
+to the Trg port on the AWG card
+"""
+abstract type TrigSource <: InstrumentProperty end #for external triggers
+
+"""
+External trigger behavior is what behavior by the external trigger actually triggers
+the DAQ to start acquiring data. Can be configured to either: :Rising, :Falling,
+:High, or :Low; corresponding to, respectively, trigger on the rising edge,
+trigger on the falling edge, trigger on high voltage, trigger on low voltage
+"""
+abstract type TrigBehavior <: InstrumentProperty end #for external triggers
+
+"""
+Can be configured to be :CLKsys or :CLK10, which, respectively, corresponds to
+processing an acquired trigger on the next internal clock tick, or on the next
+chassis clock tick.
+"""
+abstract type TrigSync <: InstrumentProperty end #for external triggers
+
+"""
+List of waveform IDs, corresponding to waveforms queued in a particular channel.
+Order of waveform IDs corresponds to order of queued waveforms
+"""
 abstract type Queue <: InstrumentProperty end
+
+"""
+Can be configured to, respectively, :Cyclic or :OneShot, which corresponds to,
+respectively, configuring the queue to repeat indefinitely, or configuring the
+queue to only be outputted one time
+"""
 abstract type QueueCycleMode <: InstrumentProperty end
+
+"""
+Can be configured to be :CLKsys or :CLK10, which, respectively, corresponds to
+start sequencing a queue on the next internal clock tick, or on the next
+chassis clock tick.
+"""
 abstract type QueueSyncMode <: InstrumentProperty end
+
+"""
+Amplitude modulation mode. Can be configured to either :NoMod, :AmplitudeMod, or
+:DCMod
+"""
 abstract type AmpModMode <: InstrumentProperty end
+
+"""
+Angle modulation mode. Can be configure to either :NoMod, :PhaseMod, or :FrequencyMod.
+"""
 abstract type AngModMode <: InstrumentProperty end
+
+"""
+Amplitude of amplitude modulating signal. Configured to be a `Float64` number.
+"""
 abstract type AmpModGain <: InstrumentProperty end
+
+"""
+Amplitude of angle modulating signal. Configured to be a `Float64` number.
+"""
 abstract type AngModGain <: InstrumentProperty end
+
 """
     symbol_to_keysight(sym::Symbol)
 
 This function is used mainly in overloaded `setindex!` methods meant to configure
 AWG instrument properties; it converts specific symbol inputs, which correspond to various
 AWG settings, into Keysight defined constants from the AWG M32XXA programming manual.
+
 The manual defines a mapping between specific configuration settings and constants.
 However, working with the constants directly is undesirable because they are not
 descriptive, and the same constants, for example: 1, have different meanings for

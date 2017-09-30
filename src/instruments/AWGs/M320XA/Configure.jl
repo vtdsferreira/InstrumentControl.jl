@@ -6,13 +6,16 @@ import Base: setindex!
 
 This function configures all channel properties to default settings (NOTE:
 chosen by me Vinicius, eventually this will change to allow more initialization
-flexibility for each user) and records them in the `ins.channels` dictionary. First,
-the function sets `num_of_channels`, the number of channels on the AWG, as a global
-constant of the module. Then, by looping through a list of channel numbers, the
-function configures each channnel and populates the `ins.channels` dictionary with
-the standard configuration settings: either through the instrument setindex! methods,
-or by manually manipulating the dictionary itself for recording and using the instrument
-native C functions to configure.
+flexibility for each user) and records them in the `ins.channels` dictionary. It takes
+as inputs the instrument objects and  the number of channels. Then, by looping through
+a list of channel numbers, the function configures each channnel and populates the
+`ins.channels` dictionary with the standard configuration settings: either through
+the instrument setindex! methods,or by manually manipulating the dictionary itself
+for recording and using the instrument native C functions to configure.The latter
+is done because there isn't a native C function to configure each setting individually;
+rather, one function will configure multiple settings at once. Thus, we use such functions
+to configure multiple properties at once, and then record these settings in the
+`ins.channels` dictionary, which will allow us to configure settings individually later.
 """
 function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
     for ch = 1:num_channels
@@ -142,7 +145,7 @@ function setindex!(ins::InsAWGM320XA, behavior::Symbol, ::Type{TrigBehavior}, ch
         @KSerror_handler SD_AOU_AWGtriggerExternalConfig(ins.ID, ch,
             symbol_to_keysight(source), symbol_to_keysight(behavior), symbol_to_keysight(sync))
     else
-        @KSerror_handler SD_AOU_AWGtriggerExternalConfig(ins.ID, ch, source + 4000,
+        @KSerror_handler SD_AOU_AWGtriggerExternalConfig(ins.ID, ch, source + 4000, #this 4000 is some Keysight quirk
             symbol_to_keysight(behavior), symbol_to_keysight(sync))
     end
     ins.channels[ch][TrigBehavior] = behavior

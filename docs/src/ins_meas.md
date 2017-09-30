@@ -11,6 +11,15 @@ All instruments are Julia objects, subtypes of the abstract type `Instrument`.
 The implementation of each subtype (it's fields, constructors, etc) depend
 on the specific instrument.
 
+### Keysight
+
+Keysight sells AWG and Digitizer module "cards", each of which can be connected to a PXI
+chassis which affords a single connection to the computer, as well as "PXI backplane"
+which can be used to synchronize actions of multiple module "cards". All cards are controlled
+by C libraries programmed by Keysight. We have wrapped these libraries in the
+[KeysightInstruments.jl](https://github.com/PainterQubits/KeysightInstruments.jl) package,
+and InstrumentControl relies on this wrapper for instrument configuration/control.
+
 #### VISA
 
 Many instruments are able to be addressed using the
@@ -135,9 +144,43 @@ Usually a response is associated with a particular instrument. The implementatio
 of each subtype depends on the specific goals of the user: demonstrations of
 different response being used can be found in the example notebooks.
 
-(put example here)
+As a simple example, consider the following M3102A Digitizer `Response` type:
 
-However, responses need not come from instruments. For test purposes, suppose we
+```julia
+mutable struct SingleChStream <: Response
+    dig::InsDigitizerM3102A
+    ch::Int #ch for channel
+    timeout::Float64
+end
+```
+
+with corresponding `measure` method:
+
+```julia
+function measure(resp::SingleChStream)
+    dig = resp.dig
+    ch = resp.ch
+    timeout  = ceil(resp.timeout *10e3) #timeout should be integer in units of milliseconds
+    daq_points = Int(ceil((resp.timeout* (500e6)))) #number of samples expected
+
+    dig[DAQTrigMode, ch] = :Auto
+    dig[DAQCycles, ch] = -1 #infinite number of cycles
+    dig[DAQPointsPerCycle, ch] = daq_points
+
+    @KSerror_handler SD_AIN_DAQstart(dig.ID, ch)
+    data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, timeout)
+    return data
+end
+```
+This response type would be used for measuring data on the M3102A digitizer, upon
+a call to it's corresponding `measure` function, on channel `ch` continuously for
+a time equal to the `timeout` field of the digitizer. The measure function properly configures
+the digitizer, starts the DAQ for trigger acquisition, and takes data for the computer
+through the `SD_AIN_DAQread` function. Thus, to perform this type of data acquisition, one
+would merely need to instantiate a `SingleChStream` object with desired digitizer object,
+channel, and timeout, and call `measure` with that object as input. Easy right?
+
+It is good to keep in mind responses need not come from instruments. For test purposes, suppose we
 want to mimic a measurement by generating random numbers. `RandomResponse` produces a
 random number in the unit interval when it is measured. A `TimerResponse` will
 measure the time since creation of the `TimerResponse` object.

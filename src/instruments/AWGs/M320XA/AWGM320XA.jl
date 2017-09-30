@@ -23,9 +23,30 @@ include("Properties.jl")
 include("Configure.jl")
 include("Inspect.jl")
 
+"""
+    awg_start(awg::InsAWGM320XA, ch::Integer)
+    awg_start(awg::InsAWGM320XA, chs::Vararg{Int})
+
+    Starts acquisition of triggers for generation/ouputting of all waveforms
+    queued on the awg(s) of channel `ch` or channels `chs`.
+"""
+function awg_start end
+
 awg_start(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGstart(awg.ID, ch)
 awg_start(awg::InsAWGM320XA, chs::Vararg{Int}) = @KSerror_handler SD_AOU_AWGstartMultiple(awg.ID, nums_to_mask(chs...))
-awg_is_run(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch)
+
+"""
+    awg_is_run(awg::InsAWGM320XA, ch::Integer)
+    Checks if the AWG corresponding to channel `ch` on AWG card corresponding to
+    object `awg` is "running", i.e. it is waiting for triggers to output waveforms
+    or is actively outputting waveforms. Prints either "YES" or "NO"
+"""
+function awg_is_running(awg::InsAWGM320XA, ch::Integer)
+    if @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 0
+        println("NO")
+    if @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 1
+        println("YES")
+end
 
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
