@@ -25,19 +25,24 @@ abstract type QueuePosition <: WaveChProperty end
 abstract type WavPrescaler <: WaveChProperty end
 
 """
+    load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
+                       input_type::Symbol = :Analog16)
     load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
-                       name::AbstractString; input_type::Symbol = :Analog16)
+                       name::AbstractString = string(id); input_type::Symbol = :Analog16)
     load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
                        name::AbstractString = string(id))
 
 Loads a waveform into the the RAM of the AWG corresponding to object `ins`.
 When loading a waveform, the user picks an id to be the identifier and handle for
-the loaded waveform. Thus, the function takes as arguments the waveform digital
-values, the user-specified id, a name for the waveform (meant to be a more descriptive
+the loaded waveform. Thus, the function takes as arguments either: A `Waveform` object
+, or the waveform digital values, or a filepath to a waveform file, as well as
+the user-specified id, a name for the waveform (meant to be a more descriptive
 identifier than an integer), and the input type(refer to Table 9 of the userguide
 for discussion on input types). The waveform digital values can be passed as an
 array of values, or as a path to a file containing the values.
 
+The loads a the waveform, initializes a waveform object if passed an array or filepath,
+and initializes the blank dictionaries for each channel in the field `ch_properties`.
 The function returns a handle to the new `Waveform` object created and stored
 in `ins.waveforms`, indexed by it's user-specified id.
 """
@@ -62,7 +67,7 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
     return ins.waveforms[id]
 end
 
-function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer,
+function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer;
                        name::AbstractString = string(id); input_type::Symbol = :Analog16)
     waveform = Waveform(waveformValues, name)
     load_waveform(ins, waveform, id, input_type = input_type)
@@ -91,21 +96,22 @@ function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
 end
 
 """
-    queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer, trigger_mode::Symbol;
+    queue_waveform(ins::InsAWGM320XA, ch::Integer, id::Integer, trigger_mode::Symbol;
                   repetitions::Integer = 1, delay::Integer = 0, prescaler::Integer = 0 )
-    queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer, trigger_mode::Symbol;
+    queue_waveform(ins::InsAWGM320XA, ch::Integer, wav::Waveform, trigger_mode::Symbol;
                    repetitions::Integer = 1, delay::Integer = 0, prescaler::Integer = 0 )
 
+
 Queues a waveform in a channel of the AWG either by a passed `Waveform` object
-or the waveform id. It also takes values for configuration settings pertaining
+or the waveform id. It also takes inputs for configuration settings pertaining
 to when and how the waveform will be generated and outputted, such as trigger mode,
-number of repititions, delay between the trigger and generation, and the prescaler
+number of repetitions, delay between the trigger and generation, and the prescaler
 value for the outputted waveform. While the channel and trigger_mode must be specified,
 the other settings are used as keyword arguments with standard values (chosen by me).
 """
 function queue_waveform end
 
-function queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer,
+function queue_waveform(ins::InsAWGM320XA, ch::Integer, id::Integer,
                         trigger_mode::Symbol; repetitions::Integer = 1,
                         delay::Integer = 0, prescaler::Integer = 0 )
     @KSerror_handler SD_AOU_AWGqueueWaveform(ins.ID, ch, id,
@@ -120,7 +126,7 @@ function queue_waveform(ins::InsAWGM320XA, id::Integer, ch::Integer,
     nothing
 end
 
-function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
+function queue_waveform(ins::InsAWGM320XA, ch::Integer, wav::Waveform,
                         trigger_mode::Symbol; repetitions::Integer = 1,
                         delay::Integer = 0, prescaler::Integer = 0)
     #finding the id of the waveform object with which the waveform was loaded to RAM
@@ -132,66 +138,8 @@ function queue_waveform(ins::InsAWGM320XA, wav::Waveform, ch::Integer,
             break
         end
     end
-    queue_waveform(ins, id, ch, trigger_mode; repetitions = repetitions,
+    queue_waveform(ins, ch, id, trigger_mode; repetitions = repetitions,
                     delay = delay, prescaler = prescaler)
-    nothing
-end
-
-"""
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                    wavsForQueue::Vector{Waveform})
-
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                    wavsForQueue::Vector{Waveform})
-
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                    wavsForQueue::Vector{Waveform})
-
-    queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                    wavsForQueue::Vector{Waveform})
-
-Queues a sequence of waveforms into the queue of channel `ch`. The sequence of
-waveforms can either be a tuple or vector, of either waveform id's or waveform
-objects. The waveforms are queued in the order that they are stored in the passed
-collection object. `trigger_mode` only refers to the `WavTrigMode` of the first
-waveform of the sequence; the subsequent waveforms have `WavTrigMode` equal to `:Auto`;
-that is, once the first waveform is triggered, the subsequent waveforms are generated
-automatically one after another without delay.
-"""
-function queue_sequence end
-
-# I flesh out the method with wavsForQueue::Vector{Waveform}, rather than the other
-# ones, because it is easier/convenient to convert other wavsForQueue types to this type
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                        wavsForQueue::Vector{Waveform})
-    queue_waveform(ins, wavsForQueue[1], ch, trigger_mode)
-    for i=2:size(wavsForQueue)[1]
-        queue_waveform(ins, wavsForQueue[i], ch, :Auto)
-    end
-    nothing
-end
-
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                        wavsForQueue::Vararg{Waveform})
-    wavsForQueue = collect(wavsForQueue) #turn tuple of waveforms into vector of waveforms
-    #calling upon wavsForQueue::Vector{Waveform} method
-    queue_sequence(ins, ch, trigger_mode, wavsForQueue)
-    nothing
-end
-
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                        wavsForQueue::Vector{Int})
-    wavsForQueue = map(x->ins.waveforms[x], wavsForQueue)
-    #calling upon wavsForQueue::Vector{Waveform} method
-    queue_sequence(ins, ch, trigger_mode, wavsForQueue)
-    nothing
-end
-
-function queue_sequence(ins::InsAWGM320XA ,ch::Integer, trigger_mode::Symbol,
-                        wavsForQueue::Vararg{Int})
-    wavsForQueue = collect(wavsForQueue) #turn tuple of integers into vector of integers
-    #calling upon wavsForQueue::Vector{Integer} method
-    queue_sequence(ins, ch, trigger_mode, wavsForQueue)
     nothing
 end
 

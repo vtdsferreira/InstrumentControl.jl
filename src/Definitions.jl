@@ -74,9 +74,10 @@ end
     @KSerror_handler(expr)
 
 Takes an KeysightInstruments API call and brackets it with some error checking.
-Throws an InstrumentException if there is an error. This macro is compatible with
-all SD_AOU functions, most but not all SD_Module functions, and it is NOT compatible
-with SD_Wave functions
+An error is known to have occured when KeysightInstruments API call returns a
+negative number. This macro throws an InstrumentException if there is an error.
+This macro is compatible with all SD_AOU functions, SD_AIN functions, most but not all
+SD_Module functions, and it is NOT compatible with SD_Wave functions.
 """
 macro KSerror_handler(expr) #Keysight Error Handler
     quote
