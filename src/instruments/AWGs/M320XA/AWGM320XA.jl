@@ -44,8 +44,9 @@ awg_start(awg::InsAWGM320XA, chs::Vararg{Int}) = @KSerror_handler SD_AOU_AWGstar
 function awg_is_running(awg::InsAWGM320XA, ch::Integer)
     if @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 0
         println("NO")
-    if @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 1
+    elseif @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 1
         println("YES")
+    end
 end
 
 
