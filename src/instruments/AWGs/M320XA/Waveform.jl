@@ -68,7 +68,7 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
 end
 
 function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::Integer;
-                       name::AbstractString = string(id); input_type::Symbol = :Analog16)
+                       name::AbstractString = string(id), input_type::Symbol = :Analog16)
     waveform = Waveform(waveformValues, name)
     load_waveform(ins, waveform, id, input_type = input_type)
 end
