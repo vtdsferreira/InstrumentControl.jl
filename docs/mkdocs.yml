@@ -33,8 +33,8 @@ pages:
     - 'Implementation': implementation.md
 - Instruments:
     - Waveform Generators:
-        - 'M320XA': waveform_generator/awgM320XA.md
-        - 'AWG5014C': waveform_generator/awg5014c.md
+        - 'M320XA': waveform_generators/awgM320XA.md
+        - 'AWG5014C': waveform_generators/awg5014c.md
     - Digitizers:
         - 'M3102A': digitizers/digM3102A.md
         - 'Alazar digitizers': digitizers/Alazar.md
