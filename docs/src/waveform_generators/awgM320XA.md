@@ -1,5 +1,5 @@
 ```@meta
-CurrentModule = InstrumentControl.InsAWGM320XA
+CurrentModule = InstrumentControl.AWGM320XA
 DocTestSetup = quote
     using InstrumentControl
 end
