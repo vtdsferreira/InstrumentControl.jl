@@ -29,7 +29,7 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
                         symbol_to_keysight(:Falling), symbol_to_keysight(:CLKsys))
         ins.channels[ch][TrigSource] = 0
         ins.channels[ch][TrigBehavior] = :Falling
-        ins.channels[ch][TrigSync] = :CLKsys
+        ins.channels[ch][TrigSync] = :CLK10
         ins.channels[ch][AmpModGain] = 0
         ins.channels[ch][AngModGain] = 0
         ins.channels[ch][AmpModMode] = :NoMod
@@ -38,9 +38,9 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
     ins[Amplitude] = 0
     ins[DCOffset] = 0
     ins[OutputMode] = :Off
-    ins[FGFrequency] = 1e8
+    ins[FGFrequency] = 50e6
     ins[FGPhase] = 0
-    ins[QueueCycleMode] = :Cyclic
+    ins[QueueCycleMode] = :OneShot
     ins[QueueSyncMode] = :CLK10
     nothing
 end

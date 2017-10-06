@@ -89,6 +89,72 @@ include("Configure.jl")
 include("Inspect.jl")
 include("Response.jl")
 
+"""
+    daq_start(dig::InsDigitizerM3102A, ch::Integer)
+    daq_start(dig::InsDigitizerM3102A, chs::Vararg{Int})
+
+Starts acquisition of triggers by the DAQ for data recording.
+"""
+function daq_start end
+
+function daq_start(dig::InsDigitizerM3102A, ch::Integer)
+    @KSerror_handler SD_AIN_DAQstart(dig.ID, ch)
+    nothing
+end
+
+function daq_start(dig::InsDigitizerM3102A, chs::Vararg{Int})
+    @KSerror_handler SD_AIN_DAQstartMultiple(dig.ID, chs_to_mask(chs...))
+    nothing
+end
+
+"""
+    daq_read(dig::InsDigitizerM3102A, ch::Integer, daq_points::Integer, timeout::Real)
+
+Acquires data recorded by DAQ, and returns it. Timeout is meant to be inputted in
+units of seconds for consistency, but the function calculates it in units of
+integer milliseconds, which is the unit that the native C functions actually take.
+"""
+function daq_read(dig::InsDigitizerM3102A, ch::Integer, daq_points::Integer, timeout::Real)
+    timeout < 0.001 && error("timeout has to be at least 1ms")
+    timeout_ms = Int(ceil(timeout*10e3))
+    data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, timeout_ms)
+    return data
+end
+
+"""
+    daq_counter(dig::InsDigitizerM3102A, ch::Integer)
+
+Gives the number of points acquired by DAQ since the last call to daq_read
+"""
+function daq_counter(dig::InsDigitizerM3102A, ch::Integer)
+    @KSerror_handler SD_AIN_DAQcounterRead(dig.ID, ch)
+    nothing
+end
+
+"""
+    daq_stop(dig::InsDigitizerM3102A)
+    daq_stop(dig::InsDigitizerM3102A, ch::Integer)
+    daq_stop(dig::InsDigitizerM3102A, chs::Vararg{Int})
+
+Stops DAQ acquisition of data
+"""
+
+function daq_stop(dig::InsDigitizerM3102A, ch::Integer)
+    @KSerror_handler SD_AIN_DAQstop(dig.ID, ch)
+    nothing
+end
+
+function daq_stop(dig::InsDigitizerM3102A, chs::Vararg{Int})
+    @KSerror_handler SD_AIN_DAQstopMultiple(dig.ID, chs_to_mask(chs...))
+    nothing
+end
+
+function daq_stop(dig::InsDigitizerM3102A)
+    num_channels = size(keys(dig.channels))[1]
+    chs = tuple((1:1:num_channels)...)
+    daq_stop(dig, chs...)
+end
+
 make(ins::InsDigitizerM3102A) = "Keysight"
 model(ins::InsDigitizerM3102A) = ins.product_name
 

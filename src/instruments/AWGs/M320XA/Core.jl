@@ -114,6 +114,7 @@ mutable struct InsAWGM320XA <: Instrument
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins, num_channels)
+        @KSerror_handler SD_AOU_waveformFlush(ins.ID)
         return ins
     end
 
@@ -129,6 +130,7 @@ mutable struct InsAWGM320XA <: Instrument
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins, num_channels)
+        @KSerror_handler SD_AOU_waveformFlush(ins.ID)
         return ins
     end
 end
