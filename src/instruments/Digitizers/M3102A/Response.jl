@@ -2,7 +2,7 @@
 # these are meant to illustrate, in general, how one sets up the Digitizer for readout
 
 export SingleChStream
-export SingleChPXITrig
+export SingleChTrig
 export IQTrigResponse
 
 """
@@ -21,7 +21,7 @@ function measure(resp::SingleChStream)
     dig = resp.dig
     ch = resp.ch
     timeout  = resp.timeout
-    daq_points = Int(ceil(1.1 * (resp.timeout* (500e6))))
+    daq_points = Int(ceil(10 * (resp.timeout* (500e6)))) # making daq_points much larger than data from timeout
 
 
     dig[DAQTrigMode, ch] = :Auto
@@ -34,44 +34,31 @@ function measure(resp::SingleChStream)
     return data
 end
 
-mutable struct SingleChPXITrig <: Response
+mutable struct SingleChTrig <: Response
     dig::InsDigitizerM3102A
     ch::Int #ch for channel
     daq_cycles::Int
     points_per_cyle::Int
-    PXI_trig_source::Int
+    delay::Int
+    trig_source::Any
+
 end
 
-function measure(resp::SingleChPXITrig)
+function measure(resp::SingleChTrig)
     dig = resp.dig
-    dig[DAQTrigMode, ch] = :Digital
-    dig[DAQTrigSource, ch] = :PXI
-    dig[DAQTrigPXINumber, ch] = PXI_trig_source
+    ch = resp.ch
+    @KSerror_handler SD_AIN_triggerIOconfig(dig.ID, 1)
+    dig[DAQTrigMode, ch] = :External
+    dig[ExternalTrigSource, ch] = resp.trig_source
     dig[DAQPointsPerCycle, ch] = resp.points_per_cyle
     dig[DAQCycles, ch] = resp.daq_cycles
-    daq_points = resp.points_per_cyle * resp.daq_cycles
+    dig[DAQTrigDelay] = resp.delay
 
-    #SET UP BUFFERS, NEEDS WORK
-    if daq_points*2 < 2e9
-        buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-        @KSerror_handler SD_AIN_DAQbufferAdd(dig.ID, resp.ch, buffer, daq_points)
-        @KSerror_handler SD_AIN_DAQbufferPoolConfig(dig.ID, resp.ch, daq_points, 0)
-        @KSerror_handler SD_AIN_DAQstart(dig.ID, resp.ch)
-        data = @KSerror_handler SD_AIN_DAQread(dig.ID, resp.ch, daq_points, 0)
-        return data
-    else
-        total_data = []
-        num_buffers = ceil(daq_points/2e9)
-        for i in 1:num_buffers
-            buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-            @KSerror_handler SD_AIN_DAQbufferAdd(dig.ID, resp.ch, buffer, daq_points/num_buffers)
-            @KSerror_handler SD_AIN_DAQbufferPoolConfig(dig.ID, resp.ch, daq_points/num_buffers, 0)
-            @KSerror_handler SD_AIN_DAQstart(dig.ID, resp.ch)
-            data = @KSerror_handler SD_AIN_DAQread(dig.ID, resp.ch, daq_points/num_buffers, 0)
-            push!(total_data, data)
-        end
-        return total_data
-    end
+    daq_points = resp.points_per_cyle * resp.daq_cycles
+    @KSerror_handler SD_AIN_DAQstart(dig.ID, ch)
+    data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, 0)
+    data = data * (dig[FullScale, ch])/2^15
+    return data
 end
 
 mutable struct IQTrigResponse <: Response
@@ -80,51 +67,26 @@ mutable struct IQTrigResponse <: Response
     Q_ch::Int
     daq_cycles::Int
     points_per_cyle::Int
-    PXI_trig_source::Int
+    delay::Int
+    trig_source::Int
     frequency::Float64
-    #worry about PointsPerCycle? Don't think so
 end
 
 function measure(resp::IQTrigResponse)
     dig = resp.dig
     daq_points = resp.points_per_cyle * resp.daq_cycles
+    @KSerror_handler SD_AIN_triggerIOconfig(dig.ID, 1)
     for ch in [resp.I_ch, resp.Q_ch]
-        dig[DAQTrigMode, ch] = :Digital
-        dig[DAQTrigSource, ch] = :PXI
-        dig[DAQTrigPXINumber, ch] = PXI_trig_source
+        dig[DAQTrigMode, ch] = :External
+        dig[ExternalTrigSource, ch] = resp.trig_source
         dig[DAQPointsPerCycle, ch] = resp.points_per_cyle
         dig[DAQCycles, ch] = resp.daq_cycles
-      #SET UP BUFFERS, NEEDS WORK
+        dig[DAQTrigDelay] = resp.delay
     end
-    if daq_points*2 < 2e-9
-        for ch in [resp.I_ch, resp.Q_ch]
-            buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-            @KSerror_handler SD_AIN_DAQbufferAdd(dig.ID, ch, buffer, daq_points)
-            @KSerror_handler SD_AIN_DAQbufferPoolConfig(dig.ID, ch, daq_points, 0)
-        end
-        mask=chs_to_mask(resp.I_ch, resp.Q_ch)
-        @KSerror_handler SD_AIN_DAQstartMultiple(dig.ID, mask)
-        I_data =  @KSerror_handler SD_AIN_DAQread(dig.ID, resp.I_ch, daq_points, 0)
-        Q_data = @KSerror_handler SD_AIN_DAQread(dig.ID, resp.Q_ch, daq_points, 0)
-        #process I_data and Q_data
-    else
-        total_I_data = []
-        total_Q_data = []
-        num_buffers = ceil(daq_points/2e-9)
-        for i in 1:num_buffers
-            for ch in [resp.I_ch, resp.Q_ch]
-                buffer= Ref{Vector{Int16}} #NEEDS TO BE CHANGED
-                @KSerror_handler SD_AIN_DAQbufferAdd(dig.ID, ch, buffer, daq_points/num_buffers)
-                @KSerror_handler SD_AIN_DAQbufferPoolConfig(dig.ID, ch, daq_points/num_buffers, 0)
-            end
-            mask=chs_to_mask(resp.I_ch, resp.Q_ch)
-            @KSerror_handler SD_AIN_DAQstartMultiple(dig.ID, mask)
-            I_data =  @KSerror_handler SD_AIN_DAQread(dig.ID, resp.I_ch, daq_points, 0)
-            Q_data = @KSerror_handler SD_AIN_DAQread(dig.ID, resp.Q_ch, daq_points, 0)
-            push!(total_I_data, I_data)
-            push!(total_Q_data, Q_data)
-        end
-    #process total_I_data and total_Q_data
+    @KSerror_handler SD_AIN_DAQstartMultiple(dig.ID, chs_to_mask(I_ch, Q_ch))
+    I_data = @KSerror_handler SD_AIN_DAQread(dig.ID, I_ch, daq_points, 0)
+    I_data = data * (dig[FullScale, I_ch])/2^15
+    Q_data = @KSerror_handler SD_AIN_DAQread(dig.ID, Q_ch, daq_points, 0)
+    Q_data = data * (dig[FullScale, Q_ch])/2^15
     #get I and Q: Daneil Sank's Thesis
-    end
 end

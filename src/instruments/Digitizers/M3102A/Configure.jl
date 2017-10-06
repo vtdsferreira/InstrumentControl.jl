@@ -24,22 +24,22 @@ function configure_channels!(ins::InsDigitizerM3102A, num_channels::Integer)
         #using the overloaded setindex! methods, because some of these functions
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
-        @KSerror_handler SD_AIN_channelInputConfig(ins.ID, ch, 0.2,  #NEEDS TO BE CHANGED!!
+        @KSerror_handler SD_AIN_channelInputConfig(ins.ID, ch, 2,  #NEEDS TO BE CHANGED!!
             symbol_to_keysight(:Ohm_50), symbol_to_keysight(:AC))
         ins.channels[ch][InputMode] = :AC
-        ins.channels[ch][FullScale] = 0.2
+        ins.channels[ch][FullScale] = 2
         ins.channels[ch][Impedance] = :Ohm_50
         @KSerror_handler SD_AIN_channelTriggerConfig(ins.ID, ch,
                                             symbol_to_keysight(:RisingAnalog), 2)
         ins.channels[ch][AnalogTrigBehavior] = :RisingAnalog
-        ins.channels[ch][AnalogTrigThreshold] = 2
+        ins.channels[ch][AnalogTrigThreshold] = 1
         @KSerror_handler SD_AIN_DAQconfig(ins.ID, ch, 1000, 0, 0, symbol_to_keysight(:Analog))
         ins.channels[ch][DAQTrigMode] = :Analog
         ins.channels[ch][DAQCycles] = 0
         ins.channels[ch][DAQTrigDelay] = 0
         ins.channels[ch][DAQPointsPerCycle] = 1000
         @KSerror_handler SD_AIN_DAQtriggerExternalConfig(ins.ID, ch, 0, symbol_to_keysight(:Rising))
-        ins.channels[ch][ExternalTrigSource] = :PXI
+        ins.channels[ch][ExternalTrigSource] = :TRGPort
         ins.channels[ch][ExternalTrigBehavior] = :Rising
     end
     ins[Prescaler] = 0
