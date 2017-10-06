@@ -33,8 +33,15 @@ include("Inspect.jl")
 """
 function awg_start end
 
-awg_start(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGstart(awg.ID, ch)
-awg_start(awg::InsAWGM320XA, chs::Vararg{Int}) = @KSerror_handler SD_AOU_AWGstartMultiple(awg.ID, nums_to_mask(chs...))
+function awg_start(awg::InsAWGM320XA, ch::Integer)
+    @KSerror_handler SD_AOU_AWGstart(awg.ID, ch)
+    nothing
+end
+
+function awg_start(awg::InsAWGM320XA, chs::Vararg{Int})
+    @KSerror_handler SD_AOU_AWGstartMultiple(awg.ID, nums_to_mask(chs...))
+    nothing
+end
 
 """
     awg_is_run(awg::InsAWGM320XA, ch::Integer)
@@ -43,11 +50,13 @@ awg_start(awg::InsAWGM320XA, chs::Vararg{Int}) = @KSerror_handler SD_AOU_AWGstar
     output waveforms     or is actively outputting waveforms. Prints either "YES" or "NO"
 """
 function awg_is_running(awg::InsAWGM320XA, ch::Integer)
-    if @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 0
+    run_result = @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch)
+    if run_result == 0
         println("NO")
-    elseif @KSerror_handler SD_AOU_AWGisRunning(awg.ID, ch) == 1
+    elseif run_result == 1
         println("YES")
     end
+    nothing
 end
 
 """
@@ -60,13 +69,20 @@ end
 """
 function awg_stop end
 
-awg_stop(awg::InsAWGM320XA, ch::Integer) = @KSerror_handler SD_AOU_AWGstop(awg.ID, ch)
-awg_stop(awg::InsAWGM320XA, chs::Vararg{Int}) = @KSerror_handler SD_AOU_AWGstopMultiple(awg.ID, nums_to_mask(chs...))
+function awg_stop(awg::InsAWGM320XA, ch::Integer)
+    @KSerror_handler SD_AOU_AWGstop(awg.ID, ch)
+    nothing
+end
 
-function awg_stop(awg:InsAWGM320XA)
+function awg_stop(awg::InsAWGM320XA, chs::Vararg{Int})
+    @KSerror_handler SD_AOU_AWGstopMultiple(awg.ID, nums_to_mask(chs...))
+    nothing
+end
+
+function awg_stop(awg::InsAWGM320XA)
     num_channels = size(keys(awg.channels))[1]
     chs = tuple((1:1:num_channels)...)
-    awg_stop(awg:InsAWGM320XA, chs...)
+    awg_stop(awg, chs...)
 end
 
 make(ins::InsAWGM320XA) = "Keysight"

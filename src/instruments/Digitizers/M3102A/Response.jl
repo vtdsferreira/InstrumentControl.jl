@@ -28,9 +28,9 @@ function measure(resp::SingleChStream)
     dig[DAQCycles, ch] = -1 #infinite number of cycles
     dig[DAQPointsPerCycle, ch] = daq_points
 
-    @KSerror_handler SD_AIN_DAQstart(dig.ID, ch)
+    daq_start(dig, ch)
     sleep(0.001)
-    data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, Int(ceil(timeout*10e3)))
+    data = daq_read(dig.ID, ch, daq_points, Int(ceil(timeout*10e3)))
     return data
 end
 
@@ -55,8 +55,8 @@ function measure(resp::SingleChTrig)
     dig[DAQTrigDelay] = resp.delay
 
     daq_points = resp.points_per_cyle * resp.daq_cycles
-    @KSerror_handler SD_AIN_DAQstart(dig.ID, ch)
-    data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, 0)
+    daq_start(dig, ch)
+    data = daq_read(dig.ID, ch, daq_points, 0)
     data = data * (dig[FullScale, ch])/2^15
     return data
 end
@@ -83,10 +83,10 @@ function measure(resp::IQTrigResponse)
         dig[DAQCycles, ch] = resp.daq_cycles
         dig[DAQTrigDelay] = resp.delay
     end
-    @KSerror_handler SD_AIN_DAQstartMultiple(dig.ID, chs_to_mask(I_ch, Q_ch))
-    I_data = @KSerror_handler SD_AIN_DAQread(dig.ID, I_ch, daq_points, 0)
+    daq_start(dig, I_ch, Q_ch)
+    I_data = daq_read(dig, I_ch, daq_points, 0)
     I_data = data * (dig[FullScale, I_ch])/2^15
-    Q_data = @KSerror_handler SD_AIN_DAQread(dig.ID, Q_ch, daq_points, 0)
+    Q_data = daq_read(dig, Q_ch, daq_points, 0)
     Q_data = data * (dig[FullScale, Q_ch])/2^15
     #get I and Q: Daneil Sank's Thesis
 end
