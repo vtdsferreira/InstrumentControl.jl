@@ -14,6 +14,10 @@ import ICCommon: Stimulus,
 
 
 export InsDigitizerM3102A
+export daq_read
+export daq_counter
+export daq_start
+export daq_stop
 
 """
 ```
@@ -115,7 +119,7 @@ units of seconds for consistency, but the function calculates it in units of
 integer milliseconds, which is the unit that the native C functions actually take.
 """
 function daq_read(dig::InsDigitizerM3102A, ch::Integer, daq_points::Integer, timeout::Real)
-    timeout < 0.001 && error("timeout has to be at least 1ms")
+    (timeout < 0.001 && timeout != 0) && error("timeout has to be at least 1ms")
     timeout_ms = Int(ceil(timeout*10e3))
     data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, timeout_ms)
     return data
@@ -127,8 +131,7 @@ end
 Gives the number of points acquired by DAQ since the last call to daq_read
 """
 function daq_counter(dig::InsDigitizerM3102A, ch::Integer)
-    @KSerror_handler SD_AIN_DAQcounterRead(dig.ID, ch)
-    nothing
+    return @KSerror_handler SD_AIN_DAQcounterRead(dig.ID, ch)
 end
 
 """
@@ -150,7 +153,7 @@ function daq_stop(dig::InsDigitizerM3102A, chs::Vararg{Int})
 end
 
 function daq_stop(dig::InsDigitizerM3102A)
-    num_channels = size(keys(dig.channels))[1]
+    num_channels = size(collect(keys(dig.channels)))[1]
     chs = tuple((1:1:num_channels)...)
     daq_stop(dig, chs...)
 end

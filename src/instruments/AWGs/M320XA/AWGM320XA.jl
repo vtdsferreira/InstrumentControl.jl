@@ -80,7 +80,7 @@ function awg_stop(awg::InsAWGM320XA, chs::Vararg{Int})
 end
 
 function awg_stop(awg::InsAWGM320XA)
-    num_channels = size(keys(awg.channels))[1]
+    num_channels = size(collect(keys(awg.channels)))[1]
     chs = tuple((1:1:num_channels)...)
     awg_stop(awg, chs...)
 end

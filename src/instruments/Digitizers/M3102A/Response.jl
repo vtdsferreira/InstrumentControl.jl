@@ -30,7 +30,7 @@ function measure(resp::SingleChStream)
 
     daq_start(dig, ch)
     sleep(0.001)
-    data = daq_read(dig.ID, ch, daq_points, Int(ceil(timeout*10e3)))
+    data = daq_read(dig, ch, daq_points, Int(ceil(timeout*10e3)))
     return data
 end
 
@@ -56,7 +56,7 @@ function measure(resp::SingleChTrig)
 
     daq_points = resp.points_per_cyle * resp.daq_cycles
     daq_start(dig, ch)
-    data = daq_read(dig.ID, ch, daq_points, 0)
+    data = daq_read(dig, ch, daq_points, 0)
     data = data * (dig[FullScale, ch])/2^15
     return data
 end
