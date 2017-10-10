@@ -10,7 +10,7 @@ Installation
   (tested with v15.0.1 on Windows 10)
 + Install [AlazarTech](http://www.alazartech.com) digitizer drivers and shared libraries
   (may need to contact AlazarTech) if using Alazar digitizer
-+ Install [VISA.jl](http://www.github.com/painterqubits/VISA.jl) package
++ Install [VISA.jl](http://www.github.com/painterqubits/VISA.jl) package and execute `Pkg.build("Visa")` on julia REPL
 + Install [Alazar.jl](http://www.github.com/painterqubits/Alazar.jl) package
 + Install [KeysightInstruments.jl](https://github.com/PainterQubits/KeysightInstruments.jl) package
 + Install [ICCommon.jl](https://github.com/PainterQubits/ICCommon.jl) package
