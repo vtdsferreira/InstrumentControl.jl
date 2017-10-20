@@ -8,6 +8,7 @@ Installation
 
 + Install [National Instruments VISA libraries](https://www.ni.com/visa/)
   (tested with v15.0.1 on Windows 10)
++ Install [ZeroMQ](http://zeromq.org/) distributed messaging software
 + Install [AlazarTech](http://www.alazartech.com) digitizer drivers and shared libraries
   (may need to contact AlazarTech) if using Alazar digitizer
 + Install [VISA.jl](http://www.github.com/painterqubits/VISA.jl) package and execute `Pkg.build("Visa")` on julia REPL
