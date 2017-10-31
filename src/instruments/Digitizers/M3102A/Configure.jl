@@ -24,15 +24,15 @@ function configure_channels!(ins::InsDigitizerM3102A, num_channels::Integer)
         #using the overloaded setindex! methods, because some of these functions
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
-        @KSerror_handler SD_AIN_channelInputConfig(ins.ID, ch, 2,  #NEEDS TO BE CHANGED!!
+        @KSerror_handler SD_AIN_channelInputConfig(ins.ID, ch, 4,  #NEEDS TO BE CHANGED!!
             symbol_to_keysight(:Ohm_50), symbol_to_keysight(:AC))
         ins.channels[ch][InputMode] = :AC
-        ins.channels[ch][FullScale] = 2
+        ins.channels[ch][FullScale] = 4
         ins.channels[ch][Impedance] = :Ohm_50
         @KSerror_handler SD_AIN_channelTriggerConfig(ins.ID, ch,
                                             symbol_to_keysight(:RisingAnalog), 2)
         ins.channels[ch][AnalogTrigBehavior] = :RisingAnalog
-        ins.channels[ch][AnalogTrigThreshold] = 1
+        ins.channels[ch][AnalogTrigThreshold] = 0.1
         @KSerror_handler SD_AIN_DAQconfig(ins.ID, ch, 1000, 0, 0, symbol_to_keysight(:Analog))
         ins.channels[ch][DAQTrigMode] = :Analog
         ins.channels[ch][DAQCycles] = 0
@@ -164,16 +164,6 @@ function setindex!(ins::InsDigitizerM3102A, PXI_trig_num::Integer,
     ins.channels[ch][ExternalTrigSource] = PXI_trig_num
     nothing
 end
-
-# function setindex!(ins::InsDigitizerM3102A, number::Integer,
-#                   ::Type{DAQTrigPXINumber}, ch::Integer)
-#     source = ins.channels[ch][DAQTrigSource]
-#     behavior = ins.channels[ch][DAQTrigBehavior]
-#     @KSerror_handler SD_AIN_DAQdigitalTriggerConfig(ins.ID, ch, symbol_to_keysight(source),
-#                                    number, symbol_to_keysight(behavior))
-#     ins.channels[ch][DAQTrigPXINumber] = number
-#     nothing
-# end
 
 function setindex!(ins::InsDigitizerM3102A, behavior::Symbol,
                   ::Type{ExternalTrigBehavior}, ch::Integer)
