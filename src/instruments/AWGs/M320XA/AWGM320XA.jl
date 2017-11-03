@@ -14,8 +14,9 @@ import ICCommon: Stimulus,
 
 export InsAWGM320XA
 export awg_start
-export awg_is_run
+export awg_is_running
 export awg_stop
+export nums_to_mask
 
 
 include("Core.jl")
