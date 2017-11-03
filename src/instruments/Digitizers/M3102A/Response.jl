@@ -1,6 +1,8 @@
 # these are examples of response types and measure functions for those types
 # these are meant to illustrate, in general, how one sets up the Digitizer for readout
 
+import Base.mean
+
 export SingleChStream
 export SingleChTrig
 export SingleChAnalogTrig
@@ -165,17 +167,33 @@ mutable struct IQTrigResponse <: Response
     I_ch::Int #ch for channel
     Q_ch::Int
     daq_cycles::Int
-    points_per_cyle::Int
+    points_per_cycle::Int
     delay::Int
     trig_source::Any
     freq::Float64
 end
 
 function measure(resp::IQTrigResponse)
-    two_ch_resp = TwoChTrig(resp.dig, resp.ch1, resp.ch2, resp.daq_cycles, resp.points_per_cyle,
+    num_samples = resp.points_per_cycle
+    num_trials = resp.daq_cycles
+    freq = resp.freq
+    t = linspace(2e-9, 2e-9*num_samples, num_samples)
+    sin_ωt = sin.(2π * freq * t)
+    cos_ωt = cos.(2π * freq * t)
+    two_ch_resp = TwoChTrig(resp.dig, resp.I_ch, resp.Q_ch, resp.daq_cycles, resp.points_per_cycle,
               resp.delay, resp.trig_source)
-    I_data, Q_data = measure(two_ch_resp)
-    #Daniel sanks thesis
+    all_I_data, all_Q_data = measure(two_ch_resp)
+    all_I = []
+    all_Q = []
+    for j = 1:1:num_trials
+        I_data = all_I_data[1+num_samples*(j-1):num_samples*j]
+        Q_data = all_Q_data[1+num_samples*(j-1):num_samples*j]
+        I = (dot(I_data, cos_ωt) + dot(Q_data, sin_ωt))/num_samples
+        Q = (dot(Q_data, cos_ωt) - dot(I_data, sin_ωt))/num_samples
+        push!(all_I, I); push!(all_Q, Q)
+    end
+    I = mean(all_I); Q =mean(all_Q)
+    return all_I, all_Q
 end
 
 mutable struct ThreeChAnalogTrig <: Response
