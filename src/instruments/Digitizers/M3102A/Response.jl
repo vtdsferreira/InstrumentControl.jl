@@ -192,7 +192,6 @@ function measure(resp::IQTrigResponse)
         Q = (dot(Q_data, cos_ωt) - dot(I_data, sin_ωt))/num_samples
         push!(all_I, I); push!(all_Q, Q)
     end
-    I = mean(all_I); Q =mean(all_Q)
     return all_I, all_Q
 end
 
