@@ -19,24 +19,22 @@ enough that there is no need to configure buffers.
 mutable struct SingleChStream <: Response
     dig::InsDigitizerM3102A
     ch::Int #ch for channel
-    timeout::Float64
+    time::Float64
 end
 
 function measure(resp::SingleChStream)
 #make daq_points 1.1 times the timeout so DAQRead finishes from reaching the timeout
     dig = resp.dig
     ch = resp.ch
-    timeout  = resp.timeout
-    daq_points = Int(ceil(10 * (resp.timeout* (500e6)))) # making daq_points much larger than data from timeout
-
+    daq_points = Int(ceil(resp.time*dig[SampleRate]))
 
     dig[DAQTrigMode, ch] = :Auto
-    dig[DAQCycles, ch] = -1 #infinite number of cycles
+    dig[DAQCycles, ch] = 1
     dig[DAQPointsPerCycle, ch] = daq_points
 
     daq_start(dig, ch)
-    sleep(0.001)
-    data = daq_read(dig, ch, daq_points, Int(ceil(timeout*10e3)))
+    data = daq_read(dig, ch, daq_points, 10000) #1000 is an arbitrarily high number
+    data = data * (dig[FullScale, ch])/2^15
     return data
 end
 
