@@ -10,6 +10,7 @@ export TwoChTrig
 export TwoChAnalogTrig
 export ThreeChAnalogTrig
 export IQTrigResponse
+export Avg_IQResponse
 
 """
 Response type for continuously measuring the output of a channel until a given timeout.
@@ -181,16 +182,25 @@ function measure(resp::IQTrigResponse)
     two_ch_resp = TwoChTrig(resp.dig, resp.I_ch, resp.Q_ch, resp.daq_cycles, resp.points_per_cycle,
               resp.delay, resp.trig_source)
     all_I_data, all_Q_data = measure(two_ch_resp)
-    all_I = []
-    all_Q = []
+    print("measurement completed")
+    all_IQ = Vector{Complex{Float32}}(num_trials)
     for j = 1:1:num_trials
         I_data = all_I_data[1+num_samples*(j-1):num_samples*j]
         Q_data = all_Q_data[1+num_samples*(j-1):num_samples*j]
         I = (dot(I_data, cos_ωt) + dot(Q_data, sin_ωt))/num_samples
         Q = (dot(Q_data, cos_ωt) - dot(I_data, sin_ωt))/num_samples
-        push!(all_I, I); push!(all_Q, Q)
+        all_IQ[j] = complex(I,Q)
     end
-    return all_I, all_Q
+    return all_IQ::Vector{Complex{Float32}}
+end
+
+mutable struct Avg_IQResponse <: Response
+    respIQ::IQTrigResponse
+end
+
+function measure(resp::Avg_IQResponse)
+    all_IQ = measure(resp.respIQ)::Array{Complex{Float32},1}
+    return AxisArray([mean(all_IQ[1:2:end]), mean(all_IQ[2:2:end])], Axis{:pulse}([:pi, :nopi]))
 end
 
 mutable struct ThreeChAnalogTrig <: Response

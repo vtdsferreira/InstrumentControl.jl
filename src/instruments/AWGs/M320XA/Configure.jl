@@ -26,7 +26,7 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
         @KSerror_handler SD_AOU_AWGtriggerExternalConfig(ins.ID, ch, 4000,
-                        symbol_to_keysight(:Falling), symbol_to_keysight(:CLKsys))
+                        symbol_to_keysight(:Falling), symbol_to_keysight(:CLK10))
         ins.channels[ch][TrigSource] = 0
         ins.channels[ch][TrigBehavior] = :Falling
         ins.channels[ch][TrigSync] = :CLK10
