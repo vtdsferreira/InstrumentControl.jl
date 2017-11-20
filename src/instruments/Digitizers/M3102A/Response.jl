@@ -182,7 +182,6 @@ function measure(resp::IQTrigResponse)
     two_ch_resp = TwoChTrig(resp.dig, resp.I_ch, resp.Q_ch, resp.daq_cycles, resp.points_per_cycle,
               resp.delay, resp.trig_source)
     all_I_data, all_Q_data = measure(two_ch_resp)
-    print("measurement completed")
     all_IQ = Vector{Complex{Float32}}(num_trials)
     for j = 1:1:num_trials
         I_data = all_I_data[1+num_samples*(j-1):num_samples*j]
