@@ -1,6 +1,7 @@
 module DigitizerM3102A
 
 using KeysightInstruments
+using AxisArrays
 KSI = KeysightInstruments
 
 import Base: getindex, setindex!, show
