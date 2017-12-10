@@ -1,4 +1,4 @@
-import DataFrames
+#import DataFrames
 
 #export Waveform
 export WaveChProperty
@@ -52,8 +52,14 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
                        input_type::Symbol = :Analog16)
     waveformValues = waveform.waveformValues
     temp_id = SD_Wave_newFromArrayDouble(symbol_to_keysight(input_type), waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
-    temp_id < 0 && throw(InstrumentException(ins, temp_id))
-    @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
+    #println(temp_id)
+    #temp_id < 0 && throw(InstrumentException(ins, temp_id))
+    try
+        @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
+    catch
+        println("Loading waveforms is causing errors. Try flushing waveforms to clear up RAM space")
+        return nothing
+    end
     #initialize ch_properties field of waveform object with number of channels information from ins
     num_channels = size(collect(keys(ins.channels)))[1]
     for ch = 1:num_channels

@@ -9,8 +9,7 @@ export SingleChAnalogTrig
 export TwoChTrig
 export TwoChAnalogTrig
 export ThreeChAnalogTrig
-export IQTrigResponse
-export Avg_IQResponse
+export IQResponse
 
 """
 Response type for continuously measuring the output of a channel until a given timeout.
@@ -161,7 +160,7 @@ function measure_twoCh_general(resp::Response)
     return data1, data2
 end
 
-mutable struct IQTrigResponse <: Response
+mutable struct IQResponse <: Response
     dig::InsDigitizerM3102A
     I_ch::Int #ch for channel
     Q_ch::Int
@@ -172,7 +171,7 @@ mutable struct IQTrigResponse <: Response
     freq::Float64
 end
 
-function measure(resp::IQTrigResponse)
+function measure(resp::IQResponse)
     num_samples = resp.points_per_cycle
     num_trials = resp.daq_cycles
     freq = resp.freq
@@ -191,15 +190,6 @@ function measure(resp::IQTrigResponse)
         all_IQ[j] = complex(I,Q)
     end
     return all_IQ::Vector{Complex{Float32}}
-end
-
-mutable struct Avg_IQResponse <: Response
-    respIQ::IQTrigResponse
-end
-
-function measure(resp::Avg_IQResponse)
-    all_IQ = measure(resp.respIQ)::Array{Complex{Float32},1}
-    return AxisArray([mean(all_IQ[1:2:end]), mean(all_IQ[2:2:end])], Axis{:pulse}([:pi, :nopi]))
 end
 
 mutable struct ThreeChAnalogTrig <: Response

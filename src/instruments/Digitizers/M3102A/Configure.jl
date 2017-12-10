@@ -24,10 +24,10 @@ function configure_channels!(ins::InsDigitizerM3102A, num_channels::Integer)
         #using the overloaded setindex! methods, because some of these functions
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
-        @KSerror_handler SD_AIN_channelInputConfig(ins.ID, ch, 4,  #NEEDS TO BE CHANGED!!
+        @KSerror_handler SD_AIN_channelInputConfig(ins.ID, ch, 0.125,  
             symbol_to_keysight(:Ohm_50), symbol_to_keysight(:AC))
         ins.channels[ch][InputMode] = :AC
-        ins.channels[ch][FullScale] = 4
+        ins.channels[ch][FullScale] = 0.125
         ins.channels[ch][Impedance] = :Ohm_50
         @KSerror_handler SD_AIN_channelTriggerConfig(ins.ID, ch,
                                             symbol_to_keysight(:RisingAnalog), 2)

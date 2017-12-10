@@ -718,12 +718,12 @@ function define_sweep(D,N)
                 if t_body == true
                     t_body = false
                 else
+                    yield()
                     data = measure(dep)
                     (@dnref $D $N array i) = data
 
                     # update progress
                     it += 1; take!(sj.progress); put!(sj.progress, it/tot)
-
                     # send forth results
                     # io = IOBuffer()
                     # serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))
