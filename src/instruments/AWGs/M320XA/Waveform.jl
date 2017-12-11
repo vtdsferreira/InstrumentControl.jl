@@ -11,7 +11,6 @@ export WavPrescaler
 
 export load_waveform
 export queue_waveform
-export queue_sequence
 export queue_flush
 export waveforms_flush
 export memory_size
@@ -52,8 +51,7 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
                        input_type::Symbol = :Analog16)
     waveformValues = waveform.waveformValues
     temp_id = SD_Wave_newFromArrayDouble(symbol_to_keysight(input_type), waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
-    #println(temp_id)
-    #temp_id < 0 && throw(InstrumentException(ins, temp_id))
+    temp_id < -7999 && temp_id > -8065  && throw(InstrumentException(ins, temp_id))
     try
         @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
     catch

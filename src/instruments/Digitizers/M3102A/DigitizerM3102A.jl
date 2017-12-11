@@ -142,6 +142,7 @@ end
 
 Stops DAQ acquisition of data
 """
+function daq_stop end
 
 function daq_stop(dig::InsDigitizerM3102A, ch::Integer)
     @KSerror_handler SD_AIN_DAQstop(dig.ID, ch)
@@ -157,6 +158,29 @@ function daq_stop(dig::InsDigitizerM3102A)
     num_channels = size(collect(keys(dig.channels)))[1]
     chs = tuple((1:1:num_channels)...)
     daq_stop(dig, chs...)
+end
+
+"""
+daq_flush(dig::InsDigitizerM3102A)
+daq_flush(dig::InsDigitizerM3102A, ch::Integer)
+daq_flush(dig::InsDigitizerM3102A, chs::Vararg{Int})
+
+Flushes the DAQ buffers
+"""
+function daq_flush(dig::InsDigitizerM3102A, ch::Integer)
+    @KSerror_handler SD_AIN_DAQflush(dig.ID, ch)
+    nothing
+end
+
+function daq_flush(dig::InsDigitizerM3102A, chs::Vararg{Int})
+    @KSerror_handler SD_AIN_DAQflushMultiple(dig.ID, chs_to_mask(chs...))
+    nothing
+end
+
+function daq_flush(dig::InsDigitizerM3102A)
+    num_channels = size(collect(keys(dig.channels)))[1]
+    chs = tuple((1:1:num_channels)...)
+    daq_flush(dig, chs...)
 end
 
 make(ins::InsDigitizerM3102A) = "Keysight"
