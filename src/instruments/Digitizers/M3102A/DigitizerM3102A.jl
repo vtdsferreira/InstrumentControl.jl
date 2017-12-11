@@ -19,6 +19,7 @@ export daq_read
 export daq_counter
 export daq_start
 export daq_stop
+export daq_flush
 
 """
 ```

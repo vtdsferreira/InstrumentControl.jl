@@ -32,7 +32,7 @@ type RampStim <: Stimulus #defining stimulus object to change output voltage on 
     axislabel::String
 end
 
-RampStim(ins::InsGS200; axisname = gensym(:ramp), axislabel="Voltage bias") = RampStim(ins, axisname, axislabel)
+RampStim(ins::InsGS200; axisname = :ramp, axislabel="Voltage bias") = RampStim(ins, axisname, axislabel)
 source(stim::RampStim, voltage) = ramp(stim.ins,voltage) #source function for RampStim, basically just calls ramp function
 
 end
