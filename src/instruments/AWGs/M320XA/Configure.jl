@@ -47,6 +47,13 @@ end
 
 
 #Below are overloaded setindex! methods for each instrument property
+function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
+                  ::Type{OutputMode}, ch::Integer)
+    @KSerror_handler SD_AOU_channelWaveShape(ins.ID, ch, symbol_to_keysight(wav_type))
+    ins.channels[ch][OutputMode] = wav_type
+    nothing
+end
+
 function setindex!(ins::InsAWGM320XA, amplitude::Real,
                   ::Type{Amplitude}, ch::Integer)
     @KSerror_handler SD_AOU_channelAmplitude(ins.ID, ch, amplitude)
@@ -54,17 +61,17 @@ function setindex!(ins::InsAWGM320XA, amplitude::Real,
     nothing
 end
 
+function setindex!(ins::InsAWGM320XA, power::Real,
+                  ::Type{SinePower}, ch::Integer)
+    dBm_to_amp = 10^((power-10)/20)
+    ins[Amplitude, ch] = dBm_to_amp
+    nothing
+end
+
 function setindex!(ins::InsAWGM320XA, offset::Real,
                   ::Type{DCOffset}, ch::Integer)
     @KSerror_handler SD_AOU_channelOffset(ins.ID, ch, offset)
     ins.channels[ch][DCOffset] = offset
-    nothing
-end
-
-function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
-                  ::Type{OutputMode}, ch::Integer)
-    @KSerror_handler SD_AOU_channelWaveShape(ins.ID, ch, symbol_to_keysight(wav_type))
-    ins.channels[ch][OutputMode] = wav_type
     nothing
 end
 

@@ -89,6 +89,9 @@ end
 make(ins::InsAWGM320XA) = "Keysight"
 model(ins::InsAWGM320XA) = ins.product_name
 
+"How to display an instrument, e.g. in an error."
+show(io::IO, awg::InsAWGM320XA) = print(io, make(x), " ", model(x), " Slot ", awg.slot_num)
+
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsAWGM320XA, error_code::Integer) =
     InstrumentException(ins, error_code, keysight_error(error_code))

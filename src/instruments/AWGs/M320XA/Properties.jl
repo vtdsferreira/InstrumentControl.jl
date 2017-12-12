@@ -1,9 +1,10 @@
 export symbol_to_keysight
 
-export DCOffset
 export OutputMode
+export DCOffset
 export FGFrequency
 export FGPhase
+export SinePower
 export TrigSource
 export TrigBehavior
 export TrigSync
@@ -39,8 +40,15 @@ Sets a channel's function generator's relative phase. Configured to be a `Float6
 abstract type FGPhase <: InstrumentProperty end
 
 """
+Configuration on this InstrumentProperty takes as input a power level in units of
+dBm, and sets a channels amplitude (A) such that a sinusoid tone would have that
+power level, i.e. P(dBm) = 10*log( (A^2/(2*50Ω))/0.001 ) = 10 + 20*log(A)
+"""
+abstract type SinePower <: InstrumentProperty end
+
+"""
 Source of external trigger. Can be configured to be either a number 0-7, which
-corresponds to a PXI line on the PXI backplane, or :TrgPort, which corresponds
+corresponds to a PXI line on the PXI backplane, or :TRGPort, which corresponds
 to the Trg port on the AWG card
 """
 abstract type TrigSource <: InstrumentProperty end #for external triggers

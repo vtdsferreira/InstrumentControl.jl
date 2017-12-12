@@ -105,11 +105,11 @@ mutable struct InsAWGM320XA <: Instrument
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot
-        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
         #below we simultaneously "open" the device and get its index
         SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result)) #error checking
         ins.ID = SD_open_result
+        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
         ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)
         ins.waveforms = Dict{Int, Waveform}()
         ins.channels = Dict{Int, Dict{Any, Any}}()

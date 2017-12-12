@@ -60,10 +60,25 @@ mutable struct InsDigitizerM3102A <: Instrument
     slot_num::Int
     channels::Dict{Int,Dict{Any,Any}}
 
-    InsDigitizerM3102A(serial::AbstractString; num_channels::Integer = 4) = begin
+    InsDigitizerM3102A(slot::Integer, chassis::Integer = 1; num_channels::Integer = 4) = begin
+        ins = new()
+        ins.chassis_num = chassis
+        ins.slot_num = slot
+        #below we simultaneously "open" the device and get its index
+        SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
+        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
+        ins.ID = SD_open_result
+        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
+        ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)
+        ins.channels = Dict{Int, Dict{Any, Any}}()
+        configure_channels!(ins, num_channels)
+        return ins
+    end
+
+    InsDigitizerM3102A(serial::AbstractString, name::AbstractString; num_channels::Integer = 4) = begin
         ins = new()
         ins.serial_num = serial
-        ins.product_name = "M3102A"
+        ins.product_name = name
         #below we simultaneously "open" the device and get its index
         SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
         SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
@@ -75,19 +90,6 @@ mutable struct InsDigitizerM3102A <: Instrument
         return ins
     end
 
-    InsDigitizerM3102A(slot::Integer, chassis::Integer = 1; num_channels::Integer = 4) = begin
-        ins = new()
-        ins.chassis_num = chassis
-        ins.slot_num = slot
-        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
-        SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
-        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.ID = SD_open_result
-        ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)
-        ins.channels = Dict{Int, Dict{Any, Any}}()
-        configure_channels!(ins, num_channels)
-        return ins
-    end
 end
 
 include("Properties.jl")
@@ -186,6 +188,9 @@ end
 
 make(ins::InsDigitizerM3102A) = "Keysight"
 model(ins::InsDigitizerM3102A) = ins.product_name
+
+"How to display an instrument, e.g. in an error."
+show(io::IO, dig::InsDigitizerM3102A) = print(io, make(x), " ", model(x), " Slot ", dig.slot_num)
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsDigitizerM3102A, error_code::Integer) =
