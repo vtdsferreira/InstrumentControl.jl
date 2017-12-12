@@ -23,11 +23,7 @@ Example Notebooks
 -----------
 InstrumentControl.jl relies on having physical instruments, communication
 with a database set up by ICDataServer.jl, and various files with machine specific
-configuration information in order to run. As such, we provide some example
-notebooks in order to showcase this package's functionality.
-```
-# put example notebooks here
-```
+configuration information in order to run. As such, we provide some [example notebooks](https://github.com/PainterQubits/InstrumentControl.jl/blob/Revisions2/docs/Qubit%20Measurement%20with%20InstrumentControl.ipynb) in order to showcase this package's functionality.
 
 New to Julia
 -----------
