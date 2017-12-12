@@ -34,6 +34,7 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
         ins.channels[ch][AngModGain] = 0
         ins.channels[ch][AmpModMode] = :NoMod
         ins.channels[ch][AngModMode] = :NoMod
+        ins.channels[ch][IQMod] = :IQoff
     end
     ins[Amplitude] = 0
     ins[DCOffset] = 0
@@ -122,6 +123,12 @@ function setindex!(ins::InsAWGM320XA, ang_gain::Real, ::Type{AngModGain},
     @KSerror_handler SD_AOU_modulationAmplitudeConfig(ins.ID, ch, symbol_to_keysight(mode),
                                                 ang_gain)
     ins.channels[ch][AngModGain] =  ang_gain
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, on_or_off::Symbol, ::Type{IQMod}, ch::Integer)
+    @KSerror_handler SD_AOU_modulationIQconfig(ins.ID, ch, symbol_to_keysight(on_or_off))
+    ins.channels[ch][IQMod] = on_or_off
     nothing
 end
 

@@ -106,6 +106,7 @@ mutable struct InsAWGM320XA <: Instrument
         ins.slot_num = slot
         product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
         typeof(product_name) <: Integer && error("Error in opening the module. Is the slot number correct?")
+        ins.product_name = product_name
         #below we simultaneously "open" the device and get its index
         ins.ID = @KSerror_handler SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
         ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)

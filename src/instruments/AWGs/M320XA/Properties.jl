@@ -15,6 +15,7 @@ export AmpModMode
 export AngModMode
 export AmpModGain
 export AngModGain
+export IQMod
 
 #channel properties
 
@@ -110,6 +111,11 @@ Amplitude of angle modulating signal. Configured to be a `Float64` number.
 abstract type AngModGain <: InstrumentProperty end
 
 """
+Configured to be :IQon or :IQoff, this turns the IQ modulation mode of a channel on or off.
+"""
+abstract type IQMod <: InstrumentProperty end
+
+"""
     symbol_to_keysight(sym::Symbol)
 
 This function is used mainly in overloaded `setindex!` methods meant to configure
@@ -196,7 +202,7 @@ function symbol_to_keysight(sym::Symbol)
     elseif sym == :CLKsys
         return KSI.SYNC_NONE
     elseif sym == :CLK10
-        return  KSI.SYNC_CLK_0
+        return KSI.SYNC_CLK_0
     #amplitude modulation
     elseif sym == :NoMod
         return KSI.AOU_MOD_OFF
@@ -207,7 +213,11 @@ function symbol_to_keysight(sym::Symbol)
     elseif sym == :FrequencyMod
         return KSI.AOU_MOD_FM
     elseif sym == :PhaseMod
-        return KSI. AOU_MOD_PM
+        return KSI.AOU_MOD_PM
+    elseif sym == :IQon
+        return Cint(1)
+    elseif sym == :IQoff
+        return Cint(0)
     else
         error("Symbol input not acceptable")
     end
