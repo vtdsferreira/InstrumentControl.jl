@@ -17,7 +17,7 @@ function getindex(ins::InsDigitizerM3102A,
     else
         channels_list=[]
         for ch in keys(ins.channels)
-            push!(channels_list, ins.channels[ch][T])
+            push!(channels_list, ins[T, ch])
         end
         return channels_list
     end

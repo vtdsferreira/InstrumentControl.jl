@@ -45,12 +45,13 @@ of the `InstrumentProperty` abstract type, and its values will be the values whi
 the instrument property associated that subtype are configured to in that channel
 in the digitizer.
 
-Two inner constructors are provided: one which initializes the object with a given
-slot number and chassis number, and one which initializes the object with a given
-serial number. When the object is initialized, it obtains all other instrument
-information described above with the passed arguments, and initializes all the
-channels properties to some standard values and records them in the `channels`
-dictionary through the `configure_channels!` function
+One inner constructor is provided which initializes the object with a given
+slot number and chassis number. The inner constructor also takes a `num_channels` keyword
+argument, corresponding to the number of channels on the instrument, which is used
+for initial configuration of the instrument channels. When the object is initialized,
+it obtains all other information described above with the passed arguments, and
+initializes all the channels properties to some standard values and records them
+in the `channels` dictionary through the `configure_channels!` function
 """
 mutable struct InsDigitizerM3102A <: Instrument
     serial_num::String
@@ -64,32 +65,15 @@ mutable struct InsDigitizerM3102A <: Instrument
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot
+        product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
+        typeof(product_name) <: Integer && error("Error in opening the module. Is the slot number correct?")
         #below we simultaneously "open" the device and get its index
-        SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
-        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.ID = SD_open_result
-        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
+        ins.ID = @KSerror_handler SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
         ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins, num_channels)
         return ins
     end
-
-    InsDigitizerM3102A(serial::AbstractString, name::AbstractString; num_channels::Integer = 4) = begin
-        ins = new()
-        ins.serial_num = serial
-        ins.product_name = name
-        #below we simultaneously "open" the device and get its index
-        SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
-        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.ID = SD_open_result
-        ins.chassis_num  = @KSerror_handler SD_Module_getChassis(ins.ID)
-        ins.slot_num = @KSerror_handler SD_Module_getSlot(ins.ID)
-        ins.channels = Dict{Int, Dict{Any, Any}}()
-        configure_channels!(ins, num_channels)
-        return ins
-    end
-
 end
 
 include("Properties.jl")
@@ -190,7 +174,7 @@ make(ins::InsDigitizerM3102A) = "Keysight"
 model(ins::InsDigitizerM3102A) = ins.product_name
 
 "How to display an instrument, e.g. in an error."
-show(io::IO, dig::InsDigitizerM3102A) = print(io, make(x), " ", model(x), " Slot ", dig.slot_num)
+show(io::IO, dig::InsDigitizerM3102A) = print(io, make(dig), " ", model(dig), " Slot ", dig.slot_num)
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsDigitizerM3102A, error_code::Integer) =
