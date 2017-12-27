@@ -111,7 +111,7 @@ function daq_read(dig::InsDigitizerM3102A, ch::Integer, daq_points::Integer, tim
     (timeout < 0.001 && timeout != 0) && error("timeout has to be at least 1ms")
     timeout_ms = Int(ceil(timeout*10e3))
     data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, timeout_ms)
-    return data
+    return data::Array{Int16,1}
 end
 
 """
