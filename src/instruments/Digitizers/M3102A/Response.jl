@@ -139,13 +139,14 @@ function measure(resp::TwoChAnalogTrig)
         dig[AnalogTrigThreshold, ch] = resp.threshold
     end
     data1, data2 = measure_twoCh_general(resp)
-    return data1, data2
+    return data1::Vector{Float64}
 end
 
 function measure_twoCh_general(resp::Response)
     dig = resp.dig
     ch1 = resp.ch1
     ch2 = resp.ch2
+    @KSerror_handler SD_Module_PXItriggerWrite(dig.ID, 0, 1)
     daq_points = resp.points_per_cyle * resp.daq_cycles
     for ch in [ch1, ch2]
         dig[DAQPointsPerCycle, ch] = resp.points_per_cyle
@@ -153,10 +154,13 @@ function measure_twoCh_general(resp::Response)
         dig[DAQTrigDelay, ch] = resp.delay
     end
     daq_start(dig, ch1, ch2)
+    sleep(0.001)
+    @KSerror_handler SD_Module_PXItriggerWrite(dig.ID, 0, 0)
     data1 = daq_read(dig, ch1, daq_points, 10)
     data1 = data1 * (dig[FullScale, ch1])/2^15
     data2 = daq_read(dig, ch2, daq_points, 10)
     data2 = data2 * (dig[FullScale, ch2])/2^15
+    @KSerror_handler SD_Module_PXItriggerWrite(dig.ID, 0, 1)
     return data1, data2
 end
 
