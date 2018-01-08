@@ -14,8 +14,9 @@ import ICCommon: Stimulus,
 
 export InsAWGM320XA
 export awg_start
-export awg_is_run
+export awg_is_running
 export awg_stop
+export nums_to_mask
 
 
 include("Core.jl")
@@ -87,6 +88,9 @@ end
 
 make(ins::InsAWGM320XA) = "Keysight"
 model(ins::InsAWGM320XA) = ins.product_name
+
+"How to display an instrument, e.g. in an error."
+show(io::IO, awg::InsAWGM320XA) = print(io, make(awg), " ", model(awg), " Slot ", awg.slot_num)
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsAWGM320XA, error_code::Integer) =

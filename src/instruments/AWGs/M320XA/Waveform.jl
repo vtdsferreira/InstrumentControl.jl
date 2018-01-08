@@ -1,4 +1,4 @@
-import DataFrames
+#import DataFrames
 
 #export Waveform
 export WaveChProperty
@@ -11,7 +11,6 @@ export WavPrescaler
 
 export load_waveform
 export queue_waveform
-export queue_sequence
 export queue_flush
 export waveforms_flush
 export memory_size
@@ -52,8 +51,13 @@ function load_waveform(ins::InsAWGM320XA, waveform::Waveform, id::Integer;
                        input_type::Symbol = :Analog16)
     waveformValues = waveform.waveformValues
     temp_id = SD_Wave_newFromArrayDouble(symbol_to_keysight(input_type), waveformValues) #when loading the waveform to the AWG RAM, this id is overwritten
-    temp_id < 0 && throw(InstrumentException(ins, temp_id))
-    @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
+    temp_id < -7999 && temp_id > -8065  && throw(InstrumentException(ins, temp_id))
+    try
+        @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
+    catch
+        println("Loading waveforms is causing errors. Try flushing waveforms to clear up RAM space")
+        return nothing
+    end
     #initialize ch_properties field of waveform object with number of channels information from ins
     num_channels = size(collect(keys(ins.channels)))[1]
     for ch = 1:num_channels
@@ -69,23 +73,23 @@ function load_waveform(ins::InsAWGM320XA, waveformValues::Array{Float64}, id::In
     load_waveform(ins, waveform, id, input_type = input_type)
 end
 
-function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
-                       name::AbstractString = string(id))
-    temp_id = SD_Wave_newFromFile(waveformFile)
-    temp_id < 0 && throw(InstrumentException(ins, temp_id))
-    @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
-    #read csv file and extract waveformValues; NEEDS WORK
-    temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
-    waveformValues = convert(Array, temp_data)
-    waveform = Waveform(waveformValues, name)
-    #initialize ch_properties field of waveform object with number of channels information from ins
-    num_channels = size(keys(ins.channels))[1]
-    for ch = 1:num_channels
-        waveform.ch_properties[ch] = Dict{Any, Any}()
-    end
-    ins.waveforms[id] = waveform
-    return ins.waveforms[id]
-end
+# function load_waveform(ins::InsAWGM320XA, waveformFile::String, id::Integer,
+#                        name::AbstractString = string(id))
+#     temp_id = SD_Wave_newFromFile(waveformFile)
+#     temp_id < 0 && throw(InstrumentException(ins, temp_id))
+#     @KSerror_handler SD_AOU_waveformLoad(ins.ID, temp_id, id)
+#     #read csv file and extract waveformValues; NEEDS WORK
+#     temp_data = DataFrames.readtable(waveformFile) #how you read CSV files
+#     waveformValues = convert(Array, temp_data)
+#     waveform = Waveform(waveformValues, name)
+#     #initialize ch_properties field of waveform object with number of channels information from ins
+#     num_channels = size(keys(ins.channels))[1]
+#     for ch = 1:num_channels
+#         waveform.ch_properties[ch] = Dict{Any, Any}()
+#     end
+#     ins.waveforms[id] = waveform
+#     return ins.waveforms[id]
+# end
 
 """
     queue_waveform(ins::InsAWGM320XA, ch::Integer, id::Integer, trigger_mode::Symbol;

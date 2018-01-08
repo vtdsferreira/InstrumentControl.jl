@@ -1,6 +1,7 @@
 module DigitizerM3102A
 
 using KeysightInstruments
+using AxisArrays
 KSI = KeysightInstruments
 
 import Base: getindex, setindex!, show
@@ -18,6 +19,7 @@ export daq_read
 export daq_counter
 export daq_start
 export daq_stop
+export daq_flush
 
 """
 ```
@@ -43,12 +45,13 @@ of the `InstrumentProperty` abstract type, and its values will be the values whi
 the instrument property associated that subtype are configured to in that channel
 in the digitizer.
 
-Two inner constructors are provided: one which initializes the object with a given
-slot number and chassis number, and one which initializes the object with a given
-serial number. When the object is initialized, it obtains all other instrument
-information described above with the passed arguments, and initializes all the
-channels properties to some standard values and records them in the `channels`
-dictionary through the `configure_channels!` function
+One inner constructor is provided which initializes the object with a given
+slot number and chassis number. The inner constructor also takes a `num_channels` keyword
+argument, corresponding to the number of channels on the instrument, which is used
+for initial configuration of the instrument channels. When the object is initialized,
+it obtains all other information described above with the passed arguments, and
+initializes all the channels properties to some standard values and records them
+in the `channels` dictionary through the `configure_channels!` function
 """
 mutable struct InsDigitizerM3102A <: Instrument
     serial_num::String
@@ -58,29 +61,15 @@ mutable struct InsDigitizerM3102A <: Instrument
     slot_num::Int
     channels::Dict{Int,Dict{Any,Any}}
 
-    InsDigitizerM3102A(serial::AbstractString; num_channels::Integer = 4) = begin
-        ins = new()
-        ins.serial_num = serial
-        ins.product_name = "M3102A"
-        #below we simultaneously "open" the device and get its index
-        SD_open_result = SD_Module_openWithSerialNumber(ins.product_name, ins.serial_num)
-        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.ID = SD_open_result
-        ins.chassis_num  = @KSerror_handler SD_Module_getChassis(ins.ID)
-        ins.slot_num = @KSerror_handler SD_Module_getSlot(ins.ID)
-        ins.channels = Dict{Int, Dict{Any, Any}}()
-        configure_channels!(ins, num_channels)
-        return ins
-    end
-
     InsDigitizerM3102A(slot::Integer, chassis::Integer = 1; num_channels::Integer = 4) = begin
         ins = new()
         ins.chassis_num = chassis
         ins.slot_num = slot
-        ins.product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
-        SD_open_result = SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
-        SD_open_result < 0 && throw(InstrumentException(ins, SD_open_result))
-        ins.ID = SD_open_result
+        product_name = SD_Module_getProductNameBySlot(ins.chassis_num, ins.slot_num)
+        typeof(product_name) <: Integer && error("Error in opening the module. Is the slot number correct?")
+        ins.product_name = product_name
+        #below we simultaneously "open" the device and get its index
+        ins.ID = @KSerror_handler SD_Module_openWithSlot(ins.product_name, ins.chassis_num, ins.slot_num)
         ins.serial_num = @KSerror_handler SD_Module_getSerialNumber(ins.ID)
         ins.channels = Dict{Int, Dict{Any, Any}}()
         configure_channels!(ins, num_channels)
@@ -122,7 +111,7 @@ function daq_read(dig::InsDigitizerM3102A, ch::Integer, daq_points::Integer, tim
     (timeout < 0.001 && timeout != 0) && error("timeout has to be at least 1ms")
     timeout_ms = Int(ceil(timeout*10e3))
     data = @KSerror_handler SD_AIN_DAQread(dig.ID, ch, daq_points, timeout_ms)
-    return data
+    return data::Array{Int16,1}
 end
 
 """
@@ -141,6 +130,7 @@ end
 
 Stops DAQ acquisition of data
 """
+function daq_stop end
 
 function daq_stop(dig::InsDigitizerM3102A, ch::Integer)
     @KSerror_handler SD_AIN_DAQstop(dig.ID, ch)
@@ -158,8 +148,34 @@ function daq_stop(dig::InsDigitizerM3102A)
     daq_stop(dig, chs...)
 end
 
+"""
+daq_flush(dig::InsDigitizerM3102A)
+daq_flush(dig::InsDigitizerM3102A, ch::Integer)
+daq_flush(dig::InsDigitizerM3102A, chs::Vararg{Int})
+
+Flushes the DAQ buffers
+"""
+function daq_flush(dig::InsDigitizerM3102A, ch::Integer)
+    @KSerror_handler SD_AIN_DAQflush(dig.ID, ch)
+    nothing
+end
+
+function daq_flush(dig::InsDigitizerM3102A, chs::Vararg{Int})
+    @KSerror_handler SD_AIN_DAQflushMultiple(dig.ID, chs_to_mask(chs...))
+    nothing
+end
+
+function daq_flush(dig::InsDigitizerM3102A)
+    num_channels = size(collect(keys(dig.channels)))[1]
+    chs = tuple((1:1:num_channels)...)
+    daq_flush(dig, chs...)
+end
+
 make(ins::InsDigitizerM3102A) = "Keysight"
 model(ins::InsDigitizerM3102A) = ins.product_name
+
+"How to display an instrument, e.g. in an error."
+show(io::IO, dig::InsDigitizerM3102A) = print(io, make(dig), " ", model(dig), " Slot ", dig.slot_num)
 
 #InstrumentException type defined in src/Definitions.jl in InstrumentControl
 InstrumentException(ins::InsDigitizerM3102A, error_code::Integer) =

@@ -120,6 +120,7 @@ own `InstrumentProperty` subtype:
 ## Waveforms
 
 ###Basics
+
 In this module's implementation, we allow for handling of waveforms through the
 following type:
 

@@ -1,7 +1,9 @@
 julia 0.6
 ICCommon
+ICDataServer
 VISA
 Alazar
+KeysightInstruments
 BinDeps
 FileIO
 AxisArrays 0.1.4
@@ -10,5 +12,3 @@ JSON
 ZMQ
 JLD
 DataStructures 0.5.3
-KeysightInstruments
-DataFrames
