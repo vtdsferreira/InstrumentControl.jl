@@ -16,7 +16,7 @@ function getindex(ins::InsDigitizerM3102A,
         return 500e6   #@KSerror_handler SD_AIN_clockGetFrequency(ins.ID)  this function not working though
     else
         channels_list=[]
-        for ch in keys(ins.channels)
+        for ch in sort(collect(keys(ins.channels)))
             push!(channels_list, ins[T, ch])
         end
         return channels_list

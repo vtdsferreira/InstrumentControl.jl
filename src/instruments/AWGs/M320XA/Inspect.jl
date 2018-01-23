@@ -20,7 +20,7 @@ function getindex(ins::InsAWGM320XA,
         return @KSerror_handler SD_AOU_clockGetFrequency(ins.ID)
     else
         channels_list=[]
-        for ch in keys(ins.channels)
+        for ch in sort(collect(keys(ins.channels)))
             push!(channels_list, ins[T, ch])
         end
         return channels_list
