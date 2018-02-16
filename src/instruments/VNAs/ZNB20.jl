@@ -47,7 +47,7 @@ function measure(s::SParamSweep)
     array = getdata(s.ins, s.ins[TransferFormat], "CALC1:DATA? SDAT") #get data from instrument
     data = [Complex{T}(array[i],array[i+1]) for i in 1:2:length(array)] #reformatting
     data = reinterpret(Complex{Float64}, data)
-    result[Axis{:sparam}(s.Sparam)] = data
+    result[Axis{:sparam}(Symbol(s.Sparam))] = data
     result = transpose(result)
     return result
 end
