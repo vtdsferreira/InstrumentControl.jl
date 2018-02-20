@@ -45,7 +45,7 @@
                 "SWR": "SWR",
                 "RealPart": "REAL",
                 "ImagPart": "IMAG",
-                "ExpandedPhase": "UPH",
+                "ExpandedPhase": "UPH"
             },
             "infixes": [
                 "ch::Integer=1"
@@ -82,7 +82,10 @@
                 "Flatten": "FLAT",
                 "Reduce": "RED",
                 "Moving": "MOV"
-            }
+            },
+            "infixes": [
+                "ch::Integer=1"
+            ]
         },
         {
             "cmd": ":SENSch:FREQ:STAR",
@@ -144,7 +147,10 @@
                 "Normal": "NORM",
                 "Medium": "MED",
                 "High": "HIGH"
-            }
+            },
+            "infixes": [
+                "ch::Integer=1"
+            ]
         },
         {
             "cmd": ":SENSch:SWE:POIN",
@@ -190,7 +196,7 @@
                 "v::Bool"
             ],
             "infixes": [
-                "ch::Integer=1",
+                "ch::Integer=1"
             ]
         },
         {
@@ -200,7 +206,7 @@
                 "v::Real"
             ],
             "infixes": [
-                "ch::Integer=1",
+                "ch::Integer=1"
             ]
         },
         {
@@ -221,7 +227,7 @@
                 "v::Symbol in symbols"
             ],
             "symbols": {
-                "String": "ASC",
+                "String": "ASCII",
                 "Float32": "REAL,32",
                 "Float64": "REAL,64"
             }
@@ -240,3 +246,4 @@
             }
         }
     ]
+}

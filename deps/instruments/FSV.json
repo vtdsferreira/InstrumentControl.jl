@@ -57,7 +57,7 @@
             ]
         },
         {
-            "cmd": ":SENSch:AVER:TYPE",
+            "cmd": ":SENS:AVER:TYPE",
             "type": "AveragingMode",
             "values": [
                 "v::Symbol in symbols"
@@ -141,23 +141,13 @@
             ]
         },
         {
-            "cmd": ":CALCch:SMO",
-            "type": "Smoothing",
-            "values": [
-                "v::Bool"
-            ],
-            "infixes": [
-                "ch::Integer=1",
-            ]
-        },
-        {
             "cmd": ":FORM:DATA",
             "type": "TransferFormat",
             "values": [
                 "v::Symbol in symbols"
             ],
             "symbols": {
-                "String": "ASC",
+                "String": "ASCII",
                 "Float32": "REAL,32"
             }
         },
@@ -171,5 +161,13 @@
                 "InternalTrigger": "IMM",
                 "ExternalTrigger": "EXT"
             }
+        },
+        {
+            "cmd": ":DISP:TRAC:Y:RLEV",
+            "type": "ReferenceLevel",
+            "values": [
+                "v::Real"
+            ]
         }
     ]
+}
