@@ -72,8 +72,7 @@ end
 function measure(s::Spectrum)
     write(s.ins, "INIT:CONT OFF") #turn off continuous sweep
     write(s.ins, "INIT:DISP ON")
-    write(s.ins, "INIT") #initiate single sweep
-    sleep(s.ins[SweepTime]) #wait for sweep to be over before getting data
+    write(s.ins, "INIT; *WAI") #initiate single sweep
     npts = s.ins[NumPoints]
     freqs = linspace(s.ins[FrequencyStart], s.ins[FrequencyStop], npts)
     array = getdata(s.ins, s.ins[TransferFormat], "TRAC? TRACE1") #get data from instrument
