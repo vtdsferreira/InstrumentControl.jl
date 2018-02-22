@@ -40,18 +40,8 @@
             }
         },
         {
-            "cmd": ":SENS:AVER:STATtr",
-            "type": "Averaging",
-            "values": [
-                "v::Bool"
-            ],
-            "infixes": [
-                "tr::Integer=1"
-            ]
-        },
-        {
-            "cmd": ":SENS:AVER:COUN",
-            "type": "AveragingFactor",
+            "cmd": ":SENS:SWE:COUN",
+            "type": "SweepCount",
             "values": [
                 "v::Integer"
             ]

@@ -60,6 +60,23 @@ function getindex(ins::InsFSV, ::Type{TransferByteOrder})
     return ins.tbo
 end
 
+function setindex!(ins::InsFSV, b::Bool, ::Type{Averaging})
+    if b
+        write(ins, "DISP:TRAC:MODE AVER")
+    else
+        write(ins, "DISP:TRAC:MODE WRIT")
+    end
+end
+
+function getindex(ins::InsFSV  ::Type{Averaging})
+    answer = ask(ins, "DISP:TRAC:MODE?")
+    if answer = "AVER"
+        return true
+    else
+        return false
+    end
+end
+
 function autolevel(ins::InsFSV)
     write(ins, "ADJ:LEV")
 end
@@ -72,8 +89,7 @@ end
 function measure(s::Spectrum)
     write(s.ins, "INIT:CONT OFF") #turn off continuous sweep
     write(s.ins, "INIT:DISP ON")
-    write(s.ins, "INIT") #initiate single sweep
-    sleep(s.ins[SweepTime]) #wait for sweep to be over before getting data
+    write(s.ins, "INIT; *WAI") #initiate sweeps
     npts = s.ins[NumPoints]
     freqs = linspace(s.ins[FrequencyStart], s.ins[FrequencyStop], npts)
     array = getdata(s.ins, s.ins[TransferFormat], "TRAC? TRACE1") #get data from instrument
