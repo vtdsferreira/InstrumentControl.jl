@@ -86,13 +86,6 @@ function measure(x::FrequencySweep)
 end
 
 """
-Format of returned data. Search for `VNA.Format` in the instrument
-template files to find valid options; some examples include `:LogMagnitude`,
-`:GroupDelay`, `:PolarComplex`, etc.
-"""
-abstract type Format <: InstrumentProperty end
-
-"""
 Graph layout on the VNA display. Specify with a matrix of integers.
 
 The following example will have graph 1 occupying the top half of the screen,

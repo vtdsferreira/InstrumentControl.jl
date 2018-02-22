@@ -1,0 +1,163 @@
+{
+    "instrument": {
+        "module": "FSV",
+        "type": "InsFSV",
+        "super": "Instrument",
+        "make": "Rohde&Schwarz",
+        "model": "FSV",
+        "writeterminator": "\n"
+    },
+    "properties": [
+        {
+            "cmd": ":SENS:SWE:TIME:AUTO",
+            "type": "AutoSweepTime",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":SENS:SWE:TIME",
+            "type": "SweepTime",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":UNIT:POW",
+            "type": "Format",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "dBm": "DBM",
+                "dBmV": "DBMV",
+                "dBμV": "DBUV",
+                "dBμA": "DBUA",
+                "dBpW": "DBPW",
+                "Volt": "VOLT",
+                "Ampere": "AMP",
+                "Watt": "W"
+            }
+        },
+        {
+            "cmd": ":SENS:SWE:COUN",
+            "type": "SweepCount",
+            "values": [
+                "v::Integer"
+            ]
+        },
+        {
+            "cmd": ":SENS:AVER:TYPE",
+            "type": "AveragingMode",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Log": "VID",
+                "LinearUnit": "LIN",
+                "Power": "POW"
+            }
+        },
+        {
+            "cmd": ":SENS:FREQ:STAR",
+            "type": "FrequencyStart",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":SENS:FREQ:STOP",
+            "type": "FrequencyStop",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":SENS:FREQ:CENT",
+            "type": "FrequencyCenter",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":SENS:FREQ:SPAN",
+            "type": "FrequencySpan",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":SENS:BAND",
+            "type": "Bandwidth",
+            "values": [
+                "v::Real"
+            ]
+        },
+        {
+            "cmd": ":SENS:BAND:AUTO",
+            "type": "AutoBandwidth",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":SENS:BAND:TYPE",
+            "type": "FilterType",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Normal": "NORM",
+                "Channel": "CFIL",
+                "RRC": "RRC",
+                "FivePole": "P5"
+            }
+        },
+        {
+            "cmd": ":SENS:SWE:POIN",
+            "type": "NumPoints",
+            "values": [
+                "v::Integer"
+            ]
+        },
+        {
+            "cmd": ":DISP:TRACtr:STAT",
+            "type": "TraceDisplay",
+            "values": [
+                "v::AbstractString"
+            ],
+            "infixes": [
+                "tr::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":FORM:DATA",
+            "type": "TransferFormat",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "String": "ASCII",
+                "Float32": "REAL,32"
+            }
+        },
+        {
+            "cmd": ":TRIG:SOUR",
+            "type": "TriggerSource",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "InternalTrigger": "IMM",
+                "ExternalTrigger": "EXT"
+            }
+        },
+        {
+            "cmd": ":DISP:TRAC:Y:RLEV",
+            "type": "ReferenceLevel",
+            "values": [
+                "v::Real"
+            ]
+        }
+    ]
+}
