@@ -68,9 +68,9 @@ function setindex!(ins::InsFSV, b::Bool, ::Type{Averaging})
     end
 end
 
-function getindex(ins::InsFSV  ::Type{Averaging})
+function getindex(ins::InsFSV,  ::Type{Averaging})
     answer = ask(ins, "DISP:TRAC:MODE?")
-    if answer = "AVER"
+    if answer == "AVER"
         return true
     else
         return false
