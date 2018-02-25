@@ -40,6 +40,7 @@ include(joinpath(dirname(@__FILE__), "instruments", "VNAs", "E5071C.jl"))
 # include(joinpath("instruments","VNAs","ZNB20.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "SMB100A.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "E8257D.jl"))
+include(joinpath(dirname(@__FILE__), "instruments", "SynthHD.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "AWGs", "AWG5014C.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "AWGs", "M320XA", "AWGM320XA.jl"))
 include(joinpath(dirname(@__FILE__), "instruments", "GS200.jl"))
@@ -57,6 +58,7 @@ importall .GS200
 importall .SMB100A
 importall .AWGM320XA
 importall .DigitizerM3102A
+importall .SynthHD
 # importall .ZNB20Module
 
 # INITIALIZATION CODE FOLLOWS
