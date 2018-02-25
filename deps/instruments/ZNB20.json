@@ -1,0 +1,249 @@
+{
+    "instrument": {
+        "module": "ZNB20",
+        "type": "InsZNB20",
+        "super": "Instrument",
+        "make": "Rohde&Schwarz",
+        "model": "ZNB20",
+        "writeterminator": "\n"
+    },
+    "properties": [
+        {
+            "cmd": ":SENSch:SWE:TIME:AUTO",
+            "type": "AutoSweepTime",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:SWE:TIME",
+            "type": "SweepTime",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:FORM",
+            "type": "Format",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "LogMagnitude": "MLOG",
+                "Phase": "PHAS",
+                "GroupDelay": "GDEL",
+                "Smith": "SMIT",
+                "SmithAdmittance": "ISM",
+                "PolarLinear": "POL",
+                "LinearMagnitude": "MLIN",
+                "SWR": "SWR",
+                "RealPart": "REAL",
+                "ImagPart": "IMAG",
+                "ExpandedPhase": "UPH"
+            },
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:AVER",
+            "type": "Averaging",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:AVER:COUN",
+            "type": "AveragingFactor",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:AVER:MODE",
+            "type": "AveragingMode",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Auto": "AUTO",
+                "Flatten": "FLAT",
+                "Reduce": "RED",
+                "Moving": "MOV"
+            },
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:STAR",
+            "type": "FrequencyStart",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:STOP",
+            "type": "FrequencyStop",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:CENT",
+            "type": "FrequencyCenter",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:FREQ:SPAN",
+            "type": "FrequencySpan",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:BAND",
+            "type": "IFBandwidth",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:BAND:SEL",
+            "type": "FilterSelectivity",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "Normal": "NORM",
+                "Medium": "MED",
+                "High": "HIGH"
+            },
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":SENSch:SWE:POIN",
+            "type": "NumPoints",
+            "values": [
+                "v::Integer"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":OUTP",
+            "type": "Output",
+            "values": [
+                "v::Bool"
+            ]
+        },
+        {
+            "cmd": ":SOURch:POW",
+            "type": "PowerLevel",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":DISP:TRAC:SHOW",
+            "type": "TraceDisplay",
+            "values": [
+                "v::AbstractString"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:SMO",
+            "type": "Smoothing",
+            "values": [
+                "v::Bool"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":CALCch:SMO:APER",
+            "type": "SmoothingAperture",
+            "values": [
+                "v::Real"
+            ],
+            "infixes": [
+                "ch::Integer=1"
+            ]
+        },
+        {
+            "cmd": ":FORM:BORD",
+            "type": "TransferByteOrder",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "BigEndian": "NORM",
+                "LittleEndian": "SWAP"
+            }
+        },
+        {
+            "cmd": ":FORM:DATA",
+            "type": "TransferFormat",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "String": "ASCII",
+                "Float32": "REAL,32",
+                "Float64": "REAL,64"
+            }
+        },
+        {
+            "cmd": ":TRIG:SOUR",
+            "type": "TriggerSource",
+            "values": [
+                "v::Symbol in symbols"
+            ],
+            "symbols": {
+                "InternalTrigger": "IMM",
+                "ExternalTrigger": "EXT",
+                "ManualTrigger": "MAN",
+                "MultipleTrigger": "MULT"
+            }
+        }
+    ]
+}

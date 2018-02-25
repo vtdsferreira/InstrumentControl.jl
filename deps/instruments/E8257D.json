@@ -139,7 +139,7 @@
             ]
         }, {
             "cmd":"SOUR:POW",
-            "type":"Power",
+            "type":"PowerLevel",
             "values":[
                 "v::Real"
             ]

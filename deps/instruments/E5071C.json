@@ -45,7 +45,7 @@
         },
         {
             "cmd": ":CALCch:TRACtr:FORM",
-            "type": "VNA.Format",
+            "type": "Format",
             "values": [
                 "v::Symbol in symbols"
             ],
