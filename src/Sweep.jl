@@ -328,7 +328,7 @@ mutable struct SweepJobQueue
     update_taskref::Ref{Task} #used to communicate with the job_updater function
     update_channel::Channel{SweepJob} #channel for communicating with the job_updater function
     function SweepJobQueue()
-        sjq = new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse),
+        sjq = new(PriorityQueue(Base.Order.Reverse, zip(Int[],SweepJob[])),
             Channel{Int}(1), Channel{Int}(1), Condition())
         #a running_id of -1 in the code is taken to mean that no job is currently running
         put!(sjq.running_id, -1)
