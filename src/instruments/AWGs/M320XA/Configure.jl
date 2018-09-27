@@ -26,7 +26,7 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
         #only set two or more properties at once, so you can't just set one setting
         #individually without first having a record of the other setting
         @KSerror_handler SD_AOU_AWGtriggerExternalConfig(ins.ID, ch, 4000,
-                        symbol_to_keysight(:Falling), symbol_to_keysight(:CLKsys))
+                        symbol_to_keysight(:Falling), symbol_to_keysight(:CLK10))
         ins.channels[ch][TrigSource] = 0
         ins.channels[ch][TrigBehavior] = :Falling
         ins.channels[ch][TrigSync] = :CLK10
@@ -34,6 +34,7 @@ function configure_channels!(ins::InsAWGM320XA , num_channels::Integer)
         ins.channels[ch][AngModGain] = 0
         ins.channels[ch][AmpModMode] = :NoMod
         ins.channels[ch][AngModMode] = :NoMod
+        ins.channels[ch][IQMod] = :IQoff
     end
     ins[Amplitude] = 0
     ins[DCOffset] = 0
@@ -47,6 +48,13 @@ end
 
 
 #Below are overloaded setindex! methods for each instrument property
+function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
+                  ::Type{OutputMode}, ch::Integer)
+    @KSerror_handler SD_AOU_channelWaveShape(ins.ID, ch, symbol_to_keysight(wav_type))
+    ins.channels[ch][OutputMode] = wav_type
+    nothing
+end
+
 function setindex!(ins::InsAWGM320XA, amplitude::Real,
                   ::Type{Amplitude}, ch::Integer)
     @KSerror_handler SD_AOU_channelAmplitude(ins.ID, ch, amplitude)
@@ -54,17 +62,17 @@ function setindex!(ins::InsAWGM320XA, amplitude::Real,
     nothing
 end
 
+function setindex!(ins::InsAWGM320XA, power::Real,
+                  ::Type{SinePower}, ch::Integer)
+    dBm_to_amp = 10^((power-10)/20)
+    ins[Amplitude, ch] = dBm_to_amp
+    nothing
+end
+
 function setindex!(ins::InsAWGM320XA, offset::Real,
                   ::Type{DCOffset}, ch::Integer)
     @KSerror_handler SD_AOU_channelOffset(ins.ID, ch, offset)
     ins.channels[ch][DCOffset] = offset
-    nothing
-end
-
-function setindex!(ins::InsAWGM320XA, wav_type::Symbol,
-                  ::Type{OutputMode}, ch::Integer)
-    @KSerror_handler SD_AOU_channelWaveShape(ins.ID, ch, symbol_to_keysight(wav_type))
-    ins.channels[ch][OutputMode] = wav_type
     nothing
 end
 
@@ -115,6 +123,12 @@ function setindex!(ins::InsAWGM320XA, ang_gain::Real, ::Type{AngModGain},
     @KSerror_handler SD_AOU_modulationAmplitudeConfig(ins.ID, ch, symbol_to_keysight(mode),
                                                 ang_gain)
     ins.channels[ch][AngModGain] =  ang_gain
+    nothing
+end
+
+function setindex!(ins::InsAWGM320XA, on_or_off::Symbol, ::Type{IQMod}, ch::Integer)
+    @KSerror_handler SD_AOU_modulationIQconfig(ins.ID, ch, symbol_to_keysight(on_or_off))
+    ins.channels[ch][IQMod] = on_or_off
     nothing
 end
 

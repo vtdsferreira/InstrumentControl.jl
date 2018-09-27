@@ -36,12 +36,12 @@ function measure(x::FrequencySweep)
     old_timeout = x.ins[Timeout]
     old_avgtrig = x.ins[AveragingTrigger]
 
-    x.ins[Timeout] = 10000
+    x.ins[Timeout] = 100000
     x.ins[NumTraces] = 3
     x.ins[VNA.Graphs] = [1 2; 1 3]
     x.ins[VNA.Format] = :PolarComplex
     x.ins[VNA.Format, 1, 2] = :LogMagnitude
-    x.ins[VNA.Format, 1, 3] = :Phase
+    x.ins[VNA.Format, 1, 3] = :ExpandedPhase
     x.ins[VNA.Parameter, 1, 2] = :S21
     x.ins[VNA.Parameter, 1, 3] = :S21
     x.ins[VNA.Parameter] = :S21
@@ -84,13 +84,6 @@ function measure(x::FrequencySweep)
 
     result
 end
-
-"""
-Format of returned data. Search for `VNA.Format` in the instrument
-template files to find valid options; some examples include `:LogMagnitude`,
-`:GroupDelay`, `:PolarComplex`, etc.
-"""
-abstract type Format <: InstrumentProperty end
 
 """
 Graph layout on the VNA display. Specify with a matrix of integers.

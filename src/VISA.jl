@@ -234,7 +234,7 @@ unquoted(str::AbstractString) = strip(str,['"','\''])
 # end
 
 ## Convenient functions for querying arrays of numbers.
-"Retreive and parse a delimited string into an `Array{Float64,1}`."
+"Retrieve and parse a delimited string into an `Array{Float64,1}`."
 function getdata(ins::Instrument, xfer::Symbol, cmd, infixes...; delim=",")
     if xfer == :String
         for infix in infixes

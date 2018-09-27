@@ -328,7 +328,7 @@ mutable struct SweepJobQueue
     update_taskref::Ref{Task} #used to communicate with the job_updater function
     update_channel::Channel{SweepJob} #channel for communicating with the job_updater function
     function SweepJobQueue()
-        sjq = new(PriorityQueue(Int[],SweepJob[],Base.Order.Reverse),
+        sjq = new(PriorityQueue(Base.Order.Reverse, zip(Int[],SweepJob[])),
             Channel{Int}(1), Channel{Int}(1), Condition())
         #a running_id of -1 in the code is taken to mean that no job is currently running
         put!(sjq.running_id, -1)
@@ -718,12 +718,12 @@ function define_sweep(D,N)
                 if t_body == true
                     t_body = false
                 else
+                    yield()
                     data = measure(dep)
                     (@dnref $D $N array i) = data
 
                     # update progress
                     it += 1; take!(sj.progress); put!(sj.progress, it/tot)
-
                     # send forth results
                     # io = IOBuffer()
                     # serialize(io, ICCommon.PlotPoint((@dntuple $D $N i), data))

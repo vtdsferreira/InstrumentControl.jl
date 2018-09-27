@@ -6,6 +6,9 @@ export AveragingTrigger
 export FrequencyStart, FrequencyStop
 export SampleRate, SweepTime
 export Timeout
+export Format
+export TransferByteOrder
+export PowerLevel
 export InstrumentException
 export @KSerror_handler
 export Amplitude
@@ -42,6 +45,24 @@ abstract type Timeout <: InstrumentProperty end
 Amplitude for a given channel.
 """
 abstract type Amplitude <: InstrumentProperty end
+
+"""
+Format of returned data. Search for `Format` in the instrument
+template files to find valid options; some examples include `:LogMagnitude`,
+`:GroupDelay`, `:PolarComplex`, etc.
+"""
+abstract type Format <: InstrumentProperty end
+
+"""
+Order of arranging bytes (biggest to smallest or vice versa) when transferring
+data from VISA instruments
+"""
+abstract type TransferByteOrder <: InstrumentProperty end
+
+"""
+Power level, in dBm, sourced by VISA instruments
+"""
+abstract type PowerLevel <: InstrumentProperty end
 
 """
 Exception to be thrown by an instrument. Fields include the instrument in error

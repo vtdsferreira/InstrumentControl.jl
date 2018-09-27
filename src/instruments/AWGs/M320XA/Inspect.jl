@@ -4,7 +4,11 @@ import Base: getindex
 # acesses ins.channels for current configuration information
 function getindex(ins::InsAWGM320XA, ::Type{T},
                   ch::Integer) where {T<:InstrumentProperty}
-    return ins.channels[ch][T]
+    if T == SinePower
+        return 10 + 20*log10(abs(ins[Amplitude, ch]))
+    else
+        return ins.channels[ch][T]
+    end
 end
 
 # overloaded getindex method for either non-channel specific properties, or a
@@ -16,8 +20,8 @@ function getindex(ins::InsAWGM320XA,
         return @KSerror_handler SD_AOU_clockGetFrequency(ins.ID)
     else
         channels_list=[]
-        for ch in keys(ins.channels)
-            push!(channels_list, ins.channels[ch][T])
+        for ch in sort(collect(keys(ins.channels)))
+            push!(channels_list, ins[T, ch])
         end
         return channels_list
     end
