@@ -7,6 +7,5 @@ AxisArrays 0.1.4
 StaticArrays 0.6.0
 JSON
 ZMQ
-JLD
 DataStructures 0.5.3
 SerialPorts
