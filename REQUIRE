@@ -8,4 +8,4 @@ StaticArrays 0.6.0
 JSON
 ZMQ
 DataStructures 0.5.3
-SerialPorts
+#SerialPorts
